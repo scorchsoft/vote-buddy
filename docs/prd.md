@@ -272,6 +272,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-13 – Added Docker setup and initial database migrations with `.env.example`.
 * 2025-06-14 – Created Flask blueprint skeleton and config structure.
 * 2025-06-15 – Implemented login and session management with Flask-Login.
+* 2025-06-16 – Styled login form with bp-btn-primary and labelled inputs.
 
 ---
 
