@@ -1,5 +1,6 @@
 from datetime import datetime
-from .extensions import db
+from flask_login import UserMixin
+from .extensions import db, bcrypt
 
 class Meeting(db.Model):
     __tablename__ = 'meetings'
@@ -40,7 +41,7 @@ class Vote(db.Model):
     choice = db.Column(db.String(10))
     hash = db.Column(db.String(128))
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
@@ -48,6 +49,14 @@ class User(db.Model):
     role = db.Column(db.String(50))
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def set_password(self, password: str) -> None:
+        self.password_hash = (
+            bcrypt.generate_password_hash(password).decode("utf-8")
+        )
+
+    def check_password(self, password: str) -> bool:
+        return bcrypt.check_password_hash(self.password_hash, password)
 
 class Runoff(db.Model):
     __tablename__ = 'runoffs'
