@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Admin Login</h2>
+
 <form method="post" class="space-y-4">
   <div>
     {{ csrf_token() }}
+    <input type="hidden" name="next" value="{{ next or '' }}">
     <label for="email" class="block font-semibold">Email</label>
     <input id="email" type="email" name="email" required class="border rounded p-2 w-full">
     <p class="bp-error-text"></p>
@@ -14,5 +16,6 @@
     <p class="bp-error-text"></p>
   </div>
   <button type="submit" class="bp-btn-primary">Login</button>
+
 </form>
 {% endblock %}
