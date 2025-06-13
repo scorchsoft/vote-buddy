@@ -22,7 +22,7 @@
 | **Meeting Coordinator** | CRUD only for meetings they own | Assigned per meeting |
 | **Returning Officer (RO)** | Read‑only access plus “lock/unlock stage”, download tallies, certify result | Must be independent under Art 112c |
 | **Member (token‑based)** | Vote once per stage (unless revoting enabled) | No login account in MVP |
-| **User** | Login account for admins & coordinators | Flask‑Login + role column |
+| **User** | Login account for admins & coordinators | Flask‑Login with role‑permission mapping |
 
 ---
 
@@ -277,6 +277,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-13 – Implemented login and session management with Flask-Login.
 * 2025-06-13 – Styled login form with bp-btn-primary and labelled inputs.
 * 2025-06-13 – Added CSRF protection via Flask-WTF
+* 2025-06-14 – Introduced role-permission system and user management page.
 
 
 ---
