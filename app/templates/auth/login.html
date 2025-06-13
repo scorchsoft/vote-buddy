@@ -3,6 +3,7 @@
 <h2>Admin Login</h2>
 <form method="post" class="space-y-4">
   <div>
+    {{ csrf_token() }}
     <label for="email" class="block font-semibold">Email</label>
     <input id="email" type="email" name="email" required class="border rounded p-2 w-full">
     <p class="bp-error-text"></p>
