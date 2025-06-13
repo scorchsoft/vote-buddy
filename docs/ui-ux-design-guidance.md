@@ -118,6 +118,13 @@ Modal	Used ONLY for destructive actions (delete meeting)
 
 Convention: Prefer hx-boost="true" + htmx attributes for partial reloads; avoid heavy JS.
 
+Data tables follow a simple pattern:
+* Wrap the table in `<table class="bp-table">` and keep headers in `<thead>`.
+* Provide a search `<form>` with `hx-get` to the list route and `hx-trigger="keyup changed delay:300ms"`.
+* Clicking a column header issues an `hx-get` with `sort` and `direction` params.
+* The `<tbody id="table-body">` is replaced on each request so the page never fully reloads.
+
+
 
 ---
 
