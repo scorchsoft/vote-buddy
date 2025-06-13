@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">User Accounts</h2>
+<table class="w-full border bp-grey-50">
+  <thead class="bg-bp-grey-50">
+    <tr>
+      <th class="text-left p-2">Email</th>
+      <th class="text-left p-2">Role</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+    <tr class="border-t">
+      <td class="p-2">{{ user.email }}</td>
+      <td class="p-2">{{ user.role.name if user.role else '' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -2,6 +2,31 @@ from datetime import datetime
 from flask_login import UserMixin
 from .extensions import db, bcrypt
 
+# association table linking roles to permissions
+roles_permissions = db.Table(
+    'roles_permissions',
+    db.Column('role_id', db.Integer, db.ForeignKey('roles.id'), primary_key=True),
+    db.Column('permission_id', db.Integer, db.ForeignKey('permissions.id'), primary_key=True),
+)
+
+
+class Role(db.Model):
+    """User role with attached permissions."""
+
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    permissions = db.relationship('Permission', secondary=roles_permissions, back_populates='roles')
+
+
+class Permission(db.Model):
+    """System permission that can be assigned to roles."""
+
+    __tablename__ = 'permissions'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    roles = db.relationship('Role', secondary=roles_permissions, back_populates='permissions')
+
 class Meeting(db.Model):
     __tablename__ = 'meetings'
     id = db.Column(db.Integer, primary_key=True)
@@ -54,7 +79,8 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
     password_hash = db.Column(db.String(255))
-    role = db.Column(db.String(50))
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    role = db.relationship('Role')
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -66,9 +92,15 @@ class User(db.Model, UserMixin):
     def check_password(self, password: str) -> bool:
         return bcrypt.check_password_hash(self.password_hash, password)
 
+    def has_permission(self, permission_name: str) -> bool:
+        if not self.role:
+            return False
+        return any(p.name == permission_name for p in self.role.permissions)
+
 class Runoff(db.Model):
     __tablename__ = 'runoffs'
     id = db.Column(db.Integer, primary_key=True)
     meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
     amendment_a_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
     amendment_b_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
+

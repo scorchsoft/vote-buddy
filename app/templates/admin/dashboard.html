@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<p>Admin dashboard placeholder.</p>
+<h2 class="font-bold text-bp-blue mb-4">Admin Dashboard</h2>
+<p class="mb-4">Welcome to VoteBuddy administration.</p>
+<a href="{{ url_for('admin.list_users') }}" class="bp-btn-primary">Manage Users</a>
 {% endblock %}
