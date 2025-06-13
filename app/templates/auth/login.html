@@ -1,13 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Admin Login</h2>
-<form method="post">
-  <label>Email
-    <input type="email" name="email" required>
-  </label>
-  <label>Password
-    <input type="password" name="password" required>
-  </label>
-  <button type="submit">Login</button>
+
+<form method="post" class="space-y-4">
+  <div>
+    {{ csrf_token() }}
+    <input type="hidden" name="next" value="{{ next or '' }}">
+    <label for="email" class="block font-semibold">Email</label>
+    <input id="email" type="email" name="email" required class="border rounded p-2 w-full">
+    <p class="bp-error-text"></p>
+  </div>
+  <div>
+    <label for="password" class="block font-semibold">Password</label>
+    <input id="password" type="password" name="password" required class="border rounded p-2 w-full">
+    <p class="bp-error-text"></p>
+  </div>
+  <button type="submit" class="bp-btn-primary">Login</button>
+
 </form>
 {% endblock %}
