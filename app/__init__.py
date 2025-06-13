@@ -1,6 +1,6 @@
 from flask import Flask
 
-from .extensions import db, migrate, login_manager, bcrypt
+from .extensions import db, migrate, login_manager, bcrypt, csrf
 
 
 def create_app(config_object='config.DevelopmentConfig'):
@@ -10,6 +10,12 @@ def create_app(config_object='config.DevelopmentConfig'):
     register_extensions(app)
     register_blueprints(app)
 
+    @app.after_request
+    def set_frame_options(response):
+        """Deny framing to mitigate clickjacking."""
+        response.headers['X-Frame-Options'] = 'DENY'
+        return response
+
     return app
 
 
@@ -18,6 +24,7 @@ def register_extensions(app):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     bcrypt.init_app(app)
+    csrf.init_app(app)
     login_manager.login_view = 'auth.login'
 
     from .models import User
