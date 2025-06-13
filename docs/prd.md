@@ -267,6 +267,12 @@ SES/SMTP  ─── Outbound mail
 
 ---
 
+## Changelog
+
+* 2025-06-13 – Added Docker setup and initial database migrations with `.env.example`.
+
+---
+
 ## 14  Glossary
 
 * **Stage 1** – Separate votes on each amendment.
