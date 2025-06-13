@@ -1,20 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="font-bold text-bp-blue mb-4">User Accounts</h2>
-<table class="w-full border bp-grey-50">
+
+<form class="mb-4" hx-get="{{ url_for('admin.list_users') }}" hx-target="#user-table-body" hx-trigger="keyup changed delay:300ms" hx-push-url="true">
+  <input type="text" name="q" value="{{ q or '' }}" placeholder="Search users..." class="border rounded p-2 w-full">
+</form>
+
+<table class="w-full border bp-grey-50 bp-table">
   <thead class="bg-bp-grey-50">
     <tr>
-      <th class="text-left p-2">Email</th>
+      <th class="text-left p-2">
+        <a hx-get="{{ url_for('admin.list_users', sort='email', direction='desc' if direction=='asc' and sort=='email' else 'asc', q=q) }}" hx-target="#user-table-body" hx-push-url="true" class="hover:underline">Email</a>
+      </th>
       <th class="text-left p-2">Role</th>
+      <th class="text-left p-2">
+        <a hx-get="{{ url_for('admin.list_users', sort='created_at', direction='desc' if direction=='asc' and sort=='created_at' else 'asc', q=q) }}" hx-target="#user-table-body" hx-push-url="true" class="hover:underline">Created</a>
+      </th>
     </tr>
   </thead>
-  <tbody>
-    {% for user in users %}
-    <tr class="border-t">
-      <td class="p-2">{{ user.email }}</td>
-      <td class="p-2">{{ user.role.name if user.role else '' }}</td>
-    </tr>
-    {% endfor %}
+  <tbody id="user-table-body">
+    {% include 'admin/_user_rows.html' %}
   </tbody>
 </table>
 {% endblock %}

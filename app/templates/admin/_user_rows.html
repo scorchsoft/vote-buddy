@@ -1,0 +1,7 @@
+{% for user in users %}
+<tr class="border-t">
+  <td class="p-2">{{ user.email }}</td>
+  <td class="p-2">{{ user.role.name if user.role else '' }}</td>
+  <td class="p-2">{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+</tr>
+{% endfor %}
