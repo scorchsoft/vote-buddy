@@ -101,7 +101,7 @@
 * If run‑off required in online ballot, system auto‑extends Stage 1 by configured “runoff_extension” minutes and re‑e‑mails affected members.
 
 ### 5.5 Quorum, Reminders & Cron Jobs
-* Background scheduler (Celery + Redis, or APScheduler)  
+* Background scheduler using APScheduler (Celery + Redis optional for heavier workloads)  
 * Hourly check: if <X hrs to close and quorum not met → send reminder batch.  
 * Configurable reminder template.
 
@@ -181,8 +181,8 @@ Nginx
             voting/
             admin/
 Postgres  ─── SQLAlchemy ORM
-Redis     ─── Celery (emails, reminders)
-S3 bucket ─── Static files & document exports
+Redis (local container) ─── Celery tasks (emails, reminders)
+Local storage ─── Static files & document exports (S3 optional)
 SES/SMTP  ─── Outbound mail
 ````
 
@@ -268,6 +268,7 @@ SES/SMTP  ─── Outbound mail
 ---
 
 ## Changelog
+* 2025-06-13 – Simplified architecture: S3 optional; Redis containerised for local use.
 
 * 2025-06-13 – Added Docker setup and initial database migrations with `.env.example`.
 * 2025-06-13 – Added login redirection logic preserving the `next` parameter.
