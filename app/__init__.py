@@ -10,6 +10,12 @@ def create_app(config_object='config.DevelopmentConfig'):
     register_extensions(app)
     register_blueprints(app)
 
+    @app.after_request
+    def set_frame_options(response):
+        """Deny framing to mitigate clickjacking."""
+        response.headers['X-Frame-Options'] = 'DENY'
+        return response
+
     return app
 
 
