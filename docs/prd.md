@@ -22,7 +22,7 @@
 | **Meeting Coordinator** | CRUD only for meetings they own | Assigned per meeting |
 | **Returning Officer (RO)** | Read‑only access plus “lock/unlock stage”, download tallies, certify result | Must be independent under Art 112c |
 | **Member (token‑based)** | Vote once per stage (unless revoting enabled) | No login account in MVP |
-| **Future “User”** | Placeholder auth table for later full accounts | Not exposed in MVP UI |
+| **User** | Login account for admins & coordinators | Flask‑Login + role column |
 
 ---
 
@@ -144,9 +144,11 @@
 
 ````
 
-Meeting 1───\* Amendment
+User 1───\* Meeting
 │            │
-│            └─\* Vote
+│            └─\* Amendment
+│                 │
+│                 └─\* Vote
 │
 ├──\* Member (scoped to meeting)
 │        │
@@ -163,6 +165,7 @@ Meeting 1───\* Amendment
 | `vote_tokens` | `token`, `member_id`, `stage`, `used_at` |
 | `amendments` | `id`, `meeting_id`, `text_md`, `order`, `status` |
 | `votes` | `id`, `member_id`, `amendment_id`/`motion`, `choice`, `hash` |
+| `users` | `id`, `email`, `password_hash`, `role`, `is_active`, `created_at` |
 | `runoffs` | `id`, `meeting_id`, `amendment_a_id`, `amendment_b_id` |
 
 ---
