@@ -6,7 +6,15 @@ class Meeting(db.Model):
     __tablename__ = 'meetings'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
+    type = db.Column(db.String(10))
+    opens_at_stage1 = db.Column(db.DateTime)
+    closes_at_stage1 = db.Column(db.DateTime)
+    opens_at_stage2 = db.Column(db.DateTime)
+    closes_at_stage2 = db.Column(db.DateTime)
+    ballot_mode = db.Column(db.String(20))
+    revoting_allowed = db.Column(db.Boolean, default=False)
     status = db.Column(db.String(50))
+    chair_notes_md = db.Column(db.Text)
 
 class Member(db.Model):
     __tablename__ = 'members'
