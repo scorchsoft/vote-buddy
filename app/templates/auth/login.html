@@ -2,6 +2,7 @@
 {% block content %}
 <h2>Admin Login</h2>
 <form method="post">
+  <input type="hidden" name="next" value="{{ next or '' }}">
   <label>Email
     <input type="email" name="email" required>
   </label>
