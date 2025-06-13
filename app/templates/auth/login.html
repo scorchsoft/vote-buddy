@@ -1,4 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
-<p>Login form goes here.</p>
+<h2>Admin Login</h2>
+<form method="post">
+  <label>Email
+    <input type="email" name="email" required>
+  </label>
+  <label>Password
+    <input type="password" name="password" required>
+  </label>
+  <button type="submit">Login</button>
+</form>
 {% endblock %}
