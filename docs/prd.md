@@ -277,6 +277,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-13 – Styled login form with bp-btn-primary and labelled inputs.
 * 2025-06-13 – Added CSRF protection via Flask-WTF
 
+
 ---
 
 ## 14  Glossary
