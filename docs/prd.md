@@ -1,4 +1,4 @@
-# British Powerlifting Voting Platform – Product Requirements Document (MVP)
+# "VoteBuddy" tool - British Powerlifting Voting Platform – Product Requirements Document (MVP)
 
 > **One‑liner**  
 > “A single‑instance Flask web app that lets BP admins run clear, two‑stage (or combined) electronic ballots, emailing each member a unique link and publishing auditable results in line with the new Articles 107‑115.”
