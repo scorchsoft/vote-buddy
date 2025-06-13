@@ -270,6 +270,7 @@ SES/SMTP  ─── Outbound mail
 ## Changelog
 
 * 2025-06-13 – Added Docker setup and initial database migrations with `.env.example`.
+* 2025-06-14 – Created Flask blueprint skeleton and config structure.
 
 ---
 

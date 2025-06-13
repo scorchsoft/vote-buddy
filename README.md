@@ -7,6 +7,7 @@ VoteBuddy is a Flask application for running electronic ballots at British Power
 - Flask 3 with SQLAlchemy ORM
 - PostgreSQL database managed via Alembic migrations
 - Dockerised development stack with Gunicorn
+- Modular blueprints for auth, meetings, voting and admin
 - Models for meetings, members, amendments and votes
 
 ## Development setup
@@ -20,12 +21,19 @@ docker-compose up --build
 
 The `web` service runs migrations on start and exposes the app at `http://localhost:8000`.
 
+To run the development server directly on your machine, install the requirements and execute:
+
+```bash
+flask --app app run
+```
+
 ## Repository layout
 
 ```
-app/            Flask application code
+app/            Flask application with blueprints, templates and static files
 migrations/     Alembic migration scripts
 Dockerfile      Container image definition
+config.py       Application configuration classes
 docs/           Project documentation
 ```
 
