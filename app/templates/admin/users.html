@@ -2,11 +2,12 @@
 {% block content %}
 <h2 class="font-bold text-bp-blue mb-4">User Accounts</h2>
 
-<form class="mb-4" hx-get="{{ url_for('admin.list_users') }}" hx-target="#user-table-body" hx-trigger="keyup changed delay:300ms" hx-push-url="true">
+<form class="mb-4 card" hx-get="{{ url_for('admin.list_users') }}" hx-target="#user-table-body" hx-trigger="keyup changed delay:300ms" hx-push-url="true">
   <input type="text" name="q" value="{{ q or '' }}" placeholder="Search users..." class="border rounded p-2 w-full">
 </form>
 
-<table class="w-full border bp-grey-50 bp-table">
+<div class="card">
+<table class="bp-table">
   <thead class="bg-bp-grey-50">
     <tr>
       <th class="text-left p-2">
@@ -22,4 +23,5 @@
     {% include 'admin/_user_rows.html' %}
   </tbody>
 </table>
+</div>
 {% endblock %}
