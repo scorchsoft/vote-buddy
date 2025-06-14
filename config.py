@@ -13,6 +13,7 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', 'true').lower() in ['1', 'true']
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
+    VOTE_SALT = os.getenv('VOTE_SALT', 'static-salt')
 
 class DevelopmentConfig(Config):
     DEBUG = True

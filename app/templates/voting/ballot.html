@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">Amendment Vote</h2>
+<div class="bp-card mb-4">
+  {{ amendment.text_md or 'No amendment text.' }}
+</div>
+<form method="post" class="bp-form bp-card space-y-4">
+  {{ form.hidden_tag() }}
+  <div>
+    <span class="font-semibold">Select your choice:</span>
+    <div class="mt-2 space-x-4">
+      {% for sub in form.choice %}
+        <label class="inline-flex items-center space-x-2 mr-4">
+          {{ sub() }}<span>{{ sub.label.text }}</span>
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+  <button type="submit" class="bp-btn-primary">Submit vote</button>
+</form>
+{% endblock %}

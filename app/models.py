@@ -1,4 +1,5 @@
 from datetime import datetime
+import hashlib
 from flask_login import UserMixin
 from .extensions import db, bcrypt
 
@@ -73,6 +74,24 @@ class Vote(db.Model):
     motion = db.Column(db.Boolean, default=False)
     choice = db.Column(db.String(10))
     hash = db.Column(db.String(128))
+
+    @classmethod
+    def record(cls, member_id: int, choice: str, salt: str,
+               amendment_id: int | None = None, motion: bool = False) -> "Vote":
+        """Create a vote with hashed choice."""
+        digest = hashlib.sha256(
+            f"{member_id}{choice}{salt}".encode()
+        ).hexdigest()
+        vote = cls(
+            member_id=member_id,
+            amendment_id=amendment_id,
+            motion=motion,
+            choice=choice,
+            hash=digest,
+        )
+        db.session.add(vote)
+        db.session.commit()
+        return vote
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'

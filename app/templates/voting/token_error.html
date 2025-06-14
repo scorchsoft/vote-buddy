@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bp-alert-error text-center mb-4">
+  {{ message }}
+</div>
+<a href="{{ url_for('main.index') }}" class="bp-btn-secondary">Return home</a>
+{% endblock %}

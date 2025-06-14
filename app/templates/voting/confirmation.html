@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bp-alert-success text-center mb-4">
+  Thanks, you voted {{ choice.capitalize() }}.
+</div>
+<a href="{{ url_for('main.index') }}" class="bp-btn-secondary">Return home</a>
+{% endblock %}
