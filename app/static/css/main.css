@@ -1,28 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
-  font-family: Arial, sans-serif;
-  padding: 1rem;
+  @apply font-sans p-4;
 }
 
 /* Primary action button styles */
 .bp-btn-primary {
-  background-color: #DC0714; /* bp-red */
-  color: #FFFFFF;
-  min-height: 44px;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
+  @apply bg-bp-red text-white min-h-[44px] py-2 px-4 border-none rounded cursor-pointer;
 }
 
 .bp-btn-primary:hover {
-  background-color: #b90510;
+  @apply opacity-90;
 }
 
 /* Inline error placeholder */
 .bp-error-text {
-  min-height: 1rem;
-  font-size: 0.875rem;
-  color: #DC0714;
+  @apply min-h-4 text-sm text-bp-red;
 }
 
 /* Secondary button styles */
