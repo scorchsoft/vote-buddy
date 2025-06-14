@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">Stage 2 – Vote on Motion</h2>
+<form method="post" class="bp-form bp-card space-y-4">
+  {{ form.hidden_tag() }}
+  {% for motion in motions %}
+    <div class="bp-card bp-glow mb-4">{{ motion.text_md }}</div>
+    <div class="space-x-4 mb-4">
+      {% for sub in form['motion_' ~ motion.id] %}
+        <label class="inline-flex items-center mr-4">{{ sub() }}<span>{{ sub.label.text }}</span></label>
+      {% endfor %}
+    </div>
+  {% endfor %}
+  <button type="submit" class="bp-btn-primary">Submit vote</button>
+</form>
+{% endblock %}

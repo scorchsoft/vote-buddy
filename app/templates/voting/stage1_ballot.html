@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">Stage 1 – Amendment Votes</h2>
+<form method="post" class="bp-form bp-card space-y-6">
+  {{ form.hidden_tag() }}
+  {% for motion, ams in motions %}
+    <div class="bp-card bp-glow mb-4">{{ motion.text_md }}</div>
+    {% for amend in ams %}
+      <div class="mb-4">
+        <div class="font-semibold mb-2">{{ amend.text_md }}</div>
+        <div class="space-x-4">
+          {% for sub in form['amend_' ~ amend.id] %}
+            <label class="inline-flex items-center mr-4">{{ sub() }}<span>{{ sub.label.text }}</span></label>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  {% endfor %}
+  <button type="submit" class="bp-btn-primary">Submit votes</button>
+</form>
+{% endblock %}

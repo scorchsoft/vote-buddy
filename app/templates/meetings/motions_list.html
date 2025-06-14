@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">{{ meeting.title }} - Motions</h2>
+<div class="space-y-4">
+  {% for m in motions %}
+    <div class="bp-card">
+      <h3 class="font-semibold mb-1">{{ m.title }}</h3>
+      <p class="mb-2">Category: {{ m.category }}</p>
+      <a href="{{ url_for('meetings.view_motion', motion_id=m.id) }}" class="bp-btn-secondary">View</a>
+    </div>
+  {% else %}
+    <p>No motions yet.</p>
+  {% endfor %}
+</div>
+<a href="{{ url_for('meetings.create_motion', meeting_id=meeting.id) }}" class="bp-btn-primary mt-4 inline-block">Add Motion</a>
+{% endblock %}
