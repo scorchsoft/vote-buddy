@@ -1,4 +1,4 @@
-# Template Motion (To modify existing voting process)
+# Template Motion (To modify existing AGM/EGM voting process)
 **Modernising the Voting Procedure for Motions & Amendments**  
 
 > *This template preserves the underlying two-stage amendment-then-motion process of the VoteBuddy tool, removing organisation-specific details, so any sporting body can drop it into its own constitution or by-laws with minimal editing.*   
