@@ -1,6 +1,8 @@
 # VoteBuddy
 
-VoteBuddy is a Flask application for running electronic ballots at British Powerlifting AGMs and EGMs. It supports two stage voting on amendments and final motions, sends unique voting links by email and produces auditable results.
+VoteBuddy by [Scorchsoft](https://www.scorchsoft.com) is a Python Flask application for running electronic ballots at AGMs and EGMs, and was originally programmed for use by British Powerlifting.
+
+It supports two stage voting on amendments and final motions, sends unique voting links by email and produces auditable results.
 
 ## Features
 
