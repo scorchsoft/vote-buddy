@@ -254,6 +254,17 @@ IPF meet results portals – table designs for big numeric data.
 
 3. PR auto‑fails if heading names are changed without updating internal links in README.
 
+14 Extended Design Patterns
+- **Form layout** – wrap groups in `.bp-form` with 24 px vertical gaps. Inputs use 12 px padding and a 4 px radius.
+- **Alert banners** – `.bp-alert-success`, `.bp-alert-warning` and `.bp-alert-error` classes with matching icons.
+- **Pagination** – `.bp-pagination` list with arrow icons; highlight current page with bp-red.
+- **Stepper states** – `.bp-stepper-current` and `.bp-stepper-complete` to show progress.
+- **Progress bars** – `.bp-progress` uses ARIA roles and includes a `<span class="sr-only">% complete</span>` label.
+- **Tabs** – `.bp-tab` underlines the active tab; keep touch targets ≥ 44 px.
+- **Collapsible sections** – use `<details>` and `<summary>` styled with a bp-blue disclosure arrow.
+- **Tooltip** – `data-tooltip` attribute triggers a CSS-only bubble for short hints.
+- **Utility gaps** – `.bp-gap-xs` (4 px) to `.bp-gap-lg` (24 px) standardise spacing across components.
+
 
 
 
