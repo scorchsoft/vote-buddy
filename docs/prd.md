@@ -283,6 +283,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Added dotenv loading with SQLite fallback when `DATABASE_URL` is unset.
 * 2025-06-14 – Added focus-visible outlines for buttons and links.
 * 2025-06-14 – Expanded UI/UX design guidance with extended design patterns.
+* 2025-06-14 – Added meeting create/edit form with CSRF protection.
 
 ---
 
