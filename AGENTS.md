@@ -32,6 +32,8 @@ This guide directs AI and human contributors for all folders in this repository.
 1. Include migrations or documentation updates when relevant.
 2. Ensure the app starts with `docker-compose up --build`.
 3. Keep commits focused; follow Conventional Commits style if possible.
+4. Apply role-based permissions to all new pages and endpoints using
+   `permission_required` or `current_user.has_permission`.
 
 ## Agent Rules
 - Prompt instructions override AGENTS.md if they conflict.

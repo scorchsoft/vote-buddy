@@ -122,10 +122,12 @@
 ### 6.1 Security
 * HTTPS only (HSTS pre‑load).  
 * JWT tokens scoped to meeting + stage; expire at stage close.  
-* CSRF tokens on all POST; `X-Frame-Options: DENY`.  
-* All user input sanitised (Bleach) to prevent XSS.  
-* Automated dependency scanning (GitHub Dependabot).  
-* Pen‑test checklist aligns with OWASP Secure Coding Guide.   
+* CSRF tokens on all POST; `X-Frame-Options: DENY`.
+* All user input sanitised (Bleach) to prevent XSS.
+* Automated dependency scanning (GitHub Dependabot).
+* Pen‑test checklist aligns with OWASP Secure Coding Guide.
+* Every feature must enforce role permissions on pages and endpoints
+  using `permission_required` to guard access.
 
 ### 6.2 Accessibility & UX
 * Colour palette and logos per BP brand guide.  
@@ -290,6 +292,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Implemented admin user create/edit flow with forms and routes.
 * 2025-06-14 – Secured meeting management routes with new 'manage_meetings' permission.
 * 2025-06-15 – Implemented email service sending voting links after member import.
+* 2025-06-14 – Added contributor note about enforcing permissions on all new features.
 
 
 
