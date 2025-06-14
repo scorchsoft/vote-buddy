@@ -19,6 +19,13 @@ VoteBuddy is a Flask application for running electronic ballots at British Power
 docker-compose up --build
 ```
 
+3. Install Node dependencies and compile the Tailwind CSS:
+
+```bash
+npm install
+npm run build:css
+```
+
 The `web` service runs migrations on start and exposes the app at `http://localhost:8000`.
 
 To run the development server directly on your machine, install the requirements and execute:
