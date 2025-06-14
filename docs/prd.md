@@ -269,7 +269,6 @@ SES/SMTP  ─── Outbound mail
 
 ## Changelog
 * 2025-06-13 – Simplified architecture: S3 optional; Redis containerised for local use.
-
 * 2025-06-13 – Added Docker setup and initial database migrations with `.env.example`.
 * 2025-06-13 – Added login redirection logic preserving the `next` parameter.
 * 2025-06-13 – Added global X-Frame-Options header.
@@ -281,8 +280,8 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Added meeting cards on admin dashboard with floating “Create Meeting” button.
 * 2025-06-14 – Added Tailwind build setup for CSS and updated README.
 * 2025-06-14 – Added secondary button, table, badge and card styles.
+* 2025-06-14 – Added dotenv loading with SQLite fallback when `DATABASE_URL` is unset.
 * 2025-06-14 – Added focus-visible outlines for buttons and links.
-
 
 ---
 
