@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">{{ 'Edit' if meeting else 'Create' }} Meeting</h2>
+<form method="post" class="bp-form bp-card space-y-4">
+  {{ form.hidden_tag() }}
+  <div>
+    {{ form.title.label(class_='block font-semibold') }}
+    {{ form.title(class_='border p-3 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.type.label(class_='block font-semibold') }}
+    {{ form.type(class_='border p-3 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.opens_at_stage1.label(class_='block font-semibold') }}
+    {{ form.opens_at_stage1(class_='border p-3 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.closes_at_stage1.label(class_='block font-semibold') }}
+    {{ form.closes_at_stage1(class_='border p-3 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.opens_at_stage2.label(class_='block font-semibold') }}
+    {{ form.opens_at_stage2(class_='border p-3 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.closes_at_stage2.label(class_='block font-semibold') }}
+    {{ form.closes_at_stage2(class_='border p-3 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.ballot_mode.label(class_='block font-semibold') }}
+    {{ form.ballot_mode(class_='border p-3 rounded w-full') }}
+  </div>
+  <div class="flex items-center space-x-2">
+    {{ form.revoting_allowed() }}
+    {{ form.revoting_allowed.label(class_='font-semibold') }}
+  </div>
+  <div>
+    {{ form.status.label(class_='block font-semibold') }}
+    {{ form.status(class_='border p-3 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.chair_notes_md.label(class_='block font-semibold') }}
+    {{ form.chair_notes_md(class_='border p-3 rounded w-full') }}
+  </div>
+  <button type="submit" class="bp-btn-primary">Save</button>
+</form>
+{% endblock %}
