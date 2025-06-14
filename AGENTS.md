@@ -47,6 +47,16 @@ If the repo becomes unstable, reset with:
 git clean -fd && git reset --hard HEAD
 ```
 
+Docker-compose commands dont work in OpenAI Codex, you'll get this error so dont bither trying:
+```
+docker-compose up --build -d (failed to run: docker-compose: command not found
+```
+
+When running flask for testing try a non standard port as sometimes we get this error:
+```
+flask --app app run (failed: port already in use in second attempt)
+```
+
 ## Change Log
 | Date | Author | Reason |
 |------|--------|-------|
