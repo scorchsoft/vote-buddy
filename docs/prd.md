@@ -286,7 +286,12 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Implemented meetings list view with table layout.
 * 2025-06-14 – Enhanced meetings list with htmx search and sort.
 * 2025-06-14 – Added meeting create/edit form with CSRF protection.
+* 2025-06-14 – Added member CSV import with token generation.
 * 2025-06-14 – Implemented admin user create/edit flow with forms and routes.
+
+
+
+
 ---
 
 ## 14  Glossary
