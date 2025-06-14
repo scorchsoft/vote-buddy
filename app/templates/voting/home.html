@@ -2,5 +2,8 @@
 {% block content %}
 <div class="bp-card text-center">
   <p class="text-bp-grey-700">Voting interface placeholder.</p>
+  {% if token %}
+  <p class="text-bp-grey-700">Token: {{ token }}</p>
+  {% endif %}
 </div>
 {% endblock %}
