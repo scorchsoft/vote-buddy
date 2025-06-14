@@ -6,11 +6,26 @@
     <title>VoteBuddy</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   </head>
-  <body hx-boost="true">
+  <body hx-boost="true" class="flex flex-col min-h-screen bg-bp-grey-50">
     <header>
-      <h1>VoteBuddy</h1>
+      <nav class="bg-bp-blue text-white">
+        <div class="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-3">
+          <a href="{{ url_for('main.index') }}" class="font-bold text-lg">VoteBuddy</a>
+          <ul class="flex space-x-4 text-sm">
+            <li><a href="{{ url_for('main.index') }}" class="hover:underline">Home</a></li>
+            <li><a href="{{ url_for('meetings.list_meetings') }}" class="hover:underline">Meetings</a></li>
+            <li><a href="#" class="hover:underline">Results</a></li>
+            <li><a href="#" class="hover:underline">Help</a></li>
+          </ul>
+        </div>
+      </nav>
+      <div class="bg-bp-grey-50 text-bp-grey-700">
+        <div class="max-w-[1200px] mx-auto px-4 py-2">
+          Stage status placeholder
+        </div>
+      </div>
     </header>
-    <main>
+    <main class="flex-grow max-w-[1200px] mx-auto w-full px-4 py-4">
       {% block content %}{% endblock %}
     </main>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
