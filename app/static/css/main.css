@@ -74,3 +74,39 @@ body {
   border-radius: 1rem; /* 16px */
   padding: 1rem;
 }
+
+/* Component library card */
+.card {
+  background-color: #FFFFFF;
+  border: 1px solid #F7F7F9; /* bp-grey-50 */
+  border-radius: 1rem; /* 16px */
+  padding: 1rem;
+}
+
+/* Component library primary button */
+.btn-primary {
+  background-color: #DC0714; /* bp-red */
+  color: #FFFFFF;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #b90510;
+}
+
+/* Utility classes */
+.bp-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.bp-float-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+}

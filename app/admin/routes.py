@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request
 from flask_login import login_required
-from ..models import User
+from ..models import Meeting, User
 
 from ..permissions import permission_required
 
@@ -11,7 +11,8 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 @login_required
 @permission_required('view_dashboard')
 def dashboard():
-    return render_template('admin/dashboard.html')
+    meetings = Meeting.query.all()
+    return render_template('admin/dashboard.html', meetings=meetings)
 
 
 @bp.route('/users')
