@@ -2,7 +2,7 @@
 {% block content %}
 <h2>Admin Login</h2>
 
-<form method="post" class="space-y-4 card">
+<form method="post" class="space-y-4 bp-card">
   <div>
     {{ csrf_token() }}
     <input type="hidden" name="next" value="{{ next or '' }}">
