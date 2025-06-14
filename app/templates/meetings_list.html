@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">Meetings</h2>
+
+<form class="mb-4 bp-card bp-form"
+      hx-get="{{ url_for('meetings.list_meetings') }}"
+      hx-target="#meeting-table-body"
+      hx-trigger="keyup changed delay:300ms"
+      hx-push-url="true">
+  <label for="q" class="sr-only">Search meetings</label>
+  <input id="q" name="q" type="text" value="{{ q or '' }}" placeholder="Search meetings..." class="border p-3 rounded w-full">
+</form>
+
+<div class="bp-card mb-4">
+  <table class="bp-table">
+    <thead class="bg-bp-grey-50">
+      <tr>
+        <th class="text-left p-2">
+          <a hx-get="{{ url_for('meetings.list_meetings', sort='title', direction='desc' if direction=='asc' and sort=='title' else 'asc', q=q) }}"
+             hx-target="#meeting-table-body" hx-push-url="true" class="hover:underline">Title</a>
+        </th>
+        <th class="text-left p-2">
+          <a hx-get="{{ url_for('meetings.list_meetings', sort='type', direction='desc' if direction=='asc' and sort=='type' else 'asc', q=q) }}"
+             hx-target="#meeting-table-body" hx-push-url="true" class="hover:underline">Type</a>
+        </th>
+        <th class="text-left p-2">
+          <a hx-get="{{ url_for('meetings.list_meetings', sort='status', direction='desc' if direction=='asc' and sort=='status' else 'asc', q=q) }}"
+             hx-target="#meeting-table-body" hx-push-url="true" class="hover:underline">Status</a>
+        </th>
+      </tr>
+    </thead>
+    <tbody id="meeting-table-body">
+      {% include 'meetings/_meeting_rows.html' %}
+    </tbody>
+  </table>
+</div>
+<a href="#" class="bp-btn-primary mt-4">Create Meeting</a>
+{% endblock %}
