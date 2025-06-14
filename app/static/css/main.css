@@ -15,6 +15,15 @@ body {
   @apply opacity-90;
 }
 
+.bp-btn-primary:focus-visible,
+.bp-btn-secondary:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+a:focus-visible {
+  outline: 2px solid #FFEB3B; /* bp-yellow-a11y */
+  outline-offset: 2px;
+}
+
 /* Inline error placeholder */
 .bp-error-text {
   @apply min-h-4 text-sm text-bp-red;

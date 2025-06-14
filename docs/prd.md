@@ -281,6 +281,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Added meeting cards on admin dashboard with floating “Create Meeting” button.
 * 2025-06-14 – Added Tailwind build setup for CSS and updated README.
 * 2025-06-14 – Added secondary button, table, badge and card styles.
+* 2025-06-14 – Added focus-visible outlines for buttons and links.
 
 
 ---
