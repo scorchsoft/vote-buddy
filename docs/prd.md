@@ -293,6 +293,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Secured meeting management routes with new 'manage_meetings' permission.
 * 2025-06-15 – Implemented email service sending voting links after member import.
 * 2025-06-14 – Added contributor note about enforcing permissions on all new features.
+* 2025-06-15 – Added basic voting routes with token verification and hashed vote storage.
 
 
 
