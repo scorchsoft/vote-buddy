@@ -29,3 +29,27 @@ class MemberImportForm(FlaskForm):
 
     csv_file = FileField('CSV File', validators=[FileRequired()])
     submit = SubmitField('Upload')
+
+
+class AmendmentForm(FlaskForm):
+    text_md = TextAreaField('Amendment Text', validators=[DataRequired()])
+    submit = SubmitField('Save')
+
+
+class MotionForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    text_md = TextAreaField('Motion Text', validators=[DataRequired()])
+    category = SelectField(
+        'Category',
+        choices=[
+            ('motion', 'Motion'),
+            ('directors_report', "Director's Report"),
+            ('multiple_choice', 'Multiple Choice'),
+        ],
+    )
+    threshold = SelectField(
+        'Voting Threshold',
+        choices=[('normal', 'Normal'), ('special', 'Special')],
+    )
+    options = TextAreaField('Options (one per line)')
+    submit = SubmitField('Save')

@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required
 from ..extensions import db
-from ..models import Meeting, Member, VoteToken
+from ..models import Meeting, Member, VoteToken, Amendment, Motion, MotionOption
 from ..services.email import send_vote_invite
 from ..permissions import permission_required
-from .forms import MeetingForm, MemberImportForm
+from .forms import MeetingForm, MemberImportForm, AmendmentForm, MotionForm
 import csv
 import io
 from uuid6 import uuid7
@@ -131,3 +131,60 @@ def import_members(meeting_id):
         return redirect(url_for('meetings.list_meetings'))
 
     return render_template('meetings/import_members.html', form=form, meeting=meeting)
+
+
+@bp.route('/<int:meeting_id>/motions')
+def list_motions(meeting_id):
+    meeting = Meeting.query.get_or_404(meeting_id)
+    motions = Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
+    return render_template('meetings/motions_list.html', meeting=meeting, motions=motions)
+
+
+@bp.route('/<int:meeting_id>/motions/create', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
+def create_motion(meeting_id):
+    meeting = Meeting.query.get_or_404(meeting_id)
+    form = MotionForm()
+    if form.validate_on_submit():
+        ordering = Motion.query.filter_by(meeting_id=meeting.id).count() + 1
+        motion = Motion(
+            meeting_id=meeting.id,
+            title=form.title.data,
+            text_md=form.text_md.data,
+            category=form.category.data,
+            threshold=form.threshold.data,
+            ordering=ordering,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        if form.category.data == 'multiple_choice' and form.options.data:
+            for line in form.options.data.splitlines():
+                text = line.strip()
+                if text:
+                    db.session.add(MotionOption(motion_id=motion.id, text=text))
+        db.session.commit()
+        return redirect(url_for('meetings.list_motions', meeting_id=meeting.id))
+    return render_template('meetings/motion_form.html', form=form, motion=None)
+
+
+@bp.route('/motions/<int:motion_id>')
+def view_motion(motion_id):
+    motion = Motion.query.get_or_404(motion_id)
+    amendments = Amendment.query.filter_by(motion_id=motion.id).order_by(Amendment.order).all()
+    return render_template('meetings/view_motion.html', motion=motion, amendments=amendments)
+
+
+@bp.route('/motions/<int:motion_id>/amendments/add', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
+def add_amendment(motion_id):
+    motion = Motion.query.get_or_404(motion_id)
+    form = AmendmentForm()
+    if form.validate_on_submit():
+        order = Amendment.query.filter_by(motion_id=motion.id).count() + 1
+        amendment = Amendment(meeting_id=motion.meeting_id, motion_id=motion.id, text_md=form.text_md.data, order=order)
+        db.session.add(amendment)
+        db.session.commit()
+        return redirect(url_for('meetings.view_motion', motion_id=motion.id))
+    return render_template('meetings/amendment_form.html', form=form, motion=motion)

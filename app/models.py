@@ -51,6 +51,25 @@ class Member(db.Model):
     proxy_for = db.Column(db.String(255))
     weight = db.Column(db.Integer, default=1)
 
+
+class Motion(db.Model):
+    __tablename__ = 'motions'
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
+    title = db.Column(db.String(255))
+    text_md = db.Column(db.Text)
+    category = db.Column(db.String(20))
+    threshold = db.Column(db.String(20))
+    ordering = db.Column(db.Integer)
+    options = db.relationship('MotionOption', backref='motion')
+
+
+class MotionOption(db.Model):
+    __tablename__ = 'motion_options'
+    id = db.Column(db.Integer, primary_key=True)
+    motion_id = db.Column(db.Integer, db.ForeignKey('motions.id'))
+    text = db.Column(db.String(255))
+
 class VoteToken(db.Model):
     __tablename__ = 'vote_tokens'
     token = db.Column(db.String(36), primary_key=True)
@@ -62,6 +81,7 @@ class Amendment(db.Model):
     __tablename__ = 'amendments'
     id = db.Column(db.Integer, primary_key=True)
     meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
+    motion_id = db.Column(db.Integer, db.ForeignKey('motions.id'))
     text_md = db.Column(db.Text)
     order = db.Column(db.Integer)
     status = db.Column(db.String(50))
@@ -71,13 +91,19 @@ class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     member_id = db.Column(db.Integer, db.ForeignKey('members.id'))
     amendment_id = db.Column(db.Integer, db.ForeignKey('amendments.id'), nullable=True)
-    motion = db.Column(db.Boolean, default=False)
+    motion_id = db.Column(db.Integer, db.ForeignKey('motions.id'), nullable=True)
     choice = db.Column(db.String(10))
     hash = db.Column(db.String(128))
 
     @classmethod
-    def record(cls, member_id: int, choice: str, salt: str,
-               amendment_id: int | None = None, motion: bool = False) -> "Vote":
+    def record(
+        cls,
+        member_id: int,
+        choice: str,
+        salt: str,
+        amendment_id: int | None = None,
+        motion_id: int | None = None,
+    ) -> "Vote":
         """Create a vote with hashed choice."""
         digest = hashlib.sha256(
             f"{member_id}{choice}{salt}".encode()
@@ -85,7 +111,7 @@ class Vote(db.Model):
         vote = cls(
             member_id=member_id,
             amendment_id=amendment_id,
-            motion=motion,
+            motion_id=motion_id,
             choice=choice,
             hash=digest,
         )
