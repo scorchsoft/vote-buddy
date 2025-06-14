@@ -14,6 +14,7 @@ This guide directs AI and human contributors for all folders in this repository.
 - Class names use `PascalCase`; functions and variables use `snake_case`
 - HTML templates follow the naming examples from `docs/ui-ux-design-guidance.md`
 - Custom CSS classes should be prefixed `bp-`; avoid heavy JavaScript
+- htmx: ensure htmx is used where appropriate (if not overkill), such as for CRUDS.
 
 ## Toolchain Commands
 | Task | Command |
