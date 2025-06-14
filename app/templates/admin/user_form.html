@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">{{ 'Edit' if user else 'Create' }} User</h2>
+<form method="post" class="bp-form bp-card space-y-6">
+  {{ form.hidden_tag() }}
+  <div>
+    {{ form.email.label(class_='block font-semibold') }}
+    {{ form.email(class_='border p-3 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.password.label(class_='block font-semibold') }}
+    {{ form.password(class_='border p-3 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.role_id.label(class_='block font-semibold') }}
+    {{ form.role_id(class_='border p-3 rounded w-full') }}
+  </div>
+  <div class="flex items-center space-x-2">
+    {{ form.is_active() }}
+    {{ form.is_active.label(class_='font-semibold') }}
+  </div>
+  <button type="submit" class="bp-btn-primary">Save</button>
+</form>
+{% endblock %}
