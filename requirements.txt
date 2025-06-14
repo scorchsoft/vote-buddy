@@ -8,3 +8,4 @@ Flask-Bcrypt==1.0.1
 Flask-WTF==1.2.2
 python-dotenv==1.0.1
 uuid6==2025.0.0
+Flask-Mail==0.10.0

@@ -1,0 +1,25 @@
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from unittest.mock import patch
+from app import create_app
+from app.extensions import db, mail
+from app.models import Member, Meeting
+from app.services.email import send_vote_invite
+
+
+def test_send_vote_invite_sends_mail():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['MAIL_SUPPRESS_SEND'] = True
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='Test Meeting')
+        db.session.add(meeting)
+        member = Member(name='Alice', email='alice@example.com', meeting_id=1)
+        db.session.add(member)
+        db.session.commit()
+        with app.test_request_context('/'):
+            with patch.object(mail, 'send') as mock_send:
+                send_vote_invite(member, 'abc123', meeting)
+                mock_send.assert_called_once()

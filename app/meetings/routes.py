@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required
 from ..extensions import db
 from ..models import Meeting, Member, VoteToken
+from ..services.email import send_vote_invite
 from ..permissions import permission_required
 from .forms import MeetingForm, MemberImportForm
 import csv
@@ -102,6 +103,7 @@ def import_members(meeting_id):
             return render_template('meetings/import_members.html', form=form, meeting=meeting)
 
         seen_emails: set[str] = set()
+        tokens_to_send: list[tuple[Member, str]] = []
         for row in reader:
             email = row['email'].strip().lower()
             if email in seen_emails:
@@ -120,8 +122,11 @@ def import_members(meeting_id):
             db.session.flush()
             token = VoteToken(token=str(uuid7()), member_id=member.id, stage=1)
             db.session.add(token)
+            tokens_to_send.append((member, token.token))
 
         db.session.commit()
+        for m, t in tokens_to_send:
+            send_vote_invite(m, t, meeting)
         flash('Members imported successfully', 'success')
         return redirect(url_for('meetings.list_meetings'))
 

@@ -291,6 +291,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Added member CSV import with token generation.
 * 2025-06-14 – Implemented admin user create/edit flow with forms and routes.
 * 2025-06-14 – Secured meeting management routes with new 'manage_meetings' permission.
+* 2025-06-15 – Implemented email service sending voting links after member import.
 * 2025-06-14 – Added contributor note about enforcing permissions on all new features.
 
 
