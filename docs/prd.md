@@ -279,6 +279,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-13 – Added CSRF protection via Flask-WTF
 * 2025-06-14 – Introduced role-permission system and user management page.
 * 2025-06-13 – Added htmx-based searchable user table pattern.
+* 2025-06-14 – Added meeting cards on admin dashboard with floating “Create Meeting” button.
 
 
 ---

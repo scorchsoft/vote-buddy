@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="font-bold text-bp-blue mb-4">Admin Dashboard</h2>
-<p class="mb-4">Welcome to VoteBuddy administration.</p>
-<a href="{{ url_for('admin.list_users') }}" class="bp-btn-primary">Manage Users</a>
+<h2 class="font-bold text-bp-blue mb-4">My Meetings</h2>
+<div class="bp-card-grid mb-12">
+  {% for meeting in meetings %}
+  <div class="card">
+    <h3 class="font-semibold mb-1">{{ meeting.title }}</h3>
+    <p class="text-sm">{{ meeting.status or 'Draft' }}</p>
+  </div>
+  {% else %}
+  <p>No meetings available.</p>
+  {% endfor %}
+</div>
+<a href="#" class="btn-primary bp-float-btn">Create Meeting</a>
 {% endblock %}
