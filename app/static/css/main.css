@@ -902,3 +902,37 @@ a:focus-visible {
   bottom: 1.5rem;
   right: 1.5rem;
 }
+
+/* Form layout utility */
+.bp-form > div {
+  margin-bottom: 1.5rem; /* 24px */
+}
+
+.bp-form input,
+.bp-form select,
+.bp-form textarea {
+  padding: 0.75rem; /* 12px */
+  border-radius: 0.25rem; /* 4px */
+}
+
+/* Alert banners */
+.bp-alert-success {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+}
+
+.bp-alert-warning {
+  background-color: #fff7ed;
+  color: #92400e;
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+}
+
+.bp-alert-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+}
