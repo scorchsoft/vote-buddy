@@ -1,0 +1,11 @@
+{% for meeting in meetings %}
+<tr class="border-t">
+  <td class="p-2">{{ meeting.title }}</td>
+  <td class="p-2">{{ meeting.type }}</td>
+  <td class="p-2">{{ meeting.status or 'Draft' }}</td>
+</tr>
+{% else %}
+<tr>
+  <td colspan="3" class="p-2">No meetings created yet.</td>
+</tr>
+{% endfor %}
