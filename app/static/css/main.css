@@ -19,3 +19,58 @@ body {
 .bp-error-text {
   @apply min-h-4 text-sm text-bp-red;
 }
+
+/* Secondary button styles */
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: #002D59; /* bp-blue */
+  border: 1px solid #002D59;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background-color: #002D59;
+  color: #FFFFFF;
+}
+
+/* Data table base styling */
+.bp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bp-table th,
+.bp-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #F7F7F9; /* bp-grey-50 */
+  text-align: left;
+}
+
+.bp-table th {
+  background-color: #F7F7F9;
+}
+
+.bp-table tbody tr:nth-child(even) {
+  background-color: #F7F7F9;
+}
+
+/* Badge styles */
+.badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  background-color: #F7F7F9;
+  color: #3F4854; /* bp-grey-700 */
+}
+
+/* Card container */
+.card {
+  background-color: #FFFFFF;
+  border: 1px solid #F7F7F9;
+  border-radius: 1rem; /* 16px */
+  padding: 1rem;
+}
