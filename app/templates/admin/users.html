@@ -3,7 +3,8 @@
 <h2 class="font-bold text-bp-blue mb-4">User Accounts</h2>
 
 <form class="mb-4 bp-card" hx-get="{{ url_for('admin.list_users') }}" hx-target="#user-table-body" hx-trigger="keyup changed delay:300ms" hx-push-url="true">
-  <input type="text" name="q" value="{{ q or '' }}" placeholder="Search users..." class="border rounded p-2 w-full">
+  <label for="q" class="sr-only">Search users</label>
+  <input id="q" type="text" name="q" value="{{ q or '' }}" placeholder="Search users..." class="border rounded p-2 w-full">
 </form>
 
 <div class="bp-card">
