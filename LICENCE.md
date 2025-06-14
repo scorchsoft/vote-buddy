@@ -44,5 +44,4 @@ If you'd like to contribute code, bug fixes, or features, you’ll need to agree
 
 # Scorchsoft
 
-Scorchsoft develops mobile apps, AI apps, and software solutions
-https://www.scorchsoft.com
+[Scorchsoft develops mobile apps, AI apps, and software solutions](https://www.scorchsoft.com)
