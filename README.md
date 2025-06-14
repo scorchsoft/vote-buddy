@@ -4,6 +4,8 @@ VoteBuddy by [Scorchsoft](https://www.scorchsoft.com) is a Python Flask applicat
 
 It supports two stage voting on amendments and final motions, sends unique voting links by email and produces auditable results.
 
+VoteBuddy aims to take the tried and tested "Roberts Rules" around governance and effective meetings, and bring up yo date into a modern digital voting format.
+
 ## Features
 
 - Flask 3 with SQLAlchemy ORM
@@ -52,7 +54,8 @@ The `docs` directory contains background and design material:
 
 - **prd.md** – Product Requirements Document describing the MVP goals, system architecture and work plan.
 - **ui-ux-design-guidance.md** – Guidance on branding, layout and component conventions for building a consistent user experience.
-- **voting-process-motion.md** – The full text of the motion modernising British Powerlifting's voting procedure which this app implements.
+- **original-british-powerlifting-voting-process-motion.md** – The full text of the motion modernising British Powerlifting's voting procedure which this app implements.
+- **template-motion.md** - A more readily adoptable motion template that membership organisations can revise and adopt to make their Articles support the VoteBuddy process.
 
 Refer to these files for detail on features, design and governance context.
 
