@@ -2,7 +2,7 @@
 
 Copyright [2025] Scorchsoft Ltd
 
-Licensed under the Apache License, Version 2.0 (the "License");
+VoteBuddy by Scorchsoft is licensed under the Apache License, Version 2.0 (the "License");
 you may not use this software except in compliance with the License.
 You may obtain a copy of the License at:
 
@@ -28,6 +28,10 @@ We offer:
 To discuss a hosted instance or enterprise licence, please contact:
 - https://www.scorchsoft.com/contact
 - 📧 **info @scorchsoft.com**
+
+## Additional Notice
+
+This open-source licence applies **only** to the contents of this repository. It does **not** grant any rights, ownership, or licence to the Scorchsoft name, logo, trademarks, or any other proprietary materials, services, or intellectual property owned by Scorchsoft Ltd. Use of the Scorchsoft name or branding in any form without explicit written permission is strictly prohibited.
 
 ## Contributor Agreement
 
