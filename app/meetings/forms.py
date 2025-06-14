@@ -1,5 +1,13 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, DateTimeLocalField, BooleanField, TextAreaField, SubmitField
+from flask_wtf.file import FileField, FileRequired
+from wtforms import (
+    StringField,
+    SelectField,
+    DateTimeLocalField,
+    BooleanField,
+    TextAreaField,
+    SubmitField,
+)
 from wtforms.validators import DataRequired
 
 class MeetingForm(FlaskForm):
@@ -14,3 +22,10 @@ class MeetingForm(FlaskForm):
     status = StringField('Status')
     chair_notes_md = TextAreaField('Chair Notes')
     submit = SubmitField('Save')
+
+
+class MemberImportForm(FlaskForm):
+    """Upload CSV file of members."""
+
+    csv_file = FileField('CSV File', validators=[FileRequired()])
+    submit = SubmitField('Upload')
