@@ -1,4 +1,4 @@
-# VoteBuddy
+# VoteBuddy (Open source AGM and EGM software for membership organisations)
 
 VoteBuddy by [Scorchsoft](https://www.scorchsoft.com) is a Python Flask application for running electronic ballots at AGMs and EGMs, and was originally programmed for use by British Powerlifting.
 
