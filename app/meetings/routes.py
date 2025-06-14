@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask_login import login_required
 from ..extensions import db
 from ..models import Meeting, Member, VoteToken
+from ..permissions import permission_required
 from .forms import MeetingForm, MemberImportForm
 import csv
 import io
@@ -9,6 +11,8 @@ from uuid6 import uuid7
 bp = Blueprint('meetings', __name__, url_prefix='/meetings')
 
 @bp.route('/')
+@login_required
+@permission_required('manage_meetings')
 def list_meetings():
     q = request.args.get('q', '').strip()
     sort = request.args.get('sort', 'title')
@@ -58,6 +62,8 @@ def _save_meeting(form: MeetingForm, meeting: Meeting | None = None) -> Meeting:
 
 
 @bp.route('/create', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
 def create_meeting():
     form = MeetingForm()
     if form.validate_on_submit():
@@ -67,6 +73,8 @@ def create_meeting():
 
 
 @bp.route('/<int:meeting_id>/edit', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
 def edit_meeting(meeting_id):
     meeting = Meeting.query.get_or_404(meeting_id)
     form = MeetingForm(obj=meeting)
@@ -77,6 +85,8 @@ def edit_meeting(meeting_id):
 
 
 @bp.route('/<int:meeting_id>/import-members', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
 def import_members(meeting_id):
     """Upload a CSV of members and generate vote tokens."""
 
