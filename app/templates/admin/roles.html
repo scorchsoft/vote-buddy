@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">Roles</h2>
+<div class="bp-card">
+<table class="bp-table">
+  <thead class="bg-bp-grey-50">
+    <tr>
+      <th class="text-left p-2">Name</th>
+      <th class="text-left p-2">Permissions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for role in roles %}
+    <tr class="border-t">
+      <td class="p-2"><a href="{{ url_for('admin.edit_role', role_id=role.id) }}" class="hover:underline">{{ role.name }}</a></td>
+      <td class="p-2">{{ role.permissions | map(attribute='name') | join(', ') }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="2" class="p-2">No roles defined.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<a href="{{ url_for('admin.create_role') }}" class="bp-btn-primary mt-4 inline-block">Create Role</a>
+{% endblock %}
