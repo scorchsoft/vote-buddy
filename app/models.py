@@ -154,3 +154,11 @@ class Runoff(db.Model):
     amendment_a_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
     amendment_b_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
 
+
+class AmendmentConflict(db.Model):
+    __tablename__ = 'amendment_conflicts'
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
+    amendment_a_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
+    amendment_b_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
+

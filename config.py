@@ -14,6 +14,7 @@ class Config:
     MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', 'true').lower() in ['1', 'true']
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
     VOTE_SALT = os.getenv('VOTE_SALT', 'static-salt')
+    RUNOFF_EXTENSION_MINUTES = int(os.getenv('RUNOFF_EXTENSION_MINUTES', '2880'))
 
 class DevelopmentConfig(Config):
     DEBUG = True

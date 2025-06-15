@@ -295,7 +295,8 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Added contributor note about enforcing permissions on all new features.
 * 2025-06-15 – Added basic voting routes with token verification and hashed vote storage.
 * 2025-06-15 – Implemented stage-based voting flow with motion display and amendment handling.
-* 2025-06-15 – Added motion categories, thresholds and options with new tables.
+* 2025-06-15 – Addeed motion categories, thresholds and options with new tables
+* 2025-06-15 – Implemented run-off detection and automatic Stage-1 extension.
 * 2025-06-16 – Amendments now record proposer and seconder with a 21‑day deadline and three‑per‑member cap.
 
 
