@@ -23,3 +23,5 @@ def test_send_vote_invite_sends_mail():
             with patch.object(mail, 'send') as mock_send:
                 send_vote_invite(member, 'abc123', meeting)
                 mock_send.assert_called_once()
+                sent_msg = mock_send.call_args[0][0]
+                assert '/vote/abc123' in sent_msg.body
