@@ -51,6 +51,7 @@ This document summarises all tables and columns created by the Alembic migration
 | quorum | Integer | Default `0` |
 | stage1_locked | Boolean | Default `False` |
 | stage2_locked | Boolean | Default `False` |
+| public_results | Boolean | Default `False` |
 
 ### members
 | Column | Type | Notes |
