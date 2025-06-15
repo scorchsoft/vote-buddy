@@ -100,6 +100,7 @@ class Member(db.Model):
     email = db.Column(db.String(255))
     proxy_for = db.Column(db.String(255))
     weight = db.Column(db.Integer, default=1)
+    email_opt_out = db.Column(db.Boolean, default=False)
 
 
 class Motion(db.Model):
@@ -145,6 +146,12 @@ class VoteToken(db.Model):
     def verify(cls, token: str, salt: str) -> "VoteToken | None":
         hashed = cls._hash(token, salt)
         return cls.query.filter_by(token=hashed).first()
+
+class UnsubscribeToken(db.Model):
+    __tablename__ = 'unsubscribe_tokens'
+    token = db.Column(db.String(36), primary_key=True)
+    member_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Amendment(db.Model):
     __tablename__ = 'amendments'

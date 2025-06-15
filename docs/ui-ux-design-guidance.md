@@ -170,6 +170,7 @@ Header bar: bp‑blue; BP logo 120×40 px inline‑SVG.
 Big red CTA button ⇒ unique voting link.
 
 Footer: unsubscribe link (batch mail compliance) + legal footer (company number).
+Link points to `/unsubscribe/<token>` and marks the member opted out.
 
 WCAG: 600 px width, min font 16 px, dark‑mode tested.
 

@@ -318,6 +318,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Implemented public results visibility toggle and results page.
 * 2025-06-15 – Corrected email invite links to use `/vote/<token>`.
 * 2025-06-15 – Stage 2 ballot now shows compiled motion text with carried amendments.
+* 2025-06-16 – Added audit log CSV download for Returning Officers.
 * 2025-06-15 – Added manual Stage 2 merge screen with final text field.
 * 2025-06-15 – Voting route rejects ballots when a stage is locked.
 * 2025-06-15 – Run-off and reminder emails now link to `/vote/<token>`.
@@ -328,10 +329,13 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Run-off service resolves tied amendment votes using chair/board decisions or amendment order.
 * 2025-06-15 – Implemented run-off ballot route and template
 * 2025-06-15 – Added Content-Security-Policy header restricting scripts/styles to self and the htmx CDN.
+* 2025-06-15 – Introduced email opt-out via unsubscribe tokens and footer links.
 * 2025-06-15 – Introduced role management pages secured by 'manage_users'.
 * 2025-06-15 – Added help page explaining voting stages and token links.
 * 2025-06-15 – Added OWASP ZAP baseline scan script for penetration testing.
-* 2025-06-20 – Vote tokens stored as SHA-256 hashes with server-side salt.
+* 2025-06-15 – Vote tokens stored as SHA-256 hashes with server-side salt.
+* 2025-06-15 – Sanitised help page HTML using Bleach to strip script tags.
+* 2025-06-15 – Fixed floating “Create Meeting” button on admin dashboard link
 
 
 ---
