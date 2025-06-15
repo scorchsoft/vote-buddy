@@ -1,18 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="font-bold text-bp-blue mb-4">Combined Ballot</h2>
+{% set current_stage = 1 %}
+{% include '_stepper.html' %}
 {% if proxy_for %}
 <div class="bp-alert-warning text-center mb-4">
   Casting votes as proxy for {{ proxy_for.name }}.
 </div>
 {% endif %}
-<form method="post" class="bp-form bp-card space-y-6">
+<form id="vote-form" method="post" class="bp-form bp-card space-y-6 pb-20">
   {{ form.hidden_tag() }}
   {% for motion, ams in motions %}
-    <div class="bp-card bp-glow mb-4">{{ motion.text_md }}</div>
+    <div class="bp-card bp-glow mb-4">{{ motion.text_md|markdown_to_html|safe }}</div>
     {% for amend in ams %}
       <div class="mb-4">
-        <div class="font-semibold mb-2">{{ amend.text_md }}</div>
+        <div class="font-semibold mb-2">{{ amend.text_md|markdown_to_html|safe }}</div>
         <div class="space-x-4">
           {% for sub in form['amend_' ~ amend.id] %}
             <label class="inline-flex items-center mr-4">{{ sub() }}<span>{{ sub.label.text }}</span></label>
@@ -26,6 +28,7 @@
       {% endfor %}
     </div>
   {% endfor %}
-  <button type="submit" class="bp-btn-primary">Submit votes</button>
+  {% include 'voting/_sticky_footer.html' %}
 </form>
+<script src="{{ url_for('static', filename='js/voting_footer.js') }}"></script>
 {% endblock %}

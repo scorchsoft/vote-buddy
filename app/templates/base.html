@@ -11,12 +11,30 @@
       <nav class="bg-bp-blue text-white">
         <div class="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-3">
           <a href="{{ url_for('main.index') }}" class="font-bold text-lg">VoteBuddy</a>
-          <ul class="flex space-x-4 text-sm">
-            <li><a href="{{ url_for('main.index') }}" class="hover:underline">Home</a></li>
-            <li><a href="{{ url_for('meetings.list_meetings') }}" class="hover:underline">Meetings</a></li>
-            <li><a href="#" class="hover:underline">Results</a></li>
-            <li><a href="{{ url_for('help.show_help') }}" class="hover:underline">Help</a></li>
-          </ul>
+          <div class="flex items-center space-x-4 text-sm">
+            <ul class="flex space-x-4">
+              <li><a href="{{ url_for('main.index') }}" class="hover:underline">Home</a></li>
+              <li><a href="{{ url_for('meetings.list_meetings') }}" class="hover:underline">Meetings</a></li>
+              <li><a href="#" class="hover:underline">Results</a></li>
+              <li><a href="{{ url_for('help.show_help') }}" class="hover:underline">Help</a></li>
+            </ul>
+            {% if current_user.is_authenticated %}
+            <div class="relative group">
+              <button class="flex items-center space-x-2 hover:underline">
+                <span>{{ current_user.email }}</span>
+                {% if current_user.role %}
+                <span class="bp-badge">{{ current_user.role.name }}</span>
+                {% endif %}
+              </button>
+              <ul class="absolute right-0 mt-1 w-32 bg-white text-bp-grey-700 rounded shadow-lg hidden group-hover:block">
+                <li><a href="{{ url_for('admin.dashboard') }}" class="block px-4 py-2 hover:bg-bp-grey-50">Dashboard</a></li>
+                <li><a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 hover:bg-bp-grey-50">Logout</a></li>
+              </ul>
+            </div>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" class="hover:underline">Login</a>
+            {% endif %}
+          </div>
         </div>
       </nav>
       <div class="bg-bp-grey-50 text-bp-grey-700" role="status">
@@ -25,6 +43,17 @@
         </div>
       </div>
     </header>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        <div class="max-w-[1200px] mx-auto px-4 py-2 space-y-2">
+          {% for category, message in messages %}
+            <div class="bp-alert-{{ 'success' if category == 'success' else 'warning' if category == 'warning' else 'error' }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
     <main class="flex-grow max-w-[1200px] mx-auto w-full px-4 py-4">
       {% block content %}{% endblock %}
     </main>
