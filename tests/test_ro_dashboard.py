@@ -1,5 +1,5 @@
 import os, sys
-from datetime import datetime
+from datetime import datetime, timedelta
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from werkzeug.exceptions import Forbidden
@@ -87,3 +87,21 @@ def test_dashboard_requires_permission():
                     assert isinstance(exc, Forbidden)
                 else:
                     assert False, 'expected Forbidden'
+
+
+def test_ro_dashboard_displays_countdown():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['REMINDER_HOURS_BEFORE_CLOSE'] = 6
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(title='AGM', closes_at_stage1=now + timedelta(hours=8))
+        db.session.add(meeting)
+        db.session.commit()
+        user = _make_user()
+        with app.test_request_context('/ro/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = ro.dashboard()
+                assert 'Next Reminder' in html
+                assert '2h' in html

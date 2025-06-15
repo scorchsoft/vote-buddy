@@ -7,6 +7,7 @@
       <tr>
         <th class="p-2 text-left">Meeting</th>
         <th class="p-2 text-left">Stage 1 Votes</th>
+        <th class="p-2 text-left">Next Reminder</th>
         <th class="p-2 text-left">Stage 1 Locked</th>
         <th class="p-2 text-left">Stage 2 Locked</th>
         <th class="p-2 text-left">Actions</th>
@@ -17,6 +18,7 @@
       <tr class="border-t">
         <td class="p-2">{{ meeting.title }}</td>
         <td class="p-2">{{ count }}/{{ meeting.quorum }}</td>
+        <td class="p-2"><span class="bp-badge">{{ meeting.hours_until_next_reminder() }}h</span></td>
         <td class="p-2">{{ 'Yes' if meeting.stage1_locked else 'No' }}</td>
         <td class="p-2">{{ 'Yes' if meeting.stage2_locked else 'No' }}</td>
         <td class="p-2 space-x-2">
@@ -34,7 +36,7 @@
         </td>
       </tr>
       {% else %}
-      <tr><td colspan="5" class="p-2">No meetings.</td></tr>
+      <tr><td colspan="6" class="p-2">No meetings.</td></tr>
       {% endfor %}
     </tbody>
   </table>
