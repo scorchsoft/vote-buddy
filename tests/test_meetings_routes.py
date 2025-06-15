@@ -15,6 +15,7 @@ from app.models import (
     Member,
     Motion,
     Amendment,
+    Vote,
 )
 import io
 from app.meetings import routes as meetings
@@ -182,3 +183,34 @@ def test_add_amendment_validations():
                     fl.assert_called()
 
         assert Amendment.query.count() == 3
+
+
+def test_results_stage2_docx_returns_file():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M1',
+            text_md='Motion text',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        db.session.add(motion)
+        member = Member(meeting_id=meeting.id, name='Alice')
+        db.session.add(member)
+        db.session.flush()
+        Vote.record(member_id=member.id, motion_id=motion.id, choice='for', salt='s')
+
+        user = _make_user(True)
+        with app.test_request_context(f'/meetings/{meeting.id}/results-stage2.docx'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                resp = meetings.results_stage2_docx(meeting.id)
+                assert resp.mimetype == (
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                )

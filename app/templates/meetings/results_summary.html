@@ -19,4 +19,5 @@
   </tbody>
 </table>
 <a href="{{ url_for('meetings.results_docx', meeting_id=meeting.id) }}" class="bp-btn-secondary mt-4 inline-block">Download DOCX</a>
+<a href="{{ url_for('meetings.results_stage2_docx', meeting_id=meeting.id) }}" class="bp-btn-secondary mt-4 inline-block ml-2">Download Final DOCX</a>
 {% endblock %}
