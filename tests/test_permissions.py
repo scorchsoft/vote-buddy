@@ -4,6 +4,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pytest
 from werkzeug.exceptions import Forbidden
+from flask import abort
+from app import create_app
 from unittest.mock import patch
 from flask_login import AnonymousUserMixin
 
@@ -37,3 +39,17 @@ def test_permission_required_forbidden_when_anonymous():
     with patch('flask_login.utils._get_user', return_value=anon):
         with pytest.raises(Forbidden):
             _protected()
+
+
+def test_403_template_loads():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+
+    @app.route('/deny')
+    def deny():
+        abort(403)
+
+    client = app.test_client()
+    response = client.get('/deny')
+    assert response.status_code == 403
+    assert b'Access Denied' in response.data
