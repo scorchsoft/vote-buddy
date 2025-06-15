@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, send_file
+from flask import Blueprint, render_template, redirect, url_for, request, flash, send_file, current_app
 from flask_wtf import FlaskForm
 from wtforms import TextAreaField, SubmitField
 from wtforms.validators import DataRequired
@@ -140,9 +140,12 @@ def import_members(meeting_id):
             )
             db.session.add(member)
             db.session.flush()
-            token = VoteToken(token=str(uuid7()), member_id=member.id, stage=1)
-            db.session.add(token)
-            tokens_to_send.append((member, token.token))
+            token_obj, plain = VoteToken.create(
+                member_id=member.id,
+                stage=1,
+                salt=current_app.config["TOKEN_SALT"],
+            )
+            tokens_to_send.append((member, plain))
 
         db.session.commit()
         for m, t in tokens_to_send:
@@ -314,24 +317,11 @@ def close_stage1(meeting_id: int):
     meeting = Meeting.query.get_or_404(meeting_id)
 
     # finalize Stage 1 results and create run-off ballots if required
-    runoffs = runoff.close_stage1(meeting)
-
-    members = Member.query.filter_by(meeting_id=meeting.id).all()
+    runoffs, tokens_to_send = runoff.close_stage1(meeting)
 
     if runoffs:
-        # send run-off tokens created by the service
-        tokens = [
-            (
-                m,
-                VoteToken.query.filter_by(member_id=m.id, stage=1)
-                .order_by(VoteToken.token.desc())
-                .first()
-                .token,
-            )
-            for m in members
-        ]
-        for m, t in tokens:
-            send_runoff_invite(m, t, meeting)
+        for member, token in tokens_to_send:
+            send_runoff_invite(member, token, meeting)
         flash('Run-off ballot issued; Stage 2 start delayed', 'success')
     else:
         meeting.status = 'Pending Stage 2'
@@ -397,9 +387,12 @@ def prepare_stage2(meeting_id: int):
         members = Member.query.filter_by(meeting_id=meeting.id).all()
         tokens_to_send: list[tuple[Member, str]] = []
         for member in members:
-            token = VoteToken(token=str(uuid7()), member_id=member.id, stage=2)
-            db.session.add(token)
-            tokens_to_send.append((member, token.token))
+            token_obj, plain = VoteToken.create(
+                member_id=member.id,
+                stage=2,
+                salt=current_app.config["TOKEN_SALT"],
+            )
+            tokens_to_send.append((member, plain))
         meeting.status = 'Stage 2'
         db.session.commit()
         for m, t in tokens_to_send:

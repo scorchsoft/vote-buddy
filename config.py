@@ -14,6 +14,7 @@ class Config:
     MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', 'true').lower() in ['1', 'true']
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
     VOTE_SALT = os.getenv('VOTE_SALT', 'static-salt')
+    TOKEN_SALT = os.getenv('TOKEN_SALT', 'token-salt')
     RUNOFF_EXTENSION_MINUTES = int(os.getenv('RUNOFF_EXTENSION_MINUTES', '2880'))
     REMINDER_HOURS_BEFORE_CLOSE = int(os.getenv('REMINDER_HOURS_BEFORE_CLOSE', '6'))
     REMINDER_COOLDOWN_HOURS = int(os.getenv('REMINDER_COOLDOWN_HOURS', '24'))

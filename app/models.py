@@ -3,6 +3,7 @@ import hashlib
 import math
 from flask import current_app
 from flask_login import UserMixin
+from uuid6 import uuid7
 from .extensions import db, bcrypt
 
 # association table linking roles to permissions
@@ -123,11 +124,28 @@ class MotionOption(db.Model):
 
 class VoteToken(db.Model):
     __tablename__ = 'vote_tokens'
-    token = db.Column(db.String(36), primary_key=True)
+    token = db.Column(db.String(64), primary_key=True)
     member_id = db.Column(db.Integer, db.ForeignKey('members.id'))
     stage = db.Column(db.Integer)
     used_at = db.Column(db.DateTime)
 
+    @staticmethod
+    def _hash(token: str, salt: str) -> str:
+        return hashlib.sha256(f"{token}{salt}".encode()).hexdigest()
+
+    @classmethod
+    def create(cls, member_id: int, stage: int, salt: str) -> tuple["VoteToken", str]:
+        """Create token, store hash and return plain value."""
+        plain = str(uuid7())
+        hashed = cls._hash(plain, salt)
+        obj = cls(token=hashed, member_id=member_id, stage=stage)
+        db.session.add(obj)
+        return obj, plain
+
+    @classmethod
+    def verify(cls, token: str, salt: str) -> "VoteToken | None":
+        hashed = cls._hash(token, salt)
+        return cls.query.filter_by(token=hashed).first()
 
 class UnsubscribeToken(db.Model):
     __tablename__ = 'unsubscribe_tokens'
