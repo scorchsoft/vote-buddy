@@ -32,3 +32,10 @@ class PermissionForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     submit = SubmitField('Save')
 
+
+class SettingsForm(FlaskForm):
+    site_title = StringField('Site Title', validators=[DataRequired()])
+    site_logo = StringField('Site Logo', validators=[Optional()])
+    from_email = StringField('From Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Save')
+

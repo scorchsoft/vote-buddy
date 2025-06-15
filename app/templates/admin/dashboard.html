@@ -2,7 +2,7 @@
 {% block content %}
 <div class="bp-card space-y-4">
   <h2 class="font-bold text-bp-blue">Admin Dashboard</h2>
-  <p>Welcome to VoteBuddy administration.</p>
+  <p>Welcome to {{ setting('site_title', 'VoteBuddy') }} administration.</p>
   <a href="{{ url_for('admin.list_users') }}" class="bp-btn-primary">Manage Users</a>
 </div>
 <h2 class="font-bold text-bp-blue mb-4">My Meetings</h2>

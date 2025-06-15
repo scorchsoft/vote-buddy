@@ -3,14 +3,20 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>VoteBuddy</title>
+    <title>{{ setting('site_title', 'VoteBuddy') }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   </head>
   <body hx-boost="true" class="flex flex-col min-h-screen bg-bp-grey-50 font-sans">
     <header>
       <nav class="bg-bp-blue text-white">
         <div class="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-3">
-          <a href="{{ url_for('main.index') }}" class="font-bold text-lg">VoteBuddy</a>
+          <a href="{{ url_for('main.index') }}" class="font-bold text-lg">
+            {% if setting('site_logo') %}
+            <img src="{{ url_for('static', filename=setting('site_logo')) }}" alt="{{ setting('site_title', 'VoteBuddy') }}" class="h-6 inline-block">
+            {% else %}
+            {{ setting('site_title', 'VoteBuddy') }}
+            {% endif %}
+          </a>
           <div class="flex items-center space-x-4 text-sm">
             <ul class="flex space-x-4">
               <li><a href="{{ url_for('main.index') }}" class="hover:underline">Home</a></li>
