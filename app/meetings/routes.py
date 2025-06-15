@@ -363,6 +363,16 @@ def close_stage1(meeting_id: int):
     """Close Stage 1 and handle run-offs or open Stage 2."""
     meeting = Meeting.query.get_or_404(meeting_id)
 
+    # check whether Stage 1 reached quorum
+    if meeting.stage1_votes_count() < meeting.quorum:
+        meeting.status = 'Quorum not met'
+        db.session.commit()
+        flash(
+            'Stage 1 quorum not met – vote void under Articles 112(d)–(f).',
+            'error',
+        )
+        return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
+
     # finalize Stage 1 results and create run-off ballots if required
     runoffs, tokens_to_send = runoff.close_stage1(meeting)
 

@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from ..extensions import db
-from ..models import Meeting, User, Role, Permission
-from .forms import UserForm, UserCreateForm, RoleForm
+from ..models import Meeting, User, Role, Permission, AppSetting
+from .forms import UserForm, UserCreateForm, RoleForm, SettingsForm
 
 from ..permissions import permission_required
 
@@ -156,3 +156,21 @@ def edit_role(role_id):
         _save_role(form, role)
         return redirect(url_for('admin.list_roles'))
     return render_template('admin/role_form.html', form=form, role=role)
+
+
+@bp.route('/settings', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_settings')
+def manage_settings():
+    form = SettingsForm()
+    if request.method == 'GET':
+        form.site_title.data = AppSetting.get('site_title', 'VoteBuddy')
+        form.site_logo.data = AppSetting.get('site_logo', '')
+        form.from_email.data = AppSetting.get('from_email', 'noreply@example.com')
+    if form.validate_on_submit():
+        AppSetting.set('site_title', form.site_title.data)
+        AppSetting.set('site_logo', form.site_logo.data)
+        AppSetting.set('from_email', form.from_email.data)
+        flash('Settings updated', 'success')
+        return redirect(url_for('admin.manage_settings'))
+    return render_template('admin/settings_form.html', form=form)

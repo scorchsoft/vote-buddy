@@ -31,6 +31,35 @@ class Permission(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
     roles = db.relationship('Role', secondary=roles_permissions, back_populates='permissions')
 
+
+class AppSetting(db.Model):
+    """Key-value application setting stored in the database."""
+
+    __tablename__ = 'app_settings'
+
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(50), unique=True, nullable=False)
+    value = db.Column(db.String(255))
+    group = db.Column(db.String(50))
+
+    @classmethod
+    def get(cls, key: str, default: str | None = None) -> str | None:
+        try:
+            setting = cls.query.filter_by(key=key).first()
+        except Exception:
+            return default
+        return setting.value if setting else default
+
+    @classmethod
+    def set(cls, key: str, value: str) -> "AppSetting":
+        setting = cls.query.filter_by(key=key).first()
+        if not setting:
+            setting = cls(key=key)
+            db.session.add(setting)
+        setting.value = value
+        db.session.commit()
+        return setting
+
 class Meeting(db.Model):
     __tablename__ = 'meetings'
     id = db.Column(db.Integer, primary_key=True)

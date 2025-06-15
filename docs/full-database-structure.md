@@ -136,3 +136,11 @@ This document summarises all tables and columns created by the Alembic migration
 | choice | String(10) | |
 | hash | String(128) | |
 
+### app_settings
+| Column | Type | Notes |
+|-------|------|-------|
+| id | Integer | Primary key |
+| key | String(50) | Unique |
+| value | String(255) | |
+| group | String(50) | |
+

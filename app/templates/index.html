@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="bp-card text-center space-y-4">
-  <h1 class="text-3xl font-bold text-bp-blue">Welcome to VoteBuddy</h1>
+  <h1 class="text-3xl font-bold text-bp-blue">Welcome to {{ setting('site_title', 'VoteBuddy') }}</h1>
   <p class="text-bp-grey-700">British Powerlifting's official voting platform.</p>
   <a href="{{ url_for('auth.login') }}" class="bp-btn-primary">Admin Login</a>
 </div>
