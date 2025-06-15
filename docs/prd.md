@@ -319,6 +319,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Corrected email invite links to use `/vote/<token>`.
 * 2025-06-15 – Stage 2 ballot now shows compiled motion text with carried amendments.
 * 2025-06-17 – Added manual Stage 2 merge screen with final text field.
+* 2025-06-18 – Voting route rejects ballots when a stage is locked.
 
 
 
