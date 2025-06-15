@@ -33,7 +33,13 @@ def upgrade():
     with op.batch_alter_table('meetings', schema=None) as batch_op:
         batch_op.drop_column('motion_md')
     with op.batch_alter_table('amendments', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('motion_id', sa.Integer(), sa.ForeignKey('motions.id')))
+        batch_op.add_column(sa.Column('motion_id', sa.Integer()))
+        batch_op.create_foreign_key(
+            'fk_amendments_motion_id_motions',
+            'motions',
+            ['motion_id'],
+            ['id'],
+        )
     with op.batch_alter_table('votes', schema=None) as batch_op:
         batch_op.add_column(sa.Column('motion_id', sa.Integer(), nullable=True))
         batch_op.drop_column('motion')
