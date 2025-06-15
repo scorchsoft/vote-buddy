@@ -28,8 +28,55 @@ import io
 from uuid6 import uuid7
 from sqlalchemy import func
 from docx import Document
+from docx.shared import RGBColor, Inches, Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
+import os
 
 bp = Blueprint('meetings', __name__, url_prefix='/meetings')
+
+
+def _shade_cell(cell, color_hex: str) -> None:
+    """Apply background colour to a table cell."""
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{color_hex}"/>')
+    cell._tc.get_or_add_tcPr().append(shading)
+
+
+def _styled_doc(title: str, include_logo: bool) -> Document:
+    """Return a Document with BP branding styles."""
+    doc = Document()
+    normal = doc.styles["Normal"].font
+    normal.name = "Gotham"
+    normal.size = Pt(11)
+
+    for level in ["Heading 2", "Heading 3"]:
+        h = doc.styles[level].font
+        h.name = "Gotham"
+        h.color.rgb = RGBColor(0xDC, 0x07, 0x14)
+
+    # header bar
+    table = doc.add_table(rows=1, cols=1)
+    cell = table.rows[0].cells[0]
+    para = cell.paragraphs[0]
+    run = para.add_run(title)
+    run.bold = True
+    run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+    para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    _shade_cell(cell, "002D59")
+
+    if include_logo:
+        logo_path = os.path.join(current_app.root_path, "..", "assets", "logo (1).png")
+        footer = doc.sections[0].footer
+        fp = footer.add_paragraph()
+        fp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        fp_run = fp.add_run()
+        try:
+            fp_run.add_picture(logo_path, width=Inches(1))
+        except Exception:
+            pass
+
+    return doc
 
 @bp.route('/')
 @login_required
@@ -347,14 +394,28 @@ def results_summary(meeting_id: int):
 def results_docx(meeting_id: int):
     meeting = Meeting.query.get_or_404(meeting_id)
     results = _amendment_results(meeting)
-    doc = Document()
-    doc.add_heading(f'{meeting.title} - Stage 1 Results', level=1)
-    for amend, counts in results:
-        doc.add_heading(f'Amendment {amend.order}', level=2)
-        doc.add_paragraph(amend.text_md or '')
-        doc.add_paragraph(f"For: {counts['for']}")
-        doc.add_paragraph(f"Against: {counts['against']}")
-        doc.add_paragraph(f"Abstain: {counts['abstain']}")
+    include_logo = request.args.get("logo") == "1"
+    doc = _styled_doc(f"{meeting.title} - Stage 1 Results", include_logo)
+
+    table = doc.add_table(rows=1, cols=4)
+    hdr = table.rows[0].cells
+    hdr[0].text = "Amendment"
+    hdr[1].text = "For"
+    hdr[2].text = "Against"
+    hdr[3].text = "Abstain"
+    for cell in hdr:
+        for run in cell.paragraphs[0].runs:
+            run.bold = True
+
+    for idx, (amend, counts) in enumerate(results, start=1):
+        row = table.add_row().cells
+        row[0].text = amend.text_md or ""
+        row[1].text = str(counts["for"])
+        row[2].text = str(counts["against"])
+        row[3].text = str(counts["abstain"])
+        if idx % 2 == 0:
+            for c in row:
+                _shade_cell(c, "F7F7F9")
     buf = io.BytesIO()
     doc.save(buf)
     buf.seek(0)
@@ -422,24 +483,41 @@ def results_stage2_docx(meeting_id: int):
     amend_results = _amendment_results(meeting)
     motion_results = _motion_results(meeting)
 
-    doc = Document()
-    doc.add_heading(f"{meeting.title} - Final Results", level=1)
+    include_logo = request.args.get("logo") == "1"
+    doc = _styled_doc(f"{meeting.title} - Final Results", include_logo)
 
     doc.add_heading("Carried Amendments", level=2)
     carried = [a for a, c in amend_results if c.get("for", 0) > c.get("against", 0)]
+    table_ca = doc.add_table(rows=1, cols=1)
     if carried:
-        for amend in carried:
-            doc.add_paragraph(amend.text_md or "")
+        for idx, amend in enumerate(carried, start=1):
+            row = table_ca.add_row().cells
+            row[0].text = amend.text_md or ""
+            if idx % 2 == 0:
+                _shade_cell(row[0], "F7F7F9")
     else:
-        doc.add_paragraph("No amendments carried.")
+        table_ca.rows[0].cells[0].text = "No amendments carried."
 
     doc.add_heading("Motion Outcomes", level=2)
-    for motion, counts in motion_results:
-        doc.add_heading(motion.title or "Motion", level=3)
-        doc.add_paragraph(motion.text_md or "")
-        doc.add_paragraph(f"For: {counts['for']}")
-        doc.add_paragraph(f"Against: {counts['against']}")
-        doc.add_paragraph(f"Abstain: {counts['abstain']}")
+    table = doc.add_table(rows=1, cols=4)
+    hdr = table.rows[0].cells
+    hdr[0].text = "Motion"
+    hdr[1].text = "For"
+    hdr[2].text = "Against"
+    hdr[3].text = "Abstain"
+    for cell in hdr:
+        for run in cell.paragraphs[0].runs:
+            run.bold = True
+
+    for idx, (motion, counts) in enumerate(motion_results, start=1):
+        row = table.add_row().cells
+        row[0].text = motion.title or "Motion"
+        row[1].text = str(counts["for"])
+        row[2].text = str(counts["against"])
+        row[3].text = str(counts["abstain"])
+        if idx % 2 == 0:
+            for c in row:
+                _shade_cell(c, "F7F7F9")
 
     buf = io.BytesIO()
     doc.save(buf)

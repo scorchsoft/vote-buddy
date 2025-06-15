@@ -337,6 +337,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Vote tokens stored as SHA-256 hashes with server-side salt.
 * 2025-06-15 – Sanitised help page HTML using Bleach to strip script tags.
 * 2025-06-15 – Fixed floating “Create Meeting” button on admin dashboard link
+* 2025-06-15 – DOCX exports styled with bp-blue header, bp-red headings, Gotham font and optional logo watermark.
 
 
 ---
