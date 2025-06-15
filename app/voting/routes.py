@@ -74,6 +74,19 @@ def _combined_form(motions, amendments):
     return type("CombinedForm", (FlaskForm,), fields)()
 
 
+def compile_motion_text(motion: Motion) -> str:
+    """Return motion text with carried amendments appended in order."""
+    amendments = (
+        Amendment.query.filter_by(motion_id=motion.id, status="carried")
+        .order_by(Amendment.order)
+        .all()
+    )
+    text_parts = [motion.text_md]
+    for amend in amendments:
+        text_parts.append(amend.text_md)
+    return "\n\n".join(text_parts)
+
+
 @bp.route("/<token>", methods=["GET", "POST"])
 def ballot_token(token: str):
     """Verify token and display the correct ballot stage."""
@@ -207,9 +220,13 @@ def ballot_token(token: str):
             db.session.commit()
             return render_template("voting/confirmation.html", choice="recorded")
 
+        motions_compiled = []
+        for motion in motions:
+            compiled = compile_motion_text(motion)
+            motions_compiled.append((motion, compiled))
         return render_template(
             "voting/stage2_ballot.html",
             form=form,
-            motions=motions,
+            motions=motions_compiled,
             meeting=meeting,
         )

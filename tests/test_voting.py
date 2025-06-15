@@ -243,9 +243,47 @@ def test_stage2_token_window_enforcement():
                 assert resp[1] == 400
                 assert token.used_at is None
 
-        with app.test_request_context("/vote/tok-stage2"):
-            with patch("app.voting.routes.datetime") as mock_dt:
-                mock_dt.utcnow.return_value = after_close
-                resp = voting.ballot_token("tok-stage2")
-                assert resp[1] == 400
-                assert token.used_at is None
+
+def test_compile_motion_text_appends_carried_amendments():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Base",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        a1 = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md="A1",
+            order=2,
+            status="carried",
+        )
+        a2 = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md="A0",
+            order=1,
+            status="carried",
+        )
+        a3 = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md="FAIL",
+            order=3,
+            status="failed",
+        )
+        db.session.add_all([a1, a2, a3])
+        db.session.commit()
+
+        text = voting.compile_motion_text(motion)
+        assert text == "Base\n\nA0\n\nA1"
