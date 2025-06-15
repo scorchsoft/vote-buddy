@@ -9,8 +9,13 @@
 <div class="bp-card-grid mb-12">
   {% for meeting in meetings %}
   <div class="bp-card">
+    <div class="bp-alert-warning mb-2">
+      Quorum: {{ '%.1f'|format(meeting.quorum_percentage()) }}% –
+      Stage 1 closes in {{ meeting.stage1_time_remaining() }}
+    </div>
     <h3 class="font-semibold mb-1">{{ meeting.title }}</h3>
-    <p class="text-sm">{{ meeting.status or 'Draft' }}</p>
+    <p class="text-sm mb-1">{{ meeting.status or 'Draft' }}</p>
+    <span class="bp-badge">Next reminder in {{ meeting.hours_until_next_reminder() }}h</span>
     <a href="{{ url_for('admin.toggle_public_results', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm mt-2 inline-block">
       {{ 'Hide Results' if meeting.public_results else 'Show Results' }}
     </a>

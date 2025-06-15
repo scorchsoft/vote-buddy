@@ -16,11 +16,43 @@ from ..models import (
 
 def close_stage1(meeting: Meeting) -> list[Runoff]:
     """Finalize Stage 1 results and create run-off ballots if needed."""
-    amendments = Amendment.query.filter_by(meeting_id=meeting.id).all()
+    amendments = (
+        Amendment.query.filter_by(meeting_id=meeting.id)
+        .order_by(Amendment.order)
+        .all()
+    )
+    tie_map: dict[int, list[Amendment]] = {}
+    decisions = current_app.config.get('TIE_BREAK_DECISIONS', {})
     for amend in amendments:
         for_count = Vote.query.filter_by(amendment_id=amend.id, choice='for').count()
         against_count = Vote.query.filter_by(amendment_id=amend.id, choice='against').count()
-        amend.status = 'carried' if for_count > against_count else 'failed'
+        if for_count > against_count:
+            amend.status = 'carried'
+        elif for_count < against_count:
+            amend.status = 'failed'
+        else:
+            decision = decisions.get(amend.id)
+            if decision:
+                amend.status = decision['result']
+                amend.tie_break_method = decision['method']
+            else:
+                amend.status = 'tied'
+                tie_map.setdefault(amend.motion_id, []).append(amend)
+    # resolve any remaining ties by amendment order
+    for tied in tie_map.values():
+        if len(tied) == 1:
+            loser = tied[0]
+            loser.status = 'failed'
+            loser.tie_break_method = 'order'
+            continue
+        tied.sort(key=lambda a: a.order)
+        winner = tied[0]
+        winner.status = 'carried'
+        winner.tie_break_method = 'order'
+        for loser in tied[1:]:
+            loser.status = 'failed'
+            loser.tie_break_method = 'order'
+
     db.session.commit()
 
     runoffs = _detect_runoffs(meeting)

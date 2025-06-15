@@ -1,5 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
+import math
+from flask import current_app
 from flask_login import UserMixin
 from .extensions import db, bcrypt
 
@@ -59,6 +61,36 @@ class Meeting(db.Model):
             .count()
         )
 
+    def hours_until_next_reminder(self, now: datetime | None = None) -> int:
+        """Return hours until the next reminder email should be sent."""
+        if not self.closes_at_stage1:
+            return 0
+        now = now or datetime.utcnow()
+        hours_before = current_app.config.get("REMINDER_HOURS_BEFORE_CLOSE", 6)
+        next_due = self.closes_at_stage1 - timedelta(hours=hours_before)
+        if self.stage1_reminder_sent_at:
+            cooldown = current_app.config.get("REMINDER_COOLDOWN_HOURS", 24)
+            next_due = self.stage1_reminder_sent_at + timedelta(hours=cooldown)
+        diff = (next_due - now).total_seconds() / 3600
+        return max(0, math.ceil(diff))
+
+    def quorum_percentage(self) -> float:
+        """Return Stage-1 turnout as a percentage of quorum."""
+        if not self.quorum:
+            return 0.0
+        return (self.stage1_votes_count() / self.quorum) * 100
+
+    def stage1_time_remaining(self) -> str:
+        """Return human-friendly countdown until Stage-1 closes."""
+        if not self.closes_at_stage1:
+            return "N/A"
+        delta = self.closes_at_stage1 - datetime.utcnow()
+        if delta.total_seconds() <= 0:
+            return "Closed"
+        hours, rem = divmod(int(delta.total_seconds()), 3600)
+        minutes = rem // 60
+        return f"{hours}h {minutes}m"
+
 class Member(db.Model):
     __tablename__ = 'members'
     id = db.Column(db.Integer, primary_key=True)
@@ -105,6 +137,7 @@ class Amendment(db.Model):
     status = db.Column(db.String(50))
     proposer_id = db.Column(db.Integer, db.ForeignKey('members.id'))
     seconder_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    tie_break_method = db.Column(db.String(20))
 
     proposer = db.relationship('Member', foreign_keys=[proposer_id])
     seconder = db.relationship('Member', foreign_keys=[seconder_id])

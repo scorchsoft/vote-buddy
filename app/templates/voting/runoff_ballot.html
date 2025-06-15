@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">Run-off Vote</h2>
+<div class="bp-alert-warning mb-4">These amendments conflict. Choose which one should proceed.</div>
+{% if proxy_for %}
+<div class="bp-alert-warning text-center mb-4">
+  Casting votes as proxy for {{ proxy_for.name }}.
+</div>
+{% endif %}
+<form method="post" class="bp-form bp-card space-y-6">
+  {{ form.hidden_tag() }}
+  {% for runoff, amend_a, amend_b in runoffs %}
+    <div class="bp-card bp-glow mb-4 grid md:grid-cols-2 gap-4">
+      <div class="whitespace-pre-line">{{ amend_a.text_md }}</div>
+      <div class="whitespace-pre-line">{{ amend_b.text_md }}</div>
+    </div>
+    <div class="space-x-4 mb-4">
+      {% for sub in form['runoff_' ~ runoff.id] %}
+        <label class="inline-flex items-center mr-4">{{ sub() }}<span>{{ sub.label.text }}</span></label>
+      {% endfor %}
+    </div>
+  {% endfor %}
+  <button type="submit" class="bp-btn-primary">Submit vote</button>
+</form>
+{% endblock %}

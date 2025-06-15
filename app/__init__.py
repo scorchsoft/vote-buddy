@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 
 from .extensions import db, migrate, login_manager, bcrypt, csrf, mail, scheduler
 
@@ -9,6 +9,7 @@ def create_app(config_object='config.DevelopmentConfig'):
 
     register_extensions(app)
     register_blueprints(app)
+    register_error_handlers(app)
 
     @app.after_request
     def set_frame_options(response):
@@ -65,3 +66,14 @@ def register_blueprints(app):
     app.register_blueprint(voting_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(ro_bp)
+
+
+def register_error_handlers(app):
+    @app.errorhandler(403)
+    def forbidden(_):
+        return render_template('errors/403.html'), 403
+
+    @app.errorhandler(404)
+    def page_not_found(_):
+        return render_template('errors/404.html'), 404
+

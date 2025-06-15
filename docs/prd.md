@@ -318,11 +318,16 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Implemented public results visibility toggle and results page.
 * 2025-06-15 – Corrected email invite links to use `/vote/<token>`.
 * 2025-06-15 – Stage 2 ballot now shows compiled motion text with carried amendments.
-* 2025-06-17 – Added manual Stage 2 merge screen with final text field.
-* 2025-06-18 – Voting route rejects ballots when a stage is locked.
-* 2025-06-18 – Added Content-Security-Policy header restricting scripts/styles to self and the htmx CDN.
-
-
+* 2025-06-15 – Added manual Stage 2 merge screen with final text field.
+* 2025-06-15 – Voting route rejects ballots when a stage is locked.
+* 2025-06-15 – Run-off and reminder emails now link to `/vote/<token>`.
+* 2025-06-15 – Added `aria-describedby` error hints on admin and meeting forms.
+* 2025-06-15 – Dashboard shows countdown to next reminder using badge design.
+* 2025-06-15 – Added quorum percentage banner with countdown on dashboards.
+* 2025-06-15 – Added branded 403 and 404 error pages.
+* 2025-06-15 – Run-off service resolves tied amendment votes using chair/board decisions or amendment order.
+* 2025-06-15 – Implemented run-off ballot route and template
+* 2025-06-15 – Added Content-Security-Policy header restricting scripts/styles to self and the htmx CDN.
 
 
 ---

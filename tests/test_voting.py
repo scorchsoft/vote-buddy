@@ -18,6 +18,7 @@ from app.models import (
     Motion,
     MotionOption,
     Vote,
+    Runoff,
 )
 from app.voting import routes as voting
 from unittest.mock import patch
@@ -473,3 +474,49 @@ def test_stage2_locked_rejects_vote():
             resp = voting.ballot_token("lock2")
             assert resp[1] == 400
             assert token.used_at is None
+
+
+def test_runoff_ballot_display_and_submit():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        a1 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1, status="carried")
+        a2 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A2", order=2, status="carried")
+        db.session.add_all([a1, a2])
+        db.session.flush()
+        rof = Runoff(meeting_id=meeting.id, amendment_a_id=a1.id, amendment_b_id=a2.id)
+        db.session.add(rof)
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token = VoteToken(token="r1", member_id=member.id, stage=1)
+        db.session.add(token)
+        db.session.commit()
+
+        with app.test_request_context(f"/runoff/{token.token}"):
+            html = voting.runoff_ballot(token.token)
+            assert "A1" in html
+            assert "A2" in html
+
+        with app.test_request_context(
+            f"/runoff/{token.token}", method="POST", data={f"runoff_{rof.id}": "a"}
+        ):
+            voting.runoff_ballot(token.token)
+
+        votes = Vote.query.order_by(Vote.amendment_id).all()
+        assert len(votes) == 2
+        assert votes[0].choice == ("for" if votes[0].amendment_id == a1.id else "against")
+        assert token.used_at is not None
