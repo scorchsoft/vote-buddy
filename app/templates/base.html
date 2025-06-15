@@ -43,6 +43,17 @@
         </div>
       </div>
     </header>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        <div class="max-w-[1200px] mx-auto px-4 py-2 space-y-2">
+          {% for category, message in messages %}
+            <div class="bp-alert-{{ 'success' if category == 'success' else 'warning' if category == 'warning' else 'error' }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
     <main class="flex-grow max-w-[1200px] mx-auto w-full px-4 py-4">
       {% block content %}{% endblock %}
     </main>

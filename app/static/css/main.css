@@ -941,3 +941,56 @@ a:focus-visible {
 .bp-glow {
   box-shadow: 0 0 0 4px rgba(220, 7, 20, 0.4);
 }
+
+/* Sticky confirmation footer */
+.bp-sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 50;
+/* Stepper component */
+.bp-stepper {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+@media (min-width: 768px) {
+  .bp-stepper {
+    flex-direction: row;
+  }
+}
+.bp-stepper li {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+.bp-stepper li::before {
+  content: attr(data-step);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.5rem;
+  border-radius: 9999px;
+  background-color: #F7F7F9;
+  color: #3F4854;
+}
+.bp-stepper-current::before {
+  background-color: #DC0714;
+  color: #FFFFFF;
+}
+.bp-stepper-complete::before {
+  background-color: #002D59;
+  color: #FFFFFF;
+}

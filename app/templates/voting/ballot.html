@@ -4,7 +4,7 @@
 <div class="bp-card mb-4">
   {{ amendment.text_md or 'No amendment text.' }}
 </div>
-<form method="post" class="bp-form bp-card space-y-4">
+<form id="vote-form" method="post" class="bp-form bp-card space-y-4 pb-20">
   {{ form.hidden_tag() }}
   <div>
     <span class="font-semibold">Select your choice:</span>
@@ -16,6 +16,7 @@
       {% endfor %}
     </div>
   </div>
-  <button type="submit" class="bp-btn-primary">Submit vote</button>
+  {% include 'voting/_sticky_footer.html' %}
 </form>
+<script src="{{ url_for('static', filename='js/voting_footer.js') }}"></script>
 {% endblock %}

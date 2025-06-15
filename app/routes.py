@@ -10,6 +10,17 @@ def index():
     return render_template('index.html')
 
 
+@bp.route('/results')
+def results_index():
+    """List meetings with public results."""
+    meetings = (
+        Meeting.query.filter_by(public_results=True)
+        .order_by(Meeting.title)
+        .all()
+    )
+    return render_template('results_index.html', meetings=meetings)
+
+
 def _vote_counts(query):
     counts = {'for': 0, 'against': 0, 'abstain': 0}
     rows = (

@@ -7,6 +7,7 @@ from app import create_app
 from app.extensions import db
 from app.models import Meeting, Role, Permission, User
 from app.admin import routes as admin
+from flask import url_for
 
 
 def _make_user():
@@ -33,3 +34,17 @@ def test_admin_dashboard_shows_countdown():
                 html = admin.dashboard()
                 assert 'Next reminder in' in html
                 assert '2h' in html
+
+
+def test_admin_dashboard_contains_create_link():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        user = _make_user()
+        with app.test_request_context('/admin/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = admin.dashboard()
+                href = url_for('meetings.create_meeting')
+                assert href in html
+                assert 'bp-btn-primary' in html
