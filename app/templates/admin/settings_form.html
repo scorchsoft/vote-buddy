@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bp-card max-w-lg space-y-4">
+  <h2 class="font-bold text-bp-blue">Application Settings</h2>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="mb-4">
+      {{ form.site_title.label(class='block mb-1') }}
+      {{ form.site_title(class='bp-input w-full') }}
+    </div>
+    <div class="mb-4">
+      {{ form.site_logo.label(class='block mb-1') }}
+      {{ form.site_logo(class='bp-input w-full') }}
+    </div>
+    <div class="mb-4">
+      {{ form.from_email.label(class='block mb-1') }}
+      {{ form.from_email(class='bp-input w-full') }}
+    </div>
+    {{ form.submit(class='bp-btn-primary') }}
+  </form>
+</div>
+{% endblock %}

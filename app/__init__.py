@@ -55,7 +55,14 @@ def register_extensions(app):
     # register template filters
     app.jinja_env.filters['markdown_to_html'] = markdown_to_html
 
-    from .models import User
+    from .models import User, AppSetting
+
+    @app.context_processor
+    def inject_settings():
+        def setting(key: str, default: str | None = None) -> str | None:
+            return AppSetting.get(key, default)
+        return {'setting': setting}
+
 
     @login_manager.user_loader
     def load_user(user_id: str) -> User | None:
