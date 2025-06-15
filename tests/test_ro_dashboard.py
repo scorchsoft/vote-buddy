@@ -2,6 +2,7 @@ import os, sys
 from datetime import datetime
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+from werkzeug.exceptions import Forbidden
 from unittest.mock import patch
 from app import create_app
 from app.extensions import db
@@ -67,3 +68,22 @@ def test_download_tallies_csv():
                 resp = ro.download_tallies(meeting.id)
                 assert resp.status_code == 200
                 assert b'amendment' in resp.data
+
+def test_dashboard_requires_permission():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.commit()
+        user = User(role=Role(permissions=[]))
+        user.is_active = True
+        with app.test_request_context('/ro/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                try:
+                    ro.dashboard()
+                except Exception as exc:
+                    assert isinstance(exc, Forbidden)
+                else:
+                    assert False, 'expected Forbidden'

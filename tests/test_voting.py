@@ -206,3 +206,46 @@ def test_combined_ballot_records_votes():
         assert votes[0].amendment_id == amend.id
         assert votes[1].motion_id == motion.id
         assert token.used_at is not None
+
+def test_stage2_token_window_enforcement():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        opens = datetime.utcnow() + timedelta(hours=1)
+        closes = opens + timedelta(hours=1)
+        meeting = Meeting(title="AGM", opens_at_stage2=opens, closes_at_stage2=closes)
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token = VoteToken(token="tok-stage2", member_id=member.id, stage=2)
+        db.session.add(token)
+        db.session.commit()
+
+        before_open = opens - timedelta(minutes=5)
+        after_close = closes + timedelta(minutes=5)
+
+        with app.test_request_context("/vote/tok-stage2"):
+            with patch("app.voting.routes.datetime") as mock_dt:
+                mock_dt.utcnow.return_value = before_open
+                resp = voting.ballot_token("tok-stage2")
+                assert resp[1] == 400
+                assert token.used_at is None
+
+        with app.test_request_context("/vote/tok-stage2"):
+            with patch("app.voting.routes.datetime") as mock_dt:
+                mock_dt.utcnow.return_value = after_close
+                resp = voting.ballot_token("tok-stage2")
+                assert resp[1] == 400
+                assert token.used_at is None
