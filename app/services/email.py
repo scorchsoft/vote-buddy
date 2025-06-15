@@ -49,6 +49,13 @@ def send_runoff_invite(member: Member, token: str, meeting: Meeting) -> None:
     )
     msg.html = render_template(
         'email/runoff_invite.html',
+        member=member,
+        meeting=meeting,
+        link=link,
+        unsubscribe_url='#',
+    )
+    mail.send(msg)
+
 
 def send_stage1_reminder(member: Member, token: str, meeting: Meeting) -> None:
     """Email reminder to cast Stage 1 vote."""

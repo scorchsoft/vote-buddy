@@ -1,8 +1,7 @@
 from datetime import datetime
-from flask import Blueprint, render_template, abort, request, current_app
+from flask import Blueprint, render_template, current_app
 
 from ..extensions import db
-from datetime import datetime
 from ..models import (
     VoteToken,
     Member,
@@ -72,6 +71,20 @@ def _combined_form(motions, amendments):
         )
     fields["submit"] = SubmitField("Submit votes")
     return type("CombinedForm", (FlaskForm,), fields)()
+
+
+def compile_motion_text(motion: Motion) -> str:
+    """Return the motion text with carried amendments inserted in order."""
+    amendments = (
+        Amendment.query.filter_by(motion_id=motion.id, status="carried")
+        .order_by(Amendment.order)
+        .all()
+    )
+    if not amendments:
+        return motion.text_md
+    parts = [motion.text_md]
+    parts.extend(a.text_md for a in amendments)
+    return "\n\n".join(parts)
 
 
 @bp.route("/<token>", methods=["GET", "POST"])
@@ -244,10 +257,11 @@ def ballot_token(token: str):
             db.session.commit()
             return render_template("voting/confirmation.html", choice="recorded")
 
+        compiled = [(m, compile_motion_text(m)) for m in motions]
         return render_template(
             "voting/stage2_ballot.html",
             form=form,
-            motions=motions,
+            motions=compiled,
             meeting=meeting,
             proxy_for=proxy_member,
         )
