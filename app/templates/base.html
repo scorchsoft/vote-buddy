@@ -21,7 +21,11 @@
       </nav>
       <div class="bg-bp-grey-50 text-bp-grey-700" role="status">
         <div class="max-w-[1200px] mx-auto px-4 py-2">
-          Stage status placeholder
+          {% if active_meeting %}
+          {{ stage_name }} closes in {{ time_remaining }} – quorum {{ quorum_pct }}%
+          {% else %}
+          No active meeting
+          {% endif %}
         </div>
       </div>
     </header>

@@ -33,3 +33,38 @@ def test_admin_dashboard_shows_countdown():
                 html = admin.dashboard()
                 assert 'Next reminder in' in html
                 assert '2h' in html
+
+
+def test_dashboard_banner_shows_active_meeting():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title='AGM',
+            opens_at_stage1=now - timedelta(minutes=30),
+            closes_at_stage1=now + timedelta(minutes=30),
+            quorum=5,
+        )
+        db.session.add(meeting)
+        db.session.commit()
+        user = _make_user()
+        with app.test_request_context('/admin/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = admin.dashboard()
+                assert 'Stage 1' in html
+                assert 'quorum' in html
+                assert 'No active meeting' not in html
+
+
+def test_dashboard_banner_no_active_meeting():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        user = _make_user()
+        with app.test_request_context('/admin/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = admin.dashboard()
+                assert 'No active meeting' in html

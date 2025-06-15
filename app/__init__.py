@@ -17,6 +17,58 @@ def create_app(config_object='config.DevelopmentConfig'):
     register_blueprints(app)
     register_error_handlers(app)
 
+    @app.context_processor
+    def inject_meeting_banner():
+        """Provide currently open meeting with stage info for templates."""
+        from .models import Meeting
+        from datetime import datetime
+
+        now = datetime.utcnow()
+        meeting = None
+        stage = None
+        closes_at = None
+
+        try:
+            meetings = Meeting.query.all()
+        except Exception:
+            meetings = []
+
+        for m in meetings:
+            if m.opens_at_stage1 and m.opens_at_stage1 <= now < (m.closes_at_stage1 or now):
+                meeting = m
+                stage = 1
+                closes_at = m.closes_at_stage1
+                break
+            if m.opens_at_stage2 and m.opens_at_stage2 <= now < (m.closes_at_stage2 or now):
+                meeting = m
+                stage = 2
+                closes_at = m.closes_at_stage2
+                break
+
+        if not meeting:
+            return dict(active_meeting=None)
+
+        if stage == 1:
+            time_remaining = meeting.stage1_time_remaining()
+        else:
+            if not closes_at:
+                time_remaining = "N/A"
+            else:
+                delta = closes_at - now
+                if delta.total_seconds() <= 0:
+                    time_remaining = "Closed"
+                else:
+                    hours, rem = divmod(int(delta.total_seconds()), 3600)
+                    minutes = rem // 60
+                    time_remaining = f"{hours}h {minutes}m"
+
+        return dict(
+            active_meeting=meeting,
+            stage_name=f"Stage {stage}",
+            time_remaining=time_remaining,
+            quorum_pct=f"{meeting.quorum_percentage():.1f}",
+        )
+
     @app.after_request
     def set_frame_options(response):
         """Deny framing to mitigate clickjacking."""
