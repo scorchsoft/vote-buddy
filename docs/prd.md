@@ -310,6 +310,8 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Implemented run-off detection and automatic Stage-1 extension.
 * 2025-06-16 – Amendments now record proposer and seconder with a 21‑day deadline and three‑per‑member cap.
 * 2025-06-16 – Stage 2 ballot displays motion text with carried amendments applied.
+* 2025-06-17 – Corrected email invite links to use `/vote/<token>`.
+
 
 
 
