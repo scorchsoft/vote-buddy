@@ -11,7 +11,12 @@ from ..models import (
     MotionOption,
     Vote,
 )
-from ..services.email import send_vote_invite, send_stage2_invite
+from ..services.email import (
+    send_vote_invite,
+    send_stage2_invite,
+    send_runoff_invite,
+)
+from ..services import runoff
 from ..permissions import permission_required
 from .forms import MeetingForm, MemberImportForm, AmendmentForm, MotionForm
 import csv
@@ -291,19 +296,40 @@ def _motion_results(meeting: Meeting) -> list[tuple[Motion, dict]]:
 @login_required
 @permission_required('manage_meetings')
 def close_stage1(meeting_id: int):
-    """Close Stage 1 and issue Stage 2 tokens."""
+    """Close Stage 1 and handle run-offs or open Stage 2."""
     meeting = Meeting.query.get_or_404(meeting_id)
+
+    # finalize Stage 1 results and create run-off ballots if required
+    runoffs = runoff.close_stage1(meeting)
+
     members = Member.query.filter_by(meeting_id=meeting.id).all()
-    tokens_to_send: list[tuple[Member, str]] = []
-    for member in members:
-        token = VoteToken(token=str(uuid7()), member_id=member.id, stage=2)
-        db.session.add(token)
-        tokens_to_send.append((member, token.token))
-    meeting.status = 'Stage 2'
-    db.session.commit()
-    for m, t in tokens_to_send:
-        send_stage2_invite(m, t, meeting)
-    flash('Stage 1 closed and Stage 2 voting links sent', 'success')
+
+    if runoffs:
+        # send run-off tokens created by the service
+        tokens = [
+            (
+                m,
+                VoteToken.query.filter_by(member_id=m.id, stage=1)
+                .order_by(VoteToken.token.desc())
+                .first()
+                .token,
+            )
+            for m in members
+        ]
+        for m, t in tokens:
+            send_runoff_invite(m, t, meeting)
+        flash('Run-off ballot issued; Stage 2 start delayed', 'success')
+    else:
+        tokens_to_send: list[tuple[Member, str]] = []
+        for member in members:
+            token = VoteToken(token=str(uuid7()), member_id=member.id, stage=2)
+            db.session.add(token)
+            tokens_to_send.append((member, token.token))
+        meeting.status = 'Stage 2'
+        db.session.commit()
+        for m, t in tokens_to_send:
+            send_stage2_invite(m, t, meeting)
+        flash('Stage 1 closed and Stage 2 voting links sent', 'success')
     return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
 
 

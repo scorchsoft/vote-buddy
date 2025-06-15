@@ -35,6 +35,10 @@
     {{ form.revoting_allowed() }}
     {{ form.revoting_allowed.label(class_='font-semibold') }}
   </div>
+  <div class="flex items-center space-x-2">
+    {{ form.public_results() }}
+    {{ form.public_results.label(class_='font-semibold') }}
+  </div>
   <div>
     {{ form.quorum.label(class_='block font-semibold') }}
     {{ form.quorum(class_='border p-3 rounded w-full') }}
