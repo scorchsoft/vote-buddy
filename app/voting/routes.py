@@ -10,6 +10,7 @@ from ..models import (
     Vote,
     Motion,
     MotionOption,
+    Runoff,
 )
 from .forms import VoteForm
 from flask_wtf import FlaskForm
@@ -279,3 +280,86 @@ def ballot_token(token: str):
             meeting=meeting,
             proxy_for=proxy_member,
         )
+
+
+@bp.route("/runoff/<token>", methods=["GET", "POST"])
+def runoff_ballot(token: str):
+    """Display a run-off ballot for conflicting amendments."""
+    vote_token = VoteToken.query.filter_by(token=token, stage=1).first_or_404()
+    member = Member.query.get_or_404(vote_token.member_id)
+    meeting = Meeting.query.get_or_404(member.meeting_id)
+
+    proxy_member = None
+    if member.proxy_for:
+        try:
+            proxy_member = Member.query.get(int(member.proxy_for))
+        except (ValueError, TypeError):
+            proxy_member = None
+
+    if vote_token.used_at and not meeting.revoting_allowed:
+        return (
+            render_template(
+                "voting/token_error.html",
+                message="This voting link has already been used.",
+            ),
+            400,
+        )
+
+    runoffs = Runoff.query.filter_by(meeting_id=meeting.id).all()
+    if not runoffs:
+        return (
+            render_template(
+                "voting/token_error.html",
+                message="No run-off ballot is required for this meeting.",
+            ),
+            400,
+        )
+
+    fields = {}
+    for r in runoffs:
+        fields[f"runoff_{r.id}"] = RadioField(
+            "Your choice",
+            choices=[("a", "Amendment 1"), ("b", "Amendment 2"), ("abstain", "Abstain")],
+            validators=[DataRequired()],
+        )
+    fields["submit"] = SubmitField("Submit vote")
+    form = type("RunoffForm", (FlaskForm,), fields)()
+
+    if form.validate_on_submit():
+        for r in runoffs:
+            choice = form[f"runoff_{r.id}"].data
+            a_id = r.amendment_a_id
+            b_id = r.amendment_b_id
+            if choice == "a":
+                Vote.record(member_id=member.id, amendment_id=a_id, choice="for", salt=current_app.config["VOTE_SALT"])
+                Vote.record(member_id=member.id, amendment_id=b_id, choice="against", salt=current_app.config["VOTE_SALT"])
+                if proxy_member:
+                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="for", salt=current_app.config["VOTE_SALT"])
+                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="against", salt=current_app.config["VOTE_SALT"])
+            elif choice == "b":
+                Vote.record(member_id=member.id, amendment_id=a_id, choice="against", salt=current_app.config["VOTE_SALT"])
+                Vote.record(member_id=member.id, amendment_id=b_id, choice="for", salt=current_app.config["VOTE_SALT"])
+                if proxy_member:
+                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="against", salt=current_app.config["VOTE_SALT"])
+                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="for", salt=current_app.config["VOTE_SALT"])
+            else:
+                Vote.record(member_id=member.id, amendment_id=a_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
+                Vote.record(member_id=member.id, amendment_id=b_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
+                if proxy_member:
+                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
+                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
+        vote_token.used_at = datetime.utcnow()
+        db.session.commit()
+        return render_template("voting/confirmation.html", choice="recorded")
+
+    pairs = [
+        (r, Amendment.query.get(r.amendment_a_id), Amendment.query.get(r.amendment_b_id))
+        for r in runoffs
+    ]
+    return render_template(
+        "voting/runoff_ballot.html",
+        form=form,
+        runoffs=pairs,
+        meeting=meeting,
+        proxy_for=proxy_member,
+    )

@@ -138,7 +138,9 @@ ARIA role="status" on live quorum counter.
 
 Screen‑reader‑only sr-only labels on icon‑only buttons.
 
-Forms: associate every <input> with <label>; inline error beneath field.
+Forms: associate every <input> with <label>; inline error beneath field using
+`<p id="field-id-error" class="bp-error-text">...` and add
+`aria-describedby="field-id-error"` on the input.
 
 
 

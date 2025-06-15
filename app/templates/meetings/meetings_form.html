@@ -5,51 +5,63 @@
   {{ form.hidden_tag() }}
   <div>
     {{ form.title.label(class_='block font-semibold') }}
-    {{ form.title(class_='border p-3 rounded w-full') }}
+    {{ form.title(class_='border p-3 rounded w-full', **{'aria-describedby': form.title.id + '-error'}) }}
+    <p id="{{ form.title.id }}-error" class="bp-error-text">{{ form.title.errors[0] if form.title.errors else '' }}</p>
   </div>
   <div>
     {{ form.type.label(class_='block font-semibold') }}
-    {{ form.type(class_='border p-3 rounded w-full') }}
+    {{ form.type(class_='border p-3 rounded w-full', **{'aria-describedby': form.type.id + '-error'}) }}
+    <p id="{{ form.type.id }}-error" class="bp-error-text">{{ form.type.errors[0] if form.type.errors else '' }}</p>
   </div>
   <div>
     {{ form.opens_at_stage1.label(class_='block font-semibold') }}
-    {{ form.opens_at_stage1(class_='border p-3 rounded w-full') }}
+    {{ form.opens_at_stage1(class_='border p-3 rounded w-full', **{'aria-describedby': form.opens_at_stage1.id + '-error'}) }}
+    <p id="{{ form.opens_at_stage1.id }}-error" class="bp-error-text">{{ form.opens_at_stage1.errors[0] if form.opens_at_stage1.errors else '' }}</p>
   </div>
   <div>
     {{ form.closes_at_stage1.label(class_='block font-semibold') }}
-    {{ form.closes_at_stage1(class_='border p-3 rounded w-full') }}
+    {{ form.closes_at_stage1(class_='border p-3 rounded w-full', **{'aria-describedby': form.closes_at_stage1.id + '-error'}) }}
+    <p id="{{ form.closes_at_stage1.id }}-error" class="bp-error-text">{{ form.closes_at_stage1.errors[0] if form.closes_at_stage1.errors else '' }}</p>
   </div>
   <div>
     {{ form.opens_at_stage2.label(class_='block font-semibold') }}
-    {{ form.opens_at_stage2(class_='border p-3 rounded w-full') }}
+    {{ form.opens_at_stage2(class_='border p-3 rounded w-full', **{'aria-describedby': form.opens_at_stage2.id + '-error'}) }}
+    <p id="{{ form.opens_at_stage2.id }}-error" class="bp-error-text">{{ form.opens_at_stage2.errors[0] if form.opens_at_stage2.errors else '' }}</p>
   </div>
   <div>
     {{ form.closes_at_stage2.label(class_='block font-semibold') }}
-    {{ form.closes_at_stage2(class_='border p-3 rounded w-full') }}
+    {{ form.closes_at_stage2(class_='border p-3 rounded w-full', **{'aria-describedby': form.closes_at_stage2.id + '-error'}) }}
+    <p id="{{ form.closes_at_stage2.id }}-error" class="bp-error-text">{{ form.closes_at_stage2.errors[0] if form.closes_at_stage2.errors else '' }}</p>
   </div>
   <div>
     {{ form.ballot_mode.label(class_='block font-semibold') }}
-    {{ form.ballot_mode(class_='border p-3 rounded w-full') }}
+    {{ form.ballot_mode(class_='border p-3 rounded w-full', **{'aria-describedby': form.ballot_mode.id + '-error'}) }}
+    <p id="{{ form.ballot_mode.id }}-error" class="bp-error-text">{{ form.ballot_mode.errors[0] if form.ballot_mode.errors else '' }}</p>
   </div>
   <div class="flex items-center space-x-2">
-    {{ form.revoting_allowed() }}
+    {{ form.revoting_allowed(**{'aria-describedby': form.revoting_allowed.id + '-error'}) }}
     {{ form.revoting_allowed.label(class_='font-semibold') }}
+    <p id="{{ form.revoting_allowed.id }}-error" class="bp-error-text">{{ form.revoting_allowed.errors[0] if form.revoting_allowed.errors else '' }}</p>
   </div>
   <div class="flex items-center space-x-2">
-    {{ form.public_results() }}
+    {{ form.public_results(**{'aria-describedby': form.public_results.id + '-error'}) }}
     {{ form.public_results.label(class_='font-semibold') }}
+    <p id="{{ form.public_results.id }}-error" class="bp-error-text">{{ form.public_results.errors[0] if form.public_results.errors else '' }}</p>
   </div>
   <div>
     {{ form.quorum.label(class_='block font-semibold') }}
-    {{ form.quorum(class_='border p-3 rounded w-full') }}
+    {{ form.quorum(class_='border p-3 rounded w-full', **{'aria-describedby': form.quorum.id + '-error'}) }}
+    <p id="{{ form.quorum.id }}-error" class="bp-error-text">{{ form.quorum.errors[0] if form.quorum.errors else '' }}</p>
   </div>
   <div>
     {{ form.status.label(class_='block font-semibold') }}
-    {{ form.status(class_='border p-3 rounded w-full') }}
+    {{ form.status(class_='border p-3 rounded w-full', **{'aria-describedby': form.status.id + '-error'}) }}
+    <p id="{{ form.status.id }}-error" class="bp-error-text">{{ form.status.errors[0] if form.status.errors else '' }}</p>
   </div>
   <div>
     {{ form.chair_notes_md.label(class_='block font-semibold') }}
-    {{ form.chair_notes_md(class_='border p-3 rounded w-full') }}
+    {{ form.chair_notes_md(class_='border p-3 rounded w-full', **{'aria-describedby': form.chair_notes_md.id + '-error'}) }}
+    <p id="{{ form.chair_notes_md.id }}-error" class="bp-error-text">{{ form.chair_notes_md.errors[0] if form.chair_notes_md.errors else '' }}</p>
   </div>
   <button type="submit" class="bp-btn-primary">Save</button>
 </form>
