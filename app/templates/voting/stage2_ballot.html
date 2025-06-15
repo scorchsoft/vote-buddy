@@ -8,7 +8,7 @@
   Casting votes as proxy for {{ proxy_for.name }}.
 </div>
 {% endif %}
-<form method="post" class="bp-form bp-card space-y-4">
+<form id="vote-form" method="post" class="bp-form bp-card space-y-4 pb-20">
   {{ form.hidden_tag() }}
   {% for motion, compiled in motions %}
     <blockquote class="bp-card bp-glow mb-4 whitespace-pre-line">{{ compiled }}</blockquote>
@@ -18,6 +18,7 @@
       {% endfor %}
     </div>
   {% endfor %}
-  <button type="submit" class="bp-btn-primary">Submit vote</button>
+  {% include 'voting/_sticky_footer.html' %}
 </form>
+<script src="{{ url_for('static', filename='js/voting_footer.js') }}"></script>
 {% endblock %}

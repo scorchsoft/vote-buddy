@@ -942,6 +942,20 @@ a:focus-visible {
   box-shadow: 0 0 0 4px rgba(220, 7, 20, 0.4);
 }
 
+/* Sticky confirmation footer */
+.bp-sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 50;
 /* Stepper component */
 .bp-stepper {
   list-style: none;
