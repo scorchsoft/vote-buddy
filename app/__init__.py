@@ -1,6 +1,6 @@
 from flask import Flask
 
-from .extensions import db, migrate, login_manager, bcrypt, csrf, mail
+from .extensions import db, migrate, login_manager, bcrypt, csrf, mail, scheduler
 
 
 def create_app(config_object='config.DevelopmentConfig'):
@@ -26,6 +26,11 @@ def register_extensions(app):
     bcrypt.init_app(app)
     csrf.init_app(app)
     mail.init_app(app)
+    if not scheduler.running:
+        scheduler.init_app(app)
+        from .tasks import register_jobs
+        register_jobs()
+        scheduler.start()
     login_manager.login_view = 'auth.login'
 
     from .models import User

@@ -44,6 +44,7 @@ class Meeting(db.Model):
     quorum = db.Column(db.Integer, default=0)
     stage1_locked = db.Column(db.Boolean, default=False)
     stage2_locked = db.Column(db.Boolean, default=False)
+    stage1_reminder_sent_at = db.Column(db.DateTime)
 
     def stage1_votes_count(self) -> int:
         """Return number of verified Stage-1 votes."""
