@@ -17,6 +17,16 @@ def dashboard():
     return render_template('admin/dashboard.html', meetings=meetings)
 
 
+@bp.route('/meetings/<int:meeting_id>/toggle-public')
+@login_required
+@permission_required('manage_meetings')
+def toggle_public_results(meeting_id: int):
+    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting.public_results = not meeting.public_results
+    db.session.commit()
+    return redirect(url_for('admin.dashboard'))
+
+
 @bp.route('/users')
 @login_required
 @permission_required('manage_users')
