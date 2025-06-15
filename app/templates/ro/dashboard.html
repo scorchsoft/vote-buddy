@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">Returning Officer Dashboard</h2>
+<div class="bp-card mb-4">
+  <table class="bp-table">
+    <thead class="bg-bp-grey-50">
+      <tr>
+        <th class="p-2 text-left">Meeting</th>
+        <th class="p-2 text-left">Stage 1 Votes</th>
+        <th class="p-2 text-left">Stage 1 Locked</th>
+        <th class="p-2 text-left">Stage 2 Locked</th>
+        <th class="p-2 text-left">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for meeting, count in meetings %}
+      <tr class="border-t">
+        <td class="p-2">{{ meeting.title }}</td>
+        <td class="p-2">{{ count }}/{{ meeting.quorum }}</td>
+        <td class="p-2">{{ 'Yes' if meeting.stage1_locked else 'No' }}</td>
+        <td class="p-2">{{ 'Yes' if meeting.stage2_locked else 'No' }}</td>
+        <td class="p-2 space-x-2">
+          {% if meeting.stage1_locked %}
+            <a href="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=1) }}" class="bp-btn-primary text-sm">Unlock S1</a>
+          {% else %}
+            <a href="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=1) }}" class="bp-btn-primary text-sm">Lock S1</a>
+          {% endif %}
+          {% if meeting.stage2_locked %}
+            <a href="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=2) }}" class="bp-btn-primary text-sm">Unlock S2</a>
+          {% else %}
+            <a href="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=2) }}" class="bp-btn-primary text-sm">Lock S2</a>
+          {% endif %}
+          <a href="{{ url_for('ro.download_tallies', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm">CSV</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="p-2">No meetings.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

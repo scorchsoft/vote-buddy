@@ -41,9 +41,11 @@ def register_blueprints(app):
     from .meetings.routes import bp as meetings_bp
     from .voting.routes import bp as voting_bp
     from .admin.routes import bp as admin_bp
+    from .ro.routes import bp as ro_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(meetings_bp)
     app.register_blueprint(voting_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(ro_bp)

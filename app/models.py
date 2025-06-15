@@ -41,6 +41,21 @@ class Meeting(db.Model):
     revoting_allowed = db.Column(db.Boolean, default=False)
     status = db.Column(db.String(50))
     chair_notes_md = db.Column(db.Text)
+    quorum = db.Column(db.Integer, default=0)
+    stage1_locked = db.Column(db.Boolean, default=False)
+    stage2_locked = db.Column(db.Boolean, default=False)
+
+    def stage1_votes_count(self) -> int:
+        """Return number of verified Stage-1 votes."""
+        return (
+            VoteToken.query.join(Member, VoteToken.member_id == Member.id)
+            .filter(
+                VoteToken.stage == 1,
+                VoteToken.used_at != None,
+                Member.meeting_id == self.id,
+            )
+            .count()
+        )
 
 class Member(db.Model):
     __tablename__ = 'members'

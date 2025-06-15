@@ -1,0 +1,69 @@
+import os, sys
+from datetime import datetime
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from unittest.mock import patch
+from app import create_app
+from app.extensions import db
+from app.models import (
+    Meeting,
+    Member,
+    VoteToken,
+    Amendment,
+    Motion,
+    Vote,
+    Role,
+    Permission,
+    User,
+)
+from app.ro import routes as ro
+
+
+def _make_user():
+    perm = Permission(name='manage_meetings')
+    role = Role(permissions=[perm])
+    user = User(role=role)
+    user.is_active = True
+    return user
+
+
+def test_stage1_vote_count_helper():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM', quorum=2)
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='Alice')
+        db.session.add(member)
+        db.session.flush()
+        token = VoteToken(token='t1', member_id=member.id, stage=1, used_at=datetime.utcnow())
+        db.session.add(token)
+        db.session.commit()
+        assert ro._stage1_vote_count(meeting) == 1
+
+
+def test_download_tallies_csv():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(meeting_id=meeting.id, title='M1', text_md='T', category='motion', threshold='normal', ordering=1)
+        db.session.add(motion)
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A', order=1)
+        db.session.add(amend)
+        member = Member(meeting_id=meeting.id, name='Alice')
+        db.session.add(member)
+        db.session.flush()
+        Vote.record(member_id=member.id, amendment_id=amend.id, choice='for', salt='s')
+        Vote.record(member_id=member.id, motion_id=motion.id, choice='against', salt='s')
+        user = _make_user()
+        with app.test_request_context(f'/ro/{meeting.id}/tallies.csv'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                resp = ro.download_tallies(meeting.id)
+                assert resp.status_code == 200
+                assert b'amendment' in resp.data
