@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="font-bold text-bp-blue mb-4">Stage 1 – Amendment Votes</h2>
+{% if proxy_for %}
+<div class="bp-alert-warning text-center mb-4">
+  Casting votes as proxy for {{ proxy_for.name }}.
+</div>
+{% endif %}
 <form method="post" class="bp-form bp-card space-y-6">
   {{ form.hidden_tag() }}
   {% for motion, ams in motions %}

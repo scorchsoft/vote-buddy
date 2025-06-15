@@ -8,7 +8,7 @@ from flask import current_app
 
 def send_vote_invite(member: Member, token: str, meeting: Meeting) -> None:
     """Send voting link to a member using Flask-Mail."""
-    link = url_for('voting.ballot_home', token=token, _external=True)
+    link = url_for('voting.ballot_token', token=token, _external=True)
     msg = Message(
         subject=f"Your voting link for {meeting.title}",
         recipients=[member.email],
@@ -20,7 +20,7 @@ def send_vote_invite(member: Member, token: str, meeting: Meeting) -> None:
 
 def send_stage2_invite(member: Member, token: str, meeting: Meeting) -> None:
     """Email Stage 2 voting link to a member."""
-    link = url_for('voting.ballot_home', token=token, _external=True)
+    link = url_for('voting.ballot_token', token=token, _external=True)
     msg = Message(
         subject=f"Stage 2 voting open for {meeting.title}",
         recipients=[member.email],

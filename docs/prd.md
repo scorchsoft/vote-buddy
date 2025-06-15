@@ -311,6 +311,9 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Implemented run-off detection and automatic Stage-1 extension.
 * 2025-06-16 – Amendments now record proposer and seconder with a 21‑day deadline and three‑per‑member cap.
 * 2025-06-17 – Added APScheduler reminders with configurable timing.
+* 2025-06-16 – Proxy votes now store an additional record for the represented member and display a proxy banner.
+* 2025-06-16 – Implemented public results visibility toggle and results page.
+* 2025-06-17 – Corrected email invite links to use `/vote/<token>`.
 
 
 
