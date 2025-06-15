@@ -3,6 +3,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from unittest.mock import patch
 from werkzeug.exceptions import Forbidden
+from flask import url_for
 
 from app import create_app
 from app.extensions import db
@@ -50,6 +51,20 @@ def test_list_meetings_requires_permission():
                         pass
                     else:
                         assert False, 'expected Forbidden'
+
+
+def test_list_meetings_contains_create_link():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        with app.test_request_context('/meetings/'):
+            user = _make_user(True)
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = meetings.list_meetings()
+                href = url_for('meetings.create_meeting')
+                assert href in html
+                assert 'bp-btn-primary' in html
 
 
 def test_import_members_sends_invites_and_tokens():
