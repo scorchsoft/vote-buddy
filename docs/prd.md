@@ -309,6 +309,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Addeed motion categories, thresholds and options with new tables
 * 2025-06-15 – Implemented run-off detection and automatic Stage-1 extension.
 * 2025-06-16 – Amendments now record proposer and seconder with a 21‑day deadline and three‑per‑member cap.
+* 2025-06-16 – Stage‑1 close route now handles run-offs, extending Stage‑1 and deferring Stage‑2 tokens.
 
 
 

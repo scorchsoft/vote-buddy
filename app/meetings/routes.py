@@ -12,6 +12,7 @@ from ..models import (
     Vote,
 )
 from ..services.email import send_vote_invite, send_stage2_invite
+from ..services import runoff
 from ..permissions import permission_required
 from .forms import MeetingForm, MemberImportForm, AmendmentForm, MotionForm
 import csv
@@ -265,8 +266,14 @@ def _amendment_results(meeting: Meeting) -> list[tuple[Amendment, dict]]:
 @login_required
 @permission_required('manage_meetings')
 def close_stage1(meeting_id: int):
-    """Close Stage 1 and issue Stage 2 tokens."""
+    """Close Stage 1 and handle potential run-offs."""
     meeting = Meeting.query.get_or_404(meeting_id)
+
+    runoffs = runoff.close_stage1(meeting)
+    if runoffs:
+        flash('Run-off vote required. Stage 1 extended and new links sent', 'info')
+        return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
+
     members = Member.query.filter_by(meeting_id=meeting.id).all()
     tokens_to_send: list[tuple[Member, str]] = []
     for member in members:
