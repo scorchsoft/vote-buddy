@@ -34,7 +34,7 @@ def dashboard():
     return render_template('ro/dashboard.html', meetings=data)
 
 
-@bp.route('/<int:meeting_id>/lock/<int:stage>')
+@bp.route('/<int:meeting_id>/lock/<int:stage>', methods=['POST'])
 @login_required
 @permission_required('manage_meetings')
 def lock_stage(meeting_id: int, stage: int):
@@ -47,7 +47,7 @@ def lock_stage(meeting_id: int, stage: int):
     return redirect(url_for('ro.dashboard'))
 
 
-@bp.route('/<int:meeting_id>/unlock/<int:stage>')
+@bp.route('/<int:meeting_id>/unlock/<int:stage>', methods=['POST'])
 @login_required
 @permission_required('manage_meetings')
 def unlock_stage(meeting_id: int, stage: int):

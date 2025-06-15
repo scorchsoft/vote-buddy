@@ -125,3 +125,23 @@ def test_dashboard_shows_quorum_percentage():
                 # Default reminder config results in 0h when the meeting closes in 1 hour
                 assert '0h' in html
                 assert '50.0%' in html
+
+
+def test_lock_and_unlock_stage_post():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.commit()
+        user = _make_user()
+        with app.test_request_context(f'/ro/{meeting.id}/lock/1', method='POST'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                ro.lock_stage(meeting.id, 1)
+        assert Meeting.query.get(meeting.id).stage1_locked is True
+
+        with app.test_request_context(f'/ro/{meeting.id}/unlock/1', method='POST'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                ro.unlock_stage(meeting.id, 1)
+        assert Meeting.query.get(meeting.id).stage1_locked is False
