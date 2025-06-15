@@ -1,5 +1,6 @@
 import os
 from flask import Flask, render_template
+from .utils import markdown_to_html
 
 from .extensions import db, migrate, login_manager, bcrypt, csrf, mail, scheduler
 
@@ -50,6 +51,9 @@ def register_extensions(app):
         register_jobs()
         scheduler.start()
     login_manager.login_view = 'auth.login'
+
+    # register template filters
+    app.jinja_env.filters['markdown_to_html'] = markdown_to_html
 
     from .models import User
 
