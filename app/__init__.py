@@ -59,6 +59,7 @@ def register_blueprints(app):
     from .voting.routes import bp as voting_bp
     from .admin.routes import bp as admin_bp
     from .ro.routes import bp as ro_bp
+    from .help.routes import bp as help_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
@@ -66,6 +67,7 @@ def register_blueprints(app):
     app.register_blueprint(voting_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(ro_bp)
+    app.register_blueprint(help_bp)
 
 
 def register_error_handlers(app):
