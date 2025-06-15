@@ -59,6 +59,23 @@ class Meeting(db.Model):
             .count()
         )
 
+    def quorum_percentage(self) -> float:
+        """Return Stage-1 turnout as a percentage of quorum."""
+        if not self.quorum:
+            return 0.0
+        return (self.stage1_votes_count() / self.quorum) * 100
+
+    def stage1_time_remaining(self) -> str:
+        """Return human-friendly countdown until Stage-1 closes."""
+        if not self.closes_at_stage1:
+            return "N/A"
+        delta = self.closes_at_stage1 - datetime.utcnow()
+        if delta.total_seconds() <= 0:
+            return "Closed"
+        hours, rem = divmod(int(delta.total_seconds()), 3600)
+        minutes = rem // 60
+        return f"{hours}h {minutes}m"
+
 class Member(db.Model):
     __tablename__ = 'members'
     id = db.Column(db.Integer, primary_key=True)
