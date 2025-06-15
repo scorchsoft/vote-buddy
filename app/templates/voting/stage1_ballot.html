@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="font-bold text-bp-blue mb-4">Stage 1 – Amendment Votes</h2>
+<header class="mb-4">
+  <h2 class="font-bold text-bp-blue">Stage 1 – Amendment Votes</h2>
+  <p class="text-sm">Closes in {{ meeting.stage1_time_remaining() }}</p>
+</header>
 {% if proxy_for %}
 <div class="bp-alert-warning text-center mb-4">
   Casting votes as proxy for {{ proxy_for.name }}.

@@ -145,7 +145,11 @@ def test_receipt_email_sent_after_vote():
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
         db.session.add(member)
         db.session.commit()
-        token = VoteToken(token="tok-receipt", member_id=member.id, stage=2)
+        token = VoteToken(
+            token=VoteToken._hash("tok-receipt", app.config["TOKEN_SALT"]),
+            member_id=member.id,
+            stage=2,
+        )
         db.session.add(token)
         db.session.commit()
         with patch("app.voting.routes.send_vote_receipt") as mock_receipt:
@@ -552,3 +556,97 @@ def test_runoff_ballot_display_and_submit():
         assert len(votes) == 2
         assert votes[0].choice == ("for" if votes[0].amendment_id == a1.id else "against")
         assert token_obj.used_at is not None
+
+
+def test_stage1_ballot_includes_countdown():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with patch.object(Meeting, "stage1_time_remaining", return_value="1h 0m"):
+            with app.test_request_context(f"/vote/{plain}"):
+                html = voting.ballot_token(plain)
+                assert "1h 0m" in html
+
+
+def test_stage2_ballot_includes_countdown():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with patch.object(Meeting, "stage2_time_remaining", return_value="2h 0m"):
+            with app.test_request_context(f"/vote/{plain}"):
+                html = voting.ballot_token(plain)
+                assert "2h 0m" in html
+
+
+def test_combined_ballot_includes_countdown():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", ballot_mode="combined")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        amend = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md="A1",
+            order=1,
+        )
+        db.session.add(amend)
+        member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with patch.object(Meeting, "stage1_time_remaining", return_value="3h 0m"):
+            with app.test_request_context(f"/vote/{plain}"):
+                html = voting.ballot_token(plain)
+                assert "3h 0m" in html
