@@ -1,0 +1,7 @@
+Hello {{ member.name }},
+
+Your votes in {{ meeting.title }} have been recorded.
+Receipt hashes:
+{% for h in hashes %}
+- {{ h }}
+{% endfor %}

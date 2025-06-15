@@ -9,6 +9,7 @@ from app.services.email import (
     send_vote_invite,
     send_runoff_invite,
     send_stage1_reminder,
+    send_vote_receipt,
 )
 
 
@@ -71,3 +72,20 @@ def test_send_stage1_reminder_uses_token_url():
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
                 assert '/vote/abc123' in sent_msg.body
+
+
+def test_send_vote_receipt_includes_hash():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        member = Member(name='Deb', email='d@example.com', meeting_id=1)
+        db.session.add(member)
+        db.session.commit()
+        with app.test_request_context('/'):
+            with patch.object(mail, 'send') as mock_send:
+                send_vote_receipt(member, meeting, ['abc123'])
+                mock_send.assert_called_once()
+                sent_msg = mock_send.call_args[0][0]
+                assert 'abc123' in sent_msg.body

@@ -31,6 +31,12 @@ def _setup_app():
     app.config["VOTE_SALT"] = "salty"
     app.config["TOKEN_SALT"] = "salty"
     app.config["WTF_CSRF_ENABLED"] = False
+    app.config["MAIL_SUPPRESS_SEND"] = True
+    app.config["MAIL_DEFAULT_SENDER"] = "test@example.com"
+    from app.extensions import mail
+    mail.suppress = True
+    app.extensions["mail"].default_sender = "test@example.com"
+    app.extensions["mail"].suppress = True
     return app
 
 
@@ -117,6 +123,42 @@ def test_stage2_motion_vote():
         assert vote.motion_id == motion.id
         assert vote.hash == expected
         assert token_obj.used_at is not None
+
+
+def test_receipt_email_sent_after_vote():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token = VoteToken(token="tok-receipt", member_id=member.id, stage=2)
+        db.session.add(token)
+        db.session.commit()
+        with patch("app.voting.routes.send_vote_receipt") as mock_receipt:
+            with app.test_request_context(
+                "/vote/tok-receipt",
+                method="POST",
+                data={f"motion_{motion.id}": "for"},
+            ):
+                voting.ballot_token("tok-receipt")
+            mock_receipt.assert_called_once()
+            called_hashes = mock_receipt.call_args[0][2]
+            vote = Vote.query.first()
+            assert vote.hash in called_hashes
 
 
 def test_ballot_token_outside_window_returns_error():
