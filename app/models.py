@@ -85,6 +85,11 @@ class Amendment(db.Model):
     text_md = db.Column(db.Text)
     order = db.Column(db.Integer)
     status = db.Column(db.String(50))
+    proposer_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    seconder_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+
+    proposer = db.relationship('Member', foreign_keys=[proposer_id])
+    seconder = db.relationship('Member', foreign_keys=[seconder_id])
 
 class Vote(db.Model):
     __tablename__ = 'votes'
