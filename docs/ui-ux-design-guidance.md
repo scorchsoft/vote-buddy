@@ -90,7 +90,7 @@ Breadcrumbs: Dashboard › 2025 AGM › Stage 1.
 Full motion text ⇢ Each amendment card (big Yes/No buttons).
 
 
-3. Sticky confirmation footer – shows selection status, large “Submit vote” CTA.
+3. Sticky confirmation footer – shows selection status, large “Submit vote” CTA. Appears as the final Tab stop so keyboard users can submit easily.
 
 
 4. Post‑vote screen → big tick icon (bp‑red outline), next‑steps text, link to FAQs.

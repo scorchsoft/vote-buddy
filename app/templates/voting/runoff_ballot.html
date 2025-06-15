@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="font-bold text-bp-blue mb-4">Run-off Vote</h2>
+{% set current_stage = 1 %}
+{% include '_stepper.html' %}
 <div class="bp-alert-warning mb-4">These amendments conflict. Choose which one should proceed.</div>
 {% if proxy_for %}
 <div class="bp-alert-warning text-center mb-4">
   Casting votes as proxy for {{ proxy_for.name }}.
 </div>
 {% endif %}
-<form method="post" class="bp-form bp-card space-y-6">
+<form id="vote-form" method="post" class="bp-form bp-card space-y-6 pb-20">
   {{ form.hidden_tag() }}
   {% for runoff, amend_a, amend_b in runoffs %}
     <div class="bp-card bp-glow mb-4 grid md:grid-cols-2 gap-4">
@@ -20,6 +22,7 @@
       {% endfor %}
     </div>
   {% endfor %}
-  <button type="submit" class="bp-btn-primary">Submit vote</button>
+  {% include 'voting/_sticky_footer.html' %}
 </form>
+<script src="{{ url_for('static', filename='js/voting_footer.js') }}"></script>
 {% endblock %}

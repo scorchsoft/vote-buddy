@@ -14,3 +14,17 @@ def test_404_template_loads():
     resp = client.get('/does-not-exist')
     assert resp.status_code == 404
     assert b'Page Not Found' in resp.data
+
+
+def test_failed_login_shows_flash_message():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['WTF_CSRF_ENABLED'] = False
+    with app.app_context():
+        db.create_all()
+    client = app.test_client()
+    resp = client.post('/auth/login', data={
+        'email': 'bad@example.com',
+        'password': 'wrong'
+    }, follow_redirects=True)
+    assert b'Invalid credentials' in resp.data

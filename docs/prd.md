@@ -337,6 +337,9 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Vote tokens stored as SHA-256 hashes with server-side salt.
 * 2025-06-15 – Sanitised help page HTML using Bleach to strip script tags.
 * 2025-06-15 – Fixed floating “Create Meeting” button on admin dashboard link
+* 2025-06-16 – Added sticky confirmation footer summarising selections on voting pages.
+* 2025-06-16 – Added flash message banners and login/meeting alerts
+
 
 
 ---
