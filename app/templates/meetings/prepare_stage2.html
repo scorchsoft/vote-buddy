@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">{{ meeting.title }} - Finalise Motion Text</h2>
+<form method="post" class="space-y-6">
+  {{ form.hidden_tag() }}
+  {% for motion in motions %}
+  <div class="bp-card grid md:grid-cols-2 gap-4">
+    <div>
+      <h3 class="font-semibold mb-2">{{ motion.title }}</h3>
+      <div class="border p-2 whitespace-pre-wrap">{{ compile_motion_text(motion) }}</div>
+    </div>
+    <div>
+      {{ form['motion_' ~ motion.id].label(class_='block font-semibold') }}
+      {{ form['motion_' ~ motion.id](class_='border p-2 rounded w-full h-40') }}
+    </div>
+  </div>
+  {% endfor %}
+  <button type="submit" class="bp-btn-primary">Save and Send Stage 2 Links</button>
+</form>
+{% endblock %}

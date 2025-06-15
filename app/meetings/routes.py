@@ -1,4 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, send_file
+from flask_wtf import FlaskForm
+from wtforms import TextAreaField, SubmitField
+from wtforms.validators import DataRequired
 from datetime import datetime, timedelta
 from flask_login import login_required
 from ..extensions import db
@@ -19,6 +22,7 @@ from ..services.email import (
 from ..services import runoff
 from ..permissions import permission_required
 from .forms import MeetingForm, MemberImportForm, AmendmentForm, MotionForm
+from ..voting.routes import compile_motion_text
 import csv
 import io
 from uuid6 import uuid7
@@ -292,6 +296,16 @@ def _motion_results(meeting: Meeting) -> list[tuple[Motion, dict]]:
     return results
 
 
+def _merge_form(motions: list[Motion]) -> FlaskForm:
+    fields = {}
+    for motion in motions:
+        fields[f'motion_{motion.id}'] = TextAreaField(
+            'Final Motion Text', validators=[DataRequired()]
+        )
+    fields['submit'] = SubmitField('Save and Send Stage 2 Links')
+    return type('MergeForm', (FlaskForm,), fields)()
+
+
 @bp.route('/<int:meeting_id>/close-stage1', methods=['POST'])
 @login_required
 @permission_required('manage_meetings')
@@ -320,16 +334,9 @@ def close_stage1(meeting_id: int):
             send_runoff_invite(m, t, meeting)
         flash('Run-off ballot issued; Stage 2 start delayed', 'success')
     else:
-        tokens_to_send: list[tuple[Member, str]] = []
-        for member in members:
-            token = VoteToken(token=str(uuid7()), member_id=member.id, stage=2)
-            db.session.add(token)
-            tokens_to_send.append((member, token.token))
-        meeting.status = 'Stage 2'
+        meeting.status = 'Pending Stage 2'
         db.session.commit()
-        for m, t in tokens_to_send:
-            send_stage2_invite(m, t, meeting)
-        flash('Stage 1 closed and Stage 2 voting links sent', 'success')
+        flash('Stage 1 closed. Prepare final motion text before opening Stage 2', 'success')
     return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
 
 
@@ -368,6 +375,48 @@ def results_docx(meeting_id: int):
         ),
         as_attachment=True,
         download_name='results.docx',
+    )
+
+
+@bp.route('/<int:meeting_id>/prepare-stage2', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
+def prepare_stage2(meeting_id: int):
+    """Allow a human to merge amendments into final motion text."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    motions = (
+        Motion.query.filter_by(meeting_id=meeting.id)
+        .order_by(Motion.ordering)
+        .all()
+    )
+    form = _merge_form(motions)
+    if form.validate_on_submit():
+        for motion in motions:
+            data = form[f'motion_{motion.id}'].data
+            motion.final_text_md = data
+        members = Member.query.filter_by(meeting_id=meeting.id).all()
+        tokens_to_send: list[tuple[Member, str]] = []
+        for member in members:
+            token = VoteToken(token=str(uuid7()), member_id=member.id, stage=2)
+            db.session.add(token)
+            tokens_to_send.append((member, token.token))
+        meeting.status = 'Stage 2'
+        db.session.commit()
+        for m, t in tokens_to_send:
+            send_stage2_invite(m, t, meeting)
+        flash('Stage 2 voting links sent', 'success')
+        return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
+
+    for motion in motions:
+        field = form[f'motion_{motion.id}']
+        field.data = motion.final_text_md or compile_motion_text(motion)
+
+    return render_template(
+        'meetings/prepare_stage2.html',
+        meeting=meeting,
+        motions=motions,
+        form=form,
+        compile_motion_text=compile_motion_text,
     )
 
 
