@@ -509,12 +509,13 @@ def results_stage2_docx(meeting_id: int):
         table_ca.rows[0].cells[0].text = "No amendments carried."
 
     doc.add_heading("Motion Outcomes", level=2)
-    table = doc.add_table(rows=1, cols=4)
+    table = doc.add_table(rows=1, cols=5)
     hdr = table.rows[0].cells
     hdr[0].text = "Motion"
     hdr[1].text = "For"
     hdr[2].text = "Against"
     hdr[3].text = "Abstain"
+    hdr[4].text = "Outcome"
     for cell in hdr:
         for run in cell.paragraphs[0].runs:
             run.bold = True
@@ -525,6 +526,7 @@ def results_stage2_docx(meeting_id: int):
         row[1].text = str(counts["for"])
         row[2].text = str(counts["against"])
         row[3].text = str(counts["abstain"])
+        row[4].text = (motion.status or "?").capitalize()
         if idx % 2 == 0:
             for c in row:
                 _shade_cell(c, "F7F7F9")
@@ -538,3 +540,27 @@ def results_stage2_docx(meeting_id: int):
         as_attachment=True,
         download_name='final_results.docx',
     )
+
+
+@bp.route('/<int:meeting_id>/close-stage2', methods=['POST'])
+@login_required
+@permission_required('manage_meetings')
+def close_stage2(meeting_id: int):
+    """Finalize Stage 2 results and record motion outcomes."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    motion_results = _motion_results(meeting)
+
+    for motion, counts in motion_results:
+        total = counts['for'] + counts['against'] + counts['abstain']
+        if total == 0:
+            motion.status = 'failed'
+            continue
+        ratio = counts['for'] / total
+        if motion.threshold == 'special':
+            carried = ratio >= 0.75
+        else:
+            carried = counts['for'] > counts['against']
+        motion.status = 'carried' if carried else 'failed'
+    db.session.commit()
+    flash('Stage 2 closed and motions tallied', 'success')
+    return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
