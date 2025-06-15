@@ -5,7 +5,7 @@ This guide directs AI and human contributors for all folders in this repository.
 ## Project Map
 - `app/` – Flask blueprints, models and templates
 - `migrations/` – Alembic migration scripts
-- `docs/` – product requirements and design notes
+- `docs/` – project documentation including `full-database-structure.md`
 - `docker-compose.yml` and `Dockerfile` – local dev environment
 
 ## Coding Conventions

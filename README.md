@@ -71,6 +71,7 @@ The `docs` directory contains background and design material:
 - **ui-ux-design-guidance.md** – Guidance on branding, layout and component conventions for building a consistent user experience.
 - **original-british-powerlifting-voting-process-motion.md** – The full text of the motion modernising British Powerlifting's voting procedure which this app implements.
 - **template-motion.md** - A more readily adoptable motion template that membership organisations can revise and adopt to make their Articles support the VoteBuddy process.
+- **full-database-structure.md** – Quick reference describing all database tables and columns.
 
 Refer to these files for detail on features, design and governance context.
 
