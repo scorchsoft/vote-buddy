@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user
+
 from ..models import User
+from .utils import is_safe_url
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -14,7 +16,8 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
             login_user(user)
-            return redirect(next_page or url_for('admin.dashboard'))
+            destination = next_page if is_safe_url(next_page) else url_for('admin.dashboard')
+            return redirect(destination)
         flash('Invalid credentials')
     return render_template('auth/login.html', next=next_page)
 
