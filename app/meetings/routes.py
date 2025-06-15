@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
+from datetime import datetime, timedelta
 from flask_login import login_required
 from ..extensions import db
 from ..models import Meeting, Member, VoteToken, Amendment, Motion, MotionOption
@@ -181,9 +182,43 @@ def view_motion(motion_id):
 def add_amendment(motion_id):
     motion = Motion.query.get_or_404(motion_id)
     form = AmendmentForm()
+    members = (
+        Member.query.filter_by(meeting_id=motion.meeting_id)
+        .order_by(Member.name)
+        .all()
+    )
+    choices = [(m.id, m.name) for m in members]
+    form.proposer_id.choices = choices
+    form.seconder_id.choices = choices
     if form.validate_on_submit():
+        meeting = Meeting.query.get(motion.meeting_id)
+        if meeting.opens_at_stage1:
+            deadline = meeting.opens_at_stage1 - timedelta(days=21)
+            if datetime.utcnow() > deadline:
+                flash('Amendment deadline has passed.', 'error')
+                return render_template('meetings/amendment_form.html', form=form, motion=motion)
+
+        if form.proposer_id.data == form.seconder_id.data:
+            flash('Proposer cannot second their own amendment.', 'error')
+            return render_template('meetings/amendment_form.html', form=form, motion=motion)
+
+        count = Amendment.query.filter_by(
+            motion_id=motion.id,
+            proposer_id=form.proposer_id.data,
+        ).count()
+        if count >= 3:
+            flash('A member may propose at most three amendments per motion.', 'error')
+            return render_template('meetings/amendment_form.html', form=form, motion=motion)
+
         order = Amendment.query.filter_by(motion_id=motion.id).count() + 1
-        amendment = Amendment(meeting_id=motion.meeting_id, motion_id=motion.id, text_md=form.text_md.data, order=order)
+        amendment = Amendment(
+            meeting_id=motion.meeting_id,
+            motion_id=motion.id,
+            text_md=form.text_md.data,
+            order=order,
+            proposer_id=form.proposer_id.data,
+            seconder_id=form.seconder_id.data,
+        )
         db.session.add(amendment)
         db.session.commit()
         return redirect(url_for('meetings.view_motion', motion_id=motion.id))
