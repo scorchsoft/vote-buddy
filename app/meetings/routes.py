@@ -266,6 +266,32 @@ def _amendment_results(meeting: Meeting) -> list[tuple[Amendment, dict]]:
     return results
 
 
+def _motion_results(meeting: Meeting) -> list[tuple[Motion, dict]]:
+    """Return vote counts for each motion."""
+    motions = (
+        Motion.query.filter_by(meeting_id=meeting.id)
+        .order_by(Motion.ordering)
+        .all()
+    )
+    results: list[tuple[Motion, dict]] = []
+    for motion in motions:
+        counts = {
+            "for": 0,
+            "against": 0,
+            "abstain": 0,
+        }
+        rows = (
+            db.session.query(Vote.choice, func.count(Vote.id))
+            .filter_by(motion_id=motion.id)
+            .group_by(Vote.choice)
+            .all()
+        )
+        for choice, count in rows:
+            counts[choice] = count
+        results.append((motion, counts))
+    return results
+
+
 @bp.route('/<int:meeting_id>/close-stage1', methods=['POST'])
 @login_required
 @permission_required('manage_meetings')
@@ -342,4 +368,43 @@ def results_docx(meeting_id: int):
         ),
         as_attachment=True,
         download_name='results.docx',
+    )
+
+
+@bp.route('/<int:meeting_id>/results-stage2.docx')
+@login_required
+@permission_required('manage_meetings')
+def results_stage2_docx(meeting_id: int):
+    """Download DOCX summarising carried amendments and final motion results."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    amend_results = _amendment_results(meeting)
+    motion_results = _motion_results(meeting)
+
+    doc = Document()
+    doc.add_heading(f"{meeting.title} - Final Results", level=1)
+
+    doc.add_heading("Carried Amendments", level=2)
+    carried = [a for a, c in amend_results if c.get("for", 0) > c.get("against", 0)]
+    if carried:
+        for amend in carried:
+            doc.add_paragraph(amend.text_md or "")
+    else:
+        doc.add_paragraph("No amendments carried.")
+
+    doc.add_heading("Motion Outcomes", level=2)
+    for motion, counts in motion_results:
+        doc.add_heading(motion.title or "Motion", level=3)
+        doc.add_paragraph(motion.text_md or "")
+        doc.add_paragraph(f"For: {counts['for']}")
+        doc.add_paragraph(f"Against: {counts['against']}")
+        doc.add_paragraph(f"Abstain: {counts['abstain']}")
+
+    buf = io.BytesIO()
+    doc.save(buf)
+    buf.seek(0)
+    return send_file(
+        buf,
+        mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        as_attachment=True,
+        download_name='final_results.docx',
     )
