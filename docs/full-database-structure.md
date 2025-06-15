@@ -112,7 +112,7 @@ This document summarises all tables and columns created by the Alembic migration
 ### vote_tokens
 | Column | Type | Notes |
 |-------|------|-------|
-| token | String(36) | Primary key |
+| token | String(64) | SHA-256 hash of the emailed token |
 | member_id | Integer | FK `members.id` |
 | stage | Integer | |
 | used_at | DateTime | |

@@ -29,6 +29,7 @@ def _setup_app():
     app = create_app()
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     app.config["VOTE_SALT"] = "salty"
+    app.config["TOKEN_SALT"] = "salty"
     app.config["WTF_CSRF_ENABLED"] = False
     return app
 
@@ -38,8 +39,8 @@ def test_ballot_token_not_found():
     with app.app_context():
         db.create_all()
         with app.test_request_context("/vote/bad"):
-            with pytest.raises(NotFound):
-                voting.ballot_token("bad")
+            resp = voting.ballot_token("bad")
+            assert resp[1] == 404
 
 
 def test_cast_vote_records_hash_and_marks_used():
@@ -66,18 +67,17 @@ def test_cast_vote_records_hash_and_marks_used():
         )
         db.session.add(amendment)
         db.session.commit()
-        token = VoteToken(token="tok123", member_id=member.id, stage=1)
-        db.session.add(token)
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
         db.session.commit()
         member_id = member.id
 
         with app.test_request_context(
-            "/vote/tok123", method="POST", data={f"amend_{amendment.id}": "for"}
+            f"/vote/{plain}", method="POST", data={f"amend_{amendment.id}": "for"}
         ):
-            voting.ballot_token("tok123")
+            voting.ballot_token(plain)
 
         vote = Vote.query.first()
-        token_db = VoteToken.query.filter_by(token="tok123").first()
+        token_db = VoteToken.query.filter_by(token=token_obj.token).first()
         expected = hashlib.sha256(f"{member_id}forsalty".encode()).hexdigest()
     assert vote.hash == expected
     assert token_db.used_at is not None
@@ -103,21 +103,20 @@ def test_stage2_motion_vote():
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
         db.session.add(member)
         db.session.commit()
-        token = VoteToken(token="tok2", member_id=member.id, stage=2)
-        db.session.add(token)
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
         db.session.commit()
         member_id = member.id
 
         with app.test_request_context(
-            "/vote/tok2", method="POST", data={f"motion_{motion.id}": "against"}
+            f"/vote/{plain}", method="POST", data={f"motion_{motion.id}": "against"}
         ):
-            voting.ballot_token("tok2")
+            voting.ballot_token(plain)
 
         vote = Vote.query.first()
         expected = hashlib.sha256(f"{member_id}againstsalty".encode()).hexdigest()
         assert vote.motion_id == motion.id
         assert vote.hash == expected
-        assert token.used_at is not None
+        assert token_obj.used_at is not None
 
 
 def test_ballot_token_outside_window_returns_error():
@@ -142,26 +141,25 @@ def test_ballot_token_outside_window_returns_error():
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
         db.session.add(member)
         db.session.commit()
-        token = VoteToken(token="tok-window", member_id=member.id, stage=1)
-        db.session.add(token)
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
         db.session.commit()
 
         before_open = opens - timedelta(minutes=5)
         after_close = closes + timedelta(minutes=5)
 
-        with app.test_request_context("/vote/tok-window"):
+        with app.test_request_context(f"/vote/{plain}"):
             with patch("app.voting.routes.datetime") as mock_dt:
                 mock_dt.utcnow.return_value = before_open
-                resp = voting.ballot_token("tok-window")
+                resp = voting.ballot_token(plain)
                 assert resp[1] == 400
-                assert token.used_at is None
+                assert token_obj.used_at is None
 
-        with app.test_request_context("/vote/tok-window"):
+        with app.test_request_context(f"/vote/{plain}"):
             with patch("app.voting.routes.datetime") as mock_dt:
                 mock_dt.utcnow.return_value = after_close
-                resp = voting.ballot_token("tok-window")
+                resp = voting.ballot_token(plain)
                 assert resp[1] == 400
-                assert token.used_at is None
+                assert token_obj.used_at is None
 
 
 def test_combined_ballot_records_votes():
@@ -191,22 +189,21 @@ def test_combined_ballot_records_votes():
         member = Member(meeting_id=meeting.id, name="Bob", email="b@example.com")
         db.session.add(member)
         db.session.commit()
-        token = VoteToken(token="cmb1", member_id=member.id, stage=1)
-        db.session.add(token)
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
         db.session.commit()
 
         with app.test_request_context(
-            "/vote/cmb1",
+            f"/vote/{plain}",
             method="POST",
             data={f"amend_{amend.id}": "for", f"motion_{motion.id}": "for"},
         ):
-            voting.ballot_token("cmb1")
+            voting.ballot_token(plain)
 
         votes = Vote.query.order_by(Vote.id).all()
         assert len(votes) == 2
         assert votes[0].amendment_id == amend.id
         assert votes[1].motion_id == motion.id
-        assert token.used_at is not None
+        assert token_obj.used_at is not None
 
 def test_stage2_token_window_enforcement():
     app = _setup_app()
@@ -230,26 +227,25 @@ def test_stage2_token_window_enforcement():
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
         db.session.add(member)
         db.session.commit()
-        token = VoteToken(token="tok-stage2", member_id=member.id, stage=2)
-        db.session.add(token)
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
         db.session.commit()
 
         before_open = opens - timedelta(minutes=5)
         after_close = closes + timedelta(minutes=5)
 
-        with app.test_request_context("/vote/tok-stage2"):
+        with app.test_request_context(f"/vote/{plain}"):
             with patch("app.voting.routes.datetime") as mock_dt:
                 mock_dt.utcnow.return_value = before_open
-                resp = voting.ballot_token("tok-stage2")
+                resp = voting.ballot_token(plain)
                 assert resp[1] == 400
-                assert token.used_at is None
+                assert token_obj.used_at is None
 
-        with app.test_request_context("/vote/tok-stage2"):
+        with app.test_request_context(f"/vote/{plain}"):
             with patch("app.voting.routes.datetime") as mock_dt:
                 mock_dt.utcnow.return_value = after_close
-                resp = voting.ballot_token("tok-stage2")
+                resp = voting.ballot_token(plain)
                 assert resp[1] == 400
-                assert token.used_at is None
+                assert token_obj.used_at is None
 
 def test_proxy_vote_creates_two_records():
     app = _setup_app()
@@ -286,16 +282,15 @@ def test_proxy_vote_creates_two_records():
         )
         db.session.add(member)
         db.session.commit()
-        token = VoteToken(token="proxy1", member_id=member.id, stage=1)
-        db.session.add(token)
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
         db.session.commit()
 
         with app.test_request_context(
-            "/vote/proxy1",
+            f"/vote/{plain}",
             method="POST",
             data={f"amend_{amend.id}": "for"},
         ):
-            voting.ballot_token("proxy1")
+            voting.ballot_token(plain)
 
         votes = Vote.query.order_by(Vote.member_id).all()
         assert len(votes) == 2
@@ -379,11 +374,10 @@ def test_stage2_ballot_displays_compiled_text():
         member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
         db.session.add(member)
         db.session.flush()
-        token = VoteToken(token="s2", member_id=member.id, stage=2)
-        db.session.add(token)
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
         db.session.commit()
-        with app.test_request_context("/vote/s2"):
-            html = voting.ballot_token("s2")
+        with app.test_request_context(f"/vote/{plain}"):
+            html = voting.ballot_token(plain)
             assert "Add" in html
 
 
@@ -408,11 +402,10 @@ def test_stage2_ballot_uses_final_text():
         member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
         db.session.add(member)
         db.session.flush()
-        token = VoteToken(token="s2", member_id=member.id, stage=2)
-        db.session.add(token)
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
         db.session.commit()
-        with app.test_request_context("/vote/s2"):
-            html = voting.ballot_token("s2")
+        with app.test_request_context(f"/vote/{plain}"):
+            html = voting.ballot_token(plain)
             assert "Merged" in html
 
 
@@ -436,14 +429,13 @@ def test_stage1_locked_rejects_vote():
         member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
         db.session.add(member)
         db.session.commit()
-        token = VoteToken(token="lock1", member_id=member.id, stage=1)
-        db.session.add(token)
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
         db.session.commit()
 
-        with app.test_request_context("/vote/lock1"):
-            resp = voting.ballot_token("lock1")
+        with app.test_request_context(f"/vote/{plain}"):
+            resp = voting.ballot_token(plain)
             assert resp[1] == 400
-            assert token.used_at is None
+            assert token_obj.used_at is None
 
 
 def test_stage2_locked_rejects_vote():
@@ -466,14 +458,13 @@ def test_stage2_locked_rejects_vote():
         member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
         db.session.add(member)
         db.session.commit()
-        token = VoteToken(token="lock2", member_id=member.id, stage=2)
-        db.session.add(token)
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
         db.session.commit()
 
-        with app.test_request_context("/vote/lock2"):
-            resp = voting.ballot_token("lock2")
+        with app.test_request_context(f"/vote/{plain}"):
+            resp = voting.ballot_token(plain)
             assert resp[1] == 400
-            assert token.used_at is None
+            assert token_obj.used_at is None
 
 
 def test_runoff_ballot_display_and_submit():
@@ -502,21 +493,20 @@ def test_runoff_ballot_display_and_submit():
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
         db.session.add(member)
         db.session.commit()
-        token = VoteToken(token="r1", member_id=member.id, stage=1)
-        db.session.add(token)
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
         db.session.commit()
 
-        with app.test_request_context(f"/runoff/{token.token}"):
-            html = voting.runoff_ballot(token.token)
+        with app.test_request_context(f"/runoff/{plain}"):
+            html = voting.runoff_ballot(plain)
             assert "A1" in html
             assert "A2" in html
 
         with app.test_request_context(
-            f"/runoff/{token.token}", method="POST", data={f"runoff_{rof.id}": "a"}
+            f"/runoff/{plain}", method="POST", data={f"runoff_{rof.id}": "a"}
         ):
-            voting.runoff_ballot(token.token)
+            voting.runoff_ballot(plain)
 
         votes = Vote.query.order_by(Vote.amendment_id).all()
         assert len(votes) == 2
         assert votes[0].choice == ("for" if votes[0].amendment_id == a1.id else "against")
-        assert token.used_at is not None
+        assert token_obj.used_at is not None

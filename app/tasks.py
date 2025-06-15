@@ -28,8 +28,11 @@ def send_stage1_reminders():
             continue
         members = Member.query.filter_by(meeting_id=meeting.id).all()
         for member in members:
-            token_obj = VoteToken.query.filter_by(member_id=member.id, stage=1).first()
-            if token_obj:
-                send_stage1_reminder(member, token_obj.token, meeting)
+            _, plain = VoteToken.create(
+                member_id=member.id,
+                stage=1,
+                salt=current_app.config["TOKEN_SALT"],
+            )
+            send_stage1_reminder(member, plain, meeting)
         meeting.stage1_reminder_sent_at = now
         db.session.commit()

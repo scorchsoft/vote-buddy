@@ -39,7 +39,7 @@ def test_stage1_vote_count_helper():
         member = Member(meeting_id=meeting.id, name='Alice')
         db.session.add(member)
         db.session.flush()
-        token = VoteToken(token='t1', member_id=member.id, stage=1, used_at=datetime.utcnow())
+        token = VoteToken(token=VoteToken._hash('t1', 's'), member_id=member.id, stage=1, used_at=datetime.utcnow())
         db.session.add(token)
         db.session.commit()
         assert ro._stage1_vote_count(meeting) == 1
@@ -114,7 +114,7 @@ def test_dashboard_shows_quorum_percentage():
         member = Member(meeting_id=meeting.id, name='Alice')
         db.session.add(member)
         db.session.flush()
-        token = VoteToken(token='t1', member_id=member.id, stage=1, used_at=datetime.utcnow())
+        token = VoteToken(token=VoteToken._hash('t1', 's'), member_id=member.id, stage=1, used_at=datetime.utcnow())
         db.session.add(token)
         db.session.commit()
         user = _make_user()

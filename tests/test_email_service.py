@@ -35,6 +35,7 @@ def _setup_app():
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['MAIL_SUPPRESS_SEND'] = True
+    app.config['TOKEN_SALT'] = 's'
     return app
 
 
