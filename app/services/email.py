@@ -1,77 +1,99 @@
 from flask import render_template, url_for
 from flask_mail import Message
 
-from ..extensions import mail
-from ..models import Member, Meeting
+from ..extensions import mail, db
+from ..models import Member, Meeting, UnsubscribeToken
 from flask import current_app
+from uuid6 import uuid7
+
+
+def _unsubscribe_url(member: Member) -> str:
+    token = UnsubscribeToken.query.filter_by(member_id=member.id).first()
+    if not token:
+        token = UnsubscribeToken(token=str(uuid7()), member_id=member.id)
+        db.session.add(token)
+        db.session.commit()
+    return url_for('notifications.unsubscribe', token=token.token, _external=True)
 
 
 def send_vote_invite(member: Member, token: str, meeting: Meeting) -> None:
     """Send voting link to a member using Flask-Mail."""
+    if member.email_opt_out:
+        return
     link = url_for('voting.ballot_token', token=token, _external=True)
+    unsubscribe = _unsubscribe_url(member)
     msg = Message(
         subject=f"Your voting link for {meeting.title}",
         recipients=[member.email],
     )
-    msg.body = render_template('email/invite.txt', member=member, meeting=meeting, link=link)
-    msg.html = render_template('email/invite.html', member=member, meeting=meeting, link=link, unsubscribe_url='#')
+    msg.body = render_template('email/invite.txt', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe)
+    msg.html = render_template('email/invite.html', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe)
     mail.send(msg)
 
 
 def send_stage2_invite(member: Member, token: str, meeting: Meeting) -> None:
     """Email Stage 2 voting link to a member."""
+    if member.email_opt_out:
+        return
     link = url_for('voting.ballot_token', token=token, _external=True)
+    unsubscribe = _unsubscribe_url(member)
     msg = Message(
         subject=f"Stage 2 voting open for {meeting.title}",
         recipients=[member.email],
     )
     msg.body = render_template(
-        'email/stage2_invite.txt', member=member, meeting=meeting, link=link
+        'email/stage2_invite.txt', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe
     )
     msg.html = render_template(
         'email/stage2_invite.html',
         member=member,
         meeting=meeting,
         link=link,
-        unsubscribe_url='#',
+        unsubscribe_url=unsubscribe,
     )
     mail.send(msg)
 
 def send_runoff_invite(member: Member, token: str, meeting: Meeting) -> None:
     """Email run-off voting link after Stage 1."""
+    if member.email_opt_out:
+        return
     link = url_for('voting.ballot_token', token=token, _external=True)
+    unsubscribe = _unsubscribe_url(member)
     msg = Message(
         subject=f"Run-off vote for {meeting.title}",
         recipients=[member.email],
     )
     msg.body = render_template(
-        'email/runoff_invite.txt', member=member, meeting=meeting, link=link
+        'email/runoff_invite.txt', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe
     )
     msg.html = render_template(
         'email/runoff_invite.html',
         member=member,
         meeting=meeting,
         link=link,
-        unsubscribe_url='#',
+        unsubscribe_url=unsubscribe,
     )
     mail.send(msg)
 
 
 def send_stage1_reminder(member: Member, token: str, meeting: Meeting) -> None:
     """Email reminder to cast Stage 1 vote."""
+    if member.email_opt_out:
+        return
     link = url_for('voting.ballot_token', token=token, _external=True)
     template_base = current_app.config.get('REMINDER_TEMPLATE', 'email/reminder')
+    unsubscribe = _unsubscribe_url(member)
     msg = Message(
         subject=f"Reminder: vote in {meeting.title}",
         recipients=[member.email],
     )
-    msg.body = render_template(f"{template_base}.txt", member=member, meeting=meeting, link=link)
+    msg.body = render_template(f"{template_base}.txt", member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe)
     msg.html = render_template(
         f"{template_base}.html",
         member=member,
         meeting=meeting,
         link=link,
-        unsubscribe_url='#',
+        unsubscribe_url=unsubscribe,
     )
     mail.send(msg)
 

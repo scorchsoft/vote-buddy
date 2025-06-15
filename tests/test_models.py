@@ -37,8 +37,8 @@ def test_meeting_stage1_votes_count():
         m2 = Member(meeting_id=meeting.id, name='B')
         db.session.add_all([m1, m2])
         db.session.flush()
-        t1 = VoteToken(token='t1', member_id=m1.id, stage=1, used_at=datetime.utcnow())
-        t2 = VoteToken(token='t2', member_id=m2.id, stage=1)
+        t1 = VoteToken(token=VoteToken._hash('t1', 's'), member_id=m1.id, stage=1, used_at=datetime.utcnow())
+        t2 = VoteToken(token=VoteToken._hash('t2', 's'), member_id=m2.id, stage=1)
         db.session.add_all([t1, t2])
         db.session.commit()
         assert meeting.stage1_votes_count() == 1

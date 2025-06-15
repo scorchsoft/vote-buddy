@@ -15,6 +15,7 @@ def _setup_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['REMINDER_HOURS_BEFORE_CLOSE'] = 2
     app.config['REMINDER_COOLDOWN_HOURS'] = 24
+    app.config['TOKEN_SALT'] = 's'
     return app
 
 
@@ -35,7 +36,8 @@ def test_send_stage1_reminders_sends_emails():
         member = Member(meeting_id=meeting.id, name='Ann', email='a@example.com')
         db.session.add(member)
         db.session.flush()
-        token = VoteToken(token='tok', member_id=member.id, stage=1)
+        token_hash = VoteToken._hash('tok', app.config['TOKEN_SALT'])
+        token = VoteToken(token=token_hash, member_id=member.id, stage=1)
         db.session.add(token)
         db.session.commit()
         with patch('app.tasks.send_stage1_reminder') as mock_send:

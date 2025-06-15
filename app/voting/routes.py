@@ -92,7 +92,9 @@ def compile_motion_text(motion: Motion) -> str:
 @bp.route("/<token>", methods=["GET", "POST"])
 def ballot_token(token: str):
     """Verify token and display the correct ballot stage."""
-    vote_token = VoteToken.query.filter_by(token=token).first_or_404()
+    vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
+    if not vote_token:
+        return render_template("voting/token_error.html", message="Invalid voting link."), 404
     member = Member.query.get_or_404(vote_token.member_id)
     meeting = Meeting.query.get_or_404(member.meeting_id)
 
@@ -296,7 +298,9 @@ def ballot_token(token: str):
 @bp.route("/runoff/<token>", methods=["GET", "POST"])
 def runoff_ballot(token: str):
     """Display a run-off ballot for conflicting amendments."""
-    vote_token = VoteToken.query.filter_by(token=token, stage=1).first_or_404()
+    vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
+    if not vote_token or vote_token.stage != 1:
+        return render_template("voting/token_error.html", message="Invalid voting link."), 404
     member = Member.query.get_or_404(vote_token.member_id)
     meeting = Meeting.query.get_or_404(member.meeting_id)
 

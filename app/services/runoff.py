@@ -14,7 +14,7 @@ from ..models import (
 )
 
 
-def close_stage1(meeting: Meeting) -> list[Runoff]:
+def close_stage1(meeting: Meeting) -> tuple[list[Runoff], list[tuple[Member, str]]]:
     """Finalize Stage 1 results and create run-off ballots if needed."""
     amendments = (
         Amendment.query.filter_by(meeting_id=meeting.id)
@@ -56,6 +56,7 @@ def close_stage1(meeting: Meeting) -> list[Runoff]:
     db.session.commit()
 
     runoffs = _detect_runoffs(meeting)
+    tokens_to_send: list[tuple[Member, str]] = []
     if runoffs:
         extension = timedelta(
             minutes=current_app.config.get('RUNOFF_EXTENSION_MINUTES', 2880)
@@ -65,10 +66,14 @@ def close_stage1(meeting: Meeting) -> list[Runoff]:
         db.session.commit()
         members = Member.query.filter_by(meeting_id=meeting.id).all()
         for member in members:
-            token = VoteToken(token=str(uuid7()), member_id=member.id, stage=1)
-            db.session.add(token)
+            _, plain = VoteToken.create(
+                member_id=member.id,
+                stage=1,
+                salt=current_app.config["TOKEN_SALT"],
+            )
+            tokens_to_send.append((member, plain))
         db.session.commit()
-    return runoffs
+    return runoffs, tokens_to_send
 
 
 def _detect_runoffs(meeting: Meeting) -> list[Runoff]:

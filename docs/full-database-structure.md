@@ -62,6 +62,7 @@ This document summarises all tables and columns created by the Alembic migration
 | email | String(255) | |
 | proxy_for | String(255) | |
 | weight | Integer | Default `1` |
+| email_opt_out | Boolean | Default `false` |
 
 ### motions
 | Column | Type | Notes |
@@ -112,10 +113,17 @@ This document summarises all tables and columns created by the Alembic migration
 ### vote_tokens
 | Column | Type | Notes |
 |-------|------|-------|
-| token | String(36) | Primary key |
+| token | String(64) | SHA-256 hash of the emailed token |
 | member_id | Integer | FK `members.id` |
 | stage | Integer | |
 | used_at | DateTime | |
+
+### unsubscribe_tokens
+| Column | Type | Notes |
+|-------|------|-------|
+| token | String(36) | Primary key |
+| member_id | Integer | FK `members.id` |
+| created_at | DateTime | |
 
 ### votes
 | Column | Type | Notes |
