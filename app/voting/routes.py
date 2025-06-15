@@ -105,6 +105,17 @@ def ballot_token(token: str):
             400,
         )
 
+    # disallow votes when the RO has locked the stage
+    locked = meeting.stage1_locked if vote_token.stage == 1 else meeting.stage2_locked
+    if locked:
+        return (
+            render_template(
+                "voting/token_error.html",
+                message="Voting for this stage has been locked by the Returning Officer.",
+            ),
+            400,
+        )
+
     if vote_token.used_at and not meeting.revoting_allowed:
         return (
             render_template(

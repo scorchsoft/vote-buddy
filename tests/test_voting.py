@@ -302,3 +302,69 @@ def test_proxy_vote_creates_two_records():
         expected_alice = hashlib.sha256(f"{member.id}forsalty".encode()).hexdigest()
         expected_bob = hashlib.sha256(f"{proxied.id}forsalty".encode()).hexdigest()
         assert {votes[0].hash, votes[1].hash} == {expected_alice, expected_bob}
+
+
+def test_stage1_locked_rejects_vote():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", stage1_locked=True)
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        db.session.add(amend)
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token = VoteToken(token="lock1", member_id=member.id, stage=1)
+        db.session.add(token)
+        db.session.commit()
+
+        with app.test_request_context(
+            "/vote/lock1", method="POST", data={f"amend_{amend.id}": "for"}
+        ):
+            resp = voting.ballot_token("lock1")
+            assert resp[1] == 400
+            assert token.used_at is None
+
+
+def test_stage2_locked_rejects_vote():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", stage2_locked=True)
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token = VoteToken(token="lock2", member_id=member.id, stage=2)
+        db.session.add(token)
+        db.session.commit()
+
+        with app.test_request_context(
+            "/vote/lock2", method="POST", data={f"motion_{motion.id}": "for"}
+        ):
+            resp = voting.ballot_token("lock2")
+            assert resp[1] == 400
+            assert token.used_at is None
