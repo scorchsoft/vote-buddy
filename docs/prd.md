@@ -320,6 +320,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Stage 2 ballot now shows compiled motion text with carried amendments.
 * 2025-06-17 – Added manual Stage 2 merge screen with final text field.
 * 2025-06-18 – Voting route rejects ballots when a stage is locked.
+* 2025-06-18 – Added Content-Security-Policy header restricting scripts/styles to self and the htmx CDN.
 
 
 

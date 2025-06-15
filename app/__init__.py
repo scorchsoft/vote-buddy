@@ -16,6 +16,17 @@ def create_app(config_object='config.DevelopmentConfig'):
         response.headers['X-Frame-Options'] = 'DENY'
         return response
 
+    @app.after_request
+    def set_content_security_policy(response):
+        """Restrict script and style sources to self and htmx CDN."""
+        csp = (
+            "default-src 'self'; "
+            "script-src 'self' https://unpkg.com; "
+            "style-src 'self' https://unpkg.com"
+        )
+        response.headers['Content-Security-Policy'] = csp
+        return response
+
     return app
 
 
