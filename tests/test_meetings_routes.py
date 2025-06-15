@@ -20,9 +20,11 @@ from app.models import (
 )
 import io
 from app.meetings import routes as meetings
+from app.meetings.forms import MeetingForm
 from types import SimpleNamespace
 from datetime import datetime, timedelta
 from uuid6 import uuid7
+from werkzeug.datastructures import MultiDict
 
 
 def _make_user(has_permission: bool):
@@ -267,3 +269,46 @@ def test_results_stage2_docx_returns_file():
                 assert resp.mimetype == (
                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
                 )
+
+
+def test_meeting_form_duration_validations():
+    app = create_app()
+    app.config['WTF_CSRF_ENABLED'] = False
+    with app.app_context():
+        now = datetime.utcnow()
+
+        # Stage 1 shorter than 7 days
+        data = MultiDict({
+            'title': 'AGM',
+            'opens_at_stage1': now.strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage1': (now + timedelta(days=6)).strftime('%Y-%m-%dT%H:%M'),
+            'opens_at_stage2': (now + timedelta(days=7)).strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage2': (now + timedelta(days=12)).strftime('%Y-%m-%dT%H:%M'),
+        })
+        form = MeetingForm(formdata=data)
+        assert not form.validate()
+        assert form.closes_at_stage1.errors
+
+        # Stage 2 opens less than 1 day after Stage 1 closes
+        data = MultiDict({
+            'title': 'AGM',
+            'opens_at_stage1': now.strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage1': (now + timedelta(days=7)).strftime('%Y-%m-%dT%H:%M'),
+            'opens_at_stage2': (now + timedelta(days=7, hours=12)).strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage2': (now + timedelta(days=12)).strftime('%Y-%m-%dT%H:%M'),
+        })
+        form = MeetingForm(formdata=data)
+        assert not form.validate()
+        assert form.opens_at_stage2.errors
+
+        # Stage 2 shorter than 5 days
+        data = MultiDict({
+            'title': 'AGM',
+            'opens_at_stage1': now.strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage1': (now + timedelta(days=7)).strftime('%Y-%m-%dT%H:%M'),
+            'opens_at_stage2': (now + timedelta(days=8)).strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage2': (now + timedelta(days=11)).strftime('%Y-%m-%dT%H:%M'),
+        })
+        form = MeetingForm(formdata=data)
+        assert not form.validate()
+        assert form.closes_at_stage2.errors
