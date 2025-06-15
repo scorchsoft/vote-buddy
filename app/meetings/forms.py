@@ -20,6 +20,7 @@ class MeetingForm(FlaskForm):
     closes_at_stage2 = DateTimeLocalField('Stage 2 Closes', format='%Y-%m-%dT%H:%M')
     ballot_mode = SelectField('Ballot Mode', choices=[('two-stage', 'Two-stage'), ('combined', 'Combined'), ('in-person', 'In-person/Hybrid')])
     revoting_allowed = BooleanField('Revoting Allowed')
+    public_results = BooleanField('Public Results')
     quorum = IntegerField('Quorum')
     status = StringField('Status')
     chair_notes_md = TextAreaField('Chair Notes')
