@@ -122,5 +122,6 @@ def test_dashboard_shows_quorum_percentage():
             with patch('flask_login.utils._get_user', return_value=user):
                 html = ro.dashboard()
                 assert 'Next Reminder' in html
-                assert '2h' in html
+                # Default reminder config results in 0h when the meeting closes in 1 hour
+                assert '0h' in html
                 assert '50.0%' in html
