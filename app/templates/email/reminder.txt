@@ -1,0 +1,8 @@
+Hello {{ member.name }},
+
+This is a reminder to cast your vote in {{ meeting.title }}.
+Voting closes soon. Use the link below:
+
+{{ link }}
+
+If you already voted, you can ignore this email.

@@ -21,6 +21,7 @@ import io
 from app.meetings import routes as meetings
 from types import SimpleNamespace
 from datetime import datetime, timedelta
+from uuid6 import uuid7
 
 
 def _make_user(has_permission: bool):
@@ -117,13 +118,50 @@ def test_close_stage1_creates_stage2_tokens_and_emails():
         ):
             user = _make_user(True)
             with patch('flask_login.utils._get_user', return_value=user):
-                with patch('app.meetings.routes.send_stage2_invite') as mock_send:
-                    meetings.close_stage1(meeting.id)
-                    mock_send.assert_called_once()
-                    assert (
-                        VoteToken.query.filter_by(member_id=member.id, stage=2).count()
-                        == 1
-                    )
+                with patch('app.meetings.routes.runoff.close_stage1', return_value=[]):
+                    with patch('app.meetings.routes.send_stage2_invite') as mock_send:
+                        meetings.close_stage1(meeting.id)
+                        mock_send.assert_called_once()
+                        assert (
+                            VoteToken.query.filter_by(member_id=member.id, stage=2).count()
+                            == 1
+                        )
+
+
+def test_close_stage1_runoff_triggers_emails_and_tokens():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['MAIL_SUPPRESS_SEND'] = True
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='Test')
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add(member)
+        db.session.commit()
+
+        runoff_obj = SimpleNamespace(id=1)
+
+        def _runoff_side_effect(mtg):
+            token = VoteToken(token=str(uuid7()), member_id=member.id, stage=1)
+            db.session.add(token)
+            db.session.commit()
+            return [runoff_obj]
+
+        with app.test_request_context(
+            f'/meetings/{meeting.id}/close-stage1', method='POST'
+        ):
+            user = _make_user(True)
+            with patch('flask_login.utils._get_user', return_value=user):
+                with patch('app.meetings.routes.runoff.close_stage1', side_effect=_runoff_side_effect):
+                    with patch('app.meetings.routes.send_runoff_invite') as mock_send:
+                        meetings.close_stage1(meeting.id)
+                        mock_send.assert_called_once()
+                        assert (
+                            VoteToken.query.filter_by(member_id=member.id, stage=1).count()
+                            == 1
+                        )
 
 
 def test_add_amendment_validations():

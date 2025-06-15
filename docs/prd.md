@@ -101,8 +101,9 @@
 * If run‑off required in online ballot, system auto‑extends Stage 1 by configured “runoff_extension” minutes and re‑e‑mails affected members.
 
 ### 5.5 Quorum, Reminders & Cron Jobs
-* Background scheduler using APScheduler (Celery + Redis optional for heavier workloads)  
-* Hourly check: if <X hrs to close and quorum not met → send reminder batch.  
+* Background scheduler using APScheduler (Celery + Redis optional for heavier workloads)
+* Scheduler started in `create_app`; see `app/tasks.py`.
+* Hourly job `stage1_reminders` checks meetings closing within `REMINDER_HOURS_BEFORE_CLOSE` and emails outstanding voters once per `REMINDER_COOLDOWN_HOURS`.
 * Configurable reminder template.
 
 ### 5.6 Results Publication
@@ -305,11 +306,16 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Added motion categories, thresholds and options with new tables.
 * 2025-06-15 – Added RO dashboard with quorum tracking, stage locking and CSV tallies download.
 * 2025-06-15 – Enforced ballot open/close windows before accepting votes.
-* 2025-06-16 – Added Stage 2 token generation, results summary page and DOCX export.
+* 2025-06-15 – Added Stage 2 token generation, results summary page and DOCX export.
 * 2025-06-15 – Addeed motion categories, thresholds and options with new tables
 * 2025-06-15 – Implemented run-off detection and automatic Stage-1 extension.
-* 2025-06-16 – Amendments now record proposer and seconder with a 21‑day deadline and three‑per‑member cap.
-* 2025-06-16 – Fixed create meeting button link on meetings list page.
+* 2025-06-15 – Fixed create meeting button link on meetings list page.
+* 2025-06-15 – Amendments now record proposer and seconder with a 21‑day deadline and three‑per‑member cap.
+* 2025-06-15 – Integrated run-off emails and tokens when closing Stage 1.
+* 2025-06-15 – Added APScheduler reminders with configurable timing.
+* 2025-06-15 – Proxy votes now store an additional record for the represented member and display a proxy banner.
+* 2025-06-15 – Implemented public results visibility toggle and results page.
+* 2025-06-15 – Corrected email invite links to use `/vote/<token>`.
 
 
 

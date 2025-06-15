@@ -9,6 +9,7 @@ from app.models import (
     AmendmentConflict,
     Member,
     Runoff,
+    VoteToken,
     Vote,
 )
 from app.services import runoff as ro
@@ -65,6 +66,7 @@ def test_close_stage1_creates_runoff_and_extends_stage2():
         assert Runoff.query.count() == 1
         assert meeting.opens_at_stage2 == now + timedelta(minutes=60)
         assert meeting.closes_at_stage2 == now + timedelta(hours=1) + timedelta(minutes=60)
+        assert VoteToken.query.filter_by(member_id=member.id, stage=1).count() == 1
 
 
 def test_close_stage1_no_runoff_no_extension():
@@ -111,3 +113,4 @@ def test_close_stage1_no_runoff_no_extension():
         assert Runoff.query.count() == 0
         assert meeting.opens_at_stage2 == now
         assert meeting.closes_at_stage2 == now + timedelta(hours=1)
+        assert VoteToken.query.count() == 0

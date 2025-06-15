@@ -249,3 +249,56 @@ def test_stage2_token_window_enforcement():
                 resp = voting.ballot_token("tok-stage2")
                 assert resp[1] == 400
                 assert token.used_at is None
+
+def test_proxy_vote_creates_two_records():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        amend = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md="A1",
+            order=1,
+        )
+        db.session.add(amend)
+        proxied = Member(meeting_id=meeting.id, name="Bob", email="b@example.com")
+        db.session.add(proxied)
+        db.session.flush()
+        member = Member(
+            meeting_id=meeting.id,
+            name="Alice",
+            email="a@example.com",
+            proxy_for=str(proxied.id),
+        )
+        db.session.add(member)
+        db.session.commit()
+        token = VoteToken(token="proxy1", member_id=member.id, stage=1)
+        db.session.add(token)
+        db.session.commit()
+
+        with app.test_request_context(
+            "/vote/proxy1",
+            method="POST",
+            data={f"amend_{amend.id}": "for"},
+        ):
+            voting.ballot_token("proxy1")
+
+        votes = Vote.query.order_by(Vote.member_id).all()
+        assert len(votes) == 2
+        assert {v.member_id for v in votes} == {member.id, proxied.id}
+        expected_alice = hashlib.sha256(f"{member.id}forsalty".encode()).hexdigest()
+        expected_bob = hashlib.sha256(f"{proxied.id}forsalty".encode()).hexdigest()
+        assert {votes[0].hash, votes[1].hash} == {expected_alice, expected_bob}
