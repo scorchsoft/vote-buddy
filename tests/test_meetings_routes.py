@@ -6,10 +6,20 @@ from werkzeug.exceptions import Forbidden
 
 from app import create_app
 from app.extensions import db
-from app.models import User, Role, Permission, Meeting, VoteToken
+from app.models import (
+    User,
+    Role,
+    Permission,
+    Meeting,
+    VoteToken,
+    Member,
+    Motion,
+    Amendment,
+)
 import io
 from app.meetings import routes as meetings
 from types import SimpleNamespace
+from datetime import datetime, timedelta
 
 
 def _make_user(has_permission: bool):
@@ -33,7 +43,7 @@ def test_list_meetings_requires_permission():
         with app.test_request_context('/meetings/'):
             user = _make_user(False)
             with patch('flask_login.utils._get_user', return_value=user):
-                with patch('flask.flash'):
+                with patch('app.meetings.routes.flash'):
                     try:
                         meetings.list_meetings()
                     except Forbidden:
@@ -72,3 +82,103 @@ def test_import_members_sends_invites_and_tokens():
                         meetings.import_members(meeting.id)
                         mock_send.assert_called_once()
                         assert VoteToken.query.count() == 1
+
+
+def test_close_stage1_creates_stage2_tokens_and_emails():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['MAIL_SUPPRESS_SEND'] = True
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='Test')
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add(member)
+        db.session.commit()
+
+        with app.test_request_context(
+            f'/meetings/{meeting.id}/close-stage1', method='POST'
+        ):
+            user = _make_user(True)
+            with patch('flask_login.utils._get_user', return_value=user):
+                with patch('app.meetings.routes.send_stage2_invite') as mock_send:
+                    meetings.close_stage1(meeting.id)
+                    mock_send.assert_called_once()
+                    assert (
+                        VoteToken.query.filter_by(member_id=member.id, stage=2).count()
+                        == 1
+                    )
+
+
+def test_add_amendment_validations():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['WTF_CSRF_ENABLED'] = False
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='Test', opens_at_stage1=datetime.utcnow() + timedelta(days=30))
+        db.session.add(meeting)
+        db.session.flush()
+        members = [
+            Member(meeting_id=meeting.id, name='A', email='a@example.com'),
+            Member(meeting_id=meeting.id, name='B', email='b@example.com'),
+            Member(meeting_id=meeting.id, name='C', email='c@example.com'),
+        ]
+        for m in members:
+            db.session.add(m)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M1',
+            text_md='text',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+
+        user = _make_user(True)
+        data = {
+            'text_md': 'A1',
+            'proposer_id': members[0].id,
+            'seconder_id': members[1].id,
+        }
+        with app.test_request_context(f'/meetings/motions/{motion.id}/amendments/add', method='POST', data=data):
+            with patch('flask_login.utils._get_user', return_value=user):
+                meetings.add_amendment(motion.id)
+
+        assert Amendment.query.count() == 1
+
+        # fourth amendment by same proposer should fail
+        for i in range(2,5):
+            with app.test_request_context(
+                f'/meetings/motions/{motion.id}/amendments/add',
+                method='POST',
+                data={'text_md': f'A{i}', 'proposer_id': members[0].id, 'seconder_id': members[2].id},
+            ):
+                with patch('flask_login.utils._get_user', return_value=user):
+                    if i < 4:
+                        meetings.add_amendment(motion.id)
+                    else:
+                        with patch('app.meetings.routes.flash') as fl:
+                            meetings.add_amendment(motion.id)
+                            fl.assert_called()
+
+        assert Amendment.query.count() == 3
+
+        # deadline validation
+        meeting.opens_at_stage1 = datetime.utcnow() + timedelta(days=10)
+        db.session.commit()
+        with app.test_request_context(
+            f'/meetings/motions/{motion.id}/amendments/add',
+            method='POST',
+            data={'text_md': 'late', 'proposer_id': members[2].id, 'seconder_id': members[1].id},
+        ):
+            with patch('flask_login.utils._get_user', return_value=user):
+                with patch('app.meetings.routes.flash') as fl:
+                    meetings.add_amendment(motion.id)
+                    fl.assert_called()
+
+        assert Amendment.query.count() == 3
