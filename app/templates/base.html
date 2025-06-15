@@ -14,7 +14,7 @@
           <ul class="flex space-x-4 text-sm">
             <li><a href="{{ url_for('main.index') }}" class="hover:underline">Home</a></li>
             <li><a href="{{ url_for('meetings.list_meetings') }}" class="hover:underline">Meetings</a></li>
-            <li><a href="#" class="hover:underline">Results</a></li>
+            <li><a href="{{ url_for('main.results_index') }}" class="hover:underline">Results</a></li>
             <li><a href="{{ url_for('help.show_help') }}" class="hover:underline">Help</a></li>
           </ul>
         </div>

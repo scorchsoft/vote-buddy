@@ -7,6 +7,7 @@ from app import create_app
 from app.extensions import db
 from app.models import Meeting, Amendment, Motion, Member, Vote
 from app import routes as main
+from flask import url_for
 
 
 def _setup_app():
@@ -45,3 +46,20 @@ def test_public_results_respects_flag_and_renders():
             html = main.public_results(meeting.id)
             assert 'Stage 1' in html
             assert 'Stage 2' in html
+
+
+def test_results_index_lists_public_meetings():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        m1 = Meeting(title='Closed', public_results=False)
+        m2 = Meeting(title='Open', public_results=True)
+        db.session.add_all([m1, m2])
+        db.session.commit()
+
+        with app.test_request_context('/results'):
+            html = main.results_index()
+            assert m2.title in html
+            assert m1.title not in html
+            href = url_for('main.public_results', meeting_id=m2.id)
+            assert href in html

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">Results</h2>
+<div class="bp-card">
+  <ul class="space-y-2">
+    {% for meeting in meetings %}
+    <li>
+      <a href="{{ url_for('main.public_results', meeting_id=meeting.id) }}" class="text-bp-blue hover:underline">{{ meeting.title }}</a>
+    </li>
+    {% else %}
+    <li>No public results available.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
