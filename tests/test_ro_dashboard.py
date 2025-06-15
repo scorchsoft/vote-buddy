@@ -98,6 +98,24 @@ def test_ro_dashboard_displays_countdown():
         now = datetime.utcnow()
         meeting = Meeting(title='AGM', closes_at_stage1=now + timedelta(hours=8))
         db.session.add(meeting)
+
+def test_dashboard_shows_quorum_percentage():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(
+            title='AGM',
+            quorum=2,
+            closes_at_stage1=datetime.utcnow().replace(microsecond=0) + timedelta(hours=1),
+        )
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='Alice')
+        db.session.add(member)
+        db.session.flush()
+        token = VoteToken(token='t1', member_id=member.id, stage=1, used_at=datetime.utcnow())
+        db.session.add(token)
         db.session.commit()
         user = _make_user()
         with app.test_request_context('/ro/'):
@@ -105,3 +123,4 @@ def test_ro_dashboard_displays_countdown():
                 html = ro.dashboard()
                 assert 'Next Reminder' in html
                 assert '2h' in html
+                assert '50.0%' in html

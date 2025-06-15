@@ -321,6 +321,10 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-17 – Added manual Stage 2 merge screen with final text field.
 * 2025-06-18 – Voting route rejects ballots when a stage is locked.
 * 2025-06-18 – Dashboard shows countdown to next reminder using badge design.
+* 2025-06-18 – Added quorum percentage banner with countdown on dashboards.
+* 2025-06-19 – Added branded 403 and 404 error pages.
+* 2025-06-15 – Run-off service resolves tied amendment votes using chair/board decisions or amendment order.
+* 2025-06-15 – Implemented run-off ballot route and template
 
 
 
