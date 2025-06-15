@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, render_template, abort, request
 from .extensions import db
 from .models import Meeting, Amendment, Motion, Vote
 from sqlalchemy import func
@@ -21,6 +21,20 @@ def _vote_counts(query):
     for choice, count in rows:
         counts[choice] = count
     return counts
+
+
+@bp.route('/results')
+def results_index():
+    """List meetings with publicly visible results."""
+    page = request.args.get('page', 1, type=int)
+    pagination = (
+        Meeting.query.filter_by(public_results=True)
+        .order_by(Meeting.opens_at_stage1.desc())
+        .paginate(page=page, per_page=10, error_out=False)
+    )
+    return render_template(
+        'results_index.html', meetings=pagination.items, pagination=pagination
+    )
 
 
 @bp.route('/results/<int:meeting_id>')
