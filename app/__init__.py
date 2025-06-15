@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template
 
 from .extensions import db, migrate, login_manager, bcrypt, csrf, mail, scheduler
@@ -6,6 +7,11 @@ from .extensions import db, migrate, login_manager, bcrypt, csrf, mail, schedule
 def create_app(config_object='config.DevelopmentConfig'):
     app = Flask(__name__)
     app.config.from_object(config_object)
+
+    if os.getenv('FLASK_ENV') == 'production':
+        secret_key = app.config.get('SECRET_KEY', '')
+        if not secret_key or secret_key == 'change-me':
+            raise RuntimeError('SECRET_KEY must be set to a non-default value in production')
 
     register_extensions(app)
     register_blueprints(app)
