@@ -11,8 +11,9 @@ VoteBuddy aims to take the tried and tested "Roberts Rules" around governance an
 - Flask 3 with SQLAlchemy ORM
 - PostgreSQL database managed via Alembic migrations
 - Dockerised development stack with Gunicorn
-- Modular blueprints for auth, meetings, voting and admin
-- Models for meetings, members, amendments and votes
+- Modular blueprints for auth, meetings, voting, admin and RO dashboards
+- Models for meetings, members, motions, amendments, vote tokens, votes and
+  run-offs with role/permission support
 
 ## Development setup
 
@@ -38,14 +39,28 @@ To run the development server directly on your machine, install the requirements
 flask --app app run
 ```
 
+### Running tests
+
+Install the dependencies and execute:
+
+```bash
+pytest -q
+```
+
 ## Repository layout
 
 ```
-app/            Flask application with blueprints, templates and static files
+app/            Flask application modules and templates
+assets/         Branding assets and uploaded files
 migrations/     Alembic migration scripts
+tests/          Pytest unit tests
 Dockerfile      Container image definition
+docker-entrypoint.sh  Entrypoint used in the container
 config.py       Application configuration classes
 docs/           Project documentation
+package.json, tailwind.config.cjs  Front-end build configuration
+requirements.txt    Python dependencies
+wsgi.py         App entry for Gunicorn
 ```
 
 ### Documentation

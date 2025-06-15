@@ -145,30 +145,37 @@
 ## 7  Data Model (ER snapshot)
 
 ````
+Role *───* Permission
+│
+└─1 Role ───\* User
 
-User 1───\* Meeting
-│            │
-│            └─\* Amendment
-│                 │
-│                 └─\* Vote
+Meeting 1───\* Motion
+│                │
+│                └─\* Amendment
+│                     │
+│                     └─\* Vote
 │
 ├──\* Member (scoped to meeting)
 │        │
-│        └─1 VoteToken
+│        └─1 VoteToken (per stage)
 │
-└─\* Runoff (optional)
+├──\* Runoff (optional)
+└──\* AmendmentConflict (optional)
 
 ````
 
 | Table | Key Columns (trimmed) |
 |-------|-----------------------|
-| `meetings` | `id`, titles, opens/ closes, mode, status |
+| `meetings` | `id`, `title`, `type`, open/close timestamps, `ballot_mode`, `revoting_allowed`, `quorum`, `stage1_locked`, `stage2_locked` |
+| `motions` | `id`, `meeting_id`, `title`, `text_md`, `category`, `threshold`, `ordering` |
+| `motion_options` | `id`, `motion_id`, `text` |
+| `amendments` | `id`, `meeting_id`, `motion_id`, `text_md`, `order`, `status`, `proposer_id`, `seconder_id` |
+| `votes` | `id`, `member_id`, `amendment_id`, `motion_id`, `choice`, `hash` |
 | `members`  | `id`, `meeting_id`, `name`, `email`, `proxy_for`, `weight` |
 | `vote_tokens` | `token`, `member_id`, `stage`, `used_at` |
-| `amendments` | `id`, `meeting_id`, `text_md`, `order`, `status` |
-| `votes` | `id`, `member_id`, `amendment_id`/`motion`, `choice`, `hash` |
-| `users` | `id`, `email`, `password_hash`, `role`, `is_active`, `created_at` |
 | `runoffs` | `id`, `meeting_id`, `amendment_a_id`, `amendment_b_id` |
+| `amendment_conflicts` | `id`, `meeting_id`, `amendment_a_id`, `amendment_b_id` |
+| `users` | `id`, `email`, `password_hash`, `role_id`, `is_active`, `created_at` |
 
 ---
 
