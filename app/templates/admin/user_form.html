@@ -5,19 +5,23 @@
   {{ form.hidden_tag() }}
   <div>
     {{ form.email.label(class_='block font-semibold') }}
-    {{ form.email(class_='border p-3 rounded w-full') }}
+    {{ form.email(class_='border p-3 rounded w-full', **{'aria-describedby': form.email.id + '-error'}) }}
+    <p id="{{ form.email.id }}-error" class="bp-error-text">{{ form.email.errors[0] if form.email.errors else '' }}</p>
   </div>
   <div>
     {{ form.password.label(class_='block font-semibold') }}
-    {{ form.password(class_='border p-3 rounded w-full') }}
+    {{ form.password(class_='border p-3 rounded w-full', **{'aria-describedby': form.password.id + '-error'}) }}
+    <p id="{{ form.password.id }}-error" class="bp-error-text">{{ form.password.errors[0] if form.password.errors else '' }}</p>
   </div>
   <div>
     {{ form.role_id.label(class_='block font-semibold') }}
-    {{ form.role_id(class_='border p-3 rounded w-full') }}
+    {{ form.role_id(class_='border p-3 rounded w-full', **{'aria-describedby': form.role_id.id + '-error'}) }}
+    <p id="{{ form.role_id.id }}-error" class="bp-error-text">{{ form.role_id.errors[0] if form.role_id.errors else '' }}</p>
   </div>
   <div class="flex items-center space-x-2">
-    {{ form.is_active() }}
+    {{ form.is_active(**{'aria-describedby': form.is_active.id + '-error'}) }}
     {{ form.is_active.label(class_='font-semibold') }}
+    <p id="{{ form.is_active.id }}-error" class="bp-error-text">{{ form.is_active.errors[0] if form.is_active.errors else '' }}</p>
   </div>
   <button type="submit" class="bp-btn-primary">Save</button>
 </form>
