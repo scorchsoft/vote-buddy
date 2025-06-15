@@ -49,6 +49,7 @@
             </form>
           {% endif %}
           <a href="{{ url_for('ro.download_tallies', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm">CSV</a>
+          <a href="{{ url_for('ro.download_audit_log', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm">Audit</a>
         </td>
       </tr>
       {% else %}

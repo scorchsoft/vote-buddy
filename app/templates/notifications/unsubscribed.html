@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bp-card text-center space-y-4">
+  <h1 class="text-3xl font-bold text-bp-blue">You have been unsubscribed</h1>
+  <p class="text-bp-grey-700">You will no longer receive notification emails.</p>
+  <a href="{{ url_for('main.index') }}" class="bp-btn-secondary">Return home</a>
+</div>
+{% endblock %}
