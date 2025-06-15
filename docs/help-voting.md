@@ -16,3 +16,7 @@ Each eligible member receives an email with a unique link. This link contains a 
 If you have been appointed as a proxy, a token will be issued for the represented member as well. Casting your vote records it for both accounts.
 
 For more details see Articles 107–115 in the governance documents.
+
+## Keyboard navigation
+
+All voting controls can be reached using the Tab key. After making your choices, the sticky confirmation bar becomes the final Tab stop with a prominent **Submit vote** button.
