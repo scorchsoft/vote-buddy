@@ -57,7 +57,7 @@ def send_runoff_invite(member: Member, token: str, meeting: Meeting) -> None:
     """Email run-off voting link after Stage 1."""
     if member.email_opt_out:
         return
-    link = url_for('voting.ballot_token', token=token, _external=True)
+    link = url_for('voting.runoff_ballot', token=token, _external=True)
     unsubscribe = _unsubscribe_url(member)
     msg = Message(
         subject=f"Run-off vote for {meeting.title}",

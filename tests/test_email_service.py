@@ -54,7 +54,7 @@ def test_send_runoff_invite_uses_token_url():
                 send_runoff_invite(member, 'abc123', meeting)
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
-                assert '/vote/abc123' in sent_msg.body
+                assert '/vote/runoff/abc123' in sent_msg.body
 
 
 def test_send_stage1_reminder_uses_token_url():

@@ -322,6 +322,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Added manual Stage 2 merge screen with final text field.
 * 2025-06-15 – Voting route rejects ballots when a stage is locked.
 * 2025-06-15 – Run-off and reminder emails now link to `/vote/<token>`.
+* 2025-06-16 – Run-off invite emails now use `/vote/runoff/<token>` links.
 * 2025-06-15 – Added `aria-describedby` error hints on admin and meeting forms.
 * 2025-06-15 – Dashboard shows countdown to next reminder using badge design.
 * 2025-06-15 – Added quorum percentage banner with countdown on dashboards.
