@@ -59,6 +59,23 @@ def ballot_token(token: str):
     member = Member.query.get_or_404(vote_token.member_id)
     meeting = Meeting.query.get_or_404(member.meeting_id)
 
+    # verify current time falls within the configured window
+    now = datetime.utcnow()
+    if vote_token.stage == 1:
+        opens = meeting.opens_at_stage1
+        closes = meeting.closes_at_stage1
+    else:
+        opens = meeting.opens_at_stage2
+        closes = meeting.closes_at_stage2
+    if (opens and now < opens) or (closes and now > closes):
+        return (
+            render_template(
+                "voting/token_error.html",
+                message="Voting for this stage is not currently open.",
+            ),
+            400,
+        )
+
     if vote_token.used_at and not meeting.revoting_allowed:
         return render_template(
             'voting/token_error.html',
