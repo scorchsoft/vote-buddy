@@ -1,0 +1,8 @@
+Hello {{ member.name }},
+
+Stage 2 voting for {{ meeting.title }} is now open.
+Use the link below to cast your ballot:
+
+{{ link }}
+
+If you did not expect this email you can ignore it.

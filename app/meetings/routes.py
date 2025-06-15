@@ -1,13 +1,23 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, send_file
 from flask_login import login_required
 from ..extensions import db
-from ..models import Meeting, Member, VoteToken, Amendment, Motion, MotionOption
-from ..services.email import send_vote_invite
+from ..models import (
+    Meeting,
+    Member,
+    VoteToken,
+    Amendment,
+    Motion,
+    MotionOption,
+    Vote,
+)
+from ..services.email import send_vote_invite, send_stage2_invite
 from ..permissions import permission_required
 from .forms import MeetingForm, MemberImportForm, AmendmentForm, MotionForm
 import csv
 import io
 from uuid6 import uuid7
+from sqlalchemy import func
+from docx import Document
 
 bp = Blueprint('meetings', __name__, url_prefix='/meetings')
 
@@ -188,3 +198,87 @@ def add_amendment(motion_id):
         db.session.commit()
         return redirect(url_for('meetings.view_motion', motion_id=motion.id))
     return render_template('meetings/amendment_form.html', form=form, motion=motion)
+
+
+def _amendment_results(meeting: Meeting) -> list[tuple[Amendment, dict]]:
+    """Return vote counts for each amendment."""
+    amendments = (
+        Amendment.query.filter_by(meeting_id=meeting.id)
+        .order_by(Amendment.order)
+        .all()
+    )
+    results = []
+    for amend in amendments:
+        counts = {
+            'for': 0,
+            'against': 0,
+            'abstain': 0,
+        }
+        rows = (
+            db.session.query(Vote.choice, func.count(Vote.id))
+            .filter_by(amendment_id=amend.id)
+            .group_by(Vote.choice)
+            .all()
+        )
+        for choice, count in rows:
+            counts[choice] = count
+        results.append((amend, counts))
+    return results
+
+
+@bp.route('/<int:meeting_id>/close-stage1', methods=['POST'])
+@login_required
+@permission_required('manage_meetings')
+def close_stage1(meeting_id: int):
+    """Close Stage 1 and issue Stage 2 tokens."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    members = Member.query.filter_by(meeting_id=meeting.id).all()
+    tokens_to_send: list[tuple[Member, str]] = []
+    for member in members:
+        token = VoteToken(token=str(uuid7()), member_id=member.id, stage=2)
+        db.session.add(token)
+        tokens_to_send.append((member, token.token))
+    meeting.status = 'Stage 2'
+    db.session.commit()
+    for m, t in tokens_to_send:
+        send_stage2_invite(m, t, meeting)
+    flash('Stage 1 closed and Stage 2 voting links sent', 'success')
+    return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
+
+
+@bp.route('/<int:meeting_id>/results')
+@login_required
+@permission_required('manage_meetings')
+def results_summary(meeting_id: int):
+    meeting = Meeting.query.get_or_404(meeting_id)
+    results = _amendment_results(meeting)
+    return render_template(
+        'meetings/results_summary.html', meeting=meeting, results=results
+    )
+
+
+@bp.route('/<int:meeting_id>/results.docx')
+@login_required
+@permission_required('manage_meetings')
+def results_docx(meeting_id: int):
+    meeting = Meeting.query.get_or_404(meeting_id)
+    results = _amendment_results(meeting)
+    doc = Document()
+    doc.add_heading(f'{meeting.title} - Stage 1 Results', level=1)
+    for amend, counts in results:
+        doc.add_heading(f'Amendment {amend.order}', level=2)
+        doc.add_paragraph(amend.text_md or '')
+        doc.add_paragraph(f"For: {counts['for']}")
+        doc.add_paragraph(f"Against: {counts['against']}")
+        doc.add_paragraph(f"Abstain: {counts['abstain']}")
+    buf = io.BytesIO()
+    doc.save(buf)
+    buf.seek(0)
+    return send_file(
+        buf,
+        mimetype=(
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ),
+        as_attachment=True,
+        download_name='results.docx',
+    )
