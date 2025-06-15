@@ -1,0 +1,24 @@
+<table width="600" style="font-family:Gotham,Arial,Helvetica Neue,sans-serif;font-size:16px;line-height:1.4;color:#3F4854;margin:0 auto;">
+  <tr>
+    <td style="background-color:#002D59;padding:12px 24px;color:white;">
+      <strong>British Powerlifting</strong>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:24px;background-color:#FFFFFF;">
+      <p>Hello {{ member.name }},</p>
+      <p>Stage 2 voting for <strong>{{ meeting.title }}</strong> is now open.</p>
+      <p style="text-align:center;margin:32px 0;">
+        <a href="{{ link }}" style="background-color:#DC0714;color:#FFFFFF;padding:12px 24px;text-decoration:none;border-radius:4px;display:inline-block;">Cast your vote</a>
+      </p>
+      <p>If the button does not work, copy this link into your browser:</p>
+      <p>{{ link }}</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="background-color:#F7F7F9;padding:12px 24px;font-size:14px;color:#3F4854;">
+      <p style="margin:0;">Voting assistance: <a href="mailto:support@example.com">support@example.com</a></p>
+      <p style="margin:0;">Company No. 12345678 · <a href="{{ unsubscribe_url }}">Unsubscribe</a></p>
+    </td>
+  </tr>
+</table>

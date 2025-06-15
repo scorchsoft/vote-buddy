@@ -35,6 +35,8 @@ class MemberImportForm(FlaskForm):
 
 class AmendmentForm(FlaskForm):
     text_md = TextAreaField('Amendment Text', validators=[DataRequired()])
+    proposer_id = SelectField('Proposer', coerce=int, validators=[DataRequired()])
+    seconder_id = SelectField('Seconder', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Save')
 
 

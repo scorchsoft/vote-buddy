@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">{{ meeting.title }} - Stage 1 Results</h2>
+<table class="bp-table w-full">
+  <thead>
+    <tr><th>Amendment</th><th>For</th><th>Against</th><th>Abstain</th></tr>
+  </thead>
+  <tbody>
+  {% for amend, counts in results %}
+    <tr class="border-t">
+      <td class="p-2">{{ amend.text_md }}</td>
+      <td class="p-2 text-center">{{ counts.for }}</td>
+      <td class="p-2 text-center">{{ counts.against }}</td>
+      <td class="p-2 text-center">{{ counts.abstain }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="4" class="p-2">No amendments.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<a href="{{ url_for('meetings.results_docx', meeting_id=meeting.id) }}" class="bp-btn-secondary mt-4 inline-block">Download DOCX</a>
+{% endblock %}

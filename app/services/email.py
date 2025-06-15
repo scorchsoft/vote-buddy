@@ -15,3 +15,23 @@ def send_vote_invite(member: Member, token: str, meeting: Meeting) -> None:
     msg.body = render_template('email/invite.txt', member=member, meeting=meeting, link=link)
     msg.html = render_template('email/invite.html', member=member, meeting=meeting, link=link, unsubscribe_url='#')
     mail.send(msg)
+
+
+def send_stage2_invite(member: Member, token: str, meeting: Meeting) -> None:
+    """Email Stage 2 voting link to a member."""
+    link = url_for('voting.ballot_home', token=token, _external=True)
+    msg = Message(
+        subject=f"Stage 2 voting open for {meeting.title}",
+        recipients=[member.email],
+    )
+    msg.body = render_template(
+        'email/stage2_invite.txt', member=member, meeting=meeting, link=link
+    )
+    msg.html = render_template(
+        'email/stage2_invite.html',
+        member=member,
+        meeting=meeting,
+        link=link,
+        unsubscribe_url='#',
+    )
+    mail.send(msg)

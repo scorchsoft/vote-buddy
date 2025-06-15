@@ -19,6 +19,8 @@ from app.models import (
     Vote,
 )
 from app.voting import routes as voting
+from unittest.mock import patch
+from datetime import datetime, timedelta
 
 
 def _setup_app():
@@ -94,3 +96,47 @@ def test_stage2_motion_vote():
         assert vote.motion_id == motion.id
         assert vote.hash == expected
         assert token.used_at is not None
+
+
+def test_ballot_token_outside_window_returns_error():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        opens = datetime.utcnow() + timedelta(hours=1)
+        closes = opens + timedelta(hours=1)
+        meeting = Meeting(title="AGM", opens_at_stage1=opens, closes_at_stage1=closes)
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token = VoteToken(token="tok-window", member_id=member.id, stage=1)
+        db.session.add(token)
+        db.session.commit()
+
+        before_open = opens - timedelta(minutes=5)
+        after_close = closes + timedelta(minutes=5)
+
+        with app.test_request_context("/vote/tok-window"):
+            with patch("app.voting.routes.datetime") as mock_dt:
+                mock_dt.utcnow.return_value = before_open
+                resp = voting.ballot_token("tok-window")
+                assert resp[1] == 400
+                assert token.used_at is None
+
+        with app.test_request_context("/vote/tok-window"):
+            with patch("app.voting.routes.datetime") as mock_dt:
+                mock_dt.utcnow.return_value = after_close
+                resp = voting.ballot_token("tok-window")
+                assert resp[1] == 400
+                assert token.used_at is None
