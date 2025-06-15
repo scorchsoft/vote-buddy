@@ -18,3 +18,27 @@ def test_has_permission():
     assert user.has_permission('view_dashboard') is True
     assert user.has_permission('manage_users') is False
 
+
+from datetime import datetime
+from app.extensions import db
+from app import create_app
+from app.models import Meeting, Member, VoteToken
+
+
+def test_meeting_stage1_votes_count():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM', quorum=2)
+        db.session.add(meeting)
+        db.session.flush()
+        m1 = Member(meeting_id=meeting.id, name='A')
+        m2 = Member(meeting_id=meeting.id, name='B')
+        db.session.add_all([m1, m2])
+        db.session.flush()
+        t1 = VoteToken(token='t1', member_id=m1.id, stage=1, used_at=datetime.utcnow())
+        t2 = VoteToken(token='t2', member_id=m2.id, stage=1)
+        db.session.add_all([t1, t2])
+        db.session.commit()
+        assert meeting.stage1_votes_count() == 1

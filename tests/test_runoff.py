@@ -66,3 +66,48 @@ def test_close_stage1_creates_runoff_and_extends_stage2():
         assert meeting.opens_at_stage2 == now + timedelta(minutes=60)
         assert meeting.closes_at_stage2 == now + timedelta(hours=1) + timedelta(minutes=60)
 
+
+def test_close_stage1_no_runoff_no_extension():
+    app = _setup()
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title='AGM',
+            opens_at_stage1=now,
+            closes_at_stage1=now,
+            opens_at_stage2=now,
+            closes_at_stage2=now + timedelta(hours=1),
+        )
+        db.session.add(meeting)
+        db.session.flush()
+
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M',
+            text_md='x',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+
+        a1 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A1', order=1)
+        a2 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A2', order=2)
+        db.session.add_all([a1, a2])
+        db.session.flush()
+
+        db.session.add(AmendmentConflict(meeting_id=meeting.id, amendment_a_id=a1.id, amendment_b_id=a2.id))
+        member = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add(member)
+        db.session.flush()
+
+        Vote.record(member_id=member.id, amendment_id=a1.id, choice='for', salt='s')
+        Vote.record(member_id=member.id, amendment_id=a2.id, choice='against', salt='s')
+
+        ro.close_stage1(meeting)
+
+        assert Runoff.query.count() == 0
+        assert meeting.opens_at_stage2 == now
+        assert meeting.closes_at_stage2 == now + timedelta(hours=1)
