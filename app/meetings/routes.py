@@ -316,6 +316,24 @@ def close_stage1(meeting_id: int):
     """Close Stage 1 and handle run-offs or open Stage 2."""
     meeting = Meeting.query.get_or_404(meeting_id)
 
+    # if there are no amendments, skip directly to Stage 2
+    if Amendment.query.filter_by(meeting_id=meeting.id).count() == 0:
+        members = Member.query.filter_by(meeting_id=meeting.id).all()
+        tokens: list[tuple[Member, str]] = []
+        for member in members:
+            _, plain = VoteToken.create(
+                member_id=member.id,
+                stage=2,
+                salt=current_app.config["TOKEN_SALT"],
+            )
+            tokens.append((member, plain))
+        meeting.status = "Stage 2"
+        db.session.commit()
+        for m, t in tokens:
+            send_stage2_invite(m, t, meeting)
+        flash("No amendments submitted. Stage 2 voting opened", "success")
+        return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+
     # finalize Stage 1 results and create run-off ballots if required
     runoffs, tokens_to_send = runoff.close_stage1(meeting)
 

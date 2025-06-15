@@ -10,8 +10,12 @@
   {% for meeting in meetings %}
   <div class="bp-card">
     <div class="bp-alert-warning mb-2">
+      {% if meeting.status == 'Stage 2' %}
+      Stage 2 closes in {{ meeting.stage2_time_remaining() }}
+      {% else %}
       Quorum: {{ '%.1f'|format(meeting.quorum_percentage()) }}% –
       Stage 1 closes in {{ meeting.stage1_time_remaining() }}
+      {% endif %}
     </div>
     <h3 class="font-semibold mb-1">{{ meeting.title }}</h3>
     <p class="text-sm mb-1">{{ meeting.status or 'Draft' }}</p>

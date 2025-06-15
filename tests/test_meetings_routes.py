@@ -112,6 +112,8 @@ def test_close_stage1_creates_stage2_tokens_and_emails():
         db.session.flush()
         member = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
         db.session.add(member)
+        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md='A1', order=1)
+        db.session.add(amend)
         db.session.commit()
 
         with app.test_request_context(
@@ -130,6 +132,34 @@ def test_close_stage1_creates_stage2_tokens_and_emails():
                         assert meeting.status == 'Pending Stage 2'
 
 
+def test_close_stage1_skips_to_stage2_when_no_amendments():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['MAIL_SUPPRESS_SEND'] = True
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='Test')
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add(member)
+        db.session.commit()
+
+        with app.test_request_context(
+            f'/meetings/{meeting.id}/close-stage1', method='POST'
+        ):
+            user = _make_user(True)
+            with patch('flask_login.utils._get_user', return_value=user):
+                with patch('app.meetings.routes.send_stage2_invite') as mock_send:
+                    meetings.close_stage1(meeting.id)
+                    mock_send.assert_called_once()
+                    assert (
+                        VoteToken.query.filter_by(member_id=member.id, stage=2).count()
+                        == 1
+                    )
+                    assert meeting.status == 'Stage 2'
+
+
 def test_close_stage1_runoff_triggers_emails_and_tokens():
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -141,6 +171,8 @@ def test_close_stage1_runoff_triggers_emails_and_tokens():
         db.session.flush()
         member = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
         db.session.add(member)
+        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md='A1', order=1)
+        db.session.add(amend)
         db.session.commit()
 
         runoff_obj = SimpleNamespace(id=1)

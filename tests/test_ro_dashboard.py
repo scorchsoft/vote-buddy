@@ -159,6 +159,22 @@ def test_dashboard_shows_quorum_percentage():
                 assert '50.0%' in html
 
 
+def test_ro_dashboard_stage2_time_remaining():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(title='AGM', status='Stage 2', closes_at_stage2=now + timedelta(hours=4))
+        db.session.add(meeting)
+        db.session.commit()
+        user = _make_user()
+        with app.test_request_context('/ro/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = ro.dashboard()
+                assert meeting.stage2_time_remaining() in html
+
+
 def test_lock_and_unlock_stage_post():
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
