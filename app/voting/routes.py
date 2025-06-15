@@ -17,42 +17,64 @@ from flask_wtf import FlaskForm
 from wtforms import RadioField, SubmitField
 from wtforms.validators import DataRequired
 
-bp = Blueprint('voting', __name__, url_prefix='/vote')
+bp = Blueprint("voting", __name__, url_prefix="/vote")
 
 
-@bp.route('/')
+@bp.route("/")
 def ballot_home():
-    return render_template('voting/home.html')
+    return render_template("voting/home.html")
 
 
 def _amendment_form(amendments):
     fields = {}
     for amend in amendments:
-        fields[f'amend_{amend.id}'] = RadioField(
-            'Your vote',
-            choices=[('for', 'For'), ('against', 'Against'), ('abstain', 'Abstain')],
+        fields[f"amend_{amend.id}"] = RadioField(
+            "Your vote",
+            choices=[("for", "For"), ("against", "Against"), ("abstain", "Abstain")],
             validators=[DataRequired()],
         )
-    fields['submit'] = SubmitField('Submit votes')
-    return type('DynamicForm', (FlaskForm,), fields)()
+    fields["submit"] = SubmitField("Submit votes")
+    return type("DynamicForm", (FlaskForm,), fields)()
 
 
 def _motion_form(motions):
     fields = {}
     for motion in motions:
-        if motion.category == 'multiple_choice':
+        if motion.category == "multiple_choice":
             opts = [(o.text, o.text) for o in motion.options]
-            opts.append(('abstain', 'Abstain'))
+            opts.append(("abstain", "Abstain"))
         else:
-            opts = [('for', 'For'), ('against', 'Against'), ('abstain', 'Abstain')]
-        fields[f'motion_{motion.id}'] = RadioField(
-            'Your vote', choices=opts, validators=[DataRequired()]
+            opts = [("for", "For"), ("against", "Against"), ("abstain", "Abstain")]
+        fields[f"motion_{motion.id}"] = RadioField(
+            "Your vote", choices=opts, validators=[DataRequired()]
         )
-    fields['submit'] = SubmitField('Submit votes')
-    return type('MotionForm', (FlaskForm,), fields)()
+    fields["submit"] = SubmitField("Submit votes")
+    return type("MotionForm", (FlaskForm,), fields)()
 
 
-@bp.route('/<token>', methods=['GET', 'POST'])
+def _combined_form(motions, amendments):
+    """Build a form with both amendment and motion fields."""
+    fields = {}
+    for amend in amendments:
+        fields[f"amend_{amend.id}"] = RadioField(
+            "Your vote",
+            choices=[("for", "For"), ("against", "Against"), ("abstain", "Abstain")],
+            validators=[DataRequired()],
+        )
+    for motion in motions:
+        if motion.category == "multiple_choice":
+            opts = [(o.text, o.text) for o in motion.options]
+            opts.append(("abstain", "Abstain"))
+        else:
+            opts = [("for", "For"), ("against", "Against"), ("abstain", "Abstain")]
+        fields[f"motion_{motion.id}"] = RadioField(
+            "Your vote", choices=opts, validators=[DataRequired()]
+        )
+    fields["submit"] = SubmitField("Submit votes")
+    return type("CombinedForm", (FlaskForm,), fields)()
+
+
+@bp.route("/<token>", methods=["GET", "POST"])
 def ballot_token(token: str):
     """Verify token and display the correct ballot stage."""
     vote_token = VoteToken.query.filter_by(token=token).first_or_404()
@@ -77,57 +99,116 @@ def ballot_token(token: str):
         )
 
     if vote_token.used_at and not meeting.revoting_allowed:
-        return render_template(
-            'voting/token_error.html',
-            message='This voting link has already been used.',
-        ), 400
+        return (
+            render_template(
+                "voting/token_error.html",
+                message="This voting link has already been used.",
+            ),
+            400,
+        )
 
-    if vote_token.stage == 1:
-        motions = Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
-        amendments = Amendment.query.filter(Amendment.motion_id.in_([m.id for m in motions])).order_by(Amendment.order).all()
-        form = _amendment_form(amendments)
+    if meeting.ballot_mode == "combined":
+        motions = (
+            Motion.query.filter_by(meeting_id=meeting.id)
+            .order_by(Motion.ordering)
+            .all()
+        )
+        amendments = (
+            Amendment.query.filter(Amendment.motion_id.in_([m.id for m in motions]))
+            .order_by(Amendment.order)
+            .all()
+        )
+        form = _combined_form(motions, amendments)
         if form.validate_on_submit():
             for amend in amendments:
-                choice = form[f'amend_{amend.id}'].data
+                choice = form[f"amend_{amend.id}"].data
                 Vote.record(
                     member_id=member.id,
                     amendment_id=amend.id,
                     choice=choice,
-                    salt=current_app.config['VOTE_SALT'],
+                    salt=current_app.config["VOTE_SALT"],
+                )
+            for motion in motions:
+                choice = form[f"motion_{motion.id}"].data
+                Vote.record(
+                    member_id=member.id,
+                    motion_id=motion.id,
+                    choice=choice,
+                    salt=current_app.config["VOTE_SALT"],
                 )
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
-            return render_template('voting/confirmation.html', choice='recorded')
+            return render_template("voting/confirmation.html", choice="recorded")
 
         motions_grouped = []
         for motion in motions:
             ams = [a for a in amendments if a.motion_id == motion.id]
             motions_grouped.append((motion, ams))
         return render_template(
-            'voting/stage1_ballot.html',
+            "voting/combined_ballot.html",
+            form=form,
+            motions=motions_grouped,
+            meeting=meeting,
+        )
+
+    if vote_token.stage == 1:
+        motions = (
+            Motion.query.filter_by(meeting_id=meeting.id)
+            .order_by(Motion.ordering)
+            .all()
+        )
+        amendments = (
+            Amendment.query.filter(Amendment.motion_id.in_([m.id for m in motions]))
+            .order_by(Amendment.order)
+            .all()
+        )
+        form = _amendment_form(amendments)
+        if form.validate_on_submit():
+            for amend in amendments:
+                choice = form[f"amend_{amend.id}"].data
+                Vote.record(
+                    member_id=member.id,
+                    amendment_id=amend.id,
+                    choice=choice,
+                    salt=current_app.config["VOTE_SALT"],
+                )
+            vote_token.used_at = datetime.utcnow()
+            db.session.commit()
+            return render_template("voting/confirmation.html", choice="recorded")
+
+        motions_grouped = []
+        for motion in motions:
+            ams = [a for a in amendments if a.motion_id == motion.id]
+            motions_grouped.append((motion, ams))
+        return render_template(
+            "voting/stage1_ballot.html",
             form=form,
             motions=motions_grouped,
             meeting=meeting,
         )
 
     else:
-        motions = Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
+        motions = (
+            Motion.query.filter_by(meeting_id=meeting.id)
+            .order_by(Motion.ordering)
+            .all()
+        )
         form = _motion_form(motions)
         if form.validate_on_submit():
             for motion in motions:
-                choice = form[f'motion_{motion.id}'].data
+                choice = form[f"motion_{motion.id}"].data
                 Vote.record(
                     member_id=member.id,
                     motion_id=motion.id,
                     choice=choice,
-                    salt=current_app.config['VOTE_SALT'],
+                    salt=current_app.config["VOTE_SALT"],
                 )
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
-            return render_template('voting/confirmation.html', choice='recorded')
+            return render_template("voting/confirmation.html", choice="recorded")
 
         return render_template(
-            'voting/stage2_ballot.html',
+            "voting/stage2_ballot.html",
             form=form,
             motions=motions,
             meeting=meeting,
