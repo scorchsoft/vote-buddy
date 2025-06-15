@@ -16,9 +16,12 @@
     <h3 class="font-semibold mb-1">{{ meeting.title }}</h3>
     <p class="text-sm mb-1">{{ meeting.status or 'Draft' }}</p>
     <span class="bp-badge">Next reminder in {{ meeting.hours_until_next_reminder() }}h</span>
-    <a href="{{ url_for('admin.toggle_public_results', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm mt-2 inline-block">
-      {{ 'Hide Results' if meeting.public_results else 'Show Results' }}
-    </a>
+    <form action="{{ url_for('admin.toggle_public_results', meeting_id=meeting.id) }}" method="post" class="inline-block mt-2">
+      {{ csrf_token() }}
+      <button type="submit" class="bp-btn-secondary text-sm">
+        {{ 'Hide Results' if meeting.public_results else 'Show Results' }}
+      </button>
+    </form>
   </div>
   {% else %}
   <p>No meetings available.</p>
