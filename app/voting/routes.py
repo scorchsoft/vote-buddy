@@ -118,6 +118,23 @@ def ballot_token(token: str):
             400,
         )
 
+    if vote_token.stage == 1 and meeting.stage1_locked:
+        return (
+            render_template(
+                "voting/token_error.html",
+                message="Voting for Stage 1 has been locked by the Returning Officer.",
+            ),
+            400,
+        )
+    if vote_token.stage == 2 and meeting.stage2_locked:
+        return (
+            render_template(
+                "voting/token_error.html",
+                message="Voting for Stage 2 has been locked by the Returning Officer.",
+            ),
+            400,
+        )
+
     if vote_token.used_at and not meeting.revoting_allowed:
         return (
             render_template(

@@ -384,3 +384,63 @@ def test_stage2_ballot_displays_compiled_text():
         with app.test_request_context("/vote/s2"):
             html = voting.ballot_token("s2")
             assert "Add" in html
+
+
+def test_stage1_locked_rejects_vote():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", stage1_locked=True)
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
+        db.session.add(member)
+        db.session.commit()
+        token = VoteToken(token="lock1", member_id=member.id, stage=1)
+        db.session.add(token)
+        db.session.commit()
+
+        with app.test_request_context("/vote/lock1"):
+            resp = voting.ballot_token("lock1")
+            assert resp[1] == 400
+            assert "locked" in resp[0]
+
+
+def test_stage2_locked_rejects_vote():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", stage2_locked=True)
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
+        db.session.add(member)
+        db.session.commit()
+        token = VoteToken(token="lock2", member_id=member.id, stage=2)
+        db.session.add(token)
+        db.session.commit()
+
+        with app.test_request_context("/vote/lock2"):
+            resp = voting.ballot_token("lock2")
+            assert resp[1] == 400
+            assert "locked" in resp[0]

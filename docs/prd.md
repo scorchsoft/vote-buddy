@@ -318,6 +318,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Implemented public results visibility toggle and results page.
 * 2025-06-15 – Corrected email invite links to use `/vote/<token>`.
 * 2025-06-15 – Stage 2 ballot now shows compiled motion text with carried amendments.
+* 2025-06-16 – Voting route now rejects submissions if the stage is locked by the RO.
 
 
 
