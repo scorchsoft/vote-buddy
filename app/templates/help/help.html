@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bp-card space-y-4">
+  <h1 class="text-2xl font-bold text-bp-blue">Voting Help</h1>
+  <div class="prose">
+    {{ content|safe }}
+  </div>
+  <a href="{{ url_for('main.index') }}" class="bp-btn-primary">Return home</a>
+</div>
+{% endblock %}
