@@ -8,8 +8,8 @@
 {% endif %}
 <form method="post" class="bp-form bp-card space-y-4">
   {{ form.hidden_tag() }}
-  {% for motion in motions %}
-    <div class="bp-card bp-glow mb-4">{{ motion.text_md }}</div>
+  {% for motion, compiled in motions %}
+    <blockquote class="bp-card bp-glow mb-4 whitespace-pre-line">{{ compiled }}</blockquote>
     <div class="space-x-4 mb-4">
       {% for sub in form['motion_' ~ motion.id] %}
         <label class="inline-flex items-center mr-4">{{ sub() }}<span>{{ sub.label.text }}</span></label>

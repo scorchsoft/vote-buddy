@@ -302,3 +302,85 @@ def test_proxy_vote_creates_two_records():
         expected_alice = hashlib.sha256(f"{member.id}forsalty".encode()).hexdigest()
         expected_bob = hashlib.sha256(f"{proxied.id}forsalty".encode()).hexdigest()
         assert {votes[0].hash, votes[1].hash} == {expected_alice, expected_bob}
+
+
+def test_compile_motion_text_orders_carried_amendments():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Base",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        a1 = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md="A1",
+            order=2,
+            status="carried",
+        )
+        a2 = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md="A2",
+            order=1,
+            status="carried",
+        )
+        a3 = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md="X",
+            order=3,
+            status="failed",
+        )
+        db.session.add_all([a1, a2, a3])
+        db.session.commit()
+        result = voting.compile_motion_text(motion)
+        assert result == "Base\n\nA2\n\nA1"
+
+
+def test_stage2_ballot_displays_compiled_text():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Base",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        db.session.add(
+            Amendment(
+                meeting_id=meeting.id,
+                motion_id=motion.id,
+                text_md="Add",
+                order=1,
+                status="carried",
+            )
+        )
+        db.session.commit()
+        member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
+        db.session.add(member)
+        db.session.flush()
+        token = VoteToken(token="s2", member_id=member.id, stage=2)
+        db.session.add(token)
+        db.session.commit()
+        with app.test_request_context("/vote/s2"):
+            html = voting.ballot_token("s2")
+            assert "Add" in html
