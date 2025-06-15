@@ -7,6 +7,7 @@
       <tr>
         <th class="p-2 text-left">Meeting</th>
         <th class="p-2 text-left">Stage 1 Votes</th>
+        <th class="p-2 text-left">Next Reminder</th>
         <th class="p-2 text-left">Quorum %</th>
         <th class="p-2 text-left">Time Remaining</th>
         <th class="p-2 text-left">Stage 1 Locked</th>
@@ -19,6 +20,7 @@
       <tr class="border-t">
         <td class="p-2">{{ meeting.title }}</td>
         <td class="p-2">{{ count }}/{{ meeting.quorum }}</td>
+        <td class="p-2"><span class="bp-badge">{{ meeting.hours_until_next_reminder() }}h</span></td>
         <td class="p-2">{{ '%.1f'|format(meeting.quorum_percentage()) }}%</td>
         <td class="p-2">{{ meeting.stage1_time_remaining() }}</td>
         <td class="p-2">{{ 'Yes' if meeting.stage1_locked else 'No' }}</td>

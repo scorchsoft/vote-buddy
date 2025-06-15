@@ -1,5 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
+import math
+from flask import current_app
 from flask_login import UserMixin
 from .extensions import db, bcrypt
 
@@ -58,6 +60,19 @@ class Meeting(db.Model):
             )
             .count()
         )
+
+    def hours_until_next_reminder(self, now: datetime | None = None) -> int:
+        """Return hours until the next reminder email should be sent."""
+        if not self.closes_at_stage1:
+            return 0
+        now = now or datetime.utcnow()
+        hours_before = current_app.config.get("REMINDER_HOURS_BEFORE_CLOSE", 6)
+        next_due = self.closes_at_stage1 - timedelta(hours=hours_before)
+        if self.stage1_reminder_sent_at:
+            cooldown = current_app.config.get("REMINDER_COOLDOWN_HOURS", 24)
+            next_due = self.stage1_reminder_sent_at + timedelta(hours=cooldown)
+        diff = (next_due - now).total_seconds() / 3600
+        return max(0, math.ceil(diff))
 
     def quorum_percentage(self) -> float:
         """Return Stage-1 turnout as a percentage of quorum."""

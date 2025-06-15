@@ -19,7 +19,7 @@ def test_has_permission():
     assert user.has_permission('manage_users') is False
 
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from app.extensions import db
 from app import create_app
 from app.models import Meeting, Member, VoteToken
@@ -42,3 +42,33 @@ def test_meeting_stage1_votes_count():
         db.session.add_all([t1, t2])
         db.session.commit()
         assert meeting.stage1_votes_count() == 1
+
+
+def test_hours_until_next_reminder_first():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['REMINDER_HOURS_BEFORE_CLOSE'] = 6
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(title='AGM', closes_at_stage1=now + timedelta(hours=8))
+        db.session.add(meeting)
+        db.session.commit()
+        assert meeting.hours_until_next_reminder(now=now) == 2
+
+
+def test_hours_until_next_reminder_after_first():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['REMINDER_HOURS_BEFORE_CLOSE'] = 6
+    app.config['REMINDER_COOLDOWN_HOURS'] = 24
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title='AGM', closes_at_stage1=now + timedelta(hours=30),
+            stage1_reminder_sent_at=now
+        )
+        db.session.add(meeting)
+        db.session.commit()
+        assert meeting.hours_until_next_reminder(now=now) == 24

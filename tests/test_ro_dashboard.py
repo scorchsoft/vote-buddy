@@ -89,6 +89,16 @@ def test_dashboard_requires_permission():
                     assert False, 'expected Forbidden'
 
 
+def test_ro_dashboard_displays_countdown():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['REMINDER_HOURS_BEFORE_CLOSE'] = 6
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(title='AGM', closes_at_stage1=now + timedelta(hours=8))
+        db.session.add(meeting)
+
 def test_dashboard_shows_quorum_percentage():
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -111,4 +121,6 @@ def test_dashboard_shows_quorum_percentage():
         with app.test_request_context('/ro/'):
             with patch('flask_login.utils._get_user', return_value=user):
                 html = ro.dashboard()
+                assert 'Next Reminder' in html
+                assert '2h' in html
                 assert '50.0%' in html
