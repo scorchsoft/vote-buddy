@@ -257,7 +257,9 @@ def ballot_token(token: str):
             db.session.commit()
             return render_template("voting/confirmation.html", choice="recorded")
 
-        compiled = [(m, compile_motion_text(m)) for m in motions]
+        compiled = [
+            (m, m.final_text_md or compile_motion_text(m)) for m in motions
+        ]
         return render_template(
             "voting/stage2_ballot.html",
             form=form,

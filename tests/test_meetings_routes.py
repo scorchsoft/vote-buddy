@@ -122,11 +122,12 @@ def test_close_stage1_creates_stage2_tokens_and_emails():
                 with patch('app.meetings.routes.runoff.close_stage1', return_value=[]):
                     with patch('app.meetings.routes.send_stage2_invite') as mock_send:
                         meetings.close_stage1(meeting.id)
-                        mock_send.assert_called_once()
+                        mock_send.assert_not_called()
                         assert (
                             VoteToken.query.filter_by(member_id=member.id, stage=2).count()
-                            == 1
+                            == 0
                         )
+                        assert meeting.status == 'Pending Stage 2'
 
 
 def test_close_stage1_runoff_triggers_emails_and_tokens():

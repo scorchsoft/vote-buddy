@@ -384,3 +384,32 @@ def test_stage2_ballot_displays_compiled_text():
         with app.test_request_context("/vote/s2"):
             html = voting.ballot_token("s2")
             assert "Add" in html
+
+
+def test_stage2_ballot_uses_final_text():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Base",
+            final_text_md="Merged",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
+        db.session.add(member)
+        db.session.flush()
+        token = VoteToken(token="s2", member_id=member.id, stage=2)
+        db.session.add(token)
+        db.session.commit()
+        with app.test_request_context("/vote/s2"):
+            html = voting.ballot_token("s2")
+            assert "Merged" in html

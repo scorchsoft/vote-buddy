@@ -75,6 +75,7 @@ class Motion(db.Model):
     meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
     title = db.Column(db.String(255))
     text_md = db.Column(db.Text)
+    final_text_md = db.Column(db.Text)
     category = db.Column(db.String(20))
     threshold = db.Column(db.String(20))
     ordering = db.Column(db.Integer)
