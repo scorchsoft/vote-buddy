@@ -342,6 +342,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Added sticky confirmation footer summarising selections on voting pages.
 * 2025-06-15 – Added flash message banners and login/meeting alerts
 * 2025-06-17 – Introduced root-admin-only settings for site title, logo and from-email.
+* 2025-06-18 – Added site footer credit linking to Scorchsoft.
 
 
 ---
