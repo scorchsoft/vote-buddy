@@ -329,6 +329,8 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Implemented run-off ballot route and template
 * 2025-06-15 – Added Content-Security-Policy header restricting scripts/styles to self and the htmx CDN.
 * 2025-06-15 – Introduced role management pages secured by 'manage_users'.
+* 2025-06-15 – Added help page explaining voting stages and token links.
+* 2025-06-15 – Added OWASP ZAP baseline scan script for penetration testing.
 
 
 ---
