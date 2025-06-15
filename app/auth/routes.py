@@ -16,9 +16,10 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
             login_user(user)
+            flash('Logged in successfully', 'success')
             destination = next_page if is_safe_url(next_page) else url_for('admin.dashboard')
             return redirect(destination)
-        flash('Invalid credentials')
+        flash('Invalid credentials', 'error')
     return render_template('auth/login.html', next=next_page)
 
 
