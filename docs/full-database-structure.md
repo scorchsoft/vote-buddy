@@ -74,6 +74,7 @@ This document summarises all tables and columns created by the Alembic migration
 | category | String(20) | |
 | threshold | String(20) | |
 | ordering | Integer | |
+| status | String(50) | |
 
 ### motion_options
 | Column | Type | Notes |

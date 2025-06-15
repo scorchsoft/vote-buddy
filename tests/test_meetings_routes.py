@@ -267,3 +267,50 @@ def test_results_stage2_docx_returns_file():
                 assert resp.mimetype == (
                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
                 )
+
+
+def test_close_stage2_sets_motion_statuses():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        m1 = Motion(
+            meeting_id=meeting.id,
+            title='M1',
+            text_md='text1',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        m2 = Motion(
+            meeting_id=meeting.id,
+            title='M2',
+            text_md='text2',
+            category='motion',
+            threshold='special',
+            ordering=2,
+        )
+        db.session.add_all([m1, m2])
+        members = [Member(meeting_id=meeting.id, name=f'M{i}') for i in range(4)]
+        for mem in members:
+            db.session.add(mem)
+        db.session.flush()
+        Vote.record(member_id=members[0].id, motion_id=m1.id, choice='for', salt='s')
+        Vote.record(member_id=members[1].id, motion_id=m1.id, choice='for', salt='s')
+        Vote.record(member_id=members[2].id, motion_id=m1.id, choice='against', salt='s')
+
+        Vote.record(member_id=members[0].id, motion_id=m2.id, choice='for', salt='s')
+        Vote.record(member_id=members[1].id, motion_id=m2.id, choice='for', salt='s')
+        Vote.record(member_id=members[2].id, motion_id=m2.id, choice='for', salt='s')
+        Vote.record(member_id=members[3].id, motion_id=m2.id, choice='against', salt='s')
+
+        user = _make_user(True)
+        with app.test_request_context(f'/meetings/{meeting.id}/close-stage2', method='POST'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                meetings.close_stage2(meeting.id)
+
+        assert m1.status == 'carried'
+        assert m2.status == 'carried'

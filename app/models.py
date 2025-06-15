@@ -113,6 +113,7 @@ class Motion(db.Model):
     category = db.Column(db.String(20))
     threshold = db.Column(db.String(20))
     ordering = db.Column(db.Integer)
+    status = db.Column(db.String(50))
     options = db.relationship('MotionOption', backref='motion')
 
 
