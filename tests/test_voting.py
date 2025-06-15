@@ -551,3 +551,63 @@ def test_runoff_ballot_display_and_submit():
         assert len(votes) == 2
         assert votes[0].choice == ("for" if votes[0].amendment_id == a1.id else "against")
         assert token_obj.used_at is not None
+
+
+def test_stepper_shows_stage1_current():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        db.session.add(amend)
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with app.test_request_context(f"/vote/{plain}"):
+            html = voting.ballot_token(plain)
+            assert 'bp-stepper-current" data-step="1"' in html
+            assert 'data-step="2"' in html
+            assert 'bp-stepper-complete' not in html
+
+
+def test_stepper_shows_stage2_current_and_stage1_complete():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with app.test_request_context(f"/vote/{plain}"):
+            html = voting.ballot_token(plain)
+            assert 'bp-stepper-complete" data-step="1"' in html
+            assert 'bp-stepper-current" data-step="2"' in html
+

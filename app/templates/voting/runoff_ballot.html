@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="font-bold text-bp-blue mb-4">Run-off Vote</h2>
+{% set current_stage = 1 %}
+{% include '_stepper.html' %}
 <div class="bp-alert-warning mb-4">These amendments conflict. Choose which one should proceed.</div>
 {% if proxy_for %}
 <div class="bp-alert-warning text-center mb-4">
