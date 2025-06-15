@@ -16,6 +16,7 @@ from .forms import VoteForm
 from flask_wtf import FlaskForm
 from wtforms import RadioField, SubmitField
 from wtforms.validators import DataRequired
+from app.services.email import send_vote_receipt
 
 bp = Blueprint("voting", __name__, url_prefix="/vote")
 
@@ -153,14 +154,16 @@ def ballot_token(token: str):
         )
         form = _combined_form(motions, amendments)
         if form.validate_on_submit():
+            hashes = []
             for amend in amendments:
                 choice = form[f"amend_{amend.id}"].data
-                Vote.record(
+                vote = Vote.record(
                     member_id=member.id,
                     amendment_id=amend.id,
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
                 )
+                hashes.append(vote.hash)
                 if proxy_member:
                     Vote.record(
                         member_id=proxy_member.id,
@@ -170,12 +173,13 @@ def ballot_token(token: str):
                     )
             for motion in motions:
                 choice = form[f"motion_{motion.id}"].data
-                Vote.record(
+                vote = Vote.record(
                     member_id=member.id,
                     motion_id=motion.id,
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
                 )
+                hashes.append(vote.hash)
                 if proxy_member:
                     Vote.record(
                         member_id=proxy_member.id,
@@ -185,6 +189,7 @@ def ballot_token(token: str):
                     )
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
+            send_vote_receipt(member, meeting, hashes)
             return render_template("voting/confirmation.html", choice="recorded")
 
         motions_grouped = []
@@ -212,14 +217,16 @@ def ballot_token(token: str):
         )
         form = _amendment_form(amendments)
         if form.validate_on_submit():
+            hashes = []
             for amend in amendments:
                 choice = form[f"amend_{amend.id}"].data
-                Vote.record(
+                vote = Vote.record(
                     member_id=member.id,
                     amendment_id=amend.id,
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
                 )
+                hashes.append(vote.hash)
                 if proxy_member:
                     Vote.record(
                         member_id=proxy_member.id,
@@ -229,6 +236,7 @@ def ballot_token(token: str):
                     )
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
+            send_vote_receipt(member, meeting, hashes)
             return render_template("voting/confirmation.html", choice="recorded")
 
         motions_grouped = []
@@ -251,14 +259,16 @@ def ballot_token(token: str):
         )
         form = _motion_form(motions)
         if form.validate_on_submit():
+            hashes = []
             for motion in motions:
                 choice = form[f"motion_{motion.id}"].data
-                Vote.record(
+                vote = Vote.record(
                     member_id=member.id,
                     motion_id=motion.id,
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
                 )
+                hashes.append(vote.hash)
                 if proxy_member:
                     Vote.record(
                         member_id=proxy_member.id,
@@ -268,6 +278,7 @@ def ballot_token(token: str):
                     )
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
+            send_vote_receipt(member, meeting, hashes)
             return render_template("voting/confirmation.html", choice="recorded")
 
         compiled = [
@@ -326,30 +337,35 @@ def runoff_ballot(token: str):
     form = type("RunoffForm", (FlaskForm,), fields)()
 
     if form.validate_on_submit():
+        hashes = []
         for r in runoffs:
             choice = form[f"runoff_{r.id}"].data
             a_id = r.amendment_a_id
             b_id = r.amendment_b_id
             if choice == "a":
-                Vote.record(member_id=member.id, amendment_id=a_id, choice="for", salt=current_app.config["VOTE_SALT"])
-                Vote.record(member_id=member.id, amendment_id=b_id, choice="against", salt=current_app.config["VOTE_SALT"])
+                v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="for", salt=current_app.config["VOTE_SALT"])
+                v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="against", salt=current_app.config["VOTE_SALT"])
+                hashes.extend([v1.hash, v2.hash])
                 if proxy_member:
                     Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="for", salt=current_app.config["VOTE_SALT"])
                     Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="against", salt=current_app.config["VOTE_SALT"])
             elif choice == "b":
-                Vote.record(member_id=member.id, amendment_id=a_id, choice="against", salt=current_app.config["VOTE_SALT"])
-                Vote.record(member_id=member.id, amendment_id=b_id, choice="for", salt=current_app.config["VOTE_SALT"])
+                v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="against", salt=current_app.config["VOTE_SALT"])
+                v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="for", salt=current_app.config["VOTE_SALT"])
+                hashes.extend([v1.hash, v2.hash])
                 if proxy_member:
                     Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="against", salt=current_app.config["VOTE_SALT"])
                     Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="for", salt=current_app.config["VOTE_SALT"])
             else:
-                Vote.record(member_id=member.id, amendment_id=a_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
-                Vote.record(member_id=member.id, amendment_id=b_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
+                v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
+                v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
+                hashes.extend([v1.hash, v2.hash])
                 if proxy_member:
                     Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
                     Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
         vote_token.used_at = datetime.utcnow()
         db.session.commit()
+        send_vote_receipt(member, meeting, hashes)
         return render_template("voting/confirmation.html", choice="recorded")
 
     pairs = [

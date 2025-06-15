@@ -331,6 +331,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Introduced role management pages secured by 'manage_users'.
 * 2025-06-15 – Added help page explaining voting stages and token links.
 * 2025-06-15 – Added OWASP ZAP baseline scan script for penetration testing.
+* 2025-06-16 – Emailed vote receipt with ballot hash after members vote.
 
 
 ---
