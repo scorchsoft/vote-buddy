@@ -1,3 +1,4 @@
+from datetime import timedelta
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import (
@@ -25,6 +26,36 @@ class MeetingForm(FlaskForm):
     status = StringField('Status')
     chair_notes_md = TextAreaField('Chair Notes')
     submit = SubmitField('Save')
+
+    def validate(self, extra_validators=None):
+        """Cross-field validations for meeting timelines."""
+        is_valid = super().validate(extra_validators=extra_validators)
+
+        # check Stage 1 duration >= 7 days
+        if self.opens_at_stage1.data and self.closes_at_stage1.data:
+            if self.closes_at_stage1.data - self.opens_at_stage1.data < timedelta(days=7):
+                self.closes_at_stage1.errors.append(
+                    'Stage 1 must remain open for at least 7 days.'
+                )
+                is_valid = False
+
+        # check Stage 2 duration >= 5 days
+        if self.opens_at_stage2.data and self.closes_at_stage2.data:
+            if self.closes_at_stage2.data - self.opens_at_stage2.data < timedelta(days=5):
+                self.closes_at_stage2.errors.append(
+                    'Stage 2 must remain open for at least 5 days.'
+                )
+                is_valid = False
+
+        # check Stage 2 opens >= 1 day after Stage 1 closes
+        if self.closes_at_stage1.data and self.opens_at_stage2.data:
+            if self.opens_at_stage2.data - self.closes_at_stage1.data < timedelta(days=1):
+                self.opens_at_stage2.errors.append(
+                    'Stage 2 must open at least 1 day after Stage 1 closes.'
+                )
+                is_valid = False
+
+        return is_valid
 
 
 class MemberImportForm(FlaskForm):
