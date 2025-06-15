@@ -39,7 +39,7 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting) -> None:
 
 def send_runoff_invite(member: Member, token: str, meeting: Meeting) -> None:
     """Email run-off voting link after Stage 1."""
-    link = url_for('voting.ballot_home', token=token, _external=True)
+    link = url_for('voting.ballot_token', token=token, _external=True)
     msg = Message(
         subject=f"Run-off vote for {meeting.title}",
         recipients=[member.email],
@@ -59,7 +59,7 @@ def send_runoff_invite(member: Member, token: str, meeting: Meeting) -> None:
 
 def send_stage1_reminder(member: Member, token: str, meeting: Meeting) -> None:
     """Email reminder to cast Stage 1 vote."""
-    link = url_for('voting.ballot_home', token=token, _external=True)
+    link = url_for('voting.ballot_token', token=token, _external=True)
     template_base = current_app.config.get('REMINDER_TEMPLATE', 'email/reminder')
     msg = Message(
         subject=f"Reminder: vote in {meeting.title}",
