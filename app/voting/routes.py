@@ -81,6 +81,13 @@ def ballot_token(token: str):
     member = Member.query.get_or_404(vote_token.member_id)
     meeting = Meeting.query.get_or_404(member.meeting_id)
 
+    proxy_member = None
+    if member.proxy_for:
+        try:
+            proxy_member = Member.query.get(int(member.proxy_for))
+        except (ValueError, TypeError):
+            proxy_member = None
+
     # verify current time falls within the configured window
     now = datetime.utcnow()
     if vote_token.stage == 1:
@@ -128,6 +135,13 @@ def ballot_token(token: str):
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
                 )
+                if proxy_member:
+                    Vote.record(
+                        member_id=proxy_member.id,
+                        amendment_id=amend.id,
+                        choice=choice,
+                        salt=current_app.config["VOTE_SALT"],
+                    )
             for motion in motions:
                 choice = form[f"motion_{motion.id}"].data
                 Vote.record(
@@ -136,6 +150,13 @@ def ballot_token(token: str):
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
                 )
+                if proxy_member:
+                    Vote.record(
+                        member_id=proxy_member.id,
+                        motion_id=motion.id,
+                        choice=choice,
+                        salt=current_app.config["VOTE_SALT"],
+                    )
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
             return render_template("voting/confirmation.html", choice="recorded")
@@ -149,6 +170,7 @@ def ballot_token(token: str):
             form=form,
             motions=motions_grouped,
             meeting=meeting,
+            proxy_for=proxy_member,
         )
 
     if vote_token.stage == 1:
@@ -172,6 +194,13 @@ def ballot_token(token: str):
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
                 )
+                if proxy_member:
+                    Vote.record(
+                        member_id=proxy_member.id,
+                        amendment_id=amend.id,
+                        choice=choice,
+                        salt=current_app.config["VOTE_SALT"],
+                    )
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
             return render_template("voting/confirmation.html", choice="recorded")
@@ -185,6 +214,7 @@ def ballot_token(token: str):
             form=form,
             motions=motions_grouped,
             meeting=meeting,
+            proxy_for=proxy_member,
         )
 
     else:
@@ -203,6 +233,13 @@ def ballot_token(token: str):
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
                 )
+                if proxy_member:
+                    Vote.record(
+                        member_id=proxy_member.id,
+                        motion_id=motion.id,
+                        choice=choice,
+                        salt=current_app.config["VOTE_SALT"],
+                    )
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
             return render_template("voting/confirmation.html", choice="recorded")
@@ -212,4 +249,5 @@ def ballot_token(token: str):
             form=form,
             motions=motions,
             meeting=meeting,
+            proxy_for=proxy_member,
         )
