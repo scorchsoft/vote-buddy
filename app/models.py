@@ -105,6 +105,7 @@ class Amendment(db.Model):
     status = db.Column(db.String(50))
     proposer_id = db.Column(db.Integer, db.ForeignKey('members.id'))
     seconder_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    tie_break_method = db.Column(db.String(20))
 
     proposer = db.relationship('Member', foreign_keys=[proposer_id])
     seconder = db.relationship('Member', foreign_keys=[seconder_id])

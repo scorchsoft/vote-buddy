@@ -318,9 +318,10 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Implemented public results visibility toggle and results page.
 * 2025-06-15 – Corrected email invite links to use `/vote/<token>`.
 * 2025-06-15 – Stage 2 ballot now shows compiled motion text with carried amendments.
-* 2025-06-17 – Added manual Stage 2 merge screen with final text field.
-* 2025-06-18 – Voting route rejects ballots when a stage is locked.
-* 2025-06-18 – Implemented run-off ballot route and template.
+* 2025-06-15 – Added manual Stage 2 merge screen with final text field.
+* 2025-06-15 – Voting route rejects ballots when a stage is locked.
+* 2025-06-15 – Run-off service resolves tied amendment votes using chair/board decisions or amendment order.
+* 2025-06-15 – Implemented run-off ballot route and template.
 
 
 
