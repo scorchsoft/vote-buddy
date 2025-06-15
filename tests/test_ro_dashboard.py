@@ -69,6 +69,38 @@ def test_download_tallies_csv():
                 assert resp.status_code == 200
                 assert b'amendment' in resp.data
 
+
+def test_download_audit_log_csv():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M1',
+            text_md='T',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        db.session.add(motion)
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A', order=1)
+        db.session.add(amend)
+        member = Member(meeting_id=meeting.id, name='Alice')
+        db.session.add(member)
+        db.session.flush()
+        Vote.record(member_id=member.id, amendment_id=amend.id, choice='for', salt='s')
+        Vote.record(member_id=member.id, motion_id=motion.id, choice='against', salt='s')
+        user = _make_user()
+        with app.test_request_context(f'/ro/{meeting.id}/audit_log.csv'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                resp = ro.download_audit_log(meeting.id)
+                assert resp.status_code == 200
+                assert b'member_id' in resp.data
+
 def test_dashboard_requires_permission():
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -125,3 +157,4 @@ def test_dashboard_shows_quorum_percentage():
                 # Default reminder config results in 0h when the meeting closes in 1 hour
                 assert '0h' in html
                 assert '50.0%' in html
+

@@ -91,3 +91,26 @@ def download_tallies(meeting_id: int):
         f'attachment; filename=tallies_meeting_{meeting.id}.csv'
     )
     return response
+
+
+@bp.route('/<int:meeting_id>/audit_log.csv')
+@login_required
+@permission_required('manage_meetings')
+def download_audit_log(meeting_id: int):
+    """Return a CSV audit log of all votes for a meeting."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['member_id', 'amendment_id', 'motion_id', 'choice', 'hash'])
+    votes = (
+        Vote.query.join(Member, Vote.member_id == Member.id)
+        .filter(Member.meeting_id == meeting.id)
+        .all()
+    )
+    for v in votes:
+        writer.writerow([v.member_id, v.amendment_id, v.motion_id, v.choice, v.hash])
+    response = Response(output.getvalue(), mimetype='text/csv')
+    response.headers['Content-Disposition'] = (
+        f'attachment; filename=audit_log_meeting_{meeting.id}.csv'
+    )
+    return response
