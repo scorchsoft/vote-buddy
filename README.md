@@ -47,6 +47,14 @@ Install the dependencies and execute:
 pytest -q
 ```
 
+### Security testing
+
+Run the automated OWASP ZAP baseline scan against the local server:
+
+```bash
+scripts/zap_baseline.py
+```
+
 ## Repository layout
 
 ```
