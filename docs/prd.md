@@ -342,8 +342,10 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – DOCX exports styled with bp-blue header, bp-red headings, Gotham font and optional logo watermark.
 * 2025-06-15 – Added sticky confirmation footer summarising selections on voting pages.
 * 2025-06-15 – Added flash message banners and login/meeting alerts
-* 2025-06-15 – MeetingForm enforces minimum stage durations (7d/5d/1d gaps)
 * 2025-06-15 – Introduced root-admin-only settings for site title, logo and from-email.
+* 2025-06-18 – Added site footer credit linking to Scorchsoft.
+* 2025-06-15 – MeetingForm enforces minimum stage durations (7d/5d/1d gaps)
+
 
 
 ---
