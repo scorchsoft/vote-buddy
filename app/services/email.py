@@ -35,3 +35,23 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting) -> None:
         unsubscribe_url='#',
     )
     mail.send(msg)
+
+
+def send_runoff_invite(member: Member, token: str, meeting: Meeting) -> None:
+    """Email run-off voting link after Stage 1."""
+    link = url_for('voting.ballot_home', token=token, _external=True)
+    msg = Message(
+        subject=f"Run-off vote for {meeting.title}",
+        recipients=[member.email],
+    )
+    msg.body = render_template(
+        'email/runoff_invite.txt', member=member, meeting=meeting, link=link
+    )
+    msg.html = render_template(
+        'email/runoff_invite.html',
+        member=member,
+        meeting=meeting,
+        link=link,
+        unsubscribe_url='#',
+    )
+    mail.send(msg)
