@@ -165,6 +165,38 @@ def test_close_stage1_runoff_triggers_emails_and_tokens():
                         )
 
 
+def test_close_stage1_below_quorum_voids_vote():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='Test', quorum=5)
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add(member)
+        db.session.commit()
+
+        with app.test_request_context(
+            f'/meetings/{meeting.id}/close-stage1', method='POST'
+        ):
+            user = _make_user(True)
+            with patch('flask_login.utils._get_user', return_value=user):
+                with patch.object(Meeting, 'stage1_votes_count', return_value=2):
+                    with patch('app.meetings.routes.runoff.close_stage1') as mock_close:
+                        with patch('app.meetings.routes.send_stage2_invite') as mock_stage2:
+                            with patch('app.meetings.routes.send_runoff_invite') as mock_runoff:
+                                meetings.close_stage1(meeting.id)
+                                mock_close.assert_not_called()
+                                mock_stage2.assert_not_called()
+                                mock_runoff.assert_not_called()
+                                assert meeting.status == 'Quorum not met'
+                                assert (
+                                    VoteToken.query.filter_by(member_id=member.id, stage=2).count()
+                                    == 0
+                                )
+
+
 def test_add_amendment_validations():
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
