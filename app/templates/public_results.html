@@ -11,7 +11,7 @@
       <tbody>
         {% for amend, counts in stage1 %}
         <tr class="border-t">
-          <td class="p-2">{{ amend.text_md }}</td>
+          <td class="p-2">{{ amend.text_md|markdown_to_html|safe }}</td>
           <td class="p-2 text-center">{{ counts.for }}</td>
           <td class="p-2 text-center">{{ counts.against }}</td>
           <td class="p-2 text-center">{{ counts.abstain }}</td>

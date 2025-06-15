@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 class="font-bold text-bp-blue mb-4">{{ motion.title }}</h2>
-<div class="bp-card bp-glow mb-4">{{ motion.text_md or 'No motion text.' }}</div>
+<div class="bp-card bp-glow mb-4">{{ (motion.text_md or 'No motion text.')|markdown_to_html|safe }}</div>
 <h3 class="font-bold mb-2">Amendments</h3>
 {% for amend in amendments %}
   <div class="bp-card mb-2">
     <p class="font-semibold mb-1">Proposed by {{ amend.proposer.name }} – Seconded by {{ amend.seconder.name }}</p>
-    {{ amend.text_md }}
+    {{ amend.text_md|markdown_to_html|safe }}
   </div>
 {% else %}
   <p>No amendments submitted.</p>
