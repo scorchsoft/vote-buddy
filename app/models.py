@@ -208,6 +208,8 @@ class Amendment(db.Model):
     status = db.Column(db.String(50))
     proposer_id = db.Column(db.Integer, db.ForeignKey('members.id'))
     seconder_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    seconded_at = db.Column(db.DateTime)
+    seconded_method = db.Column(db.String(50))
     tie_break_method = db.Column(db.String(20))
 
     proposer = db.relationship('Member', foreign_keys=[proposer_id])

@@ -96,6 +96,8 @@ This document summarises all tables and columns created by the Alembic migration
 | status | String(50) | |
 | proposer_id | Integer | FK `members.id` |
 | seconder_id | Integer | FK `members.id` |
+| seconded_at | DateTime | |
+| seconded_method | String(50) | |
 | tie_break_method | String(20) | |
 
 ### amendment_conflicts

@@ -349,6 +349,8 @@ def add_amendment(motion_id):
             order=order,
             proposer_id=form.proposer_id.data,
             seconder_id=form.seconder_id.data,
+            seconded_method=form.seconded_method.data or None,
+            seconded_at=datetime.utcnow() if form.seconded_method.data else None,
         )
         db.session.add(amendment)
         db.session.flush()
@@ -406,7 +408,14 @@ def edit_amendment(amendment_id: int):
 
         amendment.text_md = form.text_md.data
         amendment.proposer_id = form.proposer_id.data
+        method = form.seconded_method.data or None
+        if (
+            amendment.seconder_id != form.seconder_id.data
+            or amendment.seconded_method != method
+        ) and method:
+            amendment.seconded_at = datetime.utcnow()
         amendment.seconder_id = form.seconder_id.data
+        amendment.seconded_method = method
         db.session.commit()
         flash("Amendment updated", "success")
         return redirect(url_for("meetings.view_motion", motion_id=motion.id))
@@ -624,12 +633,14 @@ def results_docx(meeting_id: int):
     include_logo = request.args.get("logo") == "1"
     doc = _styled_doc(f"{meeting.title} - Stage 1 Results", include_logo)
 
-    table = doc.add_table(rows=1, cols=4)
+    table = doc.add_table(rows=1, cols=6)
     hdr = table.rows[0].cells
     hdr[0].text = "Amendment"
-    hdr[1].text = "For"
-    hdr[2].text = "Against"
-    hdr[3].text = "Abstain"
+    hdr[1].text = "Method"
+    hdr[2].text = "Seconded At"
+    hdr[3].text = "For"
+    hdr[4].text = "Against"
+    hdr[5].text = "Abstain"
     for cell in hdr:
         for run in cell.paragraphs[0].runs:
             run.bold = True
@@ -637,9 +648,13 @@ def results_docx(meeting_id: int):
     for idx, (amend, counts) in enumerate(results, start=1):
         row = table.add_row().cells
         row[0].text = amend.text_md or ""
-        row[1].text = str(counts["for"])
-        row[2].text = str(counts["against"])
-        row[3].text = str(counts["abstain"])
+        row[1].text = amend.seconded_method or ""
+        row[2].text = (
+            amend.seconded_at.strftime("%Y-%m-%d %H:%M") if amend.seconded_at else ""
+        )
+        row[3].text = str(counts["for"])
+        row[4].text = str(counts["against"])
+        row[5].text = str(counts["abstain"])
         if idx % 2 == 0:
             for c in row:
                 _shade_cell(c, "F7F7F9")
@@ -713,13 +728,25 @@ def results_stage2_docx(meeting_id: int):
 
     doc.add_heading("Carried Amendments", level=2)
     carried = [a for a, c in amend_results if c.get("for", 0) > c.get("against", 0)]
-    table_ca = doc.add_table(rows=1, cols=1)
+    table_ca = doc.add_table(rows=1, cols=3)
     if carried:
+        hdr_ca = table_ca.rows[0].cells
+        hdr_ca[0].text = "Amendment"
+        hdr_ca[1].text = "Method"
+        hdr_ca[2].text = "Seconded At"
+        for r in hdr_ca:
+            for run in r.paragraphs[0].runs:
+                run.bold = True
         for idx, amend in enumerate(carried, start=1):
             row = table_ca.add_row().cells
             row[0].text = amend.text_md or ""
+            row[1].text = amend.seconded_method or ""
+            row[2].text = (
+                amend.seconded_at.strftime("%Y-%m-%d %H:%M") if amend.seconded_at else ""
+            )
             if idx % 2 == 0:
-                _shade_cell(row[0], "F7F7F9")
+                for c in row:
+                    _shade_cell(c, "F7F7F9")
     else:
         table_ca.rows[0].cells[0].text = "No amendments carried."
 
