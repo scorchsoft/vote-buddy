@@ -436,3 +436,73 @@ def test_create_and_delete_conflict():
 
         assert AmendmentConflict.query.count() == 0
 
+
+def test_edit_motion_updates_record():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['WTF_CSRF_ENABLED'] = False
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='Old',
+            text_md='Old',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+
+        user = _make_user(True)
+        data = MultiDict(
+            {
+                'title': 'New',
+                'text_md': 'New text',
+                'category': 'motion',
+                'threshold': 'normal',
+                'options': '',
+            }
+        )
+        with app.test_request_context(
+            f'/meetings/motions/{motion.id}/edit', method='POST', data=data
+        ):
+            with patch('flask_login.utils._get_user', return_value=user):
+                meetings.edit_motion(motion.id)
+
+        updated = Motion.query.get(motion.id)
+        assert updated.title == 'New'
+        assert updated.text_md == 'New text'
+
+
+def test_delete_motion_removes_record():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M',
+            text_md='x',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+
+        user = _make_user(True)
+        with app.test_request_context(
+            f'/meetings/motions/{motion.id}/delete', method='POST'
+        ):
+            with patch('flask_login.utils._get_user', return_value=user):
+                meetings.delete_motion(motion.id)
+
+        assert Motion.query.count() == 0
+

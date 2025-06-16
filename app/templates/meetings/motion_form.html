@@ -5,23 +5,28 @@
   {{ form.hidden_tag() }}
   <div>
     {{ form.title.label(class_='block font-semibold') }}
-    {{ form.title(class_='border p-3 rounded w-full') }}
+    {{ form.title(class_='border p-3 rounded w-full', **{'aria-describedby': form.title.id + '-error'}) }}
+    <p id="{{ form.title.id }}-error" class="bp-error-text">{{ form.title.errors[0] if form.title.errors else '' }}</p>
   </div>
   <div>
     {{ form.text_md.label(class_='block font-semibold') }}
-    {{ form.text_md(class_='border p-3 rounded w-full') }}
+    {{ form.text_md(class_='border p-3 rounded w-full', **{'aria-describedby': form.text_md.id + '-error'}) }}
+    <p id="{{ form.text_md.id }}-error" class="bp-error-text">{{ form.text_md.errors[0] if form.text_md.errors else '' }}</p>
   </div>
   <div>
     {{ form.category.label(class_='block font-semibold') }}
-    {{ form.category(class_='border p-3 rounded w-full') }}
+    {{ form.category(class_='border p-3 rounded w-full', **{'aria-describedby': form.category.id + '-error'}) }}
+    <p id="{{ form.category.id }}-error" class="bp-error-text">{{ form.category.errors[0] if form.category.errors else '' }}</p>
   </div>
   <div>
     {{ form.threshold.label(class_='block font-semibold') }}
-    {{ form.threshold(class_='border p-3 rounded w-full') }}
+    {{ form.threshold(class_='border p-3 rounded w-full', **{'aria-describedby': form.threshold.id + '-error'}) }}
+    <p id="{{ form.threshold.id }}-error" class="bp-error-text">{{ form.threshold.errors[0] if form.threshold.errors else '' }}</p>
   </div>
   <div>
     {{ form.options.label(class_='block font-semibold') }}
-    {{ form.options(class_='border p-3 rounded w-full') }}
+    {{ form.options(class_='border p-3 rounded w-full', **{'aria-describedby': form.options.id + '-error'}) }}
+    <p id="{{ form.options.id }}-error" class="bp-error-text">{{ form.options.errors[0] if form.options.errors else '' }}</p>
   </div>
   <button type="submit" class="bp-btn-primary">Save</button>
 </form>

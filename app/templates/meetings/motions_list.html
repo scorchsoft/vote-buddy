@@ -6,7 +6,13 @@
     <div class="bp-card">
       <h3 class="font-semibold mb-1">{{ m.title }}</h3>
       <p class="mb-2">Category: {{ m.category }}</p>
-      <a href="{{ url_for('meetings.view_motion', motion_id=m.id) }}" class="bp-btn-secondary">View</a>
+      <div class="flex space-x-2">
+        <a href="{{ url_for('meetings.view_motion', motion_id=m.id) }}" class="bp-btn-secondary">View</a>
+        <a href="{{ url_for('meetings.edit_motion', motion_id=m.id) }}" class="bp-btn-secondary">Edit</a>
+        <form method="post" action="{{ url_for('meetings.delete_motion', motion_id=m.id) }}">
+          <button class="bp-btn-secondary">Delete</button>
+        </form>
+      </div>
     </div>
   {% else %}
     <p>No motions yet.</p>

@@ -137,6 +137,29 @@ def _save_meeting(form: MeetingForm, meeting: Meeting | None = None) -> Meeting:
     return meeting
 
 
+def _save_motion(form: MotionForm, motion: Motion | None = None) -> Motion:
+    """Populate Motion from form and persist with options."""
+    if motion is None:
+        motion = Motion()
+
+    motion.title = form.title.data
+    motion.text_md = form.text_md.data
+    motion.category = form.category.data
+    motion.threshold = form.threshold.data
+
+    if motion.id and motion.options:
+        MotionOption.query.filter_by(motion_id=motion.id).delete()
+
+    if form.category.data == "multiple_choice" and form.options.data:
+        lines = [l.strip() for l in form.options.data.splitlines() if l.strip()]
+        for text in lines:
+            db.session.add(MotionOption(motion_id=motion.id, text=text))
+
+    db.session.add(motion)
+    db.session.commit()
+    return motion
+
+
 @bp.route('/create', methods=['GET', 'POST'])
 @login_required
 @permission_required('manage_meetings')
@@ -246,6 +269,30 @@ def create_motion(meeting_id):
         db.session.commit()
         return redirect(url_for('meetings.list_motions', meeting_id=meeting.id))
     return render_template('meetings/motion_form.html', form=form, motion=None)
+
+
+@bp.route('/motions/<int:motion_id>/edit', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
+def edit_motion(motion_id):
+    motion = Motion.query.get_or_404(motion_id)
+    form = MotionForm(obj=motion)
+    if form.validate_on_submit():
+        _save_motion(form, motion)
+        return redirect(url_for('meetings.list_motions', meeting_id=motion.meeting_id))
+    return render_template('meetings/motion_form.html', form=form, motion=motion)
+
+
+@bp.route('/motions/<int:motion_id>/delete', methods=['POST'])
+@login_required
+@permission_required('manage_meetings')
+def delete_motion(motion_id):
+    motion = Motion.query.get_or_404(motion_id)
+    meeting_id = motion.meeting_id
+    db.session.delete(motion)
+    db.session.commit()
+    flash('Motion deleted', 'success')
+    return redirect(url_for('meetings.list_motions', meeting_id=meeting_id))
 
 
 @bp.route('/motions/<int:motion_id>')
