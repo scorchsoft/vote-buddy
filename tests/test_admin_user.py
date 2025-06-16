@@ -78,5 +78,22 @@ def test_list_roles_requires_permission():
         with app.test_request_context('/admin/roles'):
             user = _make_user(False)
             with patch('flask_login.utils._get_user', return_value=user):
-                with pytest.raises(Forbidden):
-                    list_roles()
+                    with pytest.raises(Forbidden):
+                        list_roles()
+
+
+def test_create_admin_cli_creates_user():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    runner = app.test_cli_runner()
+    with app.app_context():
+        db.create_all()
+        role = Role(name='Admin')
+        db.session.add(role)
+        db.session.commit()
+
+    result = runner.invoke(args=['create-admin'], input='admin@example.com\nsecret\nAdmin\n')
+    assert 'Created user' in result.output
+    with app.app_context():
+        user = User.query.filter_by(email='admin@example.com').first()
+        assert user is not None
