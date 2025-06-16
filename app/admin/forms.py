@@ -6,6 +6,8 @@ from wtforms import (
     BooleanField,
     SubmitField,
     SelectMultipleField,
+    IntegerField,
+    TextAreaField,
 )
 from wtforms.validators import DataRequired, Email, Optional
 
@@ -37,5 +39,10 @@ class SettingsForm(FlaskForm):
     site_title = StringField('Site Title', validators=[DataRequired()])
     site_logo = StringField('Site Logo', validators=[Optional()])
     from_email = StringField('From Email', validators=[DataRequired(), Email()])
+    runoff_extension_minutes = IntegerField('Run-off Extension Minutes')
+    reminder_hours_before_close = IntegerField('Reminder Hours Before Close')
+    reminder_cooldown_hours = IntegerField('Reminder Cooldown Hours')
+    reminder_template = StringField('Reminder Template')
+    tie_break_decisions = TextAreaField('Tie Break Decisions', validators=[Optional()])
     submit = SubmitField('Save')
 

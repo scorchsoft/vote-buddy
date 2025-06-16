@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+import json
 from flask_login import login_required
 from ..extensions import db
 from ..models import Meeting, User, Role, Permission, AppSetting
@@ -166,11 +167,52 @@ def manage_settings():
     if request.method == 'GET':
         form.site_title.data = AppSetting.get('site_title', 'VoteBuddy')
         form.site_logo.data = AppSetting.get('site_logo', '')
-        form.from_email.data = AppSetting.get('from_email', 'noreply@example.com')
+        form.from_email.data = AppSetting.get(
+            'from_email', current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@example.com')
+        )
+        form.runoff_extension_minutes.data = int(
+            AppSetting.get(
+                'runoff_extension_minutes',
+                current_app.config.get('RUNOFF_EXTENSION_MINUTES', 2880),
+            )
+        )
+        form.reminder_hours_before_close.data = int(
+            AppSetting.get(
+                'reminder_hours_before_close',
+                current_app.config.get('REMINDER_HOURS_BEFORE_CLOSE', 6),
+            )
+        )
+        form.reminder_cooldown_hours.data = int(
+            AppSetting.get(
+                'reminder_cooldown_hours',
+                current_app.config.get('REMINDER_COOLDOWN_HOURS', 24),
+            )
+        )
+        form.reminder_template.data = AppSetting.get(
+            'reminder_template', current_app.config.get('REMINDER_TEMPLATE', 'email/reminder')
+        )
+        form.tie_break_decisions.data = AppSetting.get(
+            'tie_break_decisions',
+            json.dumps(current_app.config.get('TIE_BREAK_DECISIONS', {})),
+        )
     if form.validate_on_submit():
         AppSetting.set('site_title', form.site_title.data)
         AppSetting.set('site_logo', form.site_logo.data)
         AppSetting.set('from_email', form.from_email.data)
+        AppSetting.set('runoff_extension_minutes', str(form.runoff_extension_minutes.data))
+        AppSetting.set('reminder_hours_before_close', str(form.reminder_hours_before_close.data))
+        AppSetting.set('reminder_cooldown_hours', str(form.reminder_cooldown_hours.data))
+        AppSetting.set('reminder_template', form.reminder_template.data)
+        AppSetting.set('tie_break_decisions', form.tie_break_decisions.data)
         flash('Settings updated', 'success')
         return redirect(url_for('admin.manage_settings'))
     return render_template('admin/settings_form.html', form=form)
+
+
+@bp.route('/settings/reset/<key>', methods=['POST'])
+@login_required
+@permission_required('manage_settings')
+def reset_setting(key: str):
+    AppSetting.delete(key)
+    flash('Setting reset to default', 'success')
+    return redirect(url_for('admin.manage_settings'))
