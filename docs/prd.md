@@ -371,6 +371,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-18 – Added bp-pagination component and meeting list pagination.
 * 2025-06-18 – Added SVG icons for the theme toggle and updated navigation script.
 * 2025-06-19 – Added public vote charts with JSON tallies endpoint.
+* 2025-06-19 – Implemented tooltip styles for `[data-tooltip]` elements and dark mode.
 
 
 
