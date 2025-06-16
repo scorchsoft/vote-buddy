@@ -2,6 +2,9 @@
 {% block content %}
 <h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} – Results</h1>
 <p class="mb-4">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</p>
+<p class="mb-4">
+  <a href="{{ url_for('main.public_results_charts', meeting_id=meeting.id) }}" class="text-bp-blue underline">View charts</a>
+</p>
 <div class="space-y-8">
   <div class="bp-card">
     <h3 class="font-semibold mb-2">Stage 1 Amendments</h3>
