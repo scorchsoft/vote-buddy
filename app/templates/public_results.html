@@ -7,7 +7,7 @@
     <h3 class="font-semibold mb-2">Stage 1 Amendments</h3>
     <table class="bp-table w-full">
       <thead>
-        <tr><th>Amendment</th><th>For</th><th>Against</th><th>Abstain</th></tr>
+        <tr><th scope="col">Amendment</th><th scope="col">For</th><th scope="col">Against</th><th scope="col">Abstain</th></tr>
       </thead>
       <tbody>
         {% for amend, counts in stage1 %}
@@ -27,7 +27,7 @@
     <h3 class="font-semibold mb-2">Stage 2 Motions</h3>
     <table class="bp-table w-full">
       <thead>
-        <tr><th>Motion</th><th>For</th><th>Against</th><th>Abstain</th><th>Outcome</th></tr>
+        <tr><th scope="col">Motion</th><th scope="col">For</th><th scope="col">Against</th><th scope="col">Abstain</th><th scope="col">Outcome</th></tr>
       </thead>
       <tbody>
         {% for motion, counts in stage2 %}
