@@ -55,6 +55,14 @@
           <a href="{{ url_for('ro.download_audit_log', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm">Audit</a>
         </td>
       </tr>
+      <tr>
+        <td colspan="9" class="p-2">
+          <div class="bp-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ meeting.stage1_progress_percent() }}">
+            <div class="bp-progress-bar" style="width: {{ meeting.stage1_progress_percent() }}%"></div>
+            <span class="sr-only">{{ meeting.stage1_progress_percent() }}% complete</span>
+          </div>
+        </td>
+      </tr>
       {% else %}
       <tr><td colspan="7" class="p-2">No meetings.</td></tr>
       {% endfor %}
