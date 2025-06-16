@@ -17,8 +17,12 @@
             {{ setting('site_title', 'VoteBuddy') }}
             {% endif %}
           </a>
-          <div class="flex items-center space-x-4 text-sm">
-            <ul class="flex space-x-4">
+          <button id="nav-toggle" class="bp-nav-toggle" aria-expanded="false" aria-controls="nav-drawer">
+            <span class="sr-only">Menu</span>
+            &#9776;
+          </button>
+          <div id="nav-drawer" class="bp-nav-drawer" hidden>
+            <ul class="bp-nav-items">
               <li><a href="{{ url_for('main.index') }}" class="hover:underline">Home</a></li>
               <li><a href="{{ url_for('meetings.list_meetings') }}" class="hover:underline">Meetings</a></li>
               <li><a href="{{ url_for('main.results_index') }}" class="hover:underline">Results</a></li>
@@ -70,7 +74,8 @@
       </a>
       , a web and app development agency, to support British Powerlifting.
     </footer>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
-  </body>
-</html>
+      <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+      <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+    </body>
+  </html>
