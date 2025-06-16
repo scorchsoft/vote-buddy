@@ -3,6 +3,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from unittest.mock import patch
 from flask import render_template
+import re
 from flask_login import AnonymousUserMixin
 
 from app import create_app
@@ -44,3 +45,14 @@ def test_nav_shows_login_when_anonymous():
                 html = render_template('base.html')
                 assert 'href="/auth/login"' in html
                 assert 'Dashboard' not in html
+
+
+def test_nav_highlights_current_page():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        anon = AnonymousUserMixin()
+        with app.test_request_context('/meetings/'):
+            with patch('flask_login.utils._get_user', return_value=anon):
+                html = render_template('base.html')
+                assert re.search(r'<a[^>]*href="/meetings/"[^>]*aria-current="page"', html)
