@@ -58,5 +58,5 @@ def test_theme_toggle_button_present():
                 assert '<button id="theme-toggle"' in html
                 assert 'class="bp-nav-toggle"' in html
                 assert 'aria-label="Switch to dark mode"' in html
-                assert '<span aria-hidden="true">🌙</span>' in html
+                assert 'id="theme-icon"' in html
 
