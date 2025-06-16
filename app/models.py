@@ -8,34 +8,40 @@ from .extensions import db, bcrypt
 
 # association table linking roles to permissions
 roles_permissions = db.Table(
-    'roles_permissions',
-    db.Column('role_id', db.Integer, db.ForeignKey('roles.id'), primary_key=True),
-    db.Column('permission_id', db.Integer, db.ForeignKey('permissions.id'), primary_key=True),
+    "roles_permissions",
+    db.Column("role_id", db.Integer, db.ForeignKey("roles.id"), primary_key=True),
+    db.Column(
+        "permission_id", db.Integer, db.ForeignKey("permissions.id"), primary_key=True
+    ),
 )
 
 
 class Role(db.Model):
     """User role with attached permissions."""
 
-    __tablename__ = 'roles'
+    __tablename__ = "roles"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
-    permissions = db.relationship('Permission', secondary=roles_permissions, back_populates='roles')
+    permissions = db.relationship(
+        "Permission", secondary=roles_permissions, back_populates="roles"
+    )
 
 
 class Permission(db.Model):
     """System permission that can be assigned to roles."""
 
-    __tablename__ = 'permissions'
+    __tablename__ = "permissions"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
-    roles = db.relationship('Role', secondary=roles_permissions, back_populates='permissions')
+    roles = db.relationship(
+        "Role", secondary=roles_permissions, back_populates="permissions"
+    )
 
 
 class AppSetting(db.Model):
     """Key-value application setting stored in the database."""
 
-    __tablename__ = 'app_settings'
+    __tablename__ = "app_settings"
 
     id = db.Column(db.Integer, primary_key=True)
     key = db.Column(db.String(50), unique=True, nullable=False)
@@ -67,8 +73,9 @@ class AppSetting(db.Model):
             db.session.delete(setting)
             db.session.commit()
 
+
 class Meeting(db.Model):
-    __tablename__ = 'meetings'
+    __tablename__ = "meetings"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(10))
@@ -105,14 +112,10 @@ class Meeting(db.Model):
         now = now or datetime.utcnow()
         from .utils import config_or_setting
 
-        hours_before = config_or_setting(
-            "REMINDER_HOURS_BEFORE_CLOSE", 6, parser=int
-        )
+        hours_before = config_or_setting("REMINDER_HOURS_BEFORE_CLOSE", 6, parser=int)
         next_due = self.closes_at_stage1 - timedelta(hours=hours_before)
         if self.stage1_reminder_sent_at:
-            cooldown = config_or_setting(
-                "REMINDER_COOLDOWN_HOURS", 24, parser=int
-            )
+            cooldown = config_or_setting("REMINDER_COOLDOWN_HOURS", 24, parser=int)
             next_due = self.stage1_reminder_sent_at + timedelta(hours=cooldown)
         diff = (next_due - now).total_seconds() / 3600
         return max(0, math.ceil(diff))
@@ -134,10 +137,11 @@ class Meeting(db.Model):
         minutes = rem // 60
         return f"{hours}h {minutes}m"
 
+
 class Member(db.Model):
-    __tablename__ = 'members'
+    __tablename__ = "members"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
     proxy_for = db.Column(db.String(255))
@@ -146,9 +150,9 @@ class Member(db.Model):
 
 
 class Motion(db.Model):
-    __tablename__ = 'motions'
+    __tablename__ = "motions"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
     title = db.Column(db.String(255))
     text_md = db.Column(db.Text)
     final_text_md = db.Column(db.Text)
@@ -156,19 +160,20 @@ class Motion(db.Model):
     threshold = db.Column(db.String(20))
     ordering = db.Column(db.Integer)
     status = db.Column(db.String(50))
-    options = db.relationship('MotionOption', backref='motion')
+    options = db.relationship("MotionOption", backref="motion")
 
 
 class MotionOption(db.Model):
-    __tablename__ = 'motion_options'
+    __tablename__ = "motion_options"
     id = db.Column(db.Integer, primary_key=True)
-    motion_id = db.Column(db.Integer, db.ForeignKey('motions.id'))
+    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"))
     text = db.Column(db.String(255))
 
+
 class VoteToken(db.Model):
-    __tablename__ = 'vote_tokens'
+    __tablename__ = "vote_tokens"
     token = db.Column(db.String(64), primary_key=True)
-    member_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     stage = db.Column(db.Integer)
     used_at = db.Column(db.DateTime)
 
@@ -188,45 +193,47 @@ class VoteToken(db.Model):
     @classmethod
     def verify(cls, token: str, salt: str) -> "VoteToken | None":
         hashed = cls._hash(token, salt)
-        return cls.query.filter(
-            db.or_(cls.token == hashed, cls.token == token)
-        ).first()
+        return cls.query.filter(db.or_(cls.token == hashed, cls.token == token)).first()
+
 
 class UnsubscribeToken(db.Model):
-    __tablename__ = 'unsubscribe_tokens'
+    __tablename__ = "unsubscribe_tokens"
     token = db.Column(db.String(36), primary_key=True)
-    member_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+
 class Amendment(db.Model):
-    __tablename__ = 'amendments'
+    __tablename__ = "amendments"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
-    motion_id = db.Column(db.Integer, db.ForeignKey('motions.id'))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"))
     text_md = db.Column(db.Text)
     order = db.Column(db.Integer)
     status = db.Column(db.String(50))
-    proposer_id = db.Column(db.Integer, db.ForeignKey('members.id'))
-    seconder_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    proposer_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    board_seconded = db.Column(db.Boolean, default=False)
     tie_break_method = db.Column(db.String(20))
 
-    proposer = db.relationship('Member', foreign_keys=[proposer_id])
-    seconder = db.relationship('Member', foreign_keys=[seconder_id])
+    proposer = db.relationship("Member", foreign_keys=[proposer_id])
+    seconder = db.relationship("Member", foreign_keys=[seconder_id])
 
     combined_from = db.relationship(
-        'Amendment',
-        secondary='amendment_merges',
-        primaryjoin='Amendment.id==AmendmentMerge.combined_id',
-        secondaryjoin='Amendment.id==AmendmentMerge.source_id',
-        backref='combined_into',
+        "Amendment",
+        secondary="amendment_merges",
+        primaryjoin="Amendment.id==AmendmentMerge.combined_id",
+        secondaryjoin="Amendment.id==AmendmentMerge.source_id",
+        backref="combined_into",
     )
 
+
 class Vote(db.Model):
-    __tablename__ = 'votes'
+    __tablename__ = "votes"
     id = db.Column(db.Integer, primary_key=True)
-    member_id = db.Column(db.Integer, db.ForeignKey('members.id'))
-    amendment_id = db.Column(db.Integer, db.ForeignKey('amendments.id'), nullable=True)
-    motion_id = db.Column(db.Integer, db.ForeignKey('motions.id'), nullable=True)
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    amendment_id = db.Column(db.Integer, db.ForeignKey("amendments.id"), nullable=True)
+    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"), nullable=True)
     choice = db.Column(db.String(10))
     hash = db.Column(db.String(128))
 
@@ -240,9 +247,7 @@ class Vote(db.Model):
         motion_id: int | None = None,
     ) -> "Vote":
         """Create a vote with hashed choice."""
-        digest = hashlib.sha256(
-            f"{member_id}{choice}{salt}".encode()
-        ).hexdigest()
+        digest = hashlib.sha256(f"{member_id}{choice}{salt}".encode()).hexdigest()
         vote = cls(
             member_id=member_id,
             amendment_id=amendment_id,
@@ -254,20 +259,19 @@ class Vote(db.Model):
         db.session.commit()
         return vote
 
+
 class User(db.Model, UserMixin):
-    __tablename__ = 'users'
+    __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
     password_hash = db.Column(db.String(255))
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    role = db.relationship('Role')
+    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))
+    role = db.relationship("Role")
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password: str) -> None:
-        self.password_hash = (
-            bcrypt.generate_password_hash(password).decode("utf-8")
-        )
+        self.password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
     def check_password(self, password: str) -> bool:
         return bcrypt.check_password_hash(self.password_hash, password)
@@ -277,28 +281,28 @@ class User(db.Model, UserMixin):
             return False
         return any(p.name == permission_name for p in self.role.permissions)
 
+
 class Runoff(db.Model):
-    __tablename__ = 'runoffs'
+    __tablename__ = "runoffs"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
-    amendment_a_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
-    amendment_b_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    amendment_a_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
+    amendment_b_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
 
 
 class AmendmentConflict(db.Model):
-    __tablename__ = 'amendment_conflicts'
+    __tablename__ = "amendment_conflicts"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
-    amendment_a_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
-    amendment_b_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    amendment_a_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
+    amendment_b_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
 
-    amendment_a = db.relationship('Amendment', foreign_keys=[amendment_a_id])
-    amendment_b = db.relationship('Amendment', foreign_keys=[amendment_b_id])
+    amendment_a = db.relationship("Amendment", foreign_keys=[amendment_a_id])
+    amendment_b = db.relationship("Amendment", foreign_keys=[amendment_b_id])
 
 
 class AmendmentMerge(db.Model):
-    __tablename__ = 'amendment_merges'
+    __tablename__ = "amendment_merges"
     id = db.Column(db.Integer, primary_key=True)
-    combined_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
-    source_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
-
+    combined_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
+    source_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))

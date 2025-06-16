@@ -314,7 +314,7 @@ def add_amendment(motion_id):
     )
     choices = [(m.id, m.name) for m in members]
     form.proposer_id.choices = choices
-    form.seconder_id.choices = choices
+    form.seconder_id.choices = [(0, "")] + choices
     if form.validate_on_submit():
         meeting = Meeting.query.get(motion.meeting_id)
         if meeting.opens_at_stage1:
@@ -325,7 +325,12 @@ def add_amendment(motion_id):
                     "meetings/amendment_form.html", form=form, motion=motion
                 )
 
-        if form.proposer_id.data == form.seconder_id.data:
+        if not form.seconder_id.data and not form.board_seconded.data:
+            flash("Select a seconder or confirm board approval.", "error")
+            return render_template(
+                "meetings/amendment_form.html", form=form, motion=motion
+            )
+        if form.seconder_id.data and form.proposer_id.data == form.seconder_id.data:
             flash("Proposer cannot second their own amendment.", "error")
             return render_template(
                 "meetings/amendment_form.html", form=form, motion=motion
@@ -348,7 +353,12 @@ def add_amendment(motion_id):
             text_md=form.text_md.data,
             order=order,
             proposer_id=form.proposer_id.data,
-            seconder_id=form.seconder_id.data,
+            seconder_id=(
+                (form.seconder_id.data or None)
+                if not form.board_seconded.data
+                else None
+            ),
+            board_seconded=form.board_seconded.data,
         )
         db.session.add(amendment)
         db.session.flush()
@@ -376,12 +386,10 @@ def edit_amendment(amendment_id: int):
     meeting = Meeting.query.get(amendment.meeting_id)
 
     form = AmendmentForm(obj=amendment)
-    members = (
-        Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
-    )
+    members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
     choices = [(m.id, m.name) for m in members]
     form.proposer_id.choices = choices
-    form.seconder_id.choices = choices
+    form.seconder_id.choices = [(0, "")] + choices
 
     if form.validate_on_submit():
         if meeting.opens_at_stage1:
@@ -395,7 +403,15 @@ def edit_amendment(amendment_id: int):
                     amendment=amendment,
                 )
 
-        if form.proposer_id.data == form.seconder_id.data:
+        if not form.seconder_id.data and not form.board_seconded.data:
+            flash("Select a seconder or confirm board approval.", "error")
+            return render_template(
+                "meetings/amendment_form.html",
+                form=form,
+                motion=motion,
+                amendment=amendment,
+            )
+        if form.seconder_id.data and form.proposer_id.data == form.seconder_id.data:
             flash("Proposer cannot second their own amendment.", "error")
             return render_template(
                 "meetings/amendment_form.html",
@@ -406,7 +422,10 @@ def edit_amendment(amendment_id: int):
 
         amendment.text_md = form.text_md.data
         amendment.proposer_id = form.proposer_id.data
-        amendment.seconder_id = form.seconder_id.data
+        amendment.seconder_id = (
+            form.seconder_id.data or None if not form.board_seconded.data else None
+        )
+        amendment.board_seconded = form.board_seconded.data
         db.session.commit()
         flash("Amendment updated", "success")
         return redirect(url_for("meetings.view_motion", motion_id=motion.id))
@@ -757,37 +776,37 @@ def results_stage2_docx(meeting_id: int):
     )
 
 
-@bp.route('/<int:meeting_id>/stage1.ics')
+@bp.route("/<int:meeting_id>/stage1.ics")
 @login_required
-@permission_required('manage_meetings')
+@permission_required("manage_meetings")
 def stage1_ics(meeting_id: int):
     """Download Stage 1 calendar file."""
     meeting = Meeting.query.get_or_404(meeting_id)
     ics = generate_stage_ics(meeting, 1)
     return send_file(
         io.BytesIO(ics),
-        mimetype='text/calendar',
+        mimetype="text/calendar",
         as_attachment=True,
-        download_name='stage1.ics',
+        download_name="stage1.ics",
     )
 
 
-@bp.route('/<int:meeting_id>/stage2.ics')
+@bp.route("/<int:meeting_id>/stage2.ics")
 @login_required
-@permission_required('manage_meetings')
+@permission_required("manage_meetings")
 def stage2_ics(meeting_id: int):
     """Download Stage 2 calendar file."""
     meeting = Meeting.query.get_or_404(meeting_id)
     ics = generate_stage_ics(meeting, 2)
     return send_file(
         io.BytesIO(ics),
-        mimetype='text/calendar',
+        mimetype="text/calendar",
         as_attachment=True,
-        download_name='stage2.ics',
+        download_name="stage2.ics",
     )
 
 
-@bp.route('/<int:meeting_id>/close-stage2', methods=['POST'])
+@bp.route("/<int:meeting_id>/close-stage2", methods=["POST"])
 @login_required
 @permission_required("manage_meetings")
 def close_stage2(meeting_id: int):
@@ -804,26 +823,24 @@ def close_stage2(meeting_id: int):
         if motion.threshold == "special":
             carried = ratio >= 0.75
         else:
-            carried = counts['for'] > counts['against']
-        motion.status = 'carried' if carried else 'failed'
+            carried = counts["for"] > counts["against"]
+        motion.status = "carried" if carried else "failed"
 
-    meeting.status = 'Completed'
+    meeting.status = "Completed"
     db.session.commit()
-    flash('Stage 2 closed and motions tallied', 'success')
-    return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
+    flash("Stage 2 closed and motions tallied", "success")
+    return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
 
 
-@bp.route('/<int:meeting_id>/members/<int:member_id>/resend', methods=['POST'])
+@bp.route("/<int:meeting_id>/members/<int:member_id>/resend", methods=["POST"])
 @login_required
-@permission_required('manage_meetings')
+@permission_required("manage_meetings")
 def resend_member_link(meeting_id: int, member_id: int):
     """Generate a new voting token for the current stage and email it."""
     meeting = Meeting.query.get_or_404(meeting_id)
-    member = (
-        Member.query.filter_by(id=member_id, meeting_id=meeting.id).first_or_404()
-    )
+    member = Member.query.filter_by(id=member_id, meeting_id=meeting.id).first_or_404()
 
-    stage = 2 if meeting.status in {'Stage 2', 'Pending Stage 2'} else 1
+    stage = 2 if meeting.status in {"Stage 2", "Pending Stage 2"} else 1
 
     token_obj, plain = VoteToken.create(
         member_id=member.id, stage=stage, salt=current_app.config["TOKEN_SALT"]
@@ -838,5 +855,5 @@ def resend_member_link(meeting_id: int, member_id: int):
         else:
             send_vote_invite(member, plain, meeting)
 
-    flash('Voting link resent', 'success')
-    return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
+    flash("Voting link resent", "success")
+    return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
