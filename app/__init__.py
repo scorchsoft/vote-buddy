@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from flask import Flask, render_template
 from .utils import markdown_to_html
 
@@ -56,13 +57,27 @@ def register_extensions(app):
     # register template filters
     app.jinja_env.filters['markdown_to_html'] = markdown_to_html
 
-    from .models import User, AppSetting
+    from .models import User, AppSetting, Meeting
 
     @app.context_processor
     def inject_settings():
         def setting(key: str, default: str | None = None) -> str | None:
             return AppSetting.get(key, default)
         return {'setting': setting}
+
+    @app.context_processor
+    def inject_meeting_status():
+        meeting = Meeting.query.order_by(Meeting.notice_date.desc()).first()
+        if meeting:
+            stage_label = meeting.status or 'Draft'
+            quorum_pct = meeting.quorum_percentage()
+        else:
+            stage_label = None
+            quorum_pct = None
+        return {
+            'current_stage_label': stage_label,
+            'current_quorum_pct': quorum_pct,
+        }
 
 
     @login_manager.user_loader
