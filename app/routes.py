@@ -36,7 +36,9 @@ def _vote_counts(query):
 
 @bp.route('/results/<int:meeting_id>')
 def public_results(meeting_id: int):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     if not meeting.public_results:
         abort(404)
 
