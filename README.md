@@ -14,6 +14,12 @@ VoteBuddy aims to take the tried and tested "Roberts Rules" around governance an
 - Modular blueprints for auth, meetings, voting, admin and RO dashboards
 - Models for meetings, members, motions, amendments, vote tokens, votes and
   run-offs with role/permission support
+- Hashed vote tokens and ballot receipts for verifiable results
+- Automated run-off ballots with Stage 1 extensions on ties
+- Email reminders and token resends scheduled via APScheduler
+- iCalendar downloads for Stage 1 and Stage 2 voting windows
+- Results exports to CSV and DOCX plus audit logs
+- Optional unsubscribe tokens for members
 
 ## Development setup
 
