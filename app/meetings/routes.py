@@ -366,6 +366,80 @@ def add_amendment(motion_id):
     return render_template("meetings/amendment_form.html", form=form, motion=motion)
 
 
+@bp.route("/amendments/<int:amendment_id>/edit", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def edit_amendment(amendment_id: int):
+    """Edit an existing amendment."""
+    amendment = Amendment.query.get_or_404(amendment_id)
+    motion = Motion.query.get_or_404(amendment.motion_id)
+    meeting = Meeting.query.get(amendment.meeting_id)
+
+    form = AmendmentForm(obj=amendment)
+    members = (
+        Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
+    )
+    choices = [(m.id, m.name) for m in members]
+    form.proposer_id.choices = choices
+    form.seconder_id.choices = choices
+
+    if form.validate_on_submit():
+        if meeting.opens_at_stage1:
+            deadline = meeting.opens_at_stage1 - timedelta(days=21)
+            if datetime.utcnow() > deadline:
+                flash("Amendment deadline has passed.", "error")
+                return render_template(
+                    "meetings/amendment_form.html",
+                    form=form,
+                    motion=motion,
+                    amendment=amendment,
+                )
+
+        if form.proposer_id.data == form.seconder_id.data:
+            flash("Proposer cannot second their own amendment.", "error")
+            return render_template(
+                "meetings/amendment_form.html",
+                form=form,
+                motion=motion,
+                amendment=amendment,
+            )
+
+        amendment.text_md = form.text_md.data
+        amendment.proposer_id = form.proposer_id.data
+        amendment.seconder_id = form.seconder_id.data
+        db.session.commit()
+        flash("Amendment updated", "success")
+        return redirect(url_for("meetings.view_motion", motion_id=motion.id))
+
+    return render_template(
+        "meetings/amendment_form.html",
+        form=form,
+        motion=motion,
+        amendment=amendment,
+    )
+
+
+@bp.route("/amendments/<int:amendment_id>/delete", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def delete_amendment(amendment_id: int):
+    """Delete an amendment."""
+    amendment = Amendment.query.get_or_404(amendment_id)
+    meeting = Meeting.query.get(amendment.meeting_id)
+    motion_id = amendment.motion_id
+
+    if meeting.opens_at_stage1:
+        deadline = meeting.opens_at_stage1 - timedelta(days=21)
+        if datetime.utcnow() > deadline:
+            flash("Amendment deadline has passed.", "error")
+            return redirect(url_for("meetings.view_motion", motion_id=motion_id))
+
+    db.session.delete(amendment)
+    db.session.commit()
+    flash("Amendment deleted", "success")
+    return redirect(url_for("meetings.view_motion", motion_id=motion_id))
+
+
 @bp.route("/motions/<int:motion_id>/conflicts", methods=["GET", "POST"])
 @login_required
 @permission_required("manage_meetings")
