@@ -34,5 +34,36 @@
     </tbody>
   </table>
 </div>
+{% if pagination.pages > 1 %}
+<nav id="meeting-pagination" aria-label="Pagination" class="mt-4">
+  <ul class="bp-pagination">
+    {% if pagination.has_prev %}
+    <li>
+      <a href="{{ url_for('meetings.list_meetings', page=pagination.prev_num, q=q, sort=sort, direction=direction) }}" aria-label="Previous">&laquo;</a>
+    </li>
+    {% else %}
+    <li><span class="bp-disabled">&laquo;</span></li>
+    {% endif %}
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        {% if p == pagination.page %}
+        <li><span class="bp-current-page">{{ p }}</span></li>
+        {% else %}
+        <li><a href="{{ url_for('meetings.list_meetings', page=p, q=q, sort=sort, direction=direction) }}">{{ p }}</a></li>
+        {% endif %}
+      {% else %}
+        <li><span>&hellip;</span></li>
+      {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+    <li>
+      <a href="{{ url_for('meetings.list_meetings', page=pagination.next_num, q=q, sort=sort, direction=direction) }}" aria-label="Next">&raquo;</a>
+    </li>
+    {% else %}
+    <li><span class="bp-disabled">&raquo;</span></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
 <a href="{{ url_for('meetings.create_meeting') }}" class="bp-btn-primary mt-4">Create Meeting</a>
 {% endblock %}

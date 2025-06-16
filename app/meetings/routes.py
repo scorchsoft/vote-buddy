@@ -109,6 +109,9 @@ def list_meetings():
     sort = request.args.get("sort", "title")
     direction = request.args.get("direction", "asc")
 
+    page = request.args.get("page", 1, type=int)
+    per_page = current_app.config.get("MEETINGS_PER_PAGE", 20)
+
     query = Meeting.query
     if q:
         search = f"%{q}%"
@@ -125,7 +128,8 @@ def list_meetings():
         order_attr.asc() if direction == "asc" else order_attr.desc()
     )
 
-    meetings = query.all()
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    meetings = pagination.items
 
     template = (
         "meetings/_meeting_rows.html"
@@ -135,6 +139,7 @@ def list_meetings():
     return render_template(
         template,
         meetings=meetings,
+        pagination=pagination,
         q=q,
         sort=sort,
         direction=direction,
