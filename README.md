@@ -4,7 +4,7 @@ VoteBuddy by [Scorchsoft](https://www.scorchsoft.com) is a Python Flask applicat
 
 It supports two stage voting on amendments and final motions, sends unique voting links by email and produces auditable results.
 
-VoteBuddy aims to take the tried and tested "Roberts Rules" around governance and effective meetings, and bring up yo date into a modern digital voting format.
+VoteBuddy aims to take the tried and tested "Roberts Rules" around governance and effective meetings, and bring them up to date in a modern digital voting format.
 
 ## Features
 
