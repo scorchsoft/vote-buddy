@@ -3,7 +3,7 @@
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard'))]) }}
 <div class="bp-card space-y-4">
-  <h2 class="font-bold text-bp-blue">Admin Dashboard</h2>
+  <h1 class="font-bold text-bp-blue">Admin Dashboard</h1>
   <p>Welcome to {{ setting('site_title', 'VoteBuddy') }} administration.</p>
   <a href="{{ url_for('admin.list_users') }}" class="bp-btn-primary">Manage Users</a>
   <a href="{{ url_for('admin.list_objections') }}" class="bp-btn-secondary ml-2">View Objections</a>

@@ -3,7 +3,7 @@
 {% block content %}
 {% set label = 'Edit Motion' if motion else 'Create Motion' %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (label, None)]) }}
-<h2 class="font-bold text-bp-blue mb-4">{{ 'Edit' if motion else 'Create' }} Motion</h2>
+<h1 class="font-bold text-bp-blue mb-4">{{ 'Edit' if motion else 'Create' }} Motion</h1>
 <form method="post" class="bp-form bp-card space-y-4">
   {{ form.hidden_tag() }}
   <div>
@@ -39,11 +39,13 @@
   <button type="submit" class="bp-btn-primary">Save</button>
 </form>
 
-<dialog id="clerical-modal" class="bp-card w-full max-w-md">
+<dialog id="clerical-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="clerical-modal-title">
+  <h2 id="clerical-modal-title" class="font-bold mb-2">Clerical Amendment Text</h2>
   <p class="mb-4">{{ clerical_text|markdown_to_html|safe }}</p>
   <button class="bp-btn-secondary" data-close-modal>Close</button>
 </dialog>
-<dialog id="move-modal" class="bp-card w-full max-w-md">
+<dialog id="move-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="move-modal-title">
+  <h2 id="move-modal-title" class="font-bold mb-2">Articles/Bylaws Placement Text</h2>
   <p class="mb-4">{{ move_text|markdown_to_html|safe }}</p>
   <button class="bp-btn-secondary" data-close-modal>Close</button>
 </dialog>
