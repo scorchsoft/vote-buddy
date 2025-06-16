@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Roles', url_for('admin.list_roles')), ('Edit Role' if role else 'Create Role', None)]) }}
 <h2 class="font-bold text-bp-blue mb-4">{{ 'Edit' if role else 'Create' }} Role</h2>
 <form method="post" class="bp-form bp-card space-y-6">
   {{ form.hidden_tag() }}

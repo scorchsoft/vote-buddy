@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Roles', url_for('admin.list_roles'))]) }}
 <h2 class="font-bold text-bp-blue mb-4">Roles</h2>
 <div class="bp-card">
 <table class="bp-table">
