@@ -70,6 +70,36 @@ def test_download_tallies_csv():
                 assert b'amendment' in resp.data
 
 
+def test_download_stage2_tallies_csv():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M1',
+            text_md='T',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+            status='carried',
+        )
+        db.session.add(motion)
+        member = Member(meeting_id=meeting.id, name='Alice')
+        db.session.add(member)
+        db.session.flush()
+        Vote.record(member_id=member.id, motion_id=motion.id, choice='for', salt='s')
+        user = _make_user()
+        with app.test_request_context(f'/ro/{meeting.id}/stage2_tallies.csv'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                resp = ro.download_stage2_tallies(meeting.id)
+                assert resp.status_code == 200
+                assert b'outcome' in resp.data
+
+
 def test_download_audit_log_csv():
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
