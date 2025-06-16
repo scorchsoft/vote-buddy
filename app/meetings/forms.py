@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import (
@@ -30,6 +30,26 @@ class MeetingForm(FlaskForm):
     def validate(self, extra_validators=None):
         """Cross-field validations for meeting timelines."""
         is_valid = super().validate(extra_validators=extra_validators)
+
+        now = datetime.utcnow()
+
+        # check Stage 1 opens in the future
+        if self.opens_at_stage1.data and self.opens_at_stage1.data <= now:
+            self.opens_at_stage1.errors.append(
+                'Stage 1 must open in the future.'
+            )
+            is_valid = False
+
+        # check Stage 2 opens after Stage 1 opens
+        if (
+            self.opens_at_stage1.data
+            and self.opens_at_stage2.data
+            and self.opens_at_stage2.data <= self.opens_at_stage1.data
+        ):
+            self.opens_at_stage2.errors.append(
+                'Stage 2 must open after Stage 1 opens.'
+            )
+            is_valid = False
 
         # check Stage 1 duration >= 7 days
         if self.opens_at_stage1.data and self.closes_at_stage1.data:

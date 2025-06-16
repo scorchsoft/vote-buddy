@@ -392,6 +392,30 @@ def test_meeting_form_duration_validations():
         assert not form.validate()
         assert form.closes_at_stage2.errors
 
+        # Stage 1 opens in the past
+        data = MultiDict({
+            'title': 'AGM',
+            'opens_at_stage1': (now - timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage1': (now + timedelta(days=7)).strftime('%Y-%m-%dT%H:%M'),
+            'opens_at_stage2': (now + timedelta(days=8)).strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage2': (now + timedelta(days=13)).strftime('%Y-%m-%dT%H:%M'),
+        })
+        form = MeetingForm(formdata=data)
+        assert not form.validate()
+        assert form.opens_at_stage1.errors
+
+        # Stage 2 opens before Stage 1 opens
+        data = MultiDict({
+            'title': 'AGM',
+            'opens_at_stage1': (now + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage1': (now + timedelta(days=8)).strftime('%Y-%m-%dT%H:%M'),
+            'opens_at_stage2': now.strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage2': (now + timedelta(days=15)).strftime('%Y-%m-%dT%H:%M'),
+        })
+        form = MeetingForm(formdata=data)
+        assert not form.validate()
+        assert form.opens_at_stage2.errors
+
 
 def test_create_and_delete_conflict():
     app = create_app()
