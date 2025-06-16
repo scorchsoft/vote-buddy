@@ -361,6 +361,8 @@ def add_amendment(motion_id):
                 else None
             ),
             board_seconded=form.board_seconded.data,
+            seconded_method=form.seconded_method.data or None,
+            seconded_at=datetime.utcnow() if form.seconded_method.data else None,
         )
         db.session.add(amendment)
         db.session.flush()
@@ -431,6 +433,10 @@ def edit_amendment(amendment_id: int):
             form.seconder_id.data or None if not form.board_seconded.data else None
         )
         amendment.board_seconded = form.board_seconded.data
+        amendment.seconded_method = form.seconded_method.data or None
+        amendment.seconded_at = (
+            datetime.utcnow() if form.seconded_method.data else None
+        )
         db.session.commit()
         flash("Amendment updated", "success")
         return redirect(url_for("meetings.view_motion", motion_id=motion.id))

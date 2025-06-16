@@ -358,6 +358,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-16 – Added amendment objection workflow with admin reinstatement
 * 2025-06-16 – Added board seconding option for amendments
 * 2025-06-16 – Added meeting notice date with 14‑day opening validation.
+* 2025-06-20 – Amendments capture seconded method and timestamp; exports include these fields.
 
 
 ---

@@ -216,6 +216,8 @@ class Amendment(db.Model):
     seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     board_seconded = db.Column(db.Boolean, default=False)
     tie_break_method = db.Column(db.String(20))
+    seconded_at = db.Column(db.DateTime)
+    seconded_method = db.Column(db.String(50))
 
     proposer = db.relationship("Member", foreign_keys=[proposer_id])
     seconder = db.relationship("Member", foreign_keys=[seconder_id])

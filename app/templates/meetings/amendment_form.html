@@ -19,6 +19,10 @@
     {{ form.board_seconded() }}
     {{ form.board_seconded.label(class_='font-semibold') }}
   </div>
+  <div>
+    {{ form.seconded_method.label(class_='block font-semibold') }}
+    {{ form.seconded_method(class_='border p-2 rounded w-full') }}
+  </div>
   <button type="submit" class="bp-btn-primary">Save</button>
 </form>
 {% endblock %}
