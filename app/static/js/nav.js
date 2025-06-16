@@ -1,17 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('nav-toggle');
   const drawer = document.getElementById('nav-drawer');
+  let keyHandler;
+
+  function closeDrawer() {
+    drawer.classList.remove('open');
+    drawer.setAttribute('hidden', '');
+    toggle.setAttribute('aria-expanded', 'false');
+    if (keyHandler) {
+      document.removeEventListener('keydown', keyHandler);
+      keyHandler = null;
+    }
+  }
+
+  function openDrawer() {
+    drawer.removeAttribute('hidden');
+    requestAnimationFrame(() => drawer.classList.add('open'));
+    toggle.setAttribute('aria-expanded', 'true');
+    keyHandler = e => {
+      if (e.key === 'Escape') closeDrawer();
+    };
+    document.addEventListener('keydown', keyHandler);
+  }
+
   if (toggle && drawer) {
     toggle.addEventListener('click', () => {
       const expanded = toggle.getAttribute('aria-expanded') === 'true';
-      toggle.setAttribute('aria-expanded', String(!expanded));
-      if (expanded) {
-        drawer.classList.remove('open');
-        drawer.setAttribute('hidden', '');
-      } else {
-        drawer.removeAttribute('hidden');
-        requestAnimationFrame(() => drawer.classList.add('open'));
-      }
+      expanded ? closeDrawer() : openDrawer();
     });
   }
 
