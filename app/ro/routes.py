@@ -10,6 +10,7 @@ from flask import (
     Response,
     jsonify,
     flash,
+    abort,
 )
 from flask_login import login_required
 from flask_wtf import FlaskForm
@@ -49,7 +50,9 @@ def dashboard():
 @login_required
 @permission_required('manage_meetings')
 def lock_stage(meeting_id: int, stage: int):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     if stage == 1:
         meeting.stage1_locked = True
     else:
@@ -62,7 +65,9 @@ def lock_stage(meeting_id: int, stage: int):
 @login_required
 @permission_required('manage_meetings')
 def unlock_stage(meeting_id: int, stage: int):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     if stage == 1:
         meeting.stage1_locked = False
     else:
@@ -75,7 +80,9 @@ def unlock_stage(meeting_id: int, stage: int):
 @login_required
 @permission_required('manage_meetings')
 def download_tallies(meeting_id: int):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     output = StringIO()
     writer = csv.writer(output)
     writer.writerow([
@@ -120,7 +127,9 @@ def download_tallies(meeting_id: int):
 @permission_required('manage_meetings')
 def download_tallies_json(meeting_id: int):
     """Return tallies for amendments and motions as JSON."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     rows: list[dict[str, int | str]] = []
     for amend in Amendment.query.filter_by(meeting_id=meeting.id).all():
         rows.append(
@@ -170,7 +179,9 @@ def _tie_break_form(amendments: list[Amendment]) -> FlaskForm:
 @login_required
 @permission_required('manage_meetings')
 def tie_breaks(meeting_id: int):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     amends = []
     for a in Amendment.query.filter_by(meeting_id=meeting.id).order_by(Amendment.order).all():
         for_count = Vote.query.filter_by(amendment_id=a.id, choice='for').count()
@@ -196,7 +207,9 @@ def tie_breaks(meeting_id: int):
 @permission_required('manage_meetings')
 def download_stage2_tallies(meeting_id: int):
     """Return a CSV of Stage 2 motion tallies including outcome."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     output = StringIO()
     writer = csv.writer(output)
     writer.writerow(['id', 'title', 'for', 'against', 'abstain', 'outcome'])
@@ -226,7 +239,9 @@ def download_stage2_tallies(meeting_id: int):
 @permission_required('manage_meetings')
 def download_audit_log(meeting_id: int):
     """Return a CSV audit log of all votes for a meeting."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     output = StringIO()
     writer = csv.writer(output)
     writer.writerow(['member_id', 'amendment_id', 'motion_id', 'choice', 'hash'])

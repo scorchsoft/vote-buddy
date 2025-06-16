@@ -5,6 +5,7 @@ from flask import (
     url_for,
     request,
     flash,
+    abort,
     send_file,
     current_app,
 )
@@ -172,7 +173,9 @@ def create_meeting():
 @login_required
 @permission_required("manage_meetings")
 def edit_meeting(meeting_id):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     form = MeetingForm(obj=meeting)
     if form.validate_on_submit():
         _save_meeting(form, meeting)
@@ -186,7 +189,9 @@ def edit_meeting(meeting_id):
 def import_members(meeting_id):
     """Upload a CSV of members and generate vote tokens."""
 
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     form = MemberImportForm()
     if form.validate_on_submit():
         file_data = form.csv_file.data
@@ -239,7 +244,9 @@ def import_members(meeting_id):
 @login_required
 @permission_required("manage_meetings")
 def list_motions(meeting_id):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     motions = (
         Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
     )
@@ -252,7 +259,9 @@ def list_motions(meeting_id):
 @login_required
 @permission_required("manage_meetings")
 def create_motion(meeting_id):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     form = MotionForm()
     clerical_text = config_or_setting("CLERICAL_TEXT", "")
     move_text = config_or_setting("MOVE_TEXT", "")
@@ -291,7 +300,9 @@ def create_motion(meeting_id):
 
 @bp.route("/motions/<int:motion_id>")
 def view_motion(motion_id):
-    motion = Motion.query.get_or_404(motion_id)
+    motion = db.session.get(Motion, motion_id)
+    if motion is None:
+        abort(404)
     amendments = (
         Amendment.query.filter_by(motion_id=motion.id).order_by(Amendment.order).all()
     )
@@ -314,7 +325,9 @@ def view_motion(motion_id):
 @login_required
 @permission_required("manage_meetings")
 def add_amendment(motion_id):
-    motion = Motion.query.get_or_404(motion_id)
+    motion = db.session.get(Motion, motion_id)
+    if motion is None:
+        abort(404)
     form = AmendmentForm()
     members = (
         Member.query.filter_by(meeting_id=motion.meeting_id).order_by(Member.name).all()
@@ -393,8 +406,12 @@ def add_amendment(motion_id):
 @permission_required("manage_meetings")
 def edit_amendment(amendment_id: int):
     """Edit an existing amendment."""
-    amendment = Amendment.query.get_or_404(amendment_id)
-    motion = Motion.query.get_or_404(amendment.motion_id)
+    amendment = db.session.get(Amendment, amendment_id)
+    if amendment is None:
+        abort(404)
+    motion = db.session.get(Motion, amendment.motion_id)
+    if motion is None:
+        abort(404)
     meeting = db.session.get(Meeting, amendment.meeting_id)
 
     form = AmendmentForm(obj=amendment)
@@ -459,7 +476,9 @@ def edit_amendment(amendment_id: int):
 @permission_required("manage_meetings")
 def delete_amendment(amendment_id: int):
     """Delete an amendment."""
-    amendment = Amendment.query.get_or_404(amendment_id)
+    amendment = db.session.get(Amendment, amendment_id)
+    if amendment is None:
+        abort(404)
     meeting = db.session.get(Meeting, amendment.meeting_id)
     motion_id = amendment.motion_id
 
@@ -480,7 +499,9 @@ def delete_amendment(amendment_id: int):
 @permission_required("manage_meetings")
 def reject_amendment(amendment_id: int):
     """Mark an amendment as rejected."""
-    amendment = Amendment.query.get_or_404(amendment_id)
+    amendment = db.session.get(Amendment, amendment_id)
+    if amendment is None:
+        abort(404)
     amendment.status = "rejected"
     db.session.commit()
     flash("Amendment marked as rejected", "success")
@@ -492,7 +513,9 @@ def reject_amendment(amendment_id: int):
 @permission_required("manage_meetings")
 def mark_amendment_merged(amendment_id: int):
     """Mark an amendment as merged into another."""
-    amendment = Amendment.query.get_or_404(amendment_id)
+    amendment = db.session.get(Amendment, amendment_id)
+    if amendment is None:
+        abort(404)
     amendment.status = "merged"
     db.session.commit()
     flash("Amendment marked as merged", "success")
@@ -502,8 +525,12 @@ def mark_amendment_merged(amendment_id: int):
 @bp.route("/amendments/<int:amendment_id>/object", methods=["GET", "POST"])
 def submit_objection(amendment_id: int):
     """Allow a member to submit an objection."""
-    amendment = Amendment.query.get_or_404(amendment_id)
-    meeting = Meeting.query.get_or_404(amendment.meeting_id)
+    amendment = db.session.get(Amendment, amendment_id)
+    if amendment is None:
+        abort(404)
+    meeting = db.session.get(Meeting, amendment.meeting_id)
+    if meeting is None:
+        abort(404)
     form = ObjectionForm()
     members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
     form.member_id.choices = [(m.id, m.name) for m in members]
@@ -524,7 +551,9 @@ def submit_objection(amendment_id: int):
 @login_required
 @permission_required("manage_meetings")
 def manage_conflicts(motion_id: int):
-    motion = Motion.query.get_or_404(motion_id)
+    motion = db.session.get(Motion, motion_id)
+    if motion is None:
+        abort(404)
     amendments = (
         Amendment.query.filter_by(motion_id=motion.id).order_by(Amendment.order).all()
     )
@@ -584,7 +613,9 @@ def manage_conflicts(motion_id: int):
 @login_required
 @permission_required("manage_meetings")
 def delete_conflict(conflict_id: int):
-    conflict = AmendmentConflict.query.get_or_404(conflict_id)
+    conflict = db.session.get(AmendmentConflict, conflict_id)
+    if conflict is None:
+        abort(404)
     motion_id = db.session.get(Amendment, conflict.amendment_a_id).motion_id
     db.session.delete(conflict)
     db.session.commit()
@@ -655,7 +686,9 @@ def _merge_form(motions: list[Motion]) -> FlaskForm:
 @permission_required("manage_meetings")
 def close_stage1(meeting_id: int):
     """Close Stage 1 and handle run-offs or open Stage 2."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
 
     # check whether Stage 1 reached quorum
     if meeting.stage1_votes_count() < meeting.quorum:
@@ -688,7 +721,9 @@ def close_stage1(meeting_id: int):
 @login_required
 @permission_required("manage_meetings")
 def results_summary(meeting_id: int):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     results = _amendment_results(meeting)
     return render_template(
         "meetings/results_summary.html", meeting=meeting, results=results
@@ -699,7 +734,9 @@ def results_summary(meeting_id: int):
 @login_required
 @permission_required("manage_meetings")
 def results_docx(meeting_id: int):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     results = _amendment_results(meeting)
     include_logo = request.args.get("logo") == "1"
     doc = _styled_doc(f"{meeting.title} - Stage 1 Results", include_logo)
@@ -741,7 +778,9 @@ def results_docx(meeting_id: int):
 @permission_required("manage_meetings")
 def prepare_stage2(meeting_id: int):
     """Allow a human to merge amendments into final motion text."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     motions = (
         Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
     )
@@ -784,7 +823,9 @@ def prepare_stage2(meeting_id: int):
 @permission_required("manage_meetings")
 def results_stage2_docx(meeting_id: int):
     """Download DOCX summarising carried amendments and final motion results."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     amend_results = _amendment_results(meeting)
     motion_results = _motion_results(meeting)
 
@@ -842,7 +883,9 @@ def results_stage2_docx(meeting_id: int):
 @permission_required("manage_meetings")
 def stage1_ics(meeting_id: int):
     """Download Stage 1 calendar file."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     ics = generate_stage_ics(meeting, 1)
     return send_file(
         io.BytesIO(ics),
@@ -857,7 +900,9 @@ def stage1_ics(meeting_id: int):
 @permission_required("manage_meetings")
 def stage2_ics(meeting_id: int):
     """Download Stage 2 calendar file."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     ics = generate_stage_ics(meeting, 2)
     return send_file(
         io.BytesIO(ics),
@@ -872,7 +917,9 @@ def stage2_ics(meeting_id: int):
 @permission_required("manage_meetings")
 def close_stage2(meeting_id: int):
     """Finalize Stage 2 results and record motion outcomes."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     motion_results = _motion_results(meeting)
 
     for motion, counts in motion_results:
@@ -898,7 +945,9 @@ def close_stage2(meeting_id: int):
 @permission_required("manage_meetings")
 def resend_member_link(meeting_id: int, member_id: int):
     """Generate a new voting token for the current stage and email it."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     member = Member.query.filter_by(id=member_id, meeting_id=meeting.id).first_or_404()
 
     stage = 2 if meeting.status in {"Stage 2", "Pending Stage 2"} else 1

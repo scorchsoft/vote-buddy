@@ -254,9 +254,9 @@ def test_lock_and_unlock_stage_post():
         with app.test_request_context(f'/ro/{meeting.id}/lock/1', method='POST'):
             with patch('flask_login.utils._get_user', return_value=user):
                 ro.lock_stage(meeting.id, 1)
-        assert Meeting.query.get(meeting.id).stage1_locked is True
+        assert db.session.get(Meeting, meeting.id).stage1_locked is True
 
         with app.test_request_context(f'/ro/{meeting.id}/unlock/1', method='POST'):
             with patch('flask_login.utils._get_user', return_value=user):
                 ro.unlock_stage(meeting.id, 1)
-        assert Meeting.query.get(meeting.id).stage1_locked is False
+        assert db.session.get(Meeting, meeting.id).stage1_locked is False
