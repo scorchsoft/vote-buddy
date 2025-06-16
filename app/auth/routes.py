@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user
+from ..extensions import limiter
 
 from ..models import User
 from .utils import is_safe_url
@@ -7,6 +8,7 @@ from .utils import is_safe_url
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/login', methods=['GET', 'POST'])
+@limiter.limit('5 per minute')
 def login():
     next_page = request.args.get('next')
     if request.method == 'POST':

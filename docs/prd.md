@@ -130,6 +130,7 @@
 * Pen‑test checklist aligns with OWASP Secure Coding Guide.
 * Every feature must enforce role permissions on pages and endpoints
   using `permission_required` to guard access.
+* Login and voting endpoints are rate limited with Flask-Limiter.
 
 ### 6.2 Accessibility & UX
 * Colour palette and logos per BP brand guide.  
@@ -363,6 +364,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-16 – Stage 1 closing now schedules Stage 2 close after the new open when no close was set.
 * 2025-06-16 – Added `node_modules/` to `.gitignore` to ignore Node packages.
 * 2025-06-16 – Documented Python package installation in README.
+* 2025-06-16 – Added rate limiting to login and vote routes using Flask-Limiter.
 
 
 
