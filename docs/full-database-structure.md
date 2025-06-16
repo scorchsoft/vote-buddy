@@ -1,6 +1,6 @@
 # Full Database Structure
 
-_Last updated: 2025-06-15_
+_Last updated: 2025-06-23_
 
 This document summarises all tables and columns created by the Alembic migrations. It should help contributors and AI tools understand the schema without opening each migration file.
 
@@ -51,6 +51,7 @@ This document summarises all tables and columns created by the Alembic migration
 | quorum | Integer | Default `0` |
 | stage1_locked | Boolean | Default `False` |
 | stage2_locked | Boolean | Default `False` |
+| stage1_reminder_sent_at | DateTime | |
 | public_results | Boolean | Default `False` |
 
 ### members
@@ -71,6 +72,7 @@ This document summarises all tables and columns created by the Alembic migration
 | meeting_id | Integer | FK `meetings.id` |
 | title | String(255) | |
 | text_md | Text | |
+| final_text_md | Text | |
 | category | String(20) | |
 | threshold | String(20) | |
 | ordering | Integer | |
@@ -94,6 +96,7 @@ This document summarises all tables and columns created by the Alembic migration
 | status | String(50) | |
 | proposer_id | Integer | FK `members.id` |
 | seconder_id | Integer | FK `members.id` |
+| tie_break_method | String(20) | |
 
 ### amendment_conflicts
 | Column | Type | Notes |
