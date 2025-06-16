@@ -713,7 +713,7 @@ def test_edit_and_delete_amendment():
             with patch("flask_login.utils._get_user", return_value=user):
                 meetings.edit_amendment(amend.id)
 
-        assert Amendment.query.get(amend.id).text_md == "changed"
+        assert db.session.get(Amendment, amend.id).text_md == "changed"
 
         with app.test_request_context(
             f"/meetings/amendments/{amend.id}/delete", method="POST"

@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Blueprint, render_template, current_app
+from flask import Blueprint, render_template, current_app, abort
 
 from ..extensions import db
 from ..models import (
@@ -97,8 +97,12 @@ def ballot_token(token: str):
     vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
     if not vote_token:
         return render_template("voting/token_error.html", message="Invalid voting link."), 404
-    member = Member.query.get_or_404(vote_token.member_id)
-    meeting = Meeting.query.get_or_404(member.meeting_id)
+    member = db.session.get(Member, vote_token.member_id)
+    if member is None:
+        abort(404)
+    meeting = db.session.get(Meeting, member.meeting_id)
+    if meeting is None:
+        abort(404)
 
     proxy_member = None
     if member.proxy_for:
@@ -304,8 +308,12 @@ def runoff_ballot(token: str):
     vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
     if not vote_token or vote_token.stage != 1:
         return render_template("voting/token_error.html", message="Invalid voting link."), 404
-    member = Member.query.get_or_404(vote_token.member_id)
-    meeting = Meeting.query.get_or_404(member.meeting_id)
+    member = db.session.get(Member, vote_token.member_id)
+    if member is None:
+        abort(404)
+    meeting = db.session.get(Meeting, member.meeting_id)
+    if meeting is None:
+        abort(404)
 
     proxy_member = None
     if member.proxy_for:

@@ -6,6 +6,7 @@ from flask import (
     url_for,
     flash,
     current_app,
+    abort,
 )
 import json
 from flask_login import login_required
@@ -39,7 +40,9 @@ def dashboard():
 @login_required
 @permission_required("manage_meetings")
 def toggle_public_results(meeting_id: int):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
     meeting.public_results = not meeting.public_results
     db.session.commit()
     return redirect(url_for("admin.dashboard"))
@@ -63,7 +66,9 @@ def list_objections():
 @login_required
 @permission_required("manage_meetings")
 def reinstate_amendment(amendment_id: int):
-    amendment = Amendment.query.get_or_404(amendment_id)
+    amendment = db.session.get(Amendment, amendment_id)
+    if amendment is None:
+        abort(404)
     count = AmendmentObjection.query.filter_by(amendment_id=amendment_id).count()
     total = Member.query.filter_by(meeting_id=amendment.meeting_id).count()
     threshold = max(25, int(total * 0.05))
@@ -145,7 +150,9 @@ def create_user():
 @login_required
 @permission_required("manage_users")
 def edit_user(user_id):
-    user = User.query.get_or_404(user_id)
+    user = db.session.get(User, user_id)
+    if user is None:
+        abort(404)
     form = UserForm(obj=user)
     form.role_id.choices = [(r.id, r.name) for r in Role.query.order_by(Role.name)]
     if form.validate_on_submit():
@@ -195,7 +202,9 @@ def create_role():
 @login_required
 @permission_required("manage_users")
 def edit_role(role_id):
-    role = Role.query.get_or_404(role_id)
+    role = db.session.get(Role, role_id)
+    if role is None:
+        abort(404)
     form = RoleForm(obj=role)
     form.permission_ids.choices = [
         (p.id, p.name) for p in Permission.query.order_by(Permission.name)
