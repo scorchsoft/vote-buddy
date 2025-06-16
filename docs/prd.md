@@ -307,7 +307,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Added RO dashboard with quorum tracking, stage locking and CSV tallies download.
 * 2025-06-15 – Enforced ballot open/close windows before accepting votes.
 * 2025-06-15 – Added Stage 2 token generation, results summary page and DOCX export.
-* 2025-06-15 – Addeed motion categories, thresholds and options with new tables
+* 2025-06-15 – Added motion categories, thresholds and options with new tables.
 * 2025-06-15 – Implemented run-off detection and automatic Stage-1 extension.
 * 2025-06-15 – Added final results DOCX export compiling carried amendments and motion outcomes.
 * 2025-06-15 – Fixed create meeting button link on meetings list page.
