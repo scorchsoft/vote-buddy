@@ -93,6 +93,36 @@ def download_tallies(meeting_id: int):
     return response
 
 
+@bp.route('/<int:meeting_id>/stage2_tallies.csv')
+@login_required
+@permission_required('manage_meetings')
+def download_stage2_tallies(meeting_id: int):
+    """Return a CSV of Stage 2 motion tallies including outcome."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['id', 'title', 'for', 'against', 'abstain', 'outcome'])
+    motions = (
+        Motion.query.filter_by(meeting_id=meeting.id)
+        .order_by(Motion.ordering)
+        .all()
+    )
+    for motion in motions:
+        writer.writerow([
+            motion.id,
+            motion.title,
+            Vote.query.filter_by(motion_id=motion.id, choice='for').count(),
+            Vote.query.filter_by(motion_id=motion.id, choice='against').count(),
+            Vote.query.filter_by(motion_id=motion.id, choice='abstain').count(),
+            (motion.status or '').capitalize(),
+        ])
+    response = Response(output.getvalue(), mimetype='text/csv')
+    response.headers['Content-Disposition'] = (
+        f'attachment; filename=stage2_tallies_meeting_{meeting.id}.csv'
+    )
+    return response
+
+
 @bp.route('/<int:meeting_id>/audit_log.csv')
 @login_required
 @permission_required('manage_meetings')

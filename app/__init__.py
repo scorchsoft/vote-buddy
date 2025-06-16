@@ -99,6 +99,10 @@ def register_error_handlers(app):
     def page_not_found(_):
         return render_template('errors/404.html'), 404
 
+    @app.errorhandler(500)
+    def server_error(_):
+        return render_template('errors/500.html'), 500
+
 
 def register_cli_commands(app):
     from .cli import create_admin
