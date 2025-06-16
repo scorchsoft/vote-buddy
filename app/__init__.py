@@ -3,7 +3,16 @@ from datetime import datetime
 from flask import Flask, render_template
 from .utils import markdown_to_html
 
-from .extensions import db, migrate, login_manager, bcrypt, csrf, mail, scheduler
+from .extensions import (
+    db,
+    migrate,
+    login_manager,
+    bcrypt,
+    csrf,
+    mail,
+    scheduler,
+    limiter,
+)
 
 
 def create_app(config_object='config.DevelopmentConfig'):
@@ -47,6 +56,7 @@ def register_extensions(app):
     bcrypt.init_app(app)
     csrf.init_app(app)
     mail.init_app(app)
+    limiter.init_app(app)
     if not scheduler.running:
         scheduler.init_app(app)
         from .tasks import register_jobs

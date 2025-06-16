@@ -17,6 +17,7 @@ from flask_wtf import FlaskForm
 from wtforms import RadioField, SubmitField
 from wtforms.validators import DataRequired
 from app.services.email import send_vote_receipt
+from ..extensions import limiter
 
 bp = Blueprint("voting", __name__, url_prefix="/vote")
 
@@ -90,6 +91,7 @@ def compile_motion_text(motion: Motion) -> str:
 
 
 @bp.route("/<token>", methods=["GET", "POST"])
+@limiter.limit("10 per minute")
 def ballot_token(token: str):
     """Verify token and display the correct ballot stage."""
     vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
@@ -296,6 +298,7 @@ def ballot_token(token: str):
 
 
 @bp.route("/runoff/<token>", methods=["GET", "POST"])
+@limiter.limit("10 per minute")
 def runoff_ballot(token: str):
     """Display a run-off ballot for conflicting amendments."""
     vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
