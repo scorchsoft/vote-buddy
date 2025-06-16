@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="font-bold text-bp-blue mb-4">Add Amendment</h2>
+<h2 class="font-bold text-bp-blue mb-4">{{ 'Edit' if amendment else 'Add' }} Amendment</h2>
 <form method="post" class="bp-form bp-card space-y-4">
   {{ form.hidden_tag() }}
   <div>

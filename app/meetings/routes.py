@@ -137,6 +137,18 @@ def _save_meeting(form: MeetingForm, meeting: Meeting | None = None) -> Meeting:
     return meeting
 
 
+def _set_member_choices(form: AmendmentForm, meeting_id: int) -> None:
+    """Populate proposer/seconder choices from meeting members."""
+    members = (
+        Member.query.filter_by(meeting_id=meeting_id)
+        .order_by(Member.name)
+        .all()
+    )
+    choices = [(m.id, m.name) for m in members]
+    form.proposer_id.choices = choices
+    form.seconder_id.choices = choices
+
+
 @bp.route('/create', methods=['GET', 'POST'])
 @login_required
 @permission_required('manage_meetings')
@@ -277,14 +289,7 @@ def view_motion(motion_id):
 def add_amendment(motion_id):
     motion = Motion.query.get_or_404(motion_id)
     form = AmendmentForm()
-    members = (
-        Member.query.filter_by(meeting_id=motion.meeting_id)
-        .order_by(Member.name)
-        .all()
-    )
-    choices = [(m.id, m.name) for m in members]
-    form.proposer_id.choices = choices
-    form.seconder_id.choices = choices
+    _set_member_choices(form, motion.meeting_id)
     if form.validate_on_submit():
         meeting = Meeting.query.get(motion.meeting_id)
         if meeting.opens_at_stage1:
@@ -328,6 +333,47 @@ def add_amendment(motion_id):
         db.session.commit()
         return redirect(url_for('meetings.view_motion', motion_id=motion.id))
     return render_template('meetings/amendment_form.html', form=form, motion=motion)
+
+
+@bp.route('/amendments/<int:amendment_id>/edit', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
+def edit_amendment(amendment_id: int):
+    amendment = Amendment.query.get_or_404(amendment_id)
+    form = AmendmentForm(obj=amendment)
+    _set_member_choices(form, amendment.meeting_id)
+    if form.validate_on_submit():
+        if form.proposer_id.data == form.seconder_id.data:
+            flash('Proposer cannot second their own amendment.', 'error')
+            return render_template(
+                'meetings/amendment_form.html',
+                form=form,
+                amendment=amendment,
+                motion=amendment.motion,
+            )
+        amendment.text_md = form.text_md.data
+        amendment.proposer_id = form.proposer_id.data
+        amendment.seconder_id = form.seconder_id.data
+        db.session.commit()
+        return redirect(url_for('meetings.view_motion', motion_id=amendment.motion_id))
+    return render_template(
+        'meetings/amendment_form.html',
+        form=form,
+        amendment=amendment,
+        motion=amendment.motion,
+    )
+
+
+@bp.route('/amendments/<int:amendment_id>/delete', methods=['POST'])
+@login_required
+@permission_required('manage_meetings')
+def delete_amendment(amendment_id: int):
+    amendment = Amendment.query.get_or_404(amendment_id)
+    motion_id = amendment.motion_id
+    db.session.delete(amendment)
+    db.session.commit()
+    flash('Amendment deleted', 'success')
+    return redirect(url_for('meetings.view_motion', motion_id=motion_id))
 
 
 @bp.route('/motions/<int:motion_id>/conflicts', methods=['GET', 'POST'])
