@@ -6,11 +6,18 @@ import pytest
 from werkzeug.exceptions import Forbidden
 from flask import abort
 from app import create_app
+from app.extensions import db
 from unittest.mock import patch
 from flask_login import AnonymousUserMixin
 
 from app.permissions import permission_required
 from app.models import User, Role, Permission
+
+
+def _setup_app():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    return app
 
 
 @permission_required('view_dashboard')
@@ -41,9 +48,11 @@ def test_permission_required_forbidden_when_anonymous():
             _protected()
 
 
+
 def test_403_template_loads():
-    app = create_app()
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
 
     @app.route('/deny')
     def deny():
