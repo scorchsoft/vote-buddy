@@ -1,0 +1,105 @@
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #0f172a;
+    color: #F7F7F9;
+  }
+  .bg-bp-blue {
+    background-color: #001836;
+  }
+  .bg-bp-grey-50 {
+    background-color: #1e293b;
+  }
+  .text-bp-grey-700 {
+    color: #e2e8f0;
+  }
+  .bg-white {
+    background-color: #283446;
+  }
+  .hover\:bg-bp-grey-50:hover {
+    background-color: #334155;
+  }
+  .bp-card {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+  .bp-btn-secondary {
+    background-color: #1e293b;
+    color: #fff;
+    border-color: #fff;
+  }
+  .bp-nav-drawer {
+    background-color: #001836;
+  }
+  .bp-sticky-footer {
+    background-color: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.4);
+  }
+  .bp-table th,
+  .bp-table td {
+    border-color: #334155;
+  }
+  .bp-table th,
+  .bp-table tbody tr:nth-child(even) {
+    background-color: #1e293b;
+  }
+  a.bp-link {
+    color: #93c5fd;
+  }
+  .bp-badge {
+    background-color: #334155;
+    color: #F7F7F9;
+  }
+}
+
+[data-theme="dark"] body {
+  background-color: #0f172a;
+  color: #F7F7F9;
+}
+[data-theme="dark"] .bg-bp-blue {
+  background-color: #001836;
+}
+[data-theme="dark"] .bg-bp-grey-50 {
+  background-color: #1e293b;
+}
+[data-theme="dark"] .text-bp-grey-700 {
+  color: #e2e8f0;
+}
+[data-theme="dark"] .bg-white {
+  background-color: #283446;
+}
+[data-theme="dark"] .hover\:bg-bp-grey-50:hover {
+  background-color: #334155;
+}
+[data-theme="dark"] .bp-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+[data-theme="dark"] .bp-btn-secondary {
+  background-color: #1e293b;
+  color: #fff;
+  border-color: #fff;
+}
+[data-theme="dark"] .bp-nav-drawer {
+  background-color: #001836;
+}
+[data-theme="dark"] .bp-sticky-footer {
+  background-color: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.4);
+}
+[data-theme="dark"] .bp-table th,
+[data-theme="dark"] .bp-table td {
+  border-color: #334155;
+}
+[data-theme="dark"] .bp-table th,
+[data-theme="dark"] .bp-table tbody tr:nth-child(even) {
+  background-color: #1e293b;
+}
+[data-theme="dark"] a.bp-link {
+  color: #93c5fd;
+}
+[data-theme="dark"] .bp-badge {
+  background-color: #334155;
+  color: #F7F7F9;
+}
