@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     drawer.classList.remove('open');
     drawer.setAttribute('hidden', '');
     toggle.setAttribute('aria-expanded', 'false');
+    toggle.innerHTML = '<span class="sr-only">Menu</span>&#9776;';
     if (keyHandler) {
       document.removeEventListener('keydown', keyHandler);
       keyHandler = null;
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     drawer.removeAttribute('hidden');
     requestAnimationFrame(() => drawer.classList.add('open'));
     toggle.setAttribute('aria-expanded', 'true');
+    toggle.innerHTML = '<span class="sr-only">Menu</span>&#10005;';
     keyHandler = e => {
       if (e.key === 'Escape') closeDrawer();
     };
