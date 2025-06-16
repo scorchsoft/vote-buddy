@@ -106,3 +106,15 @@
   background-color: #334155;
   color: #F7F7F9;
 }
+
+/* Tooltip dark mode */
+@media (prefers-color-scheme: dark) {
+  [data-tooltip]::after {
+    background-color: #334155;
+    color: #F7F7F9;
+  }
+}
+[data-theme="dark"] [data-tooltip]::after {
+  background-color: #334155;
+  color: #F7F7F9;
+}
