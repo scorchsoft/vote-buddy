@@ -17,6 +17,7 @@ def create_app(config_object='config.DevelopmentConfig'):
     register_extensions(app)
     register_blueprints(app)
     register_error_handlers(app)
+    register_cli_commands(app)
 
     @app.after_request
     def set_frame_options(response):
@@ -101,4 +102,9 @@ def register_error_handlers(app):
     @app.errorhandler(500)
     def server_error(_):
         return render_template('errors/500.html'), 500
+
+
+def register_cli_commands(app):
+    from .cli import create_admin
+    app.cli.add_command(create_admin)
 

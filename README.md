@@ -35,6 +35,12 @@ npm install
 npm run build:css
 ```
 
+4. Create an initial admin user:
+
+```bash
+flask --app app create-admin
+```
+
 The `web` service runs migrations on start and exposes the app at `http://localhost:8000`.
 
 To run the development server directly on your machine, install the requirements and execute:
