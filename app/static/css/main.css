@@ -1054,3 +1054,41 @@ a:focus-visible {
     gap: 1rem;
   }
 }
+/* Tick icon for results tables */
+.bp-tick {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  line-height: 1rem;
+  text-align: center;
+  font-weight: 700;
+}
+.bp-tick-pass {
+  color: #DC0714;
+}
+.bp-tick-fail {
+  color: #3F4854;
+}
+
+/* Breadcrumb component */
+.bp-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.bp-link {
+  color: #002D59; /* bp-blue */
+  text-decoration: underline;
+}
+
+.bp-link:hover,
+.bp-link:focus-visible {
+  text-decoration-thickness: 2px;
+}
+
+/* Spacing utilities */
+.bp-gap-xs { gap: 0.25rem; }
+.bp-gap-sm { gap: 0.5rem; }
+.bp-gap-md { gap: 1rem; }
+.bp-gap-lg { gap: 1.5rem; }

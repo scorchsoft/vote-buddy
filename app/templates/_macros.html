@@ -1,0 +1,16 @@
+{% macro breadcrumbs(items) %}
+<nav aria-label="Breadcrumb" class="mb-4">
+  <ol class="bp-breadcrumbs bp-gap-sm text-sm">
+  {%- for label, url in items %}
+    <li class="inline-flex items-center">
+      {%- if not loop.first %}<span class="mx-1 text-bp-grey-700">&rsaquo;</span>{% endif -%}
+      {% if loop.last or not url %}
+        <span class="font-semibold">{{ label }}</span>
+      {% else %}
+        <a href="{{ url }}" class="bp-link">{{ label }}</a>
+      {% endif %}
+    </li>
+  {%- endfor %}
+  </ol>
+</nav>
+{% endmacro %}

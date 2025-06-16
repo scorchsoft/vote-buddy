@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Objections', url_for('admin.list_objections'))]) }}
 <h2 class="font-bold text-bp-blue mb-4">Amendment Objections</h2>
 <table class="bp-table w-full">
   <thead>

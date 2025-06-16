@@ -111,6 +111,7 @@ class AmendmentForm(FlaskForm):
     proposer_id = SelectField("Proposer", coerce=int, validators=[DataRequired()])
     seconder_id = SelectField("Seconder", coerce=int, validators=[Optional()])
     board_seconded = BooleanField("Seconded by Board/Chair")
+    seconded_method = StringField("Seconded Via", validators=[Optional()])
     submit = SubmitField("Save")
 
 

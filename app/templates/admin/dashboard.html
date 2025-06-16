@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard'))]) }}
 <div class="bp-card space-y-4">
   <h2 class="font-bold text-bp-blue">Admin Dashboard</h2>
   <p>Welcome to {{ setting('site_title', 'VoteBuddy') }} administration.</p>

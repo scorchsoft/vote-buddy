@@ -55,7 +55,14 @@ def test_download_tallies_csv():
         db.session.flush()
         motion = Motion(meeting_id=meeting.id, title='M1', text_md='T', category='motion', threshold='normal', ordering=1)
         db.session.add(motion)
-        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A', order=1)
+        amend = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md='A',
+            order=1,
+            seconded_method='email',
+            seconded_at=datetime.utcnow(),
+        )
         db.session.add(amend)
         member = Member(meeting_id=meeting.id, name='Alice')
         db.session.add(member)
@@ -67,7 +74,11 @@ def test_download_tallies_csv():
             with patch('flask_login.utils._get_user', return_value=user):
                 resp = ro.download_tallies(meeting.id)
                 assert resp.status_code == 200
-                assert b'amendment' in resp.data
+                data = resp.data.decode().splitlines()
+                header = data[0].split(',')
+                assert 'seconded_method' in header
+                row = data[1].split(',')
+                assert 'email' in row
 
 
 def test_download_tallies_json():
@@ -87,7 +98,14 @@ def test_download_tallies_json():
             ordering=1,
         )
         db.session.add(motion)
-        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A', order=1)
+        amend = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md='A',
+            order=1,
+            seconded_method='email',
+            seconded_at=datetime.utcnow(),
+        )
         db.session.add(amend)
         member = Member(meeting_id=meeting.id, name='Alice')
         db.session.add(member)
@@ -101,7 +119,8 @@ def test_download_tallies_json():
                 assert resp.status_code == 200
                 data = resp.get_json()
                 assert data['meeting_id'] == meeting.id
-                assert any(r['type'] == 'amendment' for r in data['tallies'])
+                amend_row = next(r for r in data['tallies'] if r['type'] == 'amendment')
+                assert amend_row['seconded_method'] == 'email'
 
 
 def test_download_stage2_tallies_csv():

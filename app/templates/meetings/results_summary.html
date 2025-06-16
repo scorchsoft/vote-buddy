@@ -4,7 +4,13 @@
 <p class="mb-4">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</p>
 <table class="bp-table w-full">
   <thead>
-    <tr><th>Amendment</th><th>For</th><th>Against</th><th>Abstain</th></tr>
+    <tr>
+      <th>Amendment</th>
+      <th>For</th>
+      <th>Against</th>
+      <th>Abstain</th>
+      <th>Outcome</th>
+    </tr>
   </thead>
   <tbody>
   {% for amend, counts in results %}
@@ -13,9 +19,16 @@
       <td class="p-2 text-center">{{ counts.for }}</td>
       <td class="p-2 text-center">{{ counts.against }}</td>
       <td class="p-2 text-center">{{ counts.abstain }}</td>
+      <td class="p-2 text-center">
+        {% if counts.for > counts.against %}
+          <span class="bp-tick bp-tick-pass">&#10003;</span>
+        {% else %}
+          <span class="bp-tick bp-tick-fail">&#8211;</span>
+        {% endif %}
+      </td>
     </tr>
   {% else %}
-    <tr><td colspan="4" class="p-2">No amendments.</td></tr>
+    <tr><td colspan="5" class="p-2">No amendments.</td></tr>
   {% endfor %}
   </tbody>
 </table>

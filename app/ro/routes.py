@@ -78,7 +78,16 @@ def download_tallies(meeting_id: int):
     meeting = Meeting.query.get_or_404(meeting_id)
     output = StringIO()
     writer = csv.writer(output)
-    writer.writerow(['type', 'id', 'text', 'for', 'against', 'abstain'])
+    writer.writerow([
+        'type',
+        'id',
+        'text',
+        'for',
+        'against',
+        'abstain',
+        'seconded_method',
+        'seconded_at',
+    ])
     for amend in Amendment.query.filter_by(meeting_id=meeting.id).all():
         writer.writerow([
             'amendment',
@@ -87,6 +96,8 @@ def download_tallies(meeting_id: int):
             Vote.query.filter_by(amendment_id=amend.id, choice='for').count(),
             Vote.query.filter_by(amendment_id=amend.id, choice='against').count(),
             Vote.query.filter_by(amendment_id=amend.id, choice='abstain').count(),
+            amend.seconded_method or '',
+            (amend.seconded_at.isoformat(timespec='seconds') if amend.seconded_at else ''),
         ])
     for motion in Motion.query.filter_by(meeting_id=meeting.id).all():
         writer.writerow([
@@ -120,6 +131,8 @@ def download_tallies_json(meeting_id: int):
                 'for': Vote.query.filter_by(amendment_id=amend.id, choice='for').count(),
                 'against': Vote.query.filter_by(amendment_id=amend.id, choice='against').count(),
                 'abstain': Vote.query.filter_by(amendment_id=amend.id, choice='abstain').count(),
+                'seconded_method': amend.seconded_method,
+                'seconded_at': amend.seconded_at.isoformat(timespec='seconds') if amend.seconded_at else None,
             }
         )
     for motion in Motion.query.filter_by(meeting_id=meeting.id).all():
