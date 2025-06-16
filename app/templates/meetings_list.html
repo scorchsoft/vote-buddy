@@ -15,15 +15,15 @@
   <table class="bp-table">
     <thead class="bg-bp-grey-50">
       <tr>
-        <th class="text-left p-2">
+        <th scope="col" class="text-left p-2">
           <a hx-get="{{ url_for('meetings.list_meetings', sort='title', direction='desc' if direction=='asc' and sort=='title' else 'asc', q=q) }}"
              hx-target="#meeting-table-body" hx-push-url="true" class="hover:underline">Title</a>
         </th>
-        <th class="text-left p-2">
+        <th scope="col" class="text-left p-2">
           <a hx-get="{{ url_for('meetings.list_meetings', sort='type', direction='desc' if direction=='asc' and sort=='type' else 'asc', q=q) }}"
              hx-target="#meeting-table-body" hx-push-url="true" class="hover:underline">Type</a>
         </th>
-        <th class="text-left p-2">
+        <th scope="col" class="text-left p-2">
           <a hx-get="{{ url_for('meetings.list_meetings', sort='status', direction='desc' if direction=='asc' and sort=='status' else 'asc', q=q) }}"
              hx-target="#meeting-table-body" hx-push-url="true" class="hover:underline">Status</a>
         </th>

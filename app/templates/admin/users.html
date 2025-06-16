@@ -13,11 +13,11 @@
 <table class="bp-table">
   <thead class="bg-bp-grey-50">
     <tr>
-      <th class="text-left p-2">
+      <th scope="col" class="text-left p-2">
         <a hx-get="{{ url_for('admin.list_users', sort='email', direction='desc' if direction=='asc' and sort=='email' else 'asc', q=q) }}" hx-target="#user-table-body" hx-push-url="true" class="hover:underline">Email</a>
       </th>
-      <th class="text-left p-2">Role</th>
-      <th class="text-left p-2">
+      <th scope="col" class="text-left p-2">Role</th>
+      <th scope="col" class="text-left p-2">
         <a hx-get="{{ url_for('admin.list_users', sort='created_at', direction='desc' if direction=='asc' and sort=='created_at' else 'asc', q=q) }}" hx-target="#user-table-body" hx-push-url="true" class="hover:underline">Created</a>
       </th>
     </tr>
