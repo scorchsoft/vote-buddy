@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Users', url_for('admin.list_users'))]) }}
 <h2 class="font-bold text-bp-blue mb-4">User Accounts</h2>
 
 <form class="mb-4 bp-card bp-form" hx-get="{{ url_for('admin.list_users') }}" hx-target="#user-table-body" hx-trigger="keyup changed delay:300ms" hx-push-url="true">

@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{% set label = 'Edit Amendment' if amendment else 'Add Amendment' %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (label, None)]) }}
 <h2 class="font-bold text-bp-blue mb-4">{{ 'Edit Amendment' if amendment else 'Add Amendment' }}</h2>
 <form method="post" class="bp-form bp-card space-y-4">
   {{ form.hidden_tag() }}
@@ -18,6 +21,10 @@
   <div class="flex items-center space-x-2">
     {{ form.board_seconded() }}
     {{ form.board_seconded.label(class_='font-semibold') }}
+  </div>
+  <div>
+    {{ form.seconded_method.label(class_='block font-semibold') }}
+    {{ form.seconded_method(class_='border p-2 rounded w-full') }}
   </div>
   <button type="submit" class="bp-btn-primary">Save</button>
 </form>
