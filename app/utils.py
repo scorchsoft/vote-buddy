@@ -1,5 +1,21 @@
 from markdown import markdown
 from markupsafe import Markup
+import bleach
+
+ALLOWED_TAGS = (
+    bleach.sanitizer.ALLOWED_TAGS
+    | {
+        'p',
+        'pre',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'br',
+    }
+)
 from flask import current_app
 from .models import AppSetting
 import json
@@ -40,7 +56,9 @@ def config_or_setting(
 
 def markdown_to_html(text: str) -> Markup:
     """Convert Markdown text to safe HTML."""
-    return Markup(markdown(text or ""))
+    raw_html = markdown(text or "")
+    cleaned = bleach.clean(raw_html, tags=ALLOWED_TAGS, strip=True)
+    return Markup(cleaned)
 
 from uuid import uuid4
 from datetime import datetime
