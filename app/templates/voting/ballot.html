@@ -2,7 +2,7 @@
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
 {{ breadcrumbs([('Ballot', url_for('voting.ballot_home')), ('Amendment Vote', None)]) }}
-<h2 class="font-bold text-bp-blue mb-4">Amendment Vote</h2>
+<h1 class="font-bold text-bp-blue mb-4">Amendment Vote</h1>
 <div class="bp-card mb-4">
   {{ amendment.text_md or 'No amendment text.' }}
 </div>

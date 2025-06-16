@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="font-bold text-bp-blue mb-4">{{ motion.title }}</h2>
+<h1 class="font-bold text-bp-blue mb-4">{{ motion.title }}</h1>
 <div class="bp-card bp-glow mb-4">{{ (motion.text_md or 'No motion text.')|markdown_to_html|safe }}</div>
 <h3 class="font-bold mb-2">Amendments</h3>
 <a href="{{ url_for('meetings.manage_conflicts', motion_id=motion.id) }}" class="bp-btn-secondary mb-4 inline-block">Manage Conflicts</a>

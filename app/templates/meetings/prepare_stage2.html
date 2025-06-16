@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="font-bold text-bp-blue mb-2">{{ meeting.title }} - Finalise Motion Text</h2>
+<h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} - Finalise Motion Text</h1>
 <p class="mb-4">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</p>
 <form method="post" class="space-y-6">
   {{ form.hidden_tag() }}
