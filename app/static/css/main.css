@@ -1092,3 +1092,19 @@ a:focus-visible {
 .bp-gap-sm { gap: 0.5rem; }
 .bp-gap-md { gap: 1rem; }
 .bp-gap-lg { gap: 1.5rem; }
+
+/* Accessible skip link */
+.bp-skip-link {
+  position: absolute;
+  left: 0;
+  top: -3rem;
+  padding: 0.5rem 1rem;
+  background-color: #FFEB3B; /* bp-yellow-a11y */
+  color: #002D59; /* bp-blue */
+  z-index: 50;
+  transition: top 0.2s ease-in-out;
+}
+
+.bp-skip-link:focus {
+  top: 0;
+}
