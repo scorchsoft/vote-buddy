@@ -1,6 +1,10 @@
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+from unittest.mock import patch
+from flask import render_template
+from flask_login import AnonymousUserMixin
+
 from app import create_app
 from app.extensions import db
 from app.models import Meeting, Member, Motion, Amendment, VoteToken
@@ -36,4 +40,23 @@ def test_sticky_footer_rendered():
             html = voting.ballot_token(plain)
             assert 'id="vote-footer"' in html
             assert 'Submit vote' in html
+
+
+def test_theme_toggle_button_present():
+    """Render base.html and check the dark mode toggle is included.
+
+    The template is rendered server-side only, so the JavaScript that reads or
+    writes `localStorage` isn't executed here.
+    """
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        anon = AnonymousUserMixin()
+        with app.test_request_context('/'):
+            with patch('flask_login.utils._get_user', return_value=anon):
+                html = render_template('base.html')
+                assert '<button id="theme-toggle"' in html
+                assert 'class="bp-nav-toggle"' in html
+                assert 'aria-label="Switch to dark mode"' in html
+                assert '<span aria-hidden="true">🌙</span>' in html
 
