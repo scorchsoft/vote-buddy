@@ -82,8 +82,8 @@ def _detect_runoffs(meeting: Meeting) -> list[Runoff]:
     runoffs_created: list[Runoff] = []
     conflicts = AmendmentConflict.query.filter_by(meeting_id=meeting.id).all()
     for conflict in conflicts:
-        a = Amendment.query.get(conflict.amendment_a_id)
-        b = Amendment.query.get(conflict.amendment_b_id)
+        a = db.session.get(Amendment, conflict.amendment_a_id)
+        b = db.session.get(Amendment, conflict.amendment_b_id)
         if a.status == 'carried' and b.status == 'carried':
             if not Runoff.query.filter_by(
                 meeting_id=meeting.id,

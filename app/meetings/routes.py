@@ -318,7 +318,7 @@ def add_amendment(motion_id):
     form.proposer_id.choices = choices
     form.seconder_id.choices = [(0, "")] + choices
     if form.validate_on_submit():
-        meeting = Meeting.query.get(motion.meeting_id)
+        meeting = db.session.get(Meeting, motion.meeting_id)
         if meeting.opens_at_stage1:
             deadline = meeting.opens_at_stage1 - timedelta(days=21)
             if datetime.utcnow() > deadline:
@@ -374,7 +374,7 @@ def add_amendment(motion_id):
                 db.session.add(
                     AmendmentMerge(combined_id=amendment.id, source_id=src_id)
                 )
-                src = Amendment.query.get(src_id)
+                src = db.session.get(Amendment, src_id)
                 if src:
                     src.status = "merged"
 
@@ -390,7 +390,7 @@ def edit_amendment(amendment_id: int):
     """Edit an existing amendment."""
     amendment = Amendment.query.get_or_404(amendment_id)
     motion = Motion.query.get_or_404(amendment.motion_id)
-    meeting = Meeting.query.get(amendment.meeting_id)
+    meeting = db.session.get(Meeting, amendment.meeting_id)
 
     form = AmendmentForm(obj=amendment)
     members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
@@ -455,7 +455,7 @@ def edit_amendment(amendment_id: int):
 def delete_amendment(amendment_id: int):
     """Delete an amendment."""
     amendment = Amendment.query.get_or_404(amendment_id)
-    meeting = Meeting.query.get(amendment.meeting_id)
+    meeting = db.session.get(Meeting, amendment.meeting_id)
     motion_id = amendment.motion_id
 
     if meeting.opens_at_stage1:
@@ -580,7 +580,7 @@ def manage_conflicts(motion_id: int):
 @permission_required("manage_meetings")
 def delete_conflict(conflict_id: int):
     conflict = AmendmentConflict.query.get_or_404(conflict_id)
-    motion_id = Amendment.query.get(conflict.amendment_a_id).motion_id
+    motion_id = db.session.get(Amendment, conflict.amendment_a_id).motion_id
     db.session.delete(conflict)
     db.session.commit()
     flash("Conflict removed", "success")
