@@ -24,7 +24,15 @@
             &#9776;
           </button>
           <button id="theme-toggle" class="bp-nav-toggle" aria-label="Switch to dark mode">
-            <span aria-hidden="true">🌙</span>
+            <img
+              id="theme-icon"
+              src="{{ url_for('static', filename='img/moon.svg') }}"
+              data-moon="{{ url_for('static', filename='img/moon.svg') }}"
+              data-sun="{{ url_for('static', filename='img/sun.svg') }}"
+              class="h-5 w-5"
+              alt=""
+              aria-hidden="true"
+            >
           </button>
           <div id="nav-drawer" class="bp-nav-drawer" hidden>
             <ul class="bp-nav-items">
