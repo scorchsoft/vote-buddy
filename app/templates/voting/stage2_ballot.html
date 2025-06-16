@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Ballot', url_for('voting.ballot_home')), (meeting.title, None), ('Stage 2', None)]) }}
 <h2 class="font-bold text-bp-blue mb-4">Stage 2 – Vote on Motion</h2>
 {% set current_stage = 2 %}
 {% include '_stepper.html' %}

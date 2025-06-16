@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), ('Edit Meeting' if meeting else 'Create Meeting', None)]) }}
 <h2 class="font-bold text-bp-blue mb-4">{{ 'Edit' if meeting else 'Create' }} Meeting</h2>
 <form method="post" class="bp-form bp-card space-y-4">
   {{ form.hidden_tag() }}
