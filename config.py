@@ -30,7 +30,7 @@ class Config:
         "MOVE_TEXT",
         "The Board may place this change in the Articles or Bylaws as most appropriate.",
     )
-    RATELIMIT_DEFAULT = os.getenv("RATELIMIT_DEFAULT", "200 per day")
+    RATELIMIT_DEFAULT = os.getenv("RATELIMIT_DEFAULT", "1000 per day")
     RATELIMIT_STORAGE_URL = os.getenv("RATELIMIT_STORAGE_URL", "memory://")
 
 
