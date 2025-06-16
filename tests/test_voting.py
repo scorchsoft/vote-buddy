@@ -633,7 +633,7 @@ def test_stepper_shows_stage1_current():
 
         with app.test_request_context(f"/vote/{plain}"):
             html = voting.ballot_token(plain)
-            assert 'bp-stepper-current" data-step="1"' in html
+            assert 'bp-stepper-current" aria-current="step" data-step="1"' in html
             assert 'data-step="2"' in html
             assert 'bp-stepper-complete' not in html
 
@@ -663,5 +663,5 @@ def test_stepper_shows_stage2_current_and_stage1_complete():
         with app.test_request_context(f"/vote/{plain}"):
             html = voting.ballot_token(plain)
             assert 'bp-stepper-complete" data-step="1"' in html
-            assert 'bp-stepper-current" data-step="2"' in html
+            assert 'bp-stepper-current" aria-current="step" data-step="2"' in html
 
