@@ -72,6 +72,12 @@ class AmendmentForm(FlaskForm):
     submit = SubmitField('Save')
 
 
+class ConflictForm(FlaskForm):
+    amendment_a_id = SelectField('Amendment A', coerce=int)
+    amendment_b_id = SelectField('Amendment B', coerce=int)
+    submit = SubmitField('Add Conflict')
+
+
 class MotionForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     text_md = TextAreaField('Motion Text', validators=[DataRequired()])

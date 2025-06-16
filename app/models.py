@@ -200,6 +200,14 @@ class Amendment(db.Model):
     proposer = db.relationship('Member', foreign_keys=[proposer_id])
     seconder = db.relationship('Member', foreign_keys=[seconder_id])
 
+    combined_from = db.relationship(
+        'Amendment',
+        secondary='amendment_merges',
+        primaryjoin='Amendment.id==AmendmentMerge.combined_id',
+        secondaryjoin='Amendment.id==AmendmentMerge.source_id',
+        backref='combined_into',
+    )
+
 class Vote(db.Model):
     __tablename__ = 'votes'
     id = db.Column(db.Integer, primary_key=True)
@@ -270,4 +278,14 @@ class AmendmentConflict(db.Model):
     meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
     amendment_a_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
     amendment_b_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
+
+    amendment_a = db.relationship('Amendment', foreign_keys=[amendment_a_id])
+    amendment_b = db.relationship('Amendment', foreign_keys=[amendment_b_id])
+
+
+class AmendmentMerge(db.Model):
+    __tablename__ = 'amendment_merges'
+    id = db.Column(db.Integer, primary_key=True)
+    combined_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
+    source_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
 
