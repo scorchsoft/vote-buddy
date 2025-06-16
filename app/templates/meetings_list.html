@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1 class="font-bold text-bp-blue mb-4">Meetings</h1>
+<h1 class="font-bold text-bp-blue mb-4">
+  Meetings
+  <span class="ml-1" tabindex="0" data-tooltip="List of active and past meetings">?</span>
+</h1>
 
 <form class="mb-4 bp-card bp-form"
       hx-get="{{ url_for('meetings.list_meetings') }}"
