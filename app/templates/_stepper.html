@@ -1,6 +1,6 @@
 <nav aria-label="Voting progress" class="mb-4">
   <ol class="bp-stepper">
-    <li class="{% if current_stage == 1 %}bp-stepper-current{% elif current_stage > 1 %}bp-stepper-complete{% endif %}" data-step="1">Stage 1</li>
-    <li class="{% if current_stage == 2 %}bp-stepper-current{% elif current_stage > 2 %}bp-stepper-complete{% endif %}" data-step="2">Stage 2</li>
+    <li class="{% if current_stage == 1 %}bp-stepper-current{% elif current_stage > 1 %}bp-stepper-complete{% endif %}"{% if current_stage == 1 %} aria-current="step"{% endif %} data-step="1">Stage 1</li>
+    <li class="{% if current_stage == 2 %}bp-stepper-current{% elif current_stage > 2 %}bp-stepper-complete{% endif %}"{% if current_stage == 2 %} aria-current="step"{% endif %} data-step="2">Stage 2</li>
   </ol>
 </nav>
