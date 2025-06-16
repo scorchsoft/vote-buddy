@@ -18,7 +18,7 @@ def send_stage1_reminders():
         hours=config_or_setting('REMINDER_HOURS_BEFORE_CLOSE', 6, parser=int)
     )
     meetings = Meeting.query.filter(
-        Meeting.closes_at_stage1 != None,
+        Meeting.closes_at_stage1.isnot(None),
         Meeting.closes_at_stage1 <= soon,
         Meeting.closes_at_stage1 >= now,
     ).all()

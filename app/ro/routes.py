@@ -28,7 +28,7 @@ def _stage1_vote_count(meeting: Meeting) -> int:
         VoteToken.query.join(Member, VoteToken.member_id == Member.id)
         .filter(
             VoteToken.stage == 1,
-            VoteToken.used_at != None,
+            VoteToken.used_at.isnot(None),
             Member.meeting_id == meeting.id,
         )
         .count()
