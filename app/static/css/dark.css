@@ -80,6 +80,9 @@
   color: #fff;
   border-color: #fff;
 }
+[data-theme="dark"] .bp-btn-primary {
+  background-color: #f44336;
+}
 [data-theme="dark"] .bp-nav-drawer {
   background-color: #001836;
 }
