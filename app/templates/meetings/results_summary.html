@@ -6,9 +6,14 @@
     <tr><th>Amendment</th><th>For</th><th>Against</th><th>Abstain</th></tr>
   </thead>
   <tbody>
-  {% for amend, counts in results %}
+  {% for amend, counts, carried in results %}
     <tr class="border-t">
-      <td class="p-2">{{ amend.text_md|markdown_to_html|safe }}</td>
+      <td class="p-2">
+        {{ amend.text_md|markdown_to_html|safe }}
+        {% if carried %}
+        <span class="text-bp-red font-bold ml-1" title="Carried">&#10003;</span>
+        {% endif %}
+      </td>
       <td class="p-2 text-center">{{ counts.for }}</td>
       <td class="p-2 text-center">{{ counts.against }}</td>
       <td class="p-2 text-center">{{ counts.abstain }}</td>

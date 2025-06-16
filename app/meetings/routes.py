@@ -404,8 +404,8 @@ def delete_conflict(conflict_id: int):
     return redirect(url_for('meetings.manage_conflicts', motion_id=motion_id))
 
 
-def _amendment_results(meeting: Meeting) -> list[tuple[Amendment, dict]]:
-    """Return vote counts for each amendment."""
+def _amendment_results(meeting: Meeting) -> list[tuple[Amendment, dict, bool]]:
+    """Return vote counts for each amendment and whether it carried."""
     amendments = (
         Amendment.query.filter_by(meeting_id=meeting.id)
         .order_by(Amendment.order)
@@ -426,7 +426,8 @@ def _amendment_results(meeting: Meeting) -> list[tuple[Amendment, dict]]:
         )
         for choice, count in rows:
             counts[choice] = count
-        results.append((amend, counts))
+        carried = counts.get('for', 0) > counts.get('against', 0)
+        results.append((amend, counts, carried))
     return results
 
 
@@ -527,7 +528,7 @@ def results_docx(meeting_id: int):
         for run in cell.paragraphs[0].runs:
             run.bold = True
 
-    for idx, (amend, counts) in enumerate(results, start=1):
+    for idx, (amend, counts, _carried) in enumerate(results, start=1):
         row = table.add_row().cells
         row[0].text = amend.text_md or ""
         row[1].text = str(counts["for"])
@@ -607,7 +608,7 @@ def results_stage2_docx(meeting_id: int):
     doc = _styled_doc(f"{meeting.title} - Final Results", include_logo)
 
     doc.add_heading("Carried Amendments", level=2)
-    carried = [a for a, c in amend_results if c.get("for", 0) > c.get("against", 0)]
+    carried = [a for a, c, flag in amend_results if flag]
     table_ca = doc.add_table(rows=1, cols=1)
     if carried:
         for idx, amend in enumerate(carried, start=1):

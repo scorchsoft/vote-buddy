@@ -436,3 +436,26 @@ def test_create_and_delete_conflict():
 
         assert AmendmentConflict.query.count() == 0
 
+
+def test_results_summary_shows_carried_tick():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md='A1', order=1)
+        members = [Member(meeting_id=meeting.id, name=f'M{i}') for i in range(3)]
+        db.session.add_all(members + [amend])
+        db.session.flush()
+        Vote.record(member_id=members[0].id, amendment_id=amend.id, choice='for', salt='s')
+        Vote.record(member_id=members[1].id, amendment_id=amend.id, choice='for', salt='s')
+        Vote.record(member_id=members[2].id, amendment_id=amend.id, choice='against', salt='s')
+
+        user = _make_user(True)
+        with app.test_request_context(f'/meetings/{meeting.id}/results'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = meetings.results_summary(meeting.id)
+                assert '&#10003;' in html
+
