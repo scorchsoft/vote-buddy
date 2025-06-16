@@ -107,10 +107,11 @@
 * Configurable reminder template.
 
 ### 5.6 Results Publication
-* At each stage close:  
-  * Static HTML “Results” page (public‑share toggle).  
-  * Docx via `python-docx` merged template.  
+* At each stage close:
+  * Static HTML “Results” page (public‑share toggle).
+  * Docx via `python-docx` merged template.
   * Digest e‑mail to Chair & RO.
+  * Meeting status set to `Completed` after Stage 2 tallies are saved.
 
 ### 5.7 Proxy Voting Support (MVP Lite)
 * CSV may include `proxy_for` (member_id).  

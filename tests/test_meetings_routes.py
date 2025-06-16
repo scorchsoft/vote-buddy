@@ -380,6 +380,7 @@ def test_close_stage2_sets_motion_statuses():
 
         assert m1.status == 'carried'
         assert m2.status == 'carried'
+        assert meeting.status == 'Completed'
         
 def test_meeting_form_duration_validations():
     app = create_app()
