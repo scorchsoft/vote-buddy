@@ -2,7 +2,13 @@
 <tr class="border-t">
   <td class="p-2">{{ meeting.title }}</td>
   <td class="p-2">{{ meeting.type }}</td>
-  <td class="p-2">{{ meeting.status or 'Draft' }}</td>
+  <td class="p-2">
+    {% if meeting.status == 'Completed' %}
+      <span class="bp-badge">Completed</span>
+    {% else %}
+      {{ meeting.status or 'Draft' }}
+    {% endif %}
+  </td>
 </tr>
 {% else %}
 <tr>

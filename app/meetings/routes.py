@@ -671,6 +671,8 @@ def close_stage2(meeting_id: int):
         else:
             carried = counts['for'] > counts['against']
         motion.status = 'carried' if carried else 'failed'
+
+    meeting.status = 'Completed'
     db.session.commit()
     flash('Stage 2 closed and motions tallied', 'success')
     return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
