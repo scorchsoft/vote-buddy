@@ -150,7 +150,9 @@ def test_close_stage1_tie_resolved_by_chair():
         Vote.record(member_id=member.id, amendment_id=a2.id, choice='for', salt='s')
         Vote.record(member_id=member.id, amendment_id=a2.id, choice='against', salt='s')
 
-        app.config['TIE_BREAK_DECISIONS'] = {a1.id: {'result': 'carried', 'method': 'chair'}}
+        a1.status = 'carried'
+        a1.tie_break_method = 'chair'
+        db.session.commit()
 
         ro.close_stage1(meeting)
 

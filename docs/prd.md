@@ -353,17 +353,11 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-16 – Added coordinator resend token route and email flow
 * 2025-06-16 – Added Stage 2 motion tallies CSV download for Returning Officers
 * 2025-06-16 – Added motion form options for clerical fixes and Articles/Bylaws placement
-<<<<<<< codex/add-notice_date-field-to-meeting
-* 2025-06-17 – Added amendment edit/delete routes and template.
-* 2025-06-17 – Added tallies JSON endpoint for Returning Officers
-* 2025-06-17 – Added meeting notice date with 14‑day opening validation.
-=======
 * 2025-06-16 – Added amendment edit/delete routes and template.
 * 2025-06-16 – Added tallies JSON endpoint for Returning Officers
 * 2025-06-16 – Added amendment objection workflow with admin reinstatement
 * 2025-06-16 – Added board seconding option for amendments
-
->>>>>>> main
+* 2025-06-16 – Added meeting notice date with 14‑day opening validation.
 
 
 ---

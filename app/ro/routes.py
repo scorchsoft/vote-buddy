@@ -2,8 +2,19 @@ from __future__ import annotations
 
 from io import StringIO
 import csv
-from flask import Blueprint, render_template, redirect, url_for, Response, jsonify
+from flask import (
+    Blueprint,
+    render_template,
+    redirect,
+    url_for,
+    Response,
+    jsonify,
+    flash,
+)
 from flask_login import login_required
+from flask_wtf import FlaskForm
+from wtforms import SelectField, SubmitField
+from wtforms.validators import DataRequired
 
 from ..extensions import db
 from ..models import Meeting, Amendment, Motion, Vote, VoteToken, Member
@@ -123,6 +134,48 @@ def download_tallies_json(meeting_id: int):
             }
         )
     return jsonify({'meeting_id': meeting.id, 'tallies': rows})
+
+
+def _tie_break_form(amendments: list[Amendment]) -> FlaskForm:
+    fields = {}
+    for a in amendments:
+        fields[f"decision_{a.id}"] = SelectField(
+            "Outcome",
+            choices=[("carried", "Carried"), ("failed", "Failed")],
+            validators=[DataRequired()],
+        )
+        fields[f"method_{a.id}"] = SelectField(
+            "Method",
+            choices=[("chair", "Chair"), ("order", "Order")],
+            validators=[DataRequired()],
+        )
+    fields["submit"] = SubmitField("Save")
+    return type("TieBreakForm", (FlaskForm,), fields)()
+
+
+@bp.route('/<int:meeting_id>/tie-breaks', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
+def tie_breaks(meeting_id: int):
+    meeting = Meeting.query.get_or_404(meeting_id)
+    amends = []
+    for a in Amendment.query.filter_by(meeting_id=meeting.id).order_by(Amendment.order).all():
+        for_count = Vote.query.filter_by(amendment_id=a.id, choice='for').count()
+        against_count = Vote.query.filter_by(amendment_id=a.id, choice='against').count()
+        if for_count == against_count:
+            amends.append(a)
+    form = _tie_break_form(amends)
+    if form.validate_on_submit():
+        for a in amends:
+            a.status = form[f"decision_{a.id}"].data
+            a.tie_break_method = form[f"method_{a.id}"].data
+        db.session.commit()
+        flash('Tie break decisions saved', 'success')
+        return redirect(url_for('ro.dashboard'))
+    for a in amends:
+        form[f"decision_{a.id}"].data = a.status or 'carried'
+        form[f"method_{a.id}"].data = a.tie_break_method or 'chair'
+    return render_template('ro/tie_break_form.html', meeting=meeting, amendments=amends, form=form)
 
 
 @bp.route('/<int:meeting_id>/stage2_tallies.csv')
