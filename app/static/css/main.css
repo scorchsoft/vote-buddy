@@ -1114,3 +1114,36 @@ a:focus-visible {
 .bp-skip-link:focus {
   top: 0;
 }
+
+/* Pagination component */
+.bp-pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  gap: 0.25rem;
+}
+.bp-pagination a,
+.bp-pagination span {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.25rem;
+  color: #002D59; /* bp-blue */
+}
+.bp-pagination a {
+  text-decoration: none;
+}
+.bp-pagination a:hover,
+.bp-pagination a:focus-visible {
+  text-decoration: underline;
+}
+.bp-pagination .bp-current-page {
+  background-color: #DC0714; /* bp-red */
+  color: #FFFFFF;
+}
+.bp-pagination .bp-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}

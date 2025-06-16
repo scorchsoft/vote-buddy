@@ -368,6 +368,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-16 – Added skip link for keyboard users and assigned id="main" to content container.
 * 2025-06-16 – Navigation drawer closes via Escape key for keyboard users.
 * 2025-06-16 – Increased default rate limit to 1000 per day.
+* 2025-06-18 – Added bp-pagination component and meeting list pagination.
 
 
 
