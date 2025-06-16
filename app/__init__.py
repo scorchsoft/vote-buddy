@@ -17,6 +17,7 @@ def create_app(config_object='config.DevelopmentConfig'):
     register_extensions(app)
     register_blueprints(app)
     register_error_handlers(app)
+    register_cli_commands(app)
 
     @app.after_request
     def set_frame_options(response):
@@ -97,4 +98,9 @@ def register_error_handlers(app):
     @app.errorhandler(404)
     def page_not_found(_):
         return render_template('errors/404.html'), 404
+
+
+def register_cli_commands(app):
+    from .cli import create_admin
+    app.cli.add_command(create_admin)
 
