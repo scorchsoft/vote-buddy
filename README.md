@@ -45,6 +45,8 @@ docker-compose up --build
 npm install
 npm run build:css
 ```
+Running the build now uses a local copy of htmx rather than fetching it from the
+internet.
 
 5. Create an initial admin user:
 
