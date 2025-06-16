@@ -31,6 +31,7 @@ from .forms import (
     ConflictForm,
 )
 from ..voting.routes import compile_motion_text
+from ..utils import generate_stage_ics
 import csv
 import io
 from uuid6 import uuid7
@@ -649,6 +650,36 @@ def results_stage2_docx(meeting_id: int):
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         as_attachment=True,
         download_name='final_results.docx',
+    )
+
+
+@bp.route('/<int:meeting_id>/stage1.ics')
+@login_required
+@permission_required('manage_meetings')
+def stage1_ics(meeting_id: int):
+    """Download Stage 1 calendar file."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    ics = generate_stage_ics(meeting, 1)
+    return send_file(
+        io.BytesIO(ics),
+        mimetype='text/calendar',
+        as_attachment=True,
+        download_name='stage1.ics',
+    )
+
+
+@bp.route('/<int:meeting_id>/stage2.ics')
+@login_required
+@permission_required('manage_meetings')
+def stage2_ics(meeting_id: int):
+    """Download Stage 2 calendar file."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    ics = generate_stage_ics(meeting, 2)
+    return send_file(
+        io.BytesIO(ics),
+        mimetype='text/calendar',
+        as_attachment=True,
+        download_name='stage2.ics',
     )
 
 
