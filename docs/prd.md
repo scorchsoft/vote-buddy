@@ -347,6 +347,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-18 – Added site footer credit linking to Scorchsoft.
 * 2025-06-15 – MeetingForm enforces minimum stage durations (7d/5d/1d gaps)
 * 2025-06-23 – Added amendment conflict management UI with database links for combined amendments
+* 2025-06-23 – Added unit test covering multiple-choice motion voting and receipts
 * 2025-06-24 – Added coordinator resend token route and email flow
 * 2025-06-16 – Added Stage 2 motion tallies CSV download for Returning Officers
 * 2025-06-23 – Added motion form options for clerical fixes and Articles/Bylaws placement
