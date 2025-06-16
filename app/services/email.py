@@ -1,6 +1,6 @@
 from flask import render_template, url_for
 from flask_mail import Message
-from ..utils import config_or_setting
+from ..utils import config_or_setting, generate_stage_ics
 
 from ..extensions import mail, db
 from ..models import Member, Meeting, UnsubscribeToken, AppSetting
@@ -34,6 +34,8 @@ def send_vote_invite(member: Member, token: str, meeting: Meeting) -> None:
     )
     msg.body = render_template('email/invite.txt', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe)
     msg.html = render_template('email/invite.html', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe)
+    ics = generate_stage_ics(meeting, 1)
+    msg.attach('stage1.ics', 'text/calendar', ics)
     mail.send(msg)
 
 
@@ -58,6 +60,8 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting) -> None:
         link=link,
         unsubscribe_url=unsubscribe,
     )
+    ics = generate_stage_ics(meeting, 2)
+    msg.attach('stage2.ics', 'text/calendar', ics)
     mail.send(msg)
 
 def send_runoff_invite(member: Member, token: str, meeting: Meeting) -> None:
