@@ -40,6 +40,7 @@ This document summarises all tables and columns created by the Alembic migration
 | id | Integer | Primary key |
 | title | String(255) | Not null |
 | type | String(10) | |
+| notice_date | DateTime | |
 | opens_at_stage1 | DateTime | |
 | closes_at_stage1 | DateTime | |
 | opens_at_stage2 | DateTime | |

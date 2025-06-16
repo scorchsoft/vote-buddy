@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from flask import current_app
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import (
@@ -16,6 +17,7 @@ from wtforms.validators import DataRequired, Optional
 class MeetingForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
     type = SelectField("Type", choices=[("AGM", "AGM"), ("EGM", "EGM")])
+    notice_date = DateTimeLocalField("Notice Date", format="%Y-%m-%dT%H:%M")
     opens_at_stage1 = DateTimeLocalField("Stage 1 Opens", format="%Y-%m-%dT%H:%M")
     closes_at_stage1 = DateTimeLocalField("Stage 1 Closes", format="%Y-%m-%dT%H:%M")
     opens_at_stage2 = DateTimeLocalField("Stage 2 Opens", format="%Y-%m-%dT%H:%M")
@@ -45,6 +47,15 @@ class MeetingForm(FlaskForm):
         if self.opens_at_stage1.data and self.opens_at_stage1.data <= now:
             self.opens_at_stage1.errors.append("Stage 1 must open in the future.")
             is_valid = False
+
+        # check Stage 1 opens at least NOTICE_PERIOD_DAYS after notice date
+        if self.opens_at_stage1.data and self.notice_date.data:
+            notice_days = current_app.config.get('NOTICE_PERIOD_DAYS', 14)
+            if self.opens_at_stage1.data - self.notice_date.data < timedelta(days=notice_days):
+                self.opens_at_stage1.errors.append(
+                    f'Stage 1 must open at least {notice_days} days after notice.'
+                )
+                is_valid = False
 
         # check Stage 2 opens after Stage 1 opens
         if (

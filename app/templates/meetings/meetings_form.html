@@ -14,6 +14,11 @@
     <p id="{{ form.type.id }}-error" class="bp-error-text">{{ form.type.errors[0] if form.type.errors else '' }}</p>
   </div>
   <div>
+    {{ form.notice_date.label(class_='block font-semibold') }}
+    {{ form.notice_date(class_='border p-3 rounded w-full', **{'aria-describedby': form.notice_date.id + '-error'}) }}
+    <p id="{{ form.notice_date.id }}-error" class="bp-error-text">{{ form.notice_date.errors[0] if form.notice_date.errors else '' }}</p>
+  </div>
+  <div>
     {{ form.opens_at_stage1.label(class_='block font-semibold') }}
     {{ form.opens_at_stage1(class_='border p-3 rounded w-full', **{'aria-describedby': form.opens_at_stage1.id + '-error'}) }}
     <p id="{{ form.opens_at_stage1.id }}-error" class="bp-error-text">{{ form.opens_at_stage1.errors[0] if form.opens_at_stage1.errors else '' }}</p>
