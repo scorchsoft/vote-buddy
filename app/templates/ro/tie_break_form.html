@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">{{ meeting.title }} - Tie Breaks</h2>
+<form method="post" class="space-y-6">
+  {{ form.hidden_tag() }}
+  {% for amend in amendments %}
+  <div class="bp-card p-4 space-y-2">
+    <p class="font-semibold">Amendment {{ amend.order }}</p>
+    <div class="border p-2 whitespace-pre-wrap">{{ amend.text_md }}</div>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        {{ form['decision_' ~ amend.id].label(class='block font-semibold') }}
+        {{ form['decision_' ~ amend.id](class='border p-2 rounded w-full') }}
+      </div>
+      <div>
+        {{ form['method_' ~ amend.id].label(class='block font-semibold') }}
+        {{ form['method_' ~ amend.id](class='border p-2 rounded w-full') }}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p>No tied amendments.</p>
+  {% endfor %}
+  <button type="submit" class="bp-btn-primary">Save</button>
+</form>
+{% endblock %}
