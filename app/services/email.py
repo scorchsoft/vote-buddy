@@ -108,19 +108,24 @@ def send_stage1_reminder(member: Member, token: str, meeting: Meeting) -> None:
 
 def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str]) -> None:
     """Email a receipt containing vote hashes."""
+    unsubscribe = _unsubscribe_url(member)
     msg = Message(
         subject=f"Your vote receipt for {meeting.title}",
         recipients=[member.email],
         sender=_sender(),
     )
     msg.body = render_template(
-        "email/receipt.txt", member=member, meeting=meeting, hashes=hashes
+        "email/receipt.txt",
+        member=member,
+        meeting=meeting,
+        hashes=hashes,
+        unsubscribe_url=unsubscribe,
     )
     msg.html = render_template(
         "email/receipt.html",
         member=member,
         meeting=meeting,
         hashes=hashes,
-        unsubscribe_url="#",
+        unsubscribe_url=unsubscribe,
     )
     mail.send(msg)

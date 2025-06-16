@@ -5,3 +5,5 @@ Receipt hashes:
 {% for h in hashes %}
 - {{ h }}
 {% endfor %}
+
+To stop these emails, visit {{ unsubscribe_url }}
