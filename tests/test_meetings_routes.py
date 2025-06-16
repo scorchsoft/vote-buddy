@@ -304,6 +304,37 @@ def test_results_stage2_docx_returns_file():
                 )
 
 
+def test_stage_ics_downloads_with_headers():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title='AGM',
+            opens_at_stage1=now,
+            closes_at_stage1=now + timedelta(days=7),
+            opens_at_stage2=now + timedelta(days=8),
+            closes_at_stage2=now + timedelta(days=13),
+        )
+        db.session.add(meeting)
+        db.session.commit()
+        user = _make_user(True)
+        with app.test_request_context(f'/meetings/{meeting.id}/stage1.ics'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                resp1 = meetings.stage1_ics(meeting.id)
+                assert resp1.mimetype == 'text/calendar'
+                cd1 = resp1.headers['Content-Disposition']
+                assert 'stage1.ics' in cd1
+
+        with app.test_request_context(f'/meetings/{meeting.id}/stage2.ics'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                resp2 = meetings.stage2_ics(meeting.id)
+                assert resp2.mimetype == 'text/calendar'
+                cd2 = resp2.headers['Content-Disposition']
+                assert 'stage2.ics' in cd2
+
+
 def test_close_stage2_sets_motion_statuses():
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
