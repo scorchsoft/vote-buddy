@@ -10,7 +10,16 @@ from flask import (
 import json
 from flask_login import login_required
 from ..extensions import db
-from ..models import Meeting, User, Role, Permission, AppSetting
+from ..models import (
+    Meeting,
+    User,
+    Role,
+    Permission,
+    AppSetting,
+    Amendment,
+    Member,
+    AmendmentObjection,
+)
 from .forms import UserForm, UserCreateForm, RoleForm, SettingsForm
 
 from ..permissions import permission_required
@@ -34,6 +43,37 @@ def toggle_public_results(meeting_id: int):
     meeting.public_results = not meeting.public_results
     db.session.commit()
     return redirect(url_for("admin.dashboard"))
+
+
+@bp.route("/objections")
+@login_required
+@permission_required("manage_meetings")
+def list_objections():
+    objs = (
+        AmendmentObjection.query.join(Amendment, Amendment.id == AmendmentObjection.amendment_id)
+        .join(Member, Member.id == AmendmentObjection.member_id)
+        .add_columns(AmendmentObjection, Amendment, Member)
+        .order_by(AmendmentObjection.created_at.desc())
+        .all()
+    )
+    return render_template("admin/objections.html", objections=[(o[0], o[1], o[2]) for o in objs])
+
+
+@bp.route("/objections/<int:amendment_id>/reinstate", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def reinstate_amendment(amendment_id: int):
+    amendment = Amendment.query.get_or_404(amendment_id)
+    count = AmendmentObjection.query.filter_by(amendment_id=amendment_id).count()
+    total = Member.query.filter_by(meeting_id=amendment.meeting_id).count()
+    threshold = max(25, int(total * 0.05))
+    if count >= threshold:
+        amendment.status = None
+        db.session.commit()
+        flash("Amendment reinstated", "success")
+    else:
+        flash("Objection threshold not met", "error")
+    return redirect(url_for("admin.list_objections"))
 
 
 @bp.route("/users")
