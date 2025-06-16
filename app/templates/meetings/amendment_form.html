@@ -3,7 +3,7 @@
 {% block content %}
 {% set label = 'Edit Amendment' if amendment else 'Add Amendment' %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (label, None)]) }}
-<h2 class="font-bold text-bp-blue mb-4">{{ 'Edit Amendment' if amendment else 'Add Amendment' }}</h2>
+<h1 class="font-bold text-bp-blue mb-4">{{ 'Edit Amendment' if amendment else 'Add Amendment' }}</h1>
 <form method="post" class="bp-form bp-card space-y-4">
   {{ form.hidden_tag() }}
   <div>
