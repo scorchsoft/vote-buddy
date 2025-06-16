@@ -107,10 +107,11 @@
 * Configurable reminder template.
 
 ### 5.6 Results Publication
-* At each stage close:  
-  * Static HTML “Results” page (public‑share toggle).  
-  * Docx via `python-docx` merged template.  
+* At each stage close:
+  * Static HTML “Results” page (public‑share toggle).
+  * Docx via `python-docx` merged template.
   * Digest e‑mail to Chair & RO.
+  * Meeting status set to `Completed` after Stage 2 tallies are saved.
 
 ### 5.7 Proxy Voting Support (MVP Lite)
 * CSV may include `proxy_for` (member_id).  
@@ -342,12 +343,16 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – DOCX exports styled with bp-blue header, bp-red headings, Gotham font and optional logo watermark.
 * 2025-06-15 – Added sticky confirmation footer summarising selections on voting pages.
 * 2025-06-15 – Added flash message banners and login/meeting alerts
-* 2025-06-20 – Added Stage 2 closing route with motion status tally and public outcomes
-* 2025-06-15 – Introduced root-admin-only settings for site title, logo and from-email.
-* 2025-06-18 – Added site footer credit linking to Scorchsoft.
-* 2025-06-15 – MeetingForm enforces minimum stage durations (7d/5d/1d gaps)
-* 2025-06-23 – Added amendment conflict management UI with database links for combined amendments
-* 2025-06-23 – Documented new database fields (`final_text_md`, `tie_break_method`, `stage1_reminder_sent_at`).
+* 2025-06-16 – Added Stage 2 closing route with motion status tally and public outcomes
+* 2025-06-16 – Introduced root-admin-only settings for site title, logo and from-email.
+* 2025-06-16 – Added site footer credit linking to Scorchsoft.
+* 2025-06-16 – MeetingForm enforces minimum stage durations (7d/5d/1d gaps)
+* 2025-06-16 – Added amendment conflict management UI with database links for combined amendments
+* 2025-06-16 – Added iCalendar downloads for Stage 1 and Stage 2 windows
+* 2025-06-16 – Added unit test covering multiple-choice motion voting and receipts
+* 2025-06-16 – Added coordinator resend token route and email flow
+* 2025-06-16 – Added Stage 2 motion tallies CSV download for Returning Officers
+* 2025-06-16 – Added motion form options for clerical fixes and Articles/Bylaws placement
 
 
 ---

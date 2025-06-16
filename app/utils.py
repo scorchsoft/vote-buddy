@@ -42,3 +42,36 @@ def markdown_to_html(text: str) -> Markup:
     """Convert Markdown text to safe HTML."""
     return Markup(markdown(text or ""))
 
+from uuid import uuid4
+from datetime import datetime
+
+
+def generate_stage_ics(meeting, stage: int) -> bytes:
+    """Return ICS file bytes for the given meeting stage."""
+    if stage == 1:
+        start = meeting.opens_at_stage1
+        end = meeting.closes_at_stage1
+    else:
+        start = meeting.opens_at_stage2
+        end = meeting.closes_at_stage2
+
+    if not start or not end:
+        raise ValueError("Stage timestamps not set")
+
+    def fmt(dt: datetime) -> str:
+        return dt.strftime('%Y%m%dT%H%M%SZ')
+
+    lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//VoteBuddy//EN",
+        "BEGIN:VEVENT",
+        f"UID:{uuid4()}",
+        f"DTSTAMP:{fmt(datetime.utcnow())}",
+        f"DTSTART:{fmt(start)}",
+        f"DTEND:{fmt(end)}",
+        f"SUMMARY:{meeting.title} - Stage {stage} Voting",
+        "END:VEVENT",
+        "END:VCALENDAR",
+    ]
+    return "\r\n".join(lines).encode("utf-8")
