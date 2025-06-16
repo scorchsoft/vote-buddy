@@ -1128,7 +1128,7 @@ a:focus-visible {
   top: 0;
 }
 
-/* Pagination component */
+
 .bp-pagination {
   display: flex;
   list-style: none;
@@ -1179,6 +1179,7 @@ a:focus-visible {
   .bp-progress {
     height: 0.25rem;
   }
+
 }
 
 /* Tooltip styling */
