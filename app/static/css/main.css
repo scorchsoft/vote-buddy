@@ -1128,7 +1128,6 @@ a:focus-visible {
   top: 0;
 }
 
-<<<<<<< codex/implement-pagination-for-meetings-list
 /* Pagination component */
 .bp-pagination {
   display: flex;
@@ -1160,7 +1159,8 @@ a:focus-visible {
 .bp-pagination .bp-disabled {
   opacity: 0.5;
   pointer-events: none;
-=======
+}
+
 /* Progress bar component */
 .bp-progress {
   width: 100%;
@@ -1179,5 +1179,34 @@ a:focus-visible {
   .bp-progress {
     height: 0.25rem;
   }
->>>>>>> main
+}
+
+/* Tooltip styling */
+[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 0.25rem);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #002D59; /* bp-blue */
+  color: #FFFFFF;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+  z-index: 10;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:focus::after {
+  opacity: 1;
 }

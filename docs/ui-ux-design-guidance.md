@@ -266,7 +266,9 @@ IPF meet results portals – table designs for big numeric data.
 - **Progress bars** – `.bp-progress` uses ARIA roles and includes a `<span class="sr-only">% complete</span>` label.
 - **Tabs** – `.bp-tab` underlines the active tab; keep touch targets ≥ 44 px.
 - **Collapsible sections** – use `<details>` and `<summary>` styled with a bp-blue disclosure arrow.
-- **Tooltip** – `data-tooltip` attribute triggers a CSS-only bubble for short hints.
+- **Tooltip** – `[data-tooltip]` reveals a CSS-only bubble on hover **or focus**.
+  The element should be `position: relative`; the bubble text is generated with a
+  `::after` pseudo-element.
 - **Utility gaps** – `.bp-gap-xs` (4 px) to `.bp-gap-lg` (24 px) standardise spacing across components.
 
 
