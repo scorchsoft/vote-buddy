@@ -103,6 +103,13 @@ This document summarises all tables and columns created by the Alembic migration
 | amendment_a_id | Integer | FK `amendments.id` |
 | amendment_b_id | Integer | FK `amendments.id` |
 
+### amendment_merges
+| Column | Type | Notes |
+|-------|------|-------|
+| id | Integer | Primary key |
+| combined_id | Integer | FK `amendments.id` |
+| source_id | Integer | FK `amendments.id` |
+
 ### runoffs
 | Column | Type | Notes |
 |-------|------|-------|

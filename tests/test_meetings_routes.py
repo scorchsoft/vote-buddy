@@ -25,6 +25,7 @@ from types import SimpleNamespace
 from datetime import datetime, timedelta
 from uuid6 import uuid7
 from werkzeug.datastructures import MultiDict
+from app.models import AmendmentConflict
 
 
 def _make_user(has_permission: bool):
@@ -390,4 +391,48 @@ def test_meeting_form_duration_validations():
         form = MeetingForm(formdata=data)
         assert not form.validate()
         assert form.closes_at_stage2.errors
+
+
+def test_create_and_delete_conflict():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['WTF_CSRF_ENABLED'] = False
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M',
+            text_md='x',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        a1 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A1', order=1)
+        a2 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A2', order=2)
+        db.session.add_all([a1, a2])
+        db.session.commit()
+
+        user = _make_user(True)
+        data = {'amendment_a_id': a1.id, 'amendment_b_id': a2.id}
+        with app.test_request_context(
+            f'/meetings/motions/{motion.id}/conflicts', method='POST', data=data
+        ):
+            with patch('flask_login.utils._get_user', return_value=user):
+                with patch('app.meetings.routes.flash'):
+                    meetings.manage_conflicts(motion.id)
+        assert AmendmentConflict.query.count() == 1
+        conflict = AmendmentConflict.query.first()
+
+        with app.test_request_context(
+            f'/meetings/conflicts/{conflict.id}/delete', method='POST'
+        ):
+            with patch('flask_login.utils._get_user', return_value=user):
+                meetings.delete_conflict(conflict.id)
+
+        assert AmendmentConflict.query.count() == 0
 

@@ -3,10 +3,22 @@
 <h2 class="font-bold text-bp-blue mb-4">{{ motion.title }}</h2>
 <div class="bp-card bp-glow mb-4">{{ (motion.text_md or 'No motion text.')|markdown_to_html|safe }}</div>
 <h3 class="font-bold mb-2">Amendments</h3>
+<a href="{{ url_for('meetings.manage_conflicts', motion_id=motion.id) }}" class="bp-btn-secondary mb-4 inline-block">Manage Conflicts</a>
 {% for amend in amendments %}
   <div class="bp-card mb-2">
     <p class="font-semibold mb-1">Proposed by {{ amend.proposer.name }} – Seconded by {{ amend.seconder.name }}</p>
     {{ amend.text_md|markdown_to_html|safe }}
+    {% if amend.combined_from %}
+    <p class="text-sm text-bp-grey-600 mt-2">Combined from: {{ ', '.join('A' ~ a.order for a in amend.combined_from) }}</p>
+    {% endif %}
+    {% set conf_list = [] %}
+    {% for c in conflicts %}
+      {% if c.amendment_a_id == amend.id %}{% set _ = conf_list.append('A' ~ c.amendment_b.order) %}{% endif %}
+      {% if c.amendment_b_id == amend.id %}{% set _ = conf_list.append('A' ~ c.amendment_a.order) %}{% endif %}
+    {% endfor %}
+    {% if conf_list %}
+    <p class="text-sm text-bp-grey-600">Conflicts with: {{ ', '.join(conf_list) }}</p>
+    {% endif %}
   </div>
 {% else %}
   <p>No amendments submitted.</p>

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="font-bold text-bp-blue mb-4">{{ motion.title }} - Manage Conflicts</h2>
+<form method="post" class="bp-form bp-card space-y-4 mb-6">
+  {{ form.hidden_tag() }}
+  <div>
+    {{ form.amendment_a_id.label(class_='block font-semibold') }}
+    {{ form.amendment_a_id(class_='border p-2 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.amendment_b_id.label(class_='block font-semibold') }}
+    {{ form.amendment_b_id(class_='border p-2 rounded w-full') }}
+  </div>
+  <button type="submit" class="bp-btn-primary">Add Conflict</button>
+</form>
+<h3 class="font-bold mb-2">Existing Conflicts</h3>
+{% if conflicts %}
+  <ul class="space-y-2">
+  {% for c in conflicts %}
+    <li class="bp-card flex justify-between items-center">
+      <span>A{{ c.amendment_a.order }} ↔ A{{ c.amendment_b.order }}</span>
+      <form method="post" action="{{ url_for('meetings.delete_conflict', conflict_id=c.id) }}">
+        <button class="bp-btn-secondary">Remove</button>
+      </form>
+    </li>
+  {% endfor %}
+  </ul>
+{% else %}
+  <p>No conflicts recorded.</p>
+{% endif %}
+{% endblock %}

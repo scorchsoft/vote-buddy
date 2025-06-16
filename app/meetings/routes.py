@@ -10,6 +10,8 @@ from ..models import (
     Member,
     VoteToken,
     Amendment,
+    AmendmentMerge,
+    AmendmentConflict,
     Motion,
     MotionOption,
     Vote,
@@ -21,7 +23,13 @@ from ..services.email import (
 )
 from ..services import runoff
 from ..permissions import permission_required
-from .forms import MeetingForm, MemberImportForm, AmendmentForm, MotionForm
+from .forms import (
+    MeetingForm,
+    MemberImportForm,
+    AmendmentForm,
+    MotionForm,
+    ConflictForm,
+)
 from ..voting.routes import compile_motion_text
 import csv
 import io
@@ -243,8 +251,24 @@ def create_motion(meeting_id):
 @bp.route('/motions/<int:motion_id>')
 def view_motion(motion_id):
     motion = Motion.query.get_or_404(motion_id)
-    amendments = Amendment.query.filter_by(motion_id=motion.id).order_by(Amendment.order).all()
-    return render_template('meetings/view_motion.html', motion=motion, amendments=amendments)
+    amendments = (
+        Amendment.query.filter_by(motion_id=motion.id)
+        .order_by(Amendment.order)
+        .all()
+    )
+    conflicts = (
+        AmendmentConflict.query.join(
+            Amendment, Amendment.id == AmendmentConflict.amendment_a_id
+        )
+        .filter(Amendment.motion_id == motion.id)
+        .all()
+    )
+    return render_template(
+        'meetings/view_motion.html',
+        motion=motion,
+        amendments=amendments,
+        conflicts=conflicts,
+    )
 
 
 @bp.route('/motions/<int:motion_id>/amendments/add', methods=['GET', 'POST'])
@@ -291,9 +315,93 @@ def add_amendment(motion_id):
             seconder_id=form.seconder_id.data,
         )
         db.session.add(amendment)
+        db.session.flush()
+
+        combine_param = request.args.get('combine')
+        if combine_param:
+            ids = [int(i) for i in combine_param.split(',') if i.isdigit()]
+            for src_id in ids:
+                db.session.add(
+                    AmendmentMerge(combined_id=amendment.id, source_id=src_id)
+                )
+
         db.session.commit()
         return redirect(url_for('meetings.view_motion', motion_id=motion.id))
     return render_template('meetings/amendment_form.html', form=form, motion=motion)
+
+
+@bp.route('/motions/<int:motion_id>/conflicts', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
+def manage_conflicts(motion_id: int):
+    motion = Motion.query.get_or_404(motion_id)
+    amendments = (
+        Amendment.query.filter_by(motion_id=motion.id)
+        .order_by(Amendment.order)
+        .all()
+    )
+    form = ConflictForm()
+    choices = [(a.id, f"A{a.order}") for a in amendments]
+    form.amendment_a_id.choices = choices
+    form.amendment_b_id.choices = choices
+
+    if form.validate_on_submit():
+        a_id = form.amendment_a_id.data
+        b_id = form.amendment_b_id.data
+        if a_id != b_id:
+            exists = (
+                AmendmentConflict.query.filter_by(meeting_id=motion.meeting_id)
+                .filter(
+                    (
+                        (AmendmentConflict.amendment_a_id == a_id)
+                        & (AmendmentConflict.amendment_b_id == b_id)
+                    )
+                    | (
+                        (AmendmentConflict.amendment_a_id == b_id)
+                        & (AmendmentConflict.amendment_b_id == a_id)
+                    )
+                )
+                .first()
+            )
+            if not exists:
+                db.session.add(
+                    AmendmentConflict(
+                        meeting_id=motion.meeting_id,
+                        amendment_a_id=a_id,
+                        amendment_b_id=b_id,
+                    )
+                )
+                db.session.commit()
+                flash('Conflict recorded', 'success')
+            return redirect(url_for('meetings.manage_conflicts', motion_id=motion.id))
+        flash('Select two different amendments', 'error')
+
+    conflicts = (
+        AmendmentConflict.query.join(
+            Amendment, Amendment.id == AmendmentConflict.amendment_a_id
+        )
+        .filter(Amendment.motion_id == motion.id)
+        .all()
+    )
+    return render_template(
+        'meetings/manage_conflicts.html',
+        motion=motion,
+        amendments=amendments,
+        conflicts=conflicts,
+        form=form,
+    )
+
+
+@bp.route('/conflicts/<int:conflict_id>/delete', methods=['POST'])
+@login_required
+@permission_required('manage_meetings')
+def delete_conflict(conflict_id: int):
+    conflict = AmendmentConflict.query.get_or_404(conflict_id)
+    motion_id = Amendment.query.get(conflict.amendment_a_id).motion_id
+    db.session.delete(conflict)
+    db.session.commit()
+    flash('Conflict removed', 'success')
+    return redirect(url_for('meetings.manage_conflicts', motion_id=motion_id))
 
 
 def _amendment_results(meeting: Meeting) -> list[tuple[Amendment, dict]]:
