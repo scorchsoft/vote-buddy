@@ -665,3 +665,47 @@ def test_stepper_shows_stage2_current_and_stage1_complete():
             assert 'bp-stepper-complete" data-step="1"' in html
             assert 'bp-stepper-current" aria-current="step" data-step="2"' in html
 
+
+def test_verify_receipt_found():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        member = Member(meeting_id=meeting.id, name="A", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        vote = Vote.record(
+            member_id=member.id,
+            motion_id=motion.id,
+            choice="for",
+            salt=app.config["VOTE_SALT"],
+        )
+        vote_hash = vote.hash
+
+    client = app.test_client()
+    resp = client.post("/vote/verify-receipt", data={"hash": vote_hash})
+    assert resp.status_code == 200
+    assert b"Vote Details" in resp.data
+    assert b"M1" in resp.data
+
+
+def test_verify_receipt_not_found():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+    client = app.test_client()
+    resp = client.post("/vote/verify-receipt", data={"hash": "bad"})
+    assert resp.status_code == 200
+    assert b"No vote found" in resp.data
+

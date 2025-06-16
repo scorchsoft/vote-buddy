@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
+{% block content %}
+{{ breadcrumbs([('Voting Help', url_for('help.show_help')), ('Verify Receipt', None)]) }}
+<h1 class="font-bold text-bp-blue mb-4">Verify Vote Receipt</h1>
+<form method="post" class="bp-form bp-card space-y-6">
+  {{ form.hidden_tag() }}
+  <div>
+    {{ form.hash.label(class_='block font-semibold') }}
+    {{ form.hash(class_='border p-3 rounded w-full') }}
+  </div>
+  <button type="submit" class="bp-btn-primary">Verify</button>
+</form>
+{% if votes is not none %}
+  {% if votes %}
+  <div class="bp-card mt-4">
+    <h2 class="font-semibold mb-2">Vote Details</h2>
+    <ul class="list-disc ml-4">
+      {% for v in votes %}
+      <li>
+        {% if v.motion %}Motion: {{ v.motion.title }}{% else %}Amendment {{ v.amendment.id }}{% endif %} – {{ v.choice|capitalize }}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <div class="bp-alert-error mt-4">No vote found for that hash.</div>
+  {% endif %}
+{% endif %}
+{% endblock %}
