@@ -66,7 +66,7 @@
 8. Triggers Stage 2; at final close, downloads certified results package.
 
 ### 4.2  Member
-1. Opens e‑mail, clicks personal URL (JWT token bound to meeting+stage).  
+1. Opens e‑mail and clicks a personal URL containing a UUIDv7 token hashed via SHA-256 on the server (see changelog entry 2025-06-15).  
 2. Landing page shows **motion text** in full plus specific amendment being voted on – this nudges comprehension without forcing back‑and‑forth navigation.  
 3. Selects *Yes* / *No* (or *Abstain*, optional toggle) → confirms.  
 4. Sees “Thanks, you voted X” banner; “Change vote” appears only if revoting enabled.  
@@ -123,7 +123,7 @@
 
 ### 6.1 Security
 * HTTPS only (HSTS pre‑load).  
-* JWT tokens scoped to meeting + stage; expire at stage close.  
+* Vote tokens are UUIDv7 strings hashed with SHA-256 and a server-side salt (see changelog entry 2025-06-15). Tokens are scoped to meeting + stage and expire at stage close.
 * CSRF tokens on all POST; `X-Frame-Options: DENY`.
 * All user input sanitised (Bleach) to prevent XSS.
 * Automated dependency scanning (GitHub Dependabot).
@@ -375,6 +375,7 @@ SES/SMTP  ─── Outbound mail
 * **Combined ballot** – Amendments + motion on one form.
 * **Revoting** – Ability for members to change choice before stage close.
 * **RO** – Returning Officer (independent scrutineer).
+* **Token** – Unique UUIDv7 value included in email links; stored hashed with SHA-256 and a secret salt (see changelog entry 2025-06-15).
 
 ---
 
