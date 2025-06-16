@@ -20,3 +20,7 @@ For more details see Articles 107–115 in the governance documents.
 ## Keyboard navigation
 
 All voting controls can be reached using the Tab key. After making your choices, the sticky confirmation bar becomes the final Tab stop with a prominent **Submit vote** button.
+
+## Coordinators: resending links
+
+If a member misplaces their invite or the token has expired, coordinators can resend the voting link from the admin results page. Use the **Resend link** button beside the member's name to generate a fresh token for the current stage and email it immediately.
