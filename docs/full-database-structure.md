@@ -99,6 +99,8 @@ This document summarises all tables and columns created by the Alembic migration
 | seconder_id | Integer | FK `members.id` |
 | board_seconded | Boolean | |
 | tie_break_method | String(20) | |
+| seconded_at | DateTime | |
+| seconded_method | String(50) | |
 
 ### amendment_conflicts
 | Column | Type | Notes |
