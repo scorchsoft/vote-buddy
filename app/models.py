@@ -138,6 +138,17 @@ class Meeting(db.Model):
         minutes = rem // 60
         return f"{hours}h {minutes}m"
 
+    def stage1_progress_percent(self) -> int:
+        """Return percentage of Stage-1 voting period elapsed."""
+        if not self.opens_at_stage1 or not self.closes_at_stage1:
+            return 0
+        total = (self.closes_at_stage1 - self.opens_at_stage1).total_seconds()
+        if total <= 0:
+            return 0
+        elapsed = (datetime.utcnow() - self.opens_at_stage1).total_seconds()
+        percent = max(0.0, min(100.0, (elapsed / total) * 100))
+        return int(percent)
+
 
 class Member(db.Model):
     __tablename__ = "members"
@@ -307,8 +318,8 @@ class AmendmentConflict(db.Model):
 class AmendmentMerge(db.Model):
     __tablename__ = "amendment_merges"
     id = db.Column(db.Integer, primary_key=True)
-    combined_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
-    source_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
+    combined_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
+    source_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
 
 
 class AmendmentObjection(db.Model):

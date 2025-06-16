@@ -369,6 +369,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-16 – Navigation drawer closes via Escape key for keyboard users.
 * 2025-06-16 – Increased default rate limit to 1000 per day.
 * 2025-06-18 – Added bp-pagination component and meeting list pagination.
+* 2025-06-18 – Added SVG icons for the theme toggle and updated navigation script.
 
 
 

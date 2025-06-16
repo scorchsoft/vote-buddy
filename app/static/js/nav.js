@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     drawer.classList.remove('open');
     drawer.setAttribute('hidden', '');
     toggle.setAttribute('aria-expanded', 'false');
+    toggle.innerHTML = '<span class="sr-only">Menu</span>&#9776;';
     if (keyHandler) {
       document.removeEventListener('keydown', keyHandler);
       keyHandler = null;
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     drawer.removeAttribute('hidden');
     requestAnimationFrame(() => drawer.classList.add('open'));
     toggle.setAttribute('aria-expanded', 'true');
+    toggle.innerHTML = '<span class="sr-only">Menu</span>&#10005;';
     keyHandler = e => {
       if (e.key === 'Escape') closeDrawer();
     };
@@ -31,18 +33,34 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const themeBtn = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon');
   const root = document.documentElement;
+
+  function updateThemeUI(theme) {
+    if (themeIcon) {
+      themeIcon.src =
+        theme === 'dark' ? themeIcon.dataset.sun : themeIcon.dataset.moon;
+    }
+    themeBtn.setAttribute(
+      'aria-label',
+      theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+    );
+  }
+
   if (themeBtn) {
     const saved = localStorage.getItem('theme');
-    if (saved) root.dataset.theme = saved;
+    if (saved) {
+      root.dataset.theme = saved;
+      updateThemeUI(saved);
+    } else {
+      updateThemeUI(root.dataset.theme || 'light');
+    }
+
     themeBtn.addEventListener('click', () => {
       const newTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
       root.dataset.theme = newTheme;
       localStorage.setItem('theme', newTheme);
-      themeBtn.setAttribute(
-        'aria-label',
-        newTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
-      );
+      updateThemeUI(newTheme);
     });
   }
 });

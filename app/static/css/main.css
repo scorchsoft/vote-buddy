@@ -915,6 +915,14 @@ a:focus-visible {
   border-radius: 0.25rem; /* 4px */
 }
 
+/* Standalone input element */
+.bp-input {
+  padding: 0.75rem; /* 12px */
+  border-radius: 0.25rem; /* 4px */
+  border-width: 1px;
+  border-color: #6b7280;
+}
+
 /* Alert banners */
 .bp-alert-success {
   background-color: #d1fae5;
@@ -1002,6 +1010,11 @@ a:focus-visible {
   border: none;
   font-size: 1.5rem;
   color: #FFFFFF;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.bp-nav-toggle[aria-expanded="true"] {
+  transform: rotate(90deg);
+  opacity: 0.8;
 }
 @media (min-width: 768px) {
   .bp-nav-toggle {
@@ -1115,6 +1128,7 @@ a:focus-visible {
   top: 0;
 }
 
+<<<<<<< codex/implement-pagination-for-meetings-list
 /* Pagination component */
 .bp-pagination {
   display: flex;
@@ -1146,4 +1160,24 @@ a:focus-visible {
 .bp-pagination .bp-disabled {
   opacity: 0.5;
   pointer-events: none;
+=======
+/* Progress bar component */
+.bp-progress {
+  width: 100%;
+  height: 0.5rem;
+  background-color: #F7F7F9; /* bp-grey-50 */
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.bp-progress-bar {
+  height: 100%;
+  background-color: #002D59; /* bp-blue */
+}
+
+@media (max-width: 400px) {
+  .bp-progress {
+    height: 0.25rem;
+  }
+>>>>>>> main
 }

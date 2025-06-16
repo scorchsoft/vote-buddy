@@ -21,10 +21,18 @@
           </a>
           <button id="nav-toggle" class="bp-nav-toggle" aria-expanded="false" aria-controls="nav-drawer">
             <span class="sr-only">Menu</span>
-            &#9776;
+            <span aria-hidden="true">&#9776;</span>
           </button>
           <button id="theme-toggle" class="bp-nav-toggle" aria-label="Switch to dark mode">
-            <span aria-hidden="true">🌙</span>
+            <img
+              id="theme-icon"
+              src="{{ url_for('static', filename='img/moon.svg') }}"
+              data-moon="{{ url_for('static', filename='img/moon.svg') }}"
+              data-sun="{{ url_for('static', filename='img/sun.svg') }}"
+              class="h-5 w-5"
+              alt=""
+              aria-hidden="true"
+            >
           </button>
           <div id="nav-drawer" class="bp-nav-drawer" hidden>
             <ul class="bp-nav-items">
@@ -110,7 +118,7 @@
       </a>
       , a web and app development agency, to support British Powerlifting.
     </footer>
-      <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+      <script src="{{ url_for('static', filename='js/htmx.min.js') }}"></script>
       <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
       <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
     </body>
