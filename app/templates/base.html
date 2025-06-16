@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dark.css') }}">
   </head>
   <body hx-boost="true" class="flex flex-col min-h-screen bg-bp-grey-50 font-sans">
+    <a href="#main" class="bp-skip-link sr-only focus:not-sr-only">Skip to main content</a>
     <header>
       <nav class="bg-bp-blue text-white">
         <div class="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-3">
@@ -75,7 +76,7 @@
         </div>
       {% endif %}
     {% endwith %}
-    <main class="flex-grow max-w-[1200px] mx-auto w-full px-4 py-4">
+    <main id="main" class="flex-grow max-w-[1200px] mx-auto w-full px-4 py-4">
       {% block content %}{% endblock %}
     </main>
     <footer class="bg-bp-blue text-white text-center text-sm py-4">
