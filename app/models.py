@@ -302,3 +302,11 @@ class AmendmentMerge(db.Model):
     combined_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
     source_id = db.Column(db.Integer, db.ForeignKey('amendments.id'))
 
+
+class AmendmentObjection(db.Model):
+    __tablename__ = "amendment_objections"
+    id = db.Column(db.Integer, primary_key=True)
+    amendment_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+

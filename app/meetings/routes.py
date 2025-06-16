@@ -21,6 +21,7 @@ from ..models import (
     Amendment,
     AmendmentMerge,
     AmendmentConflict,
+    AmendmentObjection,
     Motion,
     MotionOption,
     Vote,
@@ -39,6 +40,7 @@ from .forms import (
     AmendmentForm,
     MotionForm,
     ConflictForm,
+    ObjectionForm,
 )
 from ..voting.routes import compile_motion_text
 from ..utils import generate_stage_ics
@@ -360,6 +362,9 @@ def add_amendment(motion_id):
                 db.session.add(
                     AmendmentMerge(combined_id=amendment.id, source_id=src_id)
                 )
+                src = Amendment.query.get(src_id)
+                if src:
+                    src.status = "merged"
 
         db.session.commit()
         return redirect(url_for("meetings.view_motion", motion_id=motion.id))
@@ -438,6 +443,51 @@ def delete_amendment(amendment_id: int):
     db.session.commit()
     flash("Amendment deleted", "success")
     return redirect(url_for("meetings.view_motion", motion_id=motion_id))
+
+
+@bp.route("/amendments/<int:amendment_id>/reject", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def reject_amendment(amendment_id: int):
+    """Mark an amendment as rejected."""
+    amendment = Amendment.query.get_or_404(amendment_id)
+    amendment.status = "rejected"
+    db.session.commit()
+    flash("Amendment marked as rejected", "success")
+    return redirect(url_for("meetings.view_motion", motion_id=amendment.motion_id))
+
+
+@bp.route("/amendments/<int:amendment_id>/mark-merged", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def mark_amendment_merged(amendment_id: int):
+    """Mark an amendment as merged into another."""
+    amendment = Amendment.query.get_or_404(amendment_id)
+    amendment.status = "merged"
+    db.session.commit()
+    flash("Amendment marked as merged", "success")
+    return redirect(url_for("meetings.view_motion", motion_id=amendment.motion_id))
+
+
+@bp.route("/amendments/<int:amendment_id>/object", methods=["GET", "POST"])
+def submit_objection(amendment_id: int):
+    """Allow a member to submit an objection."""
+    amendment = Amendment.query.get_or_404(amendment_id)
+    meeting = Meeting.query.get_or_404(amendment.meeting_id)
+    form = ObjectionForm()
+    members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
+    form.member_id.choices = [(m.id, m.name) for m in members]
+    if form.validate_on_submit():
+        obj = AmendmentObjection(
+            amendment_id=amendment.id, member_id=form.member_id.data
+        )
+        db.session.add(obj)
+        db.session.commit()
+        flash("Objection submitted", "success")
+        return redirect(url_for("meetings.view_motion", motion_id=amendment.motion_id))
+    return render_template(
+        "meetings/objection_form.html", form=form, amendment=amendment
+    )
 
 
 @bp.route("/motions/<int:motion_id>/conflicts", methods=["GET", "POST"])
