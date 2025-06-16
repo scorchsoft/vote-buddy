@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ setting('site_title', 'VoteBuddy') }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark.css') }}">
   </head>
   <body hx-boost="true" class="flex flex-col min-h-screen bg-bp-grey-50 font-sans">
     <header>
@@ -20,6 +21,9 @@
           <button id="nav-toggle" class="bp-nav-toggle" aria-expanded="false" aria-controls="nav-drawer">
             <span class="sr-only">Menu</span>
             &#9776;
+          </button>
+          <button id="theme-toggle" class="bp-nav-toggle" aria-label="Switch to dark mode">
+            <span aria-hidden="true">🌙</span>
           </button>
           <div id="nav-drawer" class="bp-nav-drawer" hidden>
             <ul class="bp-nav-items">

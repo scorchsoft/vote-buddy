@@ -131,6 +131,7 @@ Data tables follow a simple pattern:
 5 Accessibility Rules (WCAG 2.2 AA)
 
 Colour contrast ≥ 4.5 : 1 (already met with bp‑blue / white).
+Dark mode uses a dark‑blue/grey palette and is enabled automatically with an optional toggle in the header.
 
 All interactive elements reachable via Tab order; visible focus ring (outline-offset: 2px).
 
