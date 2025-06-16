@@ -101,7 +101,7 @@ def ballot_token(token: str):
     proxy_member = None
     if member.proxy_for:
         try:
-            proxy_member = Member.query.get(int(member.proxy_for))
+            proxy_member = db.session.get(Member, int(member.proxy_for))
         except (ValueError, TypeError):
             proxy_member = None
 
@@ -307,7 +307,7 @@ def runoff_ballot(token: str):
     proxy_member = None
     if member.proxy_for:
         try:
-            proxy_member = Member.query.get(int(member.proxy_for))
+            proxy_member = db.session.get(Member, int(member.proxy_for))
         except (ValueError, TypeError):
             proxy_member = None
 
@@ -373,7 +373,11 @@ def runoff_ballot(token: str):
         return render_template("voting/confirmation.html", choice="recorded")
 
     pairs = [
-        (r, Amendment.query.get(r.amendment_a_id), Amendment.query.get(r.amendment_b_id))
+        (
+            r,
+            db.session.get(Amendment, r.amendment_a_id),
+            db.session.get(Amendment, r.amendment_b_id),
+        )
         for r in runoffs
     ]
     return render_template(
