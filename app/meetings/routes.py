@@ -204,6 +204,8 @@ def import_members(meeting_id):
 
 
 @bp.route('/<int:meeting_id>/motions')
+@login_required
+@permission_required('manage_meetings')
 def list_motions(meeting_id):
     meeting = Meeting.query.get_or_404(meeting_id)
     motions = Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
