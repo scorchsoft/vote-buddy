@@ -47,7 +47,7 @@ def test_unsubscribe_route_marks_opt_out():
         client = app.test_client()
         resp = client.get(f'/unsubscribe/{token.token}')
         assert resp.status_code == 200
-        assert Member.query.get(1).email_opt_out is True
+        assert db.session.get(Member, 1).email_opt_out is True
 
 
 def test_email_not_sent_when_opted_out():

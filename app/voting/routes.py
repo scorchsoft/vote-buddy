@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Blueprint, render_template, current_app
+from flask import Blueprint, render_template, current_app, abort
 
 from ..extensions import db
 from ..models import (
@@ -14,7 +14,7 @@ from ..models import (
 )
 from .forms import VoteForm
 from flask_wtf import FlaskForm
-from wtforms import RadioField, SubmitField
+from wtforms import RadioField, SubmitField, StringField
 from wtforms.validators import DataRequired
 from app.services.email import send_vote_receipt
 from ..extensions import limiter
@@ -97,8 +97,12 @@ def ballot_token(token: str):
     vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
     if not vote_token:
         return render_template("voting/token_error.html", message="Invalid voting link."), 404
-    member = Member.query.get_or_404(vote_token.member_id)
-    meeting = Meeting.query.get_or_404(member.meeting_id)
+    member = db.session.get(Member, vote_token.member_id)
+    if member is None:
+        abort(404)
+    meeting = db.session.get(Meeting, member.meeting_id)
+    if meeting is None:
+        abort(404)
 
     proxy_member = None
     if member.proxy_for:
@@ -304,8 +308,12 @@ def runoff_ballot(token: str):
     vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
     if not vote_token or vote_token.stage != 1:
         return render_template("voting/token_error.html", message="Invalid voting link."), 404
-    member = Member.query.get_or_404(vote_token.member_id)
-    meeting = Meeting.query.get_or_404(member.meeting_id)
+    member = db.session.get(Member, vote_token.member_id)
+    if member is None:
+        abort(404)
+    meeting = db.session.get(Meeting, member.meeting_id)
+    if meeting is None:
+        abort(404)
 
     proxy_member = None
     if member.proxy_for:
@@ -390,3 +398,27 @@ def runoff_ballot(token: str):
         meeting=meeting,
         proxy_for=proxy_member,
     )
+
+
+class ReceiptLookupForm(FlaskForm):
+    hash = StringField("Receipt Hash", validators=[DataRequired()])
+    submit = SubmitField("Verify")
+
+
+@bp.route("/verify-receipt", methods=["GET", "POST"])
+def verify_receipt():
+    """Allow members to check a vote receipt hash."""
+    form = ReceiptLookupForm()
+    votes = None
+    if form.validate_on_submit():
+        h = form.hash.data.strip()
+        raw = Vote.query.filter_by(hash=h).all()
+        votes = [
+            {
+                "choice": v.choice,
+                "motion": db.session.get(Motion, v.motion_id) if v.motion_id else None,
+                "amendment": db.session.get(Amendment, v.amendment_id) if v.amendment_id else None,
+            }
+            for v in raw
+        ]
+    return render_template("voting/verify_receipt.html", form=form, votes=votes)

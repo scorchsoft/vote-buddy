@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="font-bold text-bp-blue mb-4">{{ meeting.title }} – Charts</h1>
+<p class="mb-4"><a href="{{ url_for('main.public_results', meeting_id=meeting.id) }}" class="text-bp-blue underline">Back to table view</a></p>
+<div id="charts" data-url="{{ url_for('main.public_results_json', meeting_id=meeting.id) }}">
+  <div class="bp-card mb-8">
+    <h3 class="font-semibold mb-2">Stage 1 Amendments</h3>
+    <canvas id="stage1-chart" height="200"></canvas>
+  </div>
+  <div class="bp-card">
+    <h3 class="font-semibold mb-2">Stage 2 Motions</h3>
+    <canvas id="stage2-chart" height="200"></canvas>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/results_chart.js') }}"></script>
+{% endblock %}
