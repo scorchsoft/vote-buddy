@@ -304,6 +304,37 @@ def test_results_stage2_docx_returns_file():
                 )
 
 
+def test_stage_ics_downloads_with_headers():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title='AGM',
+            opens_at_stage1=now,
+            closes_at_stage1=now + timedelta(days=7),
+            opens_at_stage2=now + timedelta(days=8),
+            closes_at_stage2=now + timedelta(days=13),
+        )
+        db.session.add(meeting)
+        db.session.commit()
+        user = _make_user(True)
+        with app.test_request_context(f'/meetings/{meeting.id}/stage1.ics'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                resp1 = meetings.stage1_ics(meeting.id)
+                assert resp1.mimetype == 'text/calendar'
+                cd1 = resp1.headers['Content-Disposition']
+                assert 'stage1.ics' in cd1
+
+        with app.test_request_context(f'/meetings/{meeting.id}/stage2.ics'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                resp2 = meetings.stage2_ics(meeting.id)
+                assert resp2.mimetype == 'text/calendar'
+                cd2 = resp2.headers['Content-Disposition']
+                assert 'stage2.ics' in cd2
+
+
 def test_close_stage2_sets_motion_statuses():
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -349,6 +380,7 @@ def test_close_stage2_sets_motion_statuses():
 
         assert m1.status == 'carried'
         assert m2.status == 'carried'
+        assert meeting.status == 'Completed'
         
 def test_meeting_form_duration_validations():
     app = create_app()
@@ -459,4 +491,52 @@ def test_create_and_delete_conflict():
                 meetings.delete_conflict(conflict.id)
 
         assert AmendmentConflict.query.count() == 0
+
+
+def test_resend_member_token_stage1():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['TOKEN_SALT'] = 's'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='A', email='a@example.com')
+        db.session.add(member)
+        db.session.commit()
+
+        with app.test_request_context(
+            f'/meetings/{meeting.id}/members/{member.id}/resend', method='POST'
+        ):
+            user = _make_user(True)
+            with patch('flask_login.utils._get_user', return_value=user):
+                with patch('app.meetings.routes.send_vote_invite') as mock_send:
+                    meetings.resend_member_link(meeting.id, member.id)
+                    mock_send.assert_called_once()
+                    assert VoteToken.query.filter_by(member_id=member.id, stage=1).count() == 1
+
+
+def test_resend_member_token_stage2():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['TOKEN_SALT'] = 's'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM', status='Stage 2')
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='B', email='b@example.com')
+        db.session.add(member)
+        db.session.commit()
+
+        with app.test_request_context(
+            f'/meetings/{meeting.id}/members/{member.id}/resend', method='POST'
+        ):
+            user = _make_user(True)
+            with patch('flask_login.utils._get_user', return_value=user):
+                with patch('app.meetings.routes.send_stage2_invite') as mock_send:
+                    meetings.resend_member_link(meeting.id, member.id)
+                    mock_send.assert_called_once()
+                    assert VoteToken.query.filter_by(member_id=member.id, stage=2).count() == 1
 
