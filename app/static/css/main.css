@@ -915,6 +915,14 @@ a:focus-visible {
   border-radius: 0.25rem; /* 4px */
 }
 
+/* Standalone input element */
+.bp-input {
+  padding: 0.75rem; /* 12px */
+  border-radius: 0.25rem; /* 4px */
+  border-width: 1px;
+  border-color: #6b7280;
+}
+
 /* Alert banners */
 .bp-alert-success {
   background-color: #d1fae5;
