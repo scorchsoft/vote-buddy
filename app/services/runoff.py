@@ -61,8 +61,10 @@ def close_stage1(meeting: Meeting) -> tuple[list[Runoff], list[tuple[Member, str
         extension = timedelta(
             minutes=config_or_setting('RUNOFF_EXTENSION_MINUTES', 2880, parser=int)
         )
-        meeting.opens_at_stage2 = (meeting.opens_at_stage2 or meeting.closes_at_stage1) + extension
-        meeting.closes_at_stage2 = (meeting.closes_at_stage2 or meeting.opens_at_stage2) + extension
+        new_opens = (meeting.opens_at_stage2 or meeting.closes_at_stage1) + extension
+        new_closes = ((meeting.closes_at_stage2 or new_opens) + extension)
+        meeting.opens_at_stage2 = new_opens
+        meeting.closes_at_stage2 = new_closes
         db.session.commit()
         members = Member.query.filter_by(meeting_id=meeting.id).all()
         for member in members:
