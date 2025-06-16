@@ -7,7 +7,7 @@ from app import create_app
 from app.extensions import db
 from app.models import Role
 from app.admin.forms import UserCreateForm
-from app.meetings.forms import MeetingForm, MotionForm
+from app.meetings.forms import MeetingForm, MotionForm, AmendmentForm
 
 
 def _setup_app():
@@ -45,6 +45,7 @@ def test_meeting_form_has_labels():
             )
             assert f'for="{form.title.id}"' in html
             assert f'for="{form.type.id}"' in html
+            assert f'for="{form.notice_date.id}"' in html
             assert f'for="{form.opens_at_stage1.id}"' in html
             assert f'for="{form.revoting_allowed.id}"' in html
 
@@ -65,3 +66,23 @@ def test_motion_form_has_labels():
             assert f'for="{form.title.id}"' in html
             assert f'for="{form.allow_clerical.id}"' in html
             assert f'for="{form.allow_move.id}"' in html
+
+
+def test_amendment_form_has_labels():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        with app.test_request_context("/meetings/motions/1/amendments/add"):
+            form = AmendmentForm()
+            form.proposer_id.choices = [(1, "A")]
+            form.seconder_id.choices = [(1, "A")]
+            html = render_template(
+                "meetings/amendment_form.html",
+                form=form,
+                motion=None,
+                amendment=None,
+            )
+            assert f'for="{form.text_md.id}"' in html
+            assert f'for="{form.proposer_id.id}"' in html
+            assert f'for="{form.seconder_id.id}"' in html
+            assert f'for="{form.board_seconded.id}"' in html

@@ -83,7 +83,7 @@
 ## 5  Functional Requirements
 
 ### 5.1 Meetings CRUD
-* Fields: `id`, `title`, `type` (AGM / EGM), `opens_at_stage1`, `closes_at_stage1`, `opens_at_stage2`, `closes_at_stage2`, `ballot_mode`, `revoting_allowed`, `status`, `chair_notes_md`.
+* Fields: `id`, `title`, `type` (AGM / EGM), `notice_date`, `opens_at_stage1`, `closes_at_stage1`, `opens_at_stage2`, `closes_at_stage2`, `ballot_mode`, `revoting_allowed`, `status`, `chair_notes_md`.
 
 ### 5.2 Member Import & Token Generation
 * CSV validation (header check, duplicate e‑mail detection).  
@@ -353,9 +353,11 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-16 – Added coordinator resend token route and email flow
 * 2025-06-16 – Added Stage 2 motion tallies CSV download for Returning Officers
 * 2025-06-16 – Added motion form options for clerical fixes and Articles/Bylaws placement
-* 2025-06-17 – Added amendment edit/delete routes and template.
-* 2025-06-17 – Added tallies JSON endpoint for Returning Officers
-* 2025-06-18 – Added tie-break admin page storing decisions per amendment
+* 2025-06-16 – Added amendment edit/delete routes and template.
+* 2025-06-16 – Added tallies JSON endpoint for Returning Officers
+* 2025-06-16 – Added amendment objection workflow with admin reinstatement
+* 2025-06-16 – Added board seconding option for amendments
+* 2025-06-16 – Added meeting notice date with 14‑day opening validation.
 
 
 ---

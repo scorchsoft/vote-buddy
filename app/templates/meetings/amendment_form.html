@@ -15,6 +15,10 @@
     {{ form.seconder_id.label(class_='block font-semibold') }}
     {{ form.seconder_id(class_='border p-2 rounded w-full') }}
   </div>
+  <div class="flex items-center space-x-2">
+    {{ form.board_seconded() }}
+    {{ form.board_seconded.label(class_='font-semibold') }}
+  </div>
   <button type="submit" class="bp-btn-primary">Save</button>
 </form>
 {% endblock %}

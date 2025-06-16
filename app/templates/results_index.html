@@ -6,6 +6,7 @@
     {% for meeting in meetings %}
     <li>
       <a href="{{ url_for('main.public_results', meeting_id=meeting.id) }}" class="text-bp-blue hover:underline">{{ meeting.title }}</a>
+      <span class="ml-2 text-sm">({{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }})</span>
     </li>
     {% else %}
     <li>No results available.</li>

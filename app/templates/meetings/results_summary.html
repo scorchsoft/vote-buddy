@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="font-bold text-bp-blue mb-4">{{ meeting.title }} - Stage 1 Results</h2>
+<h2 class="font-bold text-bp-blue mb-2">{{ meeting.title }} - Stage 1 Results</h2>
+<p class="mb-4">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</p>
 <table class="bp-table w-full">
   <thead>
     <tr><th>Amendment</th><th>For</th><th>Against</th><th>Abstain</th></tr>

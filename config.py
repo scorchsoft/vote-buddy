@@ -17,6 +17,7 @@ class Config:
     VOTE_SALT = os.getenv("VOTE_SALT", "static-salt")
     TOKEN_SALT = os.getenv("TOKEN_SALT", "token-salt")
     RUNOFF_EXTENSION_MINUTES = int(os.getenv("RUNOFF_EXTENSION_MINUTES", "2880"))
+    NOTICE_PERIOD_DAYS = int(os.getenv("NOTICE_PERIOD_DAYS", "14"))
     REMINDER_HOURS_BEFORE_CLOSE = int(os.getenv("REMINDER_HOURS_BEFORE_CLOSE", "6"))
     REMINDER_COOLDOWN_HOURS = int(os.getenv("REMINDER_COOLDOWN_HOURS", "24"))
     REMINDER_TEMPLATE = os.getenv("REMINDER_TEMPLATE", "email/reminder")

@@ -40,6 +40,7 @@ This document summarises all tables and columns created by the Alembic migration
 | id | Integer | Primary key |
 | title | String(255) | Not null |
 | type | String(10) | |
+| notice_date | DateTime | |
 | opens_at_stage1 | DateTime | |
 | closes_at_stage1 | DateTime | |
 | opens_at_stage2 | DateTime | |
@@ -96,6 +97,7 @@ This document summarises all tables and columns created by the Alembic migration
 | status | String(50) | |
 | proposer_id | Integer | FK `members.id` |
 | seconder_id | Integer | FK `members.id` |
+| board_seconded | Boolean | |
 | tie_break_method | String(20) | |
 
 ### amendment_conflicts
@@ -112,6 +114,14 @@ This document summarises all tables and columns created by the Alembic migration
 | id | Integer | Primary key |
 | combined_id | Integer | FK `amendments.id` |
 | source_id | Integer | FK `amendments.id` |
+
+### amendment_objections
+| Column | Type | Notes |
+|-------|------|-------|
+| id | Integer | Primary key |
+| amendment_id | Integer | FK `amendments.id` |
+| member_id | Integer | FK `members.id` |
+| created_at | DateTime | |
 
 ### runoffs
 | Column | Type | Notes |
