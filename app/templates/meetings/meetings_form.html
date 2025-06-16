@@ -64,5 +64,11 @@
     <p id="{{ form.chair_notes_md.id }}-error" class="bp-error-text">{{ form.chair_notes_md.errors[0] if form.chair_notes_md.errors else '' }}</p>
   </div>
   <button type="submit" class="bp-btn-primary">Save</button>
+  {% if meeting %}
+  <div class="mt-4">
+    <a href="{{ url_for('meetings.stage1_ics', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block">Stage 1 Calendar</a>
+    <a href="{{ url_for('meetings.stage2_ics', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block ml-2">Stage 2 Calendar</a>
+  </div>
+  {% endif %}
 </form>
 {% endblock %}

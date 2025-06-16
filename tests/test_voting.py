@@ -453,6 +453,57 @@ def test_stage2_ballot_uses_final_text():
             assert "Merged" in html
 
 
+def test_multiple_choice_motion_vote_and_receipt():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="Colour",
+            text_md="Pick a colour",
+            category="multiple_choice",
+            threshold="plurality",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        opt1 = MotionOption(motion_id=motion.id, text="Red")
+        opt2 = MotionOption(motion_id=motion.id, text="Blue")
+        db.session.add_all([opt1, opt2])
+        member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with app.test_request_context(f"/vote/{plain}"):
+            html = voting.ballot_token(plain)
+            assert f'value="{opt1.text}"' in html
+            assert f'value="{opt2.text}"' in html
+            assert "Abstain" in html
+
+        with patch("app.voting.routes.send_vote_receipt") as mock_receipt:
+            with app.test_request_context(
+                f"/vote/{plain}",
+                method="POST",
+                data={f"motion_{motion.id}": opt2.text},
+            ):
+                voting.ballot_token(plain)
+            mock_receipt.assert_called_once()
+            vote_hashes = mock_receipt.call_args[0][2]
+            vote = Vote.query.first()
+            expected = hashlib.sha256(
+                f"{member.id}{opt2.text}{app.config['VOTE_SALT']}".encode()
+            ).hexdigest()
+            assert vote.choice == opt2.text
+            assert vote.hash == expected
+            assert vote.hash in vote_hashes
+            assert token_obj.used_at is not None
+
+
 def test_stage1_locked_rejects_vote():
     app = _setup_app()
     with app.app_context():

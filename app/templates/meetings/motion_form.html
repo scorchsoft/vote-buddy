@@ -23,6 +23,25 @@
     {{ form.options.label(class_='block font-semibold') }}
     {{ form.options(class_='border p-3 rounded w-full') }}
   </div>
+  <div class="flex items-center space-x-2">
+    {{ form.allow_clerical() }}
+    {{ form.allow_clerical.label(class_='font-semibold') }}
+    <a href="#" data-modal-target="clerical-modal" class="text-sm underline">View text</a>
+  </div>
+  <div class="flex items-center space-x-2">
+    {{ form.allow_move() }}
+    {{ form.allow_move.label(class_='font-semibold') }}
+    <a href="#" data-modal-target="move-modal" class="text-sm underline">View text</a>
+  </div>
   <button type="submit" class="bp-btn-primary">Save</button>
 </form>
+
+<dialog id="clerical-modal" class="bp-card w-full max-w-md">
+  <p class="mb-4">{{ clerical_text|markdown_to_html|safe }}</p>
+  <button class="bp-btn-secondary" data-close-modal>Close</button>
+</dialog>
+<dialog id="move-modal" class="bp-card w-full max-w-md">
+  <p class="mb-4">{{ move_text|markdown_to_html|safe }}</p>
+  <button class="bp-btn-secondary" data-close-modal>Close</button>
+</dialog>
 {% endblock %}
