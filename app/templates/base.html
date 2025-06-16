@@ -28,10 +28,34 @@
           </button>
           <div id="nav-drawer" class="bp-nav-drawer" hidden>
             <ul class="bp-nav-items">
-              <li><a href="{{ url_for('main.index') }}" class="hover:underline">Home</a></li>
-              <li><a href="{{ url_for('meetings.list_meetings') }}" class="hover:underline">Meetings</a></li>
-              <li><a href="{{ url_for('main.results_index') }}" class="hover:underline">Results</a></li>
-              <li><a href="{{ url_for('help.show_help') }}" class="hover:underline">Help</a></li>
+              <li>
+                <a
+                  href="{{ url_for('main.index') }}"
+                  class="hover:underline{% if request.path == url_for('main.index') %} bp-current-link{% endif %}"
+                  {% if request.path == url_for('main.index') %}aria-current="page"{% endif %}
+                >Home</a>
+              </li>
+              <li>
+                <a
+                  href="{{ url_for('meetings.list_meetings') }}"
+                  class="hover:underline{% if request.path == url_for('meetings.list_meetings') %} bp-current-link{% endif %}"
+                  {% if request.path == url_for('meetings.list_meetings') %}aria-current="page"{% endif %}
+                >Meetings</a>
+              </li>
+              <li>
+                <a
+                  href="{{ url_for('main.results_index') }}"
+                  class="hover:underline{% if request.path == url_for('main.results_index') %} bp-current-link{% endif %}"
+                  {% if request.path == url_for('main.results_index') %}aria-current="page"{% endif %}
+                >Results</a>
+              </li>
+              <li>
+                <a
+                  href="{{ url_for('help.show_help') }}"
+                  class="hover:underline{% if request.path == url_for('help.show_help') %} bp-current-link{% endif %}"
+                  {% if request.path == url_for('help.show_help') %}aria-current="page"{% endif %}
+                >Help</a>
+              </li>
             </ul>
             {% if current_user.is_authenticated %}
             <div class="relative group">

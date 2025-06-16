@@ -1054,6 +1054,12 @@ a:focus-visible {
     gap: 1rem;
   }
 }
+
+/* Active navigation link */
+.bp-current-link {
+  text-decoration: underline;
+  font-weight: 600;
+}
 /* Tick icon for results tables */
 .bp-tick {
   display: inline-block;
