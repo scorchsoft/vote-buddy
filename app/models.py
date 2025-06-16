@@ -100,7 +100,7 @@ class Meeting(db.Model):
             VoteToken.query.join(Member, VoteToken.member_id == Member.id)
             .filter(
                 VoteToken.stage == 1,
-                VoteToken.used_at != None,
+                VoteToken.used_at.isnot(None),
                 Member.meeting_id == self.id,
             )
             .count()
