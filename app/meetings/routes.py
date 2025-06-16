@@ -88,7 +88,7 @@ def _styled_doc(title: str, include_logo: bool) -> Document:
     _shade_cell(cell, "002D59")
 
     if include_logo:
-        logo_path = os.path.join(current_app.root_path, "..", "assets", "logo (1).png")
+        logo_path = os.path.join(current_app.root_path, "..", "assets", "logo.png")
         footer = doc.sections[0].footer
         fp = footer.add_paragraph()
         fp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
