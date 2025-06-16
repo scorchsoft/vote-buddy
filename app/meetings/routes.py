@@ -15,6 +15,7 @@ from ..models import (
     Motion,
     MotionOption,
     Vote,
+    Runoff,
 )
 from ..services.email import (
     send_vote_invite,
@@ -673,4 +674,33 @@ def close_stage2(meeting_id: int):
         motion.status = 'carried' if carried else 'failed'
     db.session.commit()
     flash('Stage 2 closed and motions tallied', 'success')
+    return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
+
+
+@bp.route('/<int:meeting_id>/members/<int:member_id>/resend', methods=['POST'])
+@login_required
+@permission_required('manage_meetings')
+def resend_member_link(meeting_id: int, member_id: int):
+    """Generate a new voting token for the current stage and email it."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    member = (
+        Member.query.filter_by(id=member_id, meeting_id=meeting.id).first_or_404()
+    )
+
+    stage = 2 if meeting.status in {'Stage 2', 'Pending Stage 2'} else 1
+
+    token_obj, plain = VoteToken.create(
+        member_id=member.id, stage=stage, salt=current_app.config["TOKEN_SALT"]
+    )
+    db.session.commit()
+
+    if stage == 2:
+        send_stage2_invite(member, plain, meeting)
+    else:
+        if Runoff.query.filter_by(meeting_id=meeting.id).count() > 0:
+            send_runoff_invite(member, plain, meeting)
+        else:
+            send_vote_invite(member, plain, meeting)
+
+    flash('Voting link resent', 'success')
     return redirect(url_for('meetings.results_summary', meeting_id=meeting.id))
