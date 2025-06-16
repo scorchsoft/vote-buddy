@@ -540,3 +540,60 @@ def test_resend_member_token_stage2():
                     mock_send.assert_called_once()
                     assert VoteToken.query.filter_by(member_id=member.id, stage=2).count() == 1
 
+
+def test_edit_and_delete_amendment():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['WTF_CSRF_ENABLED'] = False
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM', opens_at_stage1=datetime.utcnow() + timedelta(days=30))
+        db.session.add(meeting)
+        db.session.flush()
+        m1 = Member(meeting_id=meeting.id, name='A')
+        m2 = Member(meeting_id=meeting.id, name='B')
+        db.session.add_all([m1, m2])
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M1',
+            text_md='x',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        amend = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md='A1',
+            order=1,
+            proposer_id=m1.id,
+            seconder_id=m2.id,
+        )
+        db.session.add(amend)
+        db.session.commit()
+
+        user = _make_user(True)
+        data = {
+            'text_md': 'changed',
+            'proposer_id': m2.id,
+            'seconder_id': m1.id,
+        }
+        with app.test_request_context(
+            f'/meetings/amendments/{amend.id}/edit', method='POST', data=data
+        ):
+            with patch('flask_login.utils._get_user', return_value=user):
+                meetings.edit_amendment(amend.id)
+
+        assert Amendment.query.get(amend.id).text_md == 'changed'
+
+        with app.test_request_context(
+            f'/meetings/amendments/{amend.id}/delete', method='POST'
+        ):
+            with patch('flask_login.utils._get_user', return_value=user):
+                meetings.delete_amendment(amend.id)
+
+        assert Amendment.query.count() == 0
+

@@ -19,6 +19,12 @@
     {% if conf_list %}
     <p class="text-sm text-bp-grey-600">Conflicts with: {{ ', '.join(conf_list) }}</p>
     {% endif %}
+    <div class="mt-2 flex space-x-2">
+      <a href="{{ url_for('meetings.edit_amendment', amendment_id=amend.id) }}" class="bp-btn-secondary">Edit</a>
+      <form method="post" action="{{ url_for('meetings.delete_amendment', amendment_id=amend.id) }}">
+        <button class="bp-btn-secondary">Delete</button>
+      </form>
+    </div>
   </div>
 {% else %}
   <p>No amendments submitted.</p>
