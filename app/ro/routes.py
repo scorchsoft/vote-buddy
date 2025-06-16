@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from io import StringIO
 import csv
-from flask import Blueprint, render_template, redirect, url_for, Response
+from flask import Blueprint, render_template, redirect, url_for, Response, jsonify
 from flask_login import login_required
 
 from ..extensions import db
@@ -91,6 +91,38 @@ def download_tallies(meeting_id: int):
         f'attachment; filename=tallies_meeting_{meeting.id}.csv'
     )
     return response
+
+
+@bp.route('/<int:meeting_id>/tallies.json')
+@login_required
+@permission_required('manage_meetings')
+def tallies_json(meeting_id: int):
+    """Return tallies as JSON."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    rows = []
+    for amend in Amendment.query.filter_by(meeting_id=meeting.id).all():
+        rows.append(
+            {
+                'type': 'amendment',
+                'id': amend.id,
+                'text': amend.text_md[:40],
+                'for': Vote.query.filter_by(amendment_id=amend.id, choice='for').count(),
+                'against': Vote.query.filter_by(amendment_id=amend.id, choice='against').count(),
+                'abstain': Vote.query.filter_by(amendment_id=amend.id, choice='abstain').count(),
+            }
+        )
+    for motion in Motion.query.filter_by(meeting_id=meeting.id).all():
+        rows.append(
+            {
+                'type': 'motion',
+                'id': motion.id,
+                'text': motion.title,
+                'for': Vote.query.filter_by(motion_id=motion.id, choice='for').count(),
+                'against': Vote.query.filter_by(motion_id=motion.id, choice='against').count(),
+                'abstain': Vote.query.filter_by(motion_id=motion.id, choice='abstain').count(),
+            }
+        )
+    return jsonify({'meeting_id': meeting.id, 'rows': rows})
 
 
 @bp.route('/<int:meeting_id>/audit_log.csv')

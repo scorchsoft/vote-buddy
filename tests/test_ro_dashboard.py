@@ -70,6 +70,34 @@ def test_download_tallies_csv():
                 assert b'amendment' in resp.data
 
 
+def test_tallies_json():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(meeting_id=meeting.id, title='M1', text_md='T', category='motion', threshold='normal', ordering=1)
+        db.session.add(motion)
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A', order=1)
+        db.session.add(amend)
+        member = Member(meeting_id=meeting.id, name='Alice')
+        db.session.add(member)
+        db.session.flush()
+        Vote.record(member_id=member.id, amendment_id=amend.id, choice='for', salt='s')
+        Vote.record(member_id=member.id, motion_id=motion.id, choice='against', salt='s')
+        user = _make_user()
+        with app.test_request_context(f'/ro/{meeting.id}/tallies.json'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                resp = ro.tallies_json(meeting.id)
+                assert resp.status_code == 200
+                data = resp.get_json()
+                assert data['meeting_id'] == meeting.id
+                assert any(r['type'] == 'amendment' and r['for'] == 1 for r in data['rows'])
+                assert any(r['type'] == 'motion' and r['against'] == 1 for r in data['rows'])
+
+
 def test_download_audit_log_csv():
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
