@@ -359,9 +359,11 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-16 – Added amendment objection workflow with admin reinstatement
 * 2025-06-16 – Added board seconding option for amendments
 * 2025-06-16 – Added meeting notice date with 14‑day opening validation.
-* 2025-06-20 – Amendments capture seconded method and timestamp; exports include these fields.
-* 2025-06-20 – Stage 1 closing now schedules Stage 2 close after the new open when no close was set.
+* 2025-06-16 – Amendments capture seconded method and timestamp; exports include these fields.
+* 2025-06-16 – Stage 1 closing now schedules Stage 2 close after the new open when no close was set.
 * 2025-06-16 – Added `node_modules/` to `.gitignore` to ignore Node packages.
+* 2025-06-16 – Documented Python package installation in README.
+
 
 
 ---

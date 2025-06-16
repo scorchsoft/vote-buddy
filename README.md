@@ -28,20 +28,25 @@ VoteBuddy aims to take the tried and tested "Roberts Rules" around governance an
    `RUNOFF_EXTENSION_MINUTES`, `REMINDER_HOURS_BEFORE_CLOSE`,
    `REMINDER_COOLDOWN_HOURS`, `REMINDER_TEMPLATE`, `TIE_BREAK_DECISIONS` and
    `MAIL_USE_TLS`. These can later be changed in the Settings UI.
-2. Build and start the containers:
+2. Install the Python packages:
+
+```bash
+pip install -r requirements.txt
+```
+3. Build and start the containers:
 
 ```bash
 docker-compose up --build
 ```
 
-3. Install Node dependencies and compile the Tailwind CSS:
+4. Install Node dependencies and compile the Tailwind CSS:
 
 ```bash
 npm install
 npm run build:css
 ```
 
-4. Create an initial admin user:
+5. Create an initial admin user:
 
 ```bash
 flask --app app create-admin
