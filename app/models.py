@@ -60,6 +60,13 @@ class AppSetting(db.Model):
         db.session.commit()
         return setting
 
+    @classmethod
+    def delete(cls, key: str) -> None:
+        setting = cls.query.filter_by(key=key).first()
+        if setting:
+            db.session.delete(setting)
+            db.session.commit()
+
 class Meeting(db.Model):
     __tablename__ = 'meetings'
     id = db.Column(db.Integer, primary_key=True)
@@ -96,10 +103,16 @@ class Meeting(db.Model):
         if not self.closes_at_stage1:
             return 0
         now = now or datetime.utcnow()
-        hours_before = current_app.config.get("REMINDER_HOURS_BEFORE_CLOSE", 6)
+        from .utils import config_or_setting
+
+        hours_before = config_or_setting(
+            "REMINDER_HOURS_BEFORE_CLOSE", 6, parser=int
+        )
         next_due = self.closes_at_stage1 - timedelta(hours=hours_before)
         if self.stage1_reminder_sent_at:
-            cooldown = current_app.config.get("REMINDER_COOLDOWN_HOURS", 24)
+            cooldown = config_or_setting(
+                "REMINDER_COOLDOWN_HOURS", 24, parser=int
+            )
             next_due = self.stage1_reminder_sent_at + timedelta(hours=cooldown)
         diff = (next_due - now).total_seconds() / 3600
         return max(0, math.ceil(diff))

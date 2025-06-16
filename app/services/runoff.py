@@ -1,6 +1,8 @@
 from datetime import timedelta
 from uuid6 import uuid7
 from flask import current_app
+import json
+from ..utils import config_or_setting
 
 from ..extensions import db
 from ..models import (
@@ -22,7 +24,9 @@ def close_stage1(meeting: Meeting) -> tuple[list[Runoff], list[tuple[Member, str
         .all()
     )
     tie_map: dict[int, list[Amendment]] = {}
-    decisions = current_app.config.get('TIE_BREAK_DECISIONS', {})
+    decisions = config_or_setting(
+        'TIE_BREAK_DECISIONS', {}, parser=lambda v: json.loads(v) if isinstance(v, str) else v
+    )
     for amend in amendments:
         for_count = Vote.query.filter_by(amendment_id=amend.id, choice='for').count()
         against_count = Vote.query.filter_by(amendment_id=amend.id, choice='against').count()
@@ -59,7 +63,7 @@ def close_stage1(meeting: Meeting) -> tuple[list[Runoff], list[tuple[Member, str
     tokens_to_send: list[tuple[Member, str]] = []
     if runoffs:
         extension = timedelta(
-            minutes=current_app.config.get('RUNOFF_EXTENSION_MINUTES', 2880)
+            minutes=config_or_setting('RUNOFF_EXTENSION_MINUTES', 2880, parser=int)
         )
         meeting.opens_at_stage2 = (meeting.opens_at_stage2 or meeting.closes_at_stage1) + extension
         meeting.closes_at_stage2 = (meeting.closes_at_stage2 or meeting.opens_at_stage2) + extension

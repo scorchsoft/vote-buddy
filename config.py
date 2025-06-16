@@ -19,6 +19,7 @@ class Config:
     REMINDER_HOURS_BEFORE_CLOSE = int(os.getenv('REMINDER_HOURS_BEFORE_CLOSE', '6'))
     REMINDER_COOLDOWN_HOURS = int(os.getenv('REMINDER_COOLDOWN_HOURS', '24'))
     REMINDER_TEMPLATE = os.getenv('REMINDER_TEMPLATE', 'email/reminder')
+    TIE_BREAK_DECISIONS = os.getenv('TIE_BREAK_DECISIONS', '{}')
 
 class DevelopmentConfig(Config):
     DEBUG = True

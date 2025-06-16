@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from flask import current_app
+from .utils import config_or_setting
 
 from .extensions import scheduler, db
 from .models import Meeting, Member, VoteToken
@@ -13,7 +14,9 @@ def register_jobs():
 def send_stage1_reminders():
     """Check meetings nearing Stage 1 close and email reminders."""
     now = datetime.utcnow()
-    soon = now + timedelta(hours=current_app.config.get('REMINDER_HOURS_BEFORE_CLOSE', 6))
+    soon = now + timedelta(
+        hours=config_or_setting('REMINDER_HOURS_BEFORE_CLOSE', 6, parser=int)
+    )
     meetings = Meeting.query.filter(
         Meeting.closes_at_stage1 != None,
         Meeting.closes_at_stage1 <= soon,
@@ -23,7 +26,9 @@ def send_stage1_reminders():
         if meeting.stage1_votes_count() >= meeting.quorum:
             continue
         last = getattr(meeting, 'stage1_reminder_sent_at', None)
-        cooldown = timedelta(hours=current_app.config.get('REMINDER_COOLDOWN_HOURS', 24))
+        cooldown = timedelta(
+            hours=config_or_setting('REMINDER_COOLDOWN_HOURS', 24, parser=int)
+        )
         if last and now - last < cooldown:
             continue
         members = Member.query.filter_by(meeting_id=meeting.id).all()

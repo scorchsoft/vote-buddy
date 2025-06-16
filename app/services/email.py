@@ -1,5 +1,6 @@
 from flask import render_template, url_for
 from flask_mail import Message
+from ..utils import config_or_setting
 
 from ..extensions import mail, db
 from ..models import Member, Meeting, UnsubscribeToken, AppSetting
@@ -88,7 +89,7 @@ def send_stage1_reminder(member: Member, token: str, meeting: Meeting) -> None:
     if member.email_opt_out:
         return
     link = url_for('voting.ballot_token', token=token, _external=True)
-    template_base = current_app.config.get('REMINDER_TEMPLATE', 'email/reminder')
+    template_base = config_or_setting('REMINDER_TEMPLATE', 'email/reminder')
     unsubscribe = _unsubscribe_url(member)
     msg = Message(
         subject=f"Reminder: vote in {meeting.title}",

@@ -14,7 +14,63 @@
     </div>
     <div class="mb-4">
       {{ form.from_email.label(class='block mb-1') }}
-      {{ form.from_email(class='bp-input w-full') }}
+      <div class="flex gap-2">
+        {{ form.from_email(class='bp-input w-full') }}
+        <form action="{{ url_for('admin.reset_setting', key='from_email') }}" method="post">
+          {{ csrf_token() }}
+          <button type="submit" class="text-sm underline">Reset default</button>
+        </form>
+      </div>
+    </div>
+    <div class="mb-4">
+      {{ form.runoff_extension_minutes.label(class='block mb-1') }}
+      <div class="flex gap-2">
+        {{ form.runoff_extension_minutes(class='bp-input w-full') }}
+        <form action="{{ url_for('admin.reset_setting', key='runoff_extension_minutes') }}" method="post">
+          {{ csrf_token() }}
+          <button type="submit" class="text-sm underline">Reset default</button>
+        </form>
+      </div>
+    </div>
+    <div class="mb-4">
+      {{ form.reminder_hours_before_close.label(class='block mb-1') }}
+      <div class="flex gap-2">
+        {{ form.reminder_hours_before_close(class='bp-input w-full') }}
+        <form action="{{ url_for('admin.reset_setting', key='reminder_hours_before_close') }}" method="post">
+          {{ csrf_token() }}
+          <button type="submit" class="text-sm underline">Reset default</button>
+        </form>
+      </div>
+    </div>
+    <div class="mb-4">
+      {{ form.reminder_cooldown_hours.label(class='block mb-1') }}
+      <div class="flex gap-2">
+        {{ form.reminder_cooldown_hours(class='bp-input w-full') }}
+        <form action="{{ url_for('admin.reset_setting', key='reminder_cooldown_hours') }}" method="post">
+          {{ csrf_token() }}
+          <button type="submit" class="text-sm underline">Reset default</button>
+        </form>
+      </div>
+    </div>
+    <div class="mb-4">
+      {{ form.reminder_template.label(class='block mb-1') }}
+      <div class="flex gap-2">
+        {{ form.reminder_template(class='bp-input w-full') }}
+        <form action="{{ url_for('admin.reset_setting', key='reminder_template') }}" method="post">
+          {{ csrf_token() }}
+          <button type="submit" class="text-sm underline">Reset default</button>
+        </form>
+      </div>
+    </div>
+    <div class="mb-4">
+      {{ form.tie_break_decisions.label(class='block mb-1') }}
+      <div class="flex gap-2">
+        {{ form.tie_break_decisions(class='bp-input w-full h-32') }}
+        <form action="{{ url_for('admin.reset_setting', key='tie_break_decisions') }}" method="post">
+          {{ csrf_token() }}
+          <button type="submit" class="text-sm underline">Reset default</button>
+        </form>
+      </div>
     </div>
     {{ form.submit(class='bp-btn-primary') }}
   </form>
