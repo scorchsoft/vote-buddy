@@ -39,11 +39,13 @@
   <button type="submit" class="bp-btn-primary">Save</button>
 </form>
 
-<dialog id="clerical-modal" class="bp-card w-full max-w-md">
+<dialog id="clerical-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="clerical-modal-title">
+  <h2 id="clerical-modal-title" class="font-bold mb-2">Clerical Amendment Text</h2>
   <p class="mb-4">{{ clerical_text|markdown_to_html|safe }}</p>
   <button class="bp-btn-secondary" data-close-modal>Close</button>
 </dialog>
-<dialog id="move-modal" class="bp-card w-full max-w-md">
+<dialog id="move-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="move-modal-title">
+  <h2 id="move-modal-title" class="font-bold mb-2">Articles/Bylaws Placement Text</h2>
   <p class="mb-4">{{ move_text|markdown_to_html|safe }}</p>
   <button class="bp-btn-secondary" data-close-modal>Close</button>
 </dialog>
