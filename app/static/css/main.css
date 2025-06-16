@@ -1128,8 +1128,7 @@ a:focus-visible {
   top: 0;
 }
 
-<<<<<<< codex/implement-pagination-for-meetings-list
-/* Pagination component */
+/* Pagination and progress components */
 .bp-pagination {
   display: flex;
   list-style: none;
@@ -1160,7 +1159,8 @@ a:focus-visible {
 .bp-pagination .bp-disabled {
   opacity: 0.5;
   pointer-events: none;
-=======
+}
+
 /* Progress bar component */
 .bp-progress {
   width: 100%;
@@ -1179,5 +1179,4 @@ a:focus-visible {
   .bp-progress {
     height: 0.25rem;
   }
->>>>>>> main
 }
