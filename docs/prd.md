@@ -366,7 +366,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-16 – Documented Python package installation in README.
 * 2025-06-16 – Added rate limiting to login and vote routes using Flask-Limiter.
 * 2025-06-16 – Navigation drawer closes via Escape key for keyboard users.
-
+* 2025-06-17 – Increased default rate limit to 1000 per day.
 
 
 ---
