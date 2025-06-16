@@ -6,4 +6,6 @@ Receipt hashes:
 - {{ h }}
 {% endfor %}
 
+You can verify a receipt hash at {{ url_for('voting.verify_receipt', _external=True) }}
+
 To stop these emails, visit {{ unsubscribe_url }}

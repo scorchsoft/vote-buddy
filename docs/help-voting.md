@@ -24,3 +24,7 @@ All voting controls can be reached using the Tab key. After making your choices,
 ## Coordinators: resending links
 
 If a member misplaces their invite or the token has expired, coordinators can resend the voting link from the admin results page. Use the **Resend link** button beside the member's name to generate a fresh token for the current stage and email it immediately.
+
+## Verifying your vote receipt
+
+After voting you will receive an email containing one or more hash values. These hashes act as your receipt. Visit [the receipt checker](/vote/verify-receipt) and enter a hash to confirm it matches a recorded vote.
