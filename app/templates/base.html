@@ -44,8 +44,15 @@
         </div>
       </nav>
       <div class="bg-bp-grey-50 text-bp-grey-700" role="status">
-        <div class="max-w-[1200px] mx-auto px-4 py-2">
-          Stage status placeholder
+        <div class="max-w-[1200px] mx-auto px-4 py-2 flex items-center space-x-2">
+          {% if current_stage_label %}
+          <span class="font-semibold">{{ current_stage_label }}</span>
+          {% if current_quorum_pct is not none %}
+          <span class="bp-badge">{{ '%.1f'|format(current_quorum_pct) }}%</span>
+          {% endif %}
+          {% else %}
+          <span class="font-semibold">No active meeting</span>
+          {% endif %}
         </div>
       </div>
     </header>
