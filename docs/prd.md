@@ -342,12 +342,16 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – DOCX exports styled with bp-blue header, bp-red headings, Gotham font and optional logo watermark.
 * 2025-06-15 – Added sticky confirmation footer summarising selections on voting pages.
 * 2025-06-15 – Added flash message banners and login/meeting alerts
-* 2025-06-20 – Added Stage 2 closing route with motion status tally and public outcomes
-* 2025-06-15 – Introduced root-admin-only settings for site title, logo and from-email.
-* 2025-06-18 – Added site footer credit linking to Scorchsoft.
-* 2025-06-15 – MeetingForm enforces minimum stage durations (7d/5d/1d gaps)
-* 2025-06-23 – Added amendment conflict management UI with database links for combined amendments
-* 2025-06-24 – Added iCalendar downloads for Stage 1 and Stage 2 windows
+* 2025-06-16 – Added Stage 2 closing route with motion status tally and public outcomes
+* 2025-06-16 – Introduced root-admin-only settings for site title, logo and from-email.
+* 2025-06-16 – Added site footer credit linking to Scorchsoft.
+* 2025-06-16 – MeetingForm enforces minimum stage durations (7d/5d/1d gaps)
+* 2025-06-16 – Added amendment conflict management UI with database links for combined amendments
+* 2025-06-16 – Added iCalendar downloads for Stage 1 and Stage 2 windows
+* 2025-06-16 – Added unit test covering multiple-choice motion voting and receipts
+* 2025-06-16 – Added coordinator resend token route and email flow
+* 2025-06-16 – Added Stage 2 motion tallies CSV download for Returning Officers
+* 2025-06-16 – Added motion form options for clerical fixes and Articles/Bylaws placement
 
 
 ---
