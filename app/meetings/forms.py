@@ -109,6 +109,11 @@ class ConflictForm(FlaskForm):
     submit = SubmitField("Add Conflict")
 
 
+class ObjectionForm(FlaskForm):
+    member_id = SelectField("Member", coerce=int, validators=[DataRequired()])
+    submit = SubmitField("Submit objection")
+
+
 class MotionForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
     text_md = TextAreaField("Motion Text", validators=[DataRequired()])
