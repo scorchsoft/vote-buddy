@@ -45,6 +45,7 @@ def test_meeting_form_has_labels():
             )
             assert f'for="{form.title.id}"' in html
             assert f'for="{form.type.id}"' in html
+            assert f'for="{form.notice_date.id}"' in html
             assert f'for="{form.opens_at_stage1.id}"' in html
             assert f'for="{form.revoting_allowed.id}"' in html
 

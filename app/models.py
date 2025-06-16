@@ -72,6 +72,7 @@ class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(10))
+    notice_date = db.Column(db.DateTime)
     opens_at_stage1 = db.Column(db.DateTime)
     closes_at_stage1 = db.Column(db.DateTime)
     opens_at_stage2 = db.Column(db.DateTime)

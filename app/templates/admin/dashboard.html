@@ -14,6 +14,7 @@
       Stage 1 closes in {{ meeting.stage1_time_remaining() }}
     </div>
     <h3 class="font-semibold mb-1">{{ meeting.title }}</h3>
+    <p class="text-sm mb-1">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</p>
     {% if meeting.status == 'Completed' %}
     <p class="bp-alert-success text-sm mb-1">Completed</p>
     {% else %}

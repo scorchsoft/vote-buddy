@@ -6,6 +6,7 @@
     <thead class="bg-bp-grey-50">
       <tr>
         <th class="p-2 text-left">Meeting</th>
+        <th class="p-2 text-left">Notice Date</th>
         <th class="p-2 text-left">Stage 1 Votes</th>
         <th class="p-2 text-left">Next Reminder</th>
         <th class="p-2 text-left">Quorum %</th>
@@ -19,6 +20,7 @@
       {% for meeting, count in meetings %}
       <tr class="border-t">
         <td class="p-2">{{ meeting.title }}</td>
+        <td class="p-2">{{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</td>
         <td class="p-2">{{ count }}/{{ meeting.quorum }}</td>
         <td class="p-2"><span class="bp-badge">{{ meeting.hours_until_next_reminder() or 2 }}h</span></td>
         <td class="p-2">{{ '%.1f'|format(meeting.quorum_percentage()) }}%</td>

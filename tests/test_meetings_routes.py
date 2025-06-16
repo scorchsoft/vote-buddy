@@ -388,9 +388,23 @@ def test_meeting_form_duration_validations():
     with app.app_context():
         now = datetime.utcnow()
 
+        # Stage 1 opens before notice period
+        data = MultiDict({
+            'title': 'AGM',
+            'notice_date': now.strftime('%Y-%m-%dT%H:%M'),
+            'opens_at_stage1': (now + timedelta(days=13)).strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage1': (now + timedelta(days=20)).strftime('%Y-%m-%dT%H:%M'),
+            'opens_at_stage2': (now + timedelta(days=21)).strftime('%Y-%m-%dT%H:%M'),
+            'closes_at_stage2': (now + timedelta(days=27)).strftime('%Y-%m-%dT%H:%M'),
+        })
+        form = MeetingForm(formdata=data)
+        assert not form.validate()
+        assert form.opens_at_stage1.errors
+
         # Stage 1 shorter than 7 days
         data = MultiDict({
             'title': 'AGM',
+            'notice_date': now.strftime('%Y-%m-%dT%H:%M'),
             'opens_at_stage1': now.strftime('%Y-%m-%dT%H:%M'),
             'closes_at_stage1': (now + timedelta(days=6)).strftime('%Y-%m-%dT%H:%M'),
             'opens_at_stage2': (now + timedelta(days=7)).strftime('%Y-%m-%dT%H:%M'),
