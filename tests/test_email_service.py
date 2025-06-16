@@ -89,3 +89,4 @@ def test_send_vote_receipt_includes_hash():
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
                 assert 'abc123' in sent_msg.body
+                assert '/unsubscribe/' in sent_msg.body
