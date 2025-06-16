@@ -4,6 +4,10 @@ from flask_login import current_user
 
 
 def permission_required(permission_name):
+    """Return a decorator enforcing ``permission_name`` for a view.
+
+    Use as ``@permission_required('perm')`` above Flask view functions.
+    """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
