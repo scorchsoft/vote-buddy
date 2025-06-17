@@ -55,6 +55,11 @@
     {{ form.public_results.label(class_='font-semibold') }}
     <p id="{{ form.public_results.id }}-error" class="bp-error-text">{{ form.public_results.errors[0] if form.public_results.errors else '' }}</p>
   </div>
+  <div class="flex items-center space-x-2">
+    {{ form.comments_enabled(**{'aria-describedby': form.comments_enabled.id + '-error'}) }}
+    {{ form.comments_enabled.label(class_='font-semibold') }}
+    <p id="{{ form.comments_enabled.id }}-error" class="bp-error-text">{{ form.comments_enabled.errors[0] if form.comments_enabled.errors else '' }}</p>
+  </div>
   <div>
     {{ form.quorum.label(class_='block font-semibold') }}
     {{ form.quorum(class_='border p-3 rounded w-full', **{'aria-describedby': form.quorum.id + '-error'}) }}

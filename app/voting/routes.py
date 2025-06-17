@@ -210,6 +210,7 @@ def ballot_token(token: str):
             motions=motions_grouped,
             meeting=meeting,
             proxy_for=proxy_member,
+            token=token,
         )
 
     if vote_token.stage == 1:
@@ -257,6 +258,7 @@ def ballot_token(token: str):
             motions=motions_grouped,
             meeting=meeting,
             proxy_for=proxy_member,
+            token=token,
         )
 
     else:
@@ -298,6 +300,7 @@ def ballot_token(token: str):
             motions=compiled,
             meeting=meeting,
             proxy_for=proxy_member,
+            token=token,
         )
 
 

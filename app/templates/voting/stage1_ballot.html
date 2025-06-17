@@ -22,6 +22,7 @@
             <label class="inline-flex items-center mr-4">{{ sub() }}<span>{{ sub.label.text }}</span></label>
           {% endfor %}
         </div>
+        <div hx-get="{{ url_for('comments.amendment_comments', token=token, amendment_id=amend.id) }}" hx-trigger="load" hx-swap="outerHTML"></div>
       </div>
     {% endfor %}
   {% endfor %}

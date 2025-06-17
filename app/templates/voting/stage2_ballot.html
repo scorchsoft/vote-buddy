@@ -19,6 +19,7 @@
         <label class="inline-flex items-center mr-4">{{ sub() }}<span>{{ sub.label.text }}</span></label>
       {% endfor %}
     </div>
+    <div hx-get="{{ url_for('comments.motion_comments', token=token, motion_id=motion.id) }}" hx-trigger="load" hx-swap="outerHTML" class="mb-4"></div>
   {% endfor %}
   {% include 'voting/_sticky_footer.html' %}
 </form>

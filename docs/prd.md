@@ -374,6 +374,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-19 – Added vote receipt verification page with lookup form.
 * 2025-06-19 – Added public vote charts with JSON tallies endpoint.
 * 2025-06-19 – Implemented tooltip styles for `[data-tooltip]` elements and dark mode.
+* 2025-06-19 – Added discussion comments for motions and amendments with admin moderation.
 
 
 ---
