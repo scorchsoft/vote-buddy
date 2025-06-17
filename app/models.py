@@ -93,6 +93,7 @@ class Meeting(db.Model):
     stage2_locked = db.Column(db.Boolean, default=False)
     stage1_reminder_sent_at = db.Column(db.DateTime)
     public_results = db.Column(db.Boolean, default=False)
+    comments_enabled = db.Column(db.Boolean, default=False)
 
     def stage1_votes_count(self) -> int:
         """Return number of verified Stage-1 votes."""
@@ -159,6 +160,7 @@ class Member(db.Model):
     proxy_for = db.Column(db.String(255))
     weight = db.Column(db.Integer, default=1)
     email_opt_out = db.Column(db.Boolean, default=False)
+    can_comment = db.Column(db.Boolean, default=True)
 
 
 class Motion(db.Model):
@@ -328,3 +330,18 @@ class AmendmentObjection(db.Model):
     amendment_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
     member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Comment(db.Model):
+    __tablename__ = "comments"
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"), nullable=True)
+    amendment_id = db.Column(
+        db.Integer, db.ForeignKey("amendments.id"), nullable=True
+    )
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    text_md = db.Column(db.Text)
+    hidden = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+

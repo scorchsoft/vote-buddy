@@ -1,0 +1,37 @@
+<div class="mb-4">
+  {% for c in comments %}
+  <div class="bp-card mb-2">
+    <p class="text-sm text-bp-grey-700 mb-1">{{ c.member.name }} – {{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+    <div>{{ c.text_md|markdown_to_html|safe }}</div>
+    {% if current_user.is_authenticated and current_user.has_permission('manage_meetings') and not c.hidden %}
+    <form method="post" action="{{ url_for('comments.hide_comment', comment_id=c.id) }}" class="mt-2">
+      {{ csrf_token() }}
+      <button class="bp-btn-secondary">Hide</button>
+    </form>
+    {% endif %}
+  </div>
+  {% else %}
+  <p>No comments yet.</p>
+  {% endfor %}
+</div>
+<nav class="mt-2" aria-label="Comments page">
+  {% if pagination.pages > 1 %}
+    <ul class="inline-flex space-x-2">
+      {% if pagination.has_prev %}
+      <li><a hx-get="?page={{ pagination.prev_num }}" hx-target="closest div" class="bp-link">Prev</a></li>
+      {% endif %}
+      {% if pagination.has_next %}
+      <li><a hx-get="?page={{ pagination.next_num }}" hx-target="closest div" class="bp-link">Next</a></li>
+      {% endif %}
+    </ul>
+  {% endif %}
+</nav>
+<form method="post" hx-post="{{ url_for('comments.' + ('add_motion_comment' if target[0]=='motion' else 'add_amendment_comment'), token=token, **{target[0]+'_id': target[1]}) }}" hx-target="closest div" hx-swap="outerHTML" class="bp-form space-y-2">
+  {{ csrf_token() }}
+  <textarea name="text" class="border p-2 rounded w-full" required></textarea>
+  {% set show_warn = comments|selectattr('member_id','equalto', g.member_id)|list|length == 0 %}
+  {% if show_warn %}
+  <p class="text-sm text-bp-grey-700">Your name will be visible to all voters.</p>
+  {% endif %}
+  <button type="submit" class="bp-btn-primary">Post Comment</button>
+</form>
