@@ -1,6 +1,8 @@
 {% for meeting in meetings %}
 <tr class="border-t">
-  <td class="p-2">{{ meeting.title }}</td>
+  <td class="p-2">
+    <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}" class="bp-link font-semibold">{{ meeting.title }}</a>
+  </td>
   <td class="p-2">{{ meeting.type }}</td>
   <td class="p-2">
     {% if meeting.status == 'Completed' %}
@@ -12,6 +14,11 @@
 </tr>
 {% else %}
 <tr>
-  <td colspan="3" class="p-2">No meetings created yet.</td>
+  <td colspan="3" class="p-8 text-center text-bp-grey-700">
+    <div class="space-y-2">
+      <p class="text-lg font-semibold">No meetings created yet</p>
+      <p class="text-sm">Get started by creating your first meeting above.</p>
+    </div>
+  </td>
 </tr>
 {% endfor %}

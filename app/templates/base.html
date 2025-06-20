@@ -50,6 +50,15 @@
                   {% if request.path == url_for('meetings.list_meetings') %}aria-current="page"{% endif %}
                 >Meetings</a>
               </li>
+              {% if current_user.is_authenticated %}
+              <li>
+                <a
+                  href="{{ url_for('admin.list_users') }}"
+                  class="hover:underline{% if request.endpoint and request.endpoint.startswith('admin.') and 'users' in request.endpoint %} bp-current-link{% endif %}"
+                  {% if request.endpoint and request.endpoint.startswith('admin.') and 'users' in request.endpoint %}aria-current="page"{% endif %}
+                >Users</a>
+              </li>
+              {% endif %}
               <li>
                 <a
                   href="{{ url_for('main.results_index') }}"
