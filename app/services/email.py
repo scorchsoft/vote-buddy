@@ -164,3 +164,31 @@ def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str], *, te
     )
     mail.send(msg)
     _log_email(member, meeting, 'receipt', test_mode)
+
+def send_quorum_failure(member: Member, meeting: Meeting, *, test_mode: bool = False) -> None:
+    """Notify a member that Stage 1 failed to reach quorum."""
+    if member.email_opt_out:
+        return
+    unsubscribe = _unsubscribe_url(member)
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + f"Stage 1 vote void for {meeting.title}",
+        recipients=[member.email],
+        sender=_sender(),
+    )
+    msg.body = render_template(
+        "email/quorum_failure.txt",
+        member=member,
+        meeting=meeting,
+        unsubscribe_url=unsubscribe,
+        test_mode=test_mode,
+    )
+    msg.html = render_template(
+        "email/quorum_failure.html",
+        member=member,
+        meeting=meeting,
+        unsubscribe_url=unsubscribe,
+        test_mode=test_mode,
+    )
+    mail.send(msg)
+    _log_email(member, meeting, 'quorum_failure', test_mode)
+

@@ -11,8 +11,7 @@
   </div>
   <button type="submit" class="bp-btn-primary">Verify</button>
 </form>
-{% if votes is not none %}
-  {% if votes %}
+{% if votes %}
   <div class="bp-card mt-4">
     <h2 class="font-semibold mb-2">Vote Details</h2>
     <ul class="list-disc ml-4">
@@ -23,8 +22,7 @@
       {% endfor %}
     </ul>
   </div>
-  {% else %}
-  <div class="bp-alert-error mt-4">No vote found for that hash.</div>
-  {% endif %}
+{% elif message %}
+  <div class="bp-alert-error mt-4">{{ message }}</div>
 {% endif %}
 {% endblock %}
