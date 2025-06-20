@@ -4,6 +4,15 @@ Hello {{ member.name }},
 {% endif %}
 
 Stage 2 voting for {{ meeting.title }} is now open.
+{% if summary %}
+
+{{ summary }}
+
+{% elif results_link %}
+
+See Stage 1 results: {{ results_link }}
+
+{% endif %}
 Use the link below to cast your ballot:
 
 {{ link }}

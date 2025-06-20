@@ -102,6 +102,7 @@ def test_send_stage2_invite_has_calendar_attachment():
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
                 assert any(a.filename == 'stage2.ics' for a in sent_msg.attachments)
+                assert '/results/' in sent_msg.body
 
 
 def test_send_vote_receipt_includes_hash():
