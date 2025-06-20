@@ -5,9 +5,9 @@ Coordinators can bulk add members to a meeting by uploading a CSV file.
 ## CSV format
 
 ```
-member_id,name,email,vote_weight,proxy_for
-1234,Jane Smith,jane@example.com,1,
-1235,John Doe,john@example.com,1,1234
+member_id,name,email,proxy_for
+1234,Jane Smith,jane@example.com,
+1235,John Doe,john@example.com,1234
 ```
 
 Column order must match exactly. Duplicate emails are rejected.

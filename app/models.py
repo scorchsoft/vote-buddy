@@ -160,7 +160,6 @@ class Member(db.Model):
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
     proxy_for = db.Column(db.String(255))
-    weight = db.Column(db.Integer, default=1)
     email_opt_out = db.Column(db.Boolean, default=False)
     can_comment = db.Column(db.Boolean, default=True)
     is_test = db.Column(db.Boolean, default=False)
