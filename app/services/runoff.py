@@ -109,3 +109,31 @@ def _detect_runoffs(meeting: Meeting) -> list[Runoff]:
                 runoffs_created.append(runoff)
     db.session.commit()
     return runoffs_created
+
+
+def close_runoff_stage(meeting: Meeting) -> None:
+    """Tally run-off votes and finalise amendment statuses."""
+    runoffs = Runoff.query.filter_by(meeting_id=meeting.id).all()
+    for rof in runoffs:
+        a = db.session.get(Amendment, rof.amendment_a_id)
+        b = db.session.get(Amendment, rof.amendment_b_id)
+        a_for = Vote.query.filter_by(amendment_id=a.id, choice="for").count()
+        b_for = Vote.query.filter_by(amendment_id=b.id, choice="for").count()
+        if a_for > b_for:
+            winner, loser = a, b
+        elif b_for > a_for:
+            winner, loser = b, a
+        else:
+            winner, loser = (a, b) if a.order <= b.order else (b, a)
+        winner.status = "carried"
+        loser.status = "failed"
+
+    tokens = (
+        VoteToken.query.join(Member, VoteToken.member_id == Member.id)
+        .filter(Member.meeting_id == meeting.id, VoteToken.stage == 1)
+        .all()
+    )
+    for t in tokens:
+        db.session.delete(t)
+
+    db.session.commit()

@@ -33,7 +33,7 @@
 * Postgres via SQLAlchemy ORM  
 * Tailwind CSS + htmx + vanilla JS (progressive enhancement)  
 * Email delivery via AWS SES (fallback: SMTP)  
-* CSV import **per meeting** (`member_id, name, email, vote_weight, proxy_for`)  
+* CSV import **per meeting** (`member_id, name, email, proxy_for`)
 * Two ballot modes:  
   * **Two‑stage:** Stage 1 amendments ⇒ Stage 2 motion  
   * **Combined:** Simultaneous amendments + motion (Art 111)  
@@ -92,7 +92,6 @@
 
 ### 5.3 Voting Engine
 * Each `Vote` persisted with `hash(member_id + choice + secret_salt)` for tamper‑evidence.  
-* Vote weighting field (for future parity with Sport80).  
 * Automatic lockout after submission when revoting disabled.
 
 ### 5.4 Run‑off Logic (Stage 1 only)
@@ -178,7 +177,7 @@ Meeting 1───\* Motion
 | `motion_options` | `id`, `motion_id`, `text` |
 | `amendments` | `id`, `meeting_id`, `motion_id`, `text_md`, `order`, `status`, `proposer_id`, `seconder_id` |
 | `votes` | `id`, `member_id`, `amendment_id`, `motion_id`, `choice`, `hash` |
-| `members`  | `id`, `meeting_id`, `name`, `email`, `proxy_for`, `weight` |
+| `members`  | `id`, `meeting_id`, `name`, `email`, `proxy_for` |
 | `vote_tokens` | `token`, `member_id`, `stage`, `used_at` |
 | `runoffs` | `id`, `meeting_id`, `amendment_a_id`, `amendment_b_id` |
 | `amendment_conflicts` | `id`, `meeting_id`, `amendment_a_id`, `amendment_b_id` |
@@ -401,6 +400,12 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-23 – Documented local PostgreSQL setup in README.
 * 2025-06-23 – Rate limited public resend link form to prevent abuse.
 * 2025-06-24 – Stage calendar downloads redirect with a flash when timestamps are missing.
+* 2025-06-24 – Removed member vote weighting feature.
+* 2025-06-23 – Added revoting banner and change-vote link on confirmation page when enabled.
+* 2025-06-24 – Added run-off closing helper and route clearing tokens.
+
+
+
 
 ---
 

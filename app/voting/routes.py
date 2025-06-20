@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Blueprint, render_template, current_app, abort
+from flask import Blueprint, render_template, current_app, abort, url_for
 
 from ..extensions import db
 from ..models import (
@@ -17,6 +17,7 @@ from flask_wtf import FlaskForm
 from wtforms import RadioField, SubmitField, StringField
 from wtforms.validators import DataRequired
 from app.services.email import send_vote_receipt
+from ..utils import carried_amendment_summary
 from ..extensions import limiter
 
 bp = Blueprint("voting", __name__, url_prefix="/vote")
@@ -149,6 +150,8 @@ def ballot_token(token: str):
             400,
         )
 
+    revote = bool(vote_token.used_at and meeting.revoting_allowed)
+
     if meeting.ballot_mode == "combined":
         motions = (
             Motion.query.filter_by(meeting_id=meeting.id)
@@ -163,6 +166,16 @@ def ballot_token(token: str):
         form = _combined_form(motions, amendments)
         if form.validate_on_submit():
             hashes = []
+            if revote:
+                for amend in amendments:
+                    Vote.query.filter_by(member_id=member.id, amendment_id=amend.id).delete()
+                    if proxy_member:
+                        Vote.query.filter_by(member_id=proxy_member.id, amendment_id=amend.id).delete()
+                for motion in motions:
+                    Vote.query.filter_by(member_id=member.id, motion_id=motion.id).delete()
+                    if proxy_member:
+                        Vote.query.filter_by(member_id=proxy_member.id, motion_id=motion.id).delete()
+                db.session.commit()
             for amend in amendments:
                 choice = form[f"amend_{amend.id}"].data
                 vote = Vote.record(
@@ -170,6 +183,7 @@ def ballot_token(token: str):
                     amendment_id=amend.id,
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
+                    stage=vote_token.stage,
                 )
                 hashes.append(vote.hash)
                 if proxy_member:
@@ -178,6 +192,7 @@ def ballot_token(token: str):
                         amendment_id=amend.id,
                         choice=choice,
                         salt=current_app.config["VOTE_SALT"],
+                        stage=vote_token.stage,
                     )
             for motion in motions:
                 choice = form[f"motion_{motion.id}"].data
@@ -186,6 +201,7 @@ def ballot_token(token: str):
                     motion_id=motion.id,
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
+                    stage=vote_token.stage,
                 )
                 hashes.append(vote.hash)
                 if proxy_member:
@@ -194,11 +210,17 @@ def ballot_token(token: str):
                         motion_id=motion.id,
                         choice=choice,
                         salt=current_app.config["VOTE_SALT"],
+                        stage=vote_token.stage,
                     )
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
             send_vote_receipt(member, meeting, hashes)
-            return render_template("voting/confirmation.html", choice="recorded")
+            return render_template(
+                "voting/confirmation.html",
+                choice="recorded",
+                meeting=meeting,
+                token=token,
+            )
 
         motion_counts = {
             m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
@@ -221,6 +243,7 @@ def ballot_token(token: str):
             token=token,
             motion_counts=motion_counts,
             amend_counts=amend_counts,
+            revote=revote,
         )
 
     if vote_token.stage == 1:
@@ -237,6 +260,12 @@ def ballot_token(token: str):
         form = _amendment_form(amendments)
         if form.validate_on_submit():
             hashes = []
+            if revote:
+                for amend in amendments:
+                    Vote.query.filter_by(member_id=member.id, amendment_id=amend.id).delete()
+                    if proxy_member:
+                        Vote.query.filter_by(member_id=proxy_member.id, amendment_id=amend.id).delete()
+                db.session.commit()
             for amend in amendments:
                 choice = form[f"amend_{amend.id}"].data
                 vote = Vote.record(
@@ -244,6 +273,7 @@ def ballot_token(token: str):
                     amendment_id=amend.id,
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
+                    stage=vote_token.stage,
                 )
                 hashes.append(vote.hash)
                 if proxy_member:
@@ -252,11 +282,17 @@ def ballot_token(token: str):
                         amendment_id=amend.id,
                         choice=choice,
                         salt=current_app.config["VOTE_SALT"],
+                        stage=vote_token.stage,
                     )
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
             send_vote_receipt(member, meeting, hashes)
-            return render_template("voting/confirmation.html", choice="recorded")
+            return render_template(
+                "voting/confirmation.html",
+                choice="recorded",
+                meeting=meeting,
+                token=token,
+            )
 
         motion_counts = {
             m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
@@ -279,6 +315,7 @@ def ballot_token(token: str):
             token=token,
             motion_counts=motion_counts,
             amend_counts=amend_counts,
+            revote=revote,
         )
 
     else:
@@ -290,6 +327,12 @@ def ballot_token(token: str):
         form = _motion_form(motions)
         if form.validate_on_submit():
             hashes = []
+            if revote:
+                for motion in motions:
+                    Vote.query.filter_by(member_id=member.id, motion_id=motion.id).delete()
+                    if proxy_member:
+                        Vote.query.filter_by(member_id=proxy_member.id, motion_id=motion.id).delete()
+                db.session.commit()
             for motion in motions:
                 choice = form[f"motion_{motion.id}"].data
                 vote = Vote.record(
@@ -297,6 +340,7 @@ def ballot_token(token: str):
                     motion_id=motion.id,
                     choice=choice,
                     salt=current_app.config["VOTE_SALT"],
+                    stage=vote_token.stage,
                 )
                 hashes.append(vote.hash)
                 if proxy_member:
@@ -305,11 +349,17 @@ def ballot_token(token: str):
                         motion_id=motion.id,
                         choice=choice,
                         salt=current_app.config["VOTE_SALT"],
+                        stage=vote_token.stage,
                     )
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
             send_vote_receipt(member, meeting, hashes)
-            return render_template("voting/confirmation.html", choice="recorded")
+            return render_template(
+                "voting/confirmation.html",
+                choice="recorded",
+                meeting=meeting,
+                token=token,
+            )
 
         compiled = [
             (m, m.final_text_md or compile_motion_text(m)) for m in motions
@@ -318,6 +368,8 @@ def ballot_token(token: str):
             m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
             for m in motions
         }
+        carried_summary = carried_amendment_summary(meeting)
+        results_link = None if carried_summary else url_for('main.public_results', meeting_id=meeting.id)
         return render_template(
             "voting/stage2_ballot.html",
             form=form,
@@ -326,6 +378,9 @@ def ballot_token(token: str):
             proxy_for=proxy_member,
             token=token,
             motion_counts=motion_counts,
+            revote=revote,
+            carried_summary=carried_summary,
+            results_link=results_link,
         )
 
 
@@ -386,26 +441,26 @@ def runoff_ballot(token: str):
             a_id = r.amendment_a_id
             b_id = r.amendment_b_id
             if choice == "a":
-                v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="for", salt=current_app.config["VOTE_SALT"])
-                v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="against", salt=current_app.config["VOTE_SALT"])
+                v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="for", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
+                v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="against", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
                 hashes.extend([v1.hash, v2.hash])
                 if proxy_member:
-                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="for", salt=current_app.config["VOTE_SALT"])
-                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="against", salt=current_app.config["VOTE_SALT"])
+                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="for", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
+                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="against", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
             elif choice == "b":
-                v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="against", salt=current_app.config["VOTE_SALT"])
-                v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="for", salt=current_app.config["VOTE_SALT"])
+                v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="against", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
+                v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="for", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
                 hashes.extend([v1.hash, v2.hash])
                 if proxy_member:
-                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="against", salt=current_app.config["VOTE_SALT"])
-                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="for", salt=current_app.config["VOTE_SALT"])
+                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="against", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
+                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="for", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
             else:
-                v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
-                v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
+                v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="abstain", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
+                v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="abstain", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
                 hashes.extend([v1.hash, v2.hash])
                 if proxy_member:
-                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
-                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="abstain", salt=current_app.config["VOTE_SALT"])
+                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="abstain", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
+                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="abstain", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
         vote_token.used_at = datetime.utcnow()
         db.session.commit()
         send_vote_receipt(member, meeting, hashes)

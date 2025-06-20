@@ -231,7 +231,7 @@ def import_members(meeting_id):
         file_data = form.csv_file.data
         csv_text = file_data.read().decode("utf-8-sig")
         reader = csv.DictReader(io.StringIO(csv_text))
-        expected = ["member_id", "name", "email", "vote_weight", "proxy_for"]
+        expected = ["member_id", "name", "email", "proxy_for"]
         if reader.fieldnames != expected:
             flash("CSV headers must be: " + ", ".join(expected), "error")
             return render_template(
@@ -243,7 +243,6 @@ def import_members(meeting_id):
         for idx, row in enumerate(reader, start=2):
             name = row["name"].strip()
             email = row["email"].strip().lower()
-            weight_raw = (row.get("vote_weight") or "1").strip()
 
             if not name:
                 flash(f"Row {idx}: name is required", "error")
@@ -262,18 +261,6 @@ def import_members(meeting_id):
                 )
             seen_emails.add(email)
 
-            try:
-                weight = int(weight_raw or 1)
-            except ValueError:
-                flash(f"Row {idx}: vote_weight must be a number", "error")
-                return render_template(
-                    "meetings/import_members.html", form=form, meeting=meeting
-                )
-            if weight <= 0:
-                flash(f"Row {idx}: vote_weight must be positive", "error")
-                return render_template(
-                    "meetings/import_members.html", form=form, meeting=meeting
-                )
 
             member = Member(
                 meeting_id=meeting.id,
@@ -281,7 +268,6 @@ def import_members(meeting_id):
                 name=name,
                 email=email,
                 proxy_for=(row.get("proxy_for") or "").strip() or None,
-                weight=weight,
             )
             db.session.add(member)
             db.session.flush()
@@ -1145,6 +1131,21 @@ def stage2_ics(meeting_id: int):
         as_attachment=True,
         download_name="stage2.ics",
     )
+
+
+@bp.route("/<int:meeting_id>/close-runoff", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def close_runoff(meeting_id: int):
+    """Finalize run-off results and move meeting to Pending Stage 2."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    runoff.close_runoff_stage(meeting)
+    meeting.status = "Pending Stage 2"
+    db.session.commit()
+    flash("Run-off votes tallied", "success")
+    return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
 
 
 @bp.route("/<int:meeting_id>/close-stage2", methods=["POST"])
