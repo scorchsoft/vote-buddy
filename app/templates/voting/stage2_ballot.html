@@ -5,6 +5,9 @@
 <h1 class="font-bold text-bp-blue mb-4">Stage 2 – Vote on Motion</h1>
 {% set current_stage = 2 %}
 {% include '_stepper.html' %}
+{% if preview %}
+<div class="bp-alert-info text-center mb-4">Preview mode – votes will not be saved.</div>
+{% endif %}
 {% if proxy_for %}
 <div class="bp-alert-warning text-center mb-4">
   Casting votes as proxy for {{ proxy_for.name }}.
@@ -19,7 +22,9 @@
         <label class="inline-flex items-center mr-4">{{ sub() }}<span>{{ sub.label.text }}</span></label>
       {% endfor %}
     </div>
+    {% if not preview %}
     <div hx-get="{{ url_for('comments.motion_comments', token=token, motion_id=motion.id) }}" hx-trigger="load" hx-swap="outerHTML" class="mb-4"></div>
+    {% endif %}
   {% endfor %}
   {% include 'voting/_sticky_footer.html' %}
 </form>

@@ -13,4 +13,10 @@
   {% endfor %}
 </div>
 <a href="{{ url_for('meetings.create_motion', meeting_id=meeting.id) }}" class="bp-btn-primary mt-4 inline-block">Add Motion</a>
+{% if meeting.ballot_mode == 'combined' %}
+<a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}" class="bp-btn-secondary mt-4 inline-block ml-2">Preview Combined Ballot</a>
+{% else %}
+<a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}" class="bp-btn-secondary mt-4 inline-block ml-2">Preview Stage 1</a>
+<a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=2) }}" class="bp-btn-secondary mt-4 inline-block ml-2">Preview Stage 2</a>
+{% endif %}
 {% endblock %}
