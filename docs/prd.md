@@ -375,6 +375,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-19 – Added public vote charts with JSON tallies endpoint.
 * 2025-06-19 – Implemented tooltip styles for `[data-tooltip]` elements and dark mode.
 * 2025-06-19 – Added discussion comments for motions and amendments with admin moderation.
+* 2025-06-20 – Added CLI command `generate-fake-data` to seed demo meetings and members.
 * 2025-06-20 – Meeting form auto-populates dates from AGM date with timing notes.
 
 
