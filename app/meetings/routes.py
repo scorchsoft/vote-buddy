@@ -1139,6 +1139,21 @@ def stage2_ics(meeting_id: int):
     )
 
 
+@bp.route("/<int:meeting_id>/close-runoff", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def close_runoff(meeting_id: int):
+    """Finalize run-off results and move meeting to Pending Stage 2."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    runoff.close_runoff_stage(meeting)
+    meeting.status = "Pending Stage 2"
+    db.session.commit()
+    flash("Run-off votes tallied", "success")
+    return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+
+
 @bp.route("/<int:meeting_id>/close-stage2", methods=["POST"])
 @login_required
 @permission_required("manage_meetings")
