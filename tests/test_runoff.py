@@ -294,3 +294,87 @@ def test_close_stage1_tie_from_setting():
         assert a1.tie_break_method == 'chair'
         assert a2.status == 'failed'
         assert a2.tie_break_method == 'order'
+
+
+def test_close_runoff_stage_updates_amendments_and_tokens():
+    app = _setup()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M',
+            text_md='x',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+
+        a1 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A1', order=1, status='carried')
+        a2 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A2', order=2, status='carried')
+        db.session.add_all([a1, a2])
+        db.session.flush()
+
+        Runoff.query.delete()
+        r = Runoff(meeting_id=meeting.id, amendment_a_id=a1.id, amendment_b_id=a2.id)
+        db.session.add(r)
+        member = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add(member)
+        db.session.flush()
+
+        Vote.record(member_id=member.id, amendment_id=a1.id, choice='for', salt='s')
+        Vote.record(member_id=member.id, amendment_id=a2.id, choice='against', salt='s')
+
+        VoteToken.create(member_id=member.id, stage=1, salt='s')
+        db.session.commit()
+
+        ro.close_runoff_stage(meeting)
+
+        assert a1.status == 'carried'
+        assert a2.status == 'failed'
+        assert VoteToken.query.count() == 0
+
+
+def test_close_runoff_stage_b_wins():
+    app = _setup()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M',
+            text_md='x',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+
+        a1 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A1', order=1, status='carried')
+        a2 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A2', order=2, status='carried')
+        db.session.add_all([a1, a2])
+        db.session.flush()
+
+        Runoff.query.delete()
+        r = Runoff(meeting_id=meeting.id, amendment_a_id=a1.id, amendment_b_id=a2.id)
+        db.session.add(r)
+        member = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add(member)
+        db.session.flush()
+
+        Vote.record(member_id=member.id, amendment_id=a1.id, choice='against', salt='s')
+        Vote.record(member_id=member.id, amendment_id=a2.id, choice='for', salt='s')
+
+        ro.close_runoff_stage(meeting)
+
+        assert a1.status == 'failed'
+        assert a2.status == 'carried'

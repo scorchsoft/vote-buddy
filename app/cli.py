@@ -139,6 +139,7 @@ def generate_fake_data() -> None:
                 amendment_id=amend.id,
                 choice=random.choice(choices),
                 salt=current_app.config["VOTE_SALT"],
+                stage=1,
             )
         for motion in motions:
             Vote.record(
@@ -146,6 +147,7 @@ def generate_fake_data() -> None:
                 motion_id=motion.id,
                 choice=random.choice(choices),
                 salt=current_app.config["VOTE_SALT"],
+                stage=2,
             )
         t1 = VoteToken.query.filter_by(member_id=member.id, stage=1).first()
         t2 = VoteToken.query.filter_by(member_id=member.id, stage=2).first()

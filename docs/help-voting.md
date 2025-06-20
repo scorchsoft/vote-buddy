@@ -9,6 +9,8 @@ British Powerlifting motions are decided in two parts:
 
 Some ballots may combine these into one form but the sequence stays the same: know what has changed, then cast your vote on the motion.
 
+By default a tied amendment vote is decided by the Chair's casting vote. If the Chair is unable to act, the earlier-submitted amendment prevails.
+
 ## How voting links work
 
 Each eligible member receives an email with a unique link. This link contains a secure token identifying you and the stage. Tokens can only be used once (unless revoting is enabled) and only during the advertised voting window. Do not share your link with others.

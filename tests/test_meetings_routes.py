@@ -84,8 +84,8 @@ def test_import_members_sends_invites_and_tokens():
         db.session.commit()
 
         csv_content = (
-            "member_id,name,email,vote_weight,proxy_for\n"
-            "1,Alice,alice@example.com,1,\n"
+            "member_id,name,email,proxy_for\n"
+            "1,Alice,alice@example.com,\n"
         )
         data = {"csv_file": (io.BytesIO(csv_content.encode()), "members.csv")}
         with app.test_request_context(
@@ -401,6 +401,30 @@ def test_stage_ics_downloads_with_headers():
                 assert resp2.mimetype == "text/calendar"
                 cd2 = resp2.headers["Content-Disposition"]
                 assert "stage2.ics" in cd2
+
+
+def test_stage_ics_missing_timestamps_redirects():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.commit()
+        user = _make_user(True)
+        with app.test_request_context(f"/meetings/{meeting.id}/stage1.ics"):
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.flash") as fl:
+                    resp1 = meetings.stage1_ics(meeting.id)
+                    fl.assert_called()
+                    assert resp1.status_code == 302
+
+        with app.test_request_context(f"/meetings/{meeting.id}/stage2.ics"):
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.flash") as fl:
+                    resp2 = meetings.stage2_ics(meeting.id)
+                    fl.assert_called()
+                    assert resp2.status_code == 302
 
 
 def test_close_stage2_sets_motion_statuses():

@@ -63,7 +63,6 @@ This document summarises all tables and columns created by the Alembic migration
 | name | String(255) | |
 | email | String(255) | |
 | proxy_for | String(255) | |
-| weight | Integer | Default `1` |
 | email_opt_out | Boolean | Default `false` |
 
 ### motions

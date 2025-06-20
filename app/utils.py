@@ -17,7 +17,7 @@ ALLOWED_TAGS = (
     }
 )
 from flask import current_app
-from .models import AppSetting
+from .models import AppSetting, Amendment
 import json
 
 
@@ -93,3 +93,25 @@ def generate_stage_ics(meeting, stage: int) -> bytes:
         "END:VCALENDAR",
     ]
     return "\r\n".join(lines).encode("utf-8")
+
+
+def carried_amendment_summary(meeting: "Meeting", char_limit: int = 80) -> str | None:
+    """Return Markdown bullet list summarising carried amendments.
+
+    Each amendment text is truncated to ``char_limit`` characters.
+    Returns ``None`` if no amendments were carried.
+    """
+    amendments = (
+        Amendment.query.filter_by(meeting_id=meeting.id, status="carried")
+        .order_by(Amendment.order)
+        .all()
+    )
+    if not amendments:
+        return None
+    lines = []
+    for amend in amendments:
+        text = (amend.text_md or "").strip()
+        if len(text) > char_limit:
+            text = text[:char_limit].rstrip() + "..."
+        lines.append(f"* {text}")
+    return "\n".join(lines)

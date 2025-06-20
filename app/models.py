@@ -160,7 +160,6 @@ class Member(db.Model):
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
     proxy_for = db.Column(db.String(255))
-    weight = db.Column(db.Integer, default=1)
     email_opt_out = db.Column(db.Boolean, default=False)
     can_comment = db.Column(db.Boolean, default=True)
     is_test = db.Column(db.Boolean, default=False)
@@ -266,10 +265,14 @@ class Vote(db.Model):
         salt: str,
         amendment_id: int | None = None,
         motion_id: int | None = None,
+        stage: int | None = None,
         is_test: bool = False,
     ) -> "Vote":
         """Create a vote with hashed choice."""
-        digest = hashlib.sha256(f"{member_id}{choice}{salt}".encode()).hexdigest()
+        target_id = amendment_id if amendment_id is not None else motion_id or ""
+        stage_val = stage if stage is not None else ""
+        digest_source = f"{member_id}{target_id}{stage_val}{choice}{salt}"
+        digest = hashlib.sha256(digest_source.encode()).hexdigest()
         vote = cls(
             member_id=member_id,
             amendment_id=amendment_id,
