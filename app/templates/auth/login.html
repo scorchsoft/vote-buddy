@@ -1,21 +1,29 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="text-2xl font-bold text-bp-blue">Admin Login</h2>
+<div class="max-w-md mx-auto">
+  <h2 class="text-2xl font-bold text-bp-blue mb-6">Admin Login</h2>
 
-<form method="post" class="bp-form bp-card">
-  <div>
+  <form method="post" class="bp-card space-y-6">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <input type="hidden" name="next" value="{{ next or '' }}">
-    <label for="email" class="block font-semibold">Email</label>
-  <input id="email" type="email" name="email" required class="border p-3 rounded w-full">
-    <p class="bp-error-text"></p>
-  </div>
-  <div>
-    <label for="password" class="block font-semibold">Password</label>
-  <input id="password" type="password" name="password" required class="border p-3 rounded w-full">
-    <p class="bp-error-text"></p>
-  </div>
-  <button type="submit" class="bp-btn-primary">Login</button>
-
-</form>
+    
+    <div class="bp-form-group">
+      <label for="email" class="block font-semibold mb-2">Email</label>
+      <input id="email" type="email" name="email" required class="bp-input">
+    </div>
+    
+    <div class="bp-form-group">
+      <label for="password" class="block font-semibold mb-2">Password</label>
+      <input id="password" type="password" name="password" required class="bp-input">
+    </div>
+    
+    <div class="space-y-4">
+      <button type="submit" class="bp-btn-primary w-full">Login</button>
+      
+      <div class="text-center">
+        <a href="#" class="text-bp-blue hover:underline text-sm">Forgot your password?</a>
+      </div>
+    </div>
+  </form>
+</div>
 {% endblock %}

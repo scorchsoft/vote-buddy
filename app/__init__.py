@@ -105,6 +105,12 @@ def register_extensions(app):
             'cache_bust': int(datetime.now().timestamp()) if app.debug else '1'
         }
 
+    @app.context_processor
+    def inject_notice_days():
+        return {
+            'notice_days': app.config.get('NOTICE_PERIOD_DAYS', 14)
+        }
+
 
     @login_manager.user_loader
     def load_user(user_id: str) -> User | None:

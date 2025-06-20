@@ -21,6 +21,13 @@ VoteBuddy aims to take the tried and tested "Roberts Rules" around governance an
 - Results exports to CSV and DOCX plus audit logs
 - Optional unsubscribe tokens for members
 
+## Screenshots
+
+The following images show the main dashboard and help section in action.
+
+![Admin dashboard screenshot](assets/screenshots/admin-dashboard.png)
+![Help section screenshot](assets/screenshots/help-section.png)
+
 ## Development setup
 
 1. Copy `.env.example` to `.env` and review the values.

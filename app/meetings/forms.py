@@ -17,11 +17,31 @@ from wtforms.validators import DataRequired, Optional
 class MeetingForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
     type = SelectField("Type", choices=[("AGM", "AGM"), ("EGM", "EGM")])
-    notice_date = DateTimeLocalField("Notice Date", format="%Y-%m-%dT%H:%M")
-    opens_at_stage1 = DateTimeLocalField("Stage 1 Opens", format="%Y-%m-%dT%H:%M")
-    closes_at_stage1 = DateTimeLocalField("Stage 1 Closes", format="%Y-%m-%dT%H:%M")
-    opens_at_stage2 = DateTimeLocalField("Stage 2 Opens", format="%Y-%m-%dT%H:%M")
-    closes_at_stage2 = DateTimeLocalField("Stage 2 Closes", format="%Y-%m-%dT%H:%M")
+    notice_date = DateTimeLocalField(
+        "Notice Date",
+        format="%Y-%m-%dT%H:%M",
+        description="Must be at least 14 days before Stage 1 opens.",
+    )
+    opens_at_stage1 = DateTimeLocalField(
+        "Stage 1 Opens",
+        format="%Y-%m-%dT%H:%M",
+        description="At least 14 days after notice date.",
+    )
+    closes_at_stage1 = DateTimeLocalField(
+        "Stage 1 Closes",
+        format="%Y-%m-%dT%H:%M",
+        description="Must remain open for at least 7 days.",
+    )
+    opens_at_stage2 = DateTimeLocalField(
+        "Stage 2 Opens",
+        format="%Y-%m-%dT%H:%M",
+        description="At least 1 day after Stage 1 closes.",
+    )
+    closes_at_stage2 = DateTimeLocalField(
+        "AGM Date",
+        format="%Y-%m-%dT%H:%M",
+        description="Final voting deadline; at least 5 days after Stage 2 opens.",
+    )
     ballot_mode = SelectField(
         "Ballot Mode",
         choices=[
