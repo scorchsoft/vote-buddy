@@ -386,6 +386,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-20 – Added "Site Settings" to the user dropdown and linked the RO Dashboard in navigation.
 * 2025-06-20 – Updated navigation test for role badge markup.
 * 2025-06-20 – Added manual email sending page with test mode and DB logging.
+* 2025-06-20 – Added clearer member import button with downloadable sample CSV.
 
 
 ---

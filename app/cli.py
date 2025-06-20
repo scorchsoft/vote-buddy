@@ -2,6 +2,7 @@ import click
 from flask.cli import with_appcontext
 from datetime import datetime, timedelta
 from flask import current_app
+import random
 from .extensions import db
 from .models import (
     User,
@@ -11,6 +12,7 @@ from .models import (
     VoteToken,
     Motion,
     Amendment,
+    Vote,
 )
 from faker import Faker
 
@@ -84,7 +86,16 @@ def generate_fake_data() -> None:
         )
         db.session.add(member)
         db.session.flush()
-        VoteToken.create(member_id=member.id, stage=1, salt=current_app.config['TOKEN_SALT'])
+        VoteToken.create(
+            member_id=member.id,
+            stage=1,
+            salt=current_app.config["TOKEN_SALT"],
+        )
+        VoteToken.create(
+            member_id=member.id,
+            stage=2,
+            salt=current_app.config["TOKEN_SALT"],
+        )
         members.append(member)
 
     motions = []
@@ -101,6 +112,7 @@ def generate_fake_data() -> None:
         motions.append(motion)
     db.session.flush()
 
+    amendments = []
     for motion in motions:
         for j in range(2):
             amend = Amendment(
@@ -115,6 +127,32 @@ def generate_fake_data() -> None:
                 seconded_at=now,
             )
             db.session.add(amend)
+            amendments.append(amend)
+
+    db.session.flush()
+
+    choices = ["for", "against", "abstain"]
+    for member in members:
+        for amend in amendments:
+            Vote.record(
+                member_id=member.id,
+                amendment_id=amend.id,
+                choice=random.choice(choices),
+                salt=current_app.config["VOTE_SALT"],
+            )
+        for motion in motions:
+            Vote.record(
+                member_id=member.id,
+                motion_id=motion.id,
+                choice=random.choice(choices),
+                salt=current_app.config["VOTE_SALT"],
+            )
+        t1 = VoteToken.query.filter_by(member_id=member.id, stage=1).first()
+        t2 = VoteToken.query.filter_by(member_id=member.id, stage=2).first()
+        if t1:
+            t1.used_at = now
+        if t2:
+            t2.used_at = now
 
     db.session.commit()
     click.echo('Fake data generated.')

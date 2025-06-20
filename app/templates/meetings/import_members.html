@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1 class="font-bold text-bp-blue mb-4">Import Members</h1>
+<h1 class="font-bold text-bp-blue mb-4">{{ meeting.title }} – Import Members</h1>
+<p class="mb-4">
+  <a href="{{ url_for('meetings.download_sample_csv') }}" class="bp-link">Download sample CSV</a>
+  and populate with your member details.
+</p>
 <form method="post" enctype="multipart/form-data" class="bp-form bp-card space-y-6">
   {{ form.hidden_tag() }}
   <div>
     {{ form.csv_file.label(class_='block font-semibold') }}
-    {{ form.csv_file(class_='border p-3 rounded w-full') }}
+    {{ form.csv_file(class_='border p-3 rounded w-full', **{'aria-describedby': form.csv_file.id + '-error'}) }}
+    <p id="{{ form.csv_file.id }}-error" class="bp-error-text">{{ form.csv_file.errors[0] if form.csv_file.errors else '' }}</p>
   </div>
   <button type="submit" class="bp-btn-primary">Upload</button>
 </form>
