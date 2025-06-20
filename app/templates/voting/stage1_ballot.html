@@ -16,7 +16,14 @@
 <form id="vote-form" method="post" class="bp-form bp-card space-y-6 pb-20">
   {{ form.hidden_tag() }}
   {% for motion, ams in motions %}
-    <div class="bp-card bp-glow mb-4">{{ motion.text_md|markdown_to_html|safe }}</div>
+    <div class="bp-card bp-glow mb-4">
+      {{ motion.text_md|markdown_to_html|safe }}
+      {% if not preview %}
+      <a href="#" class="bp-link ml-2 text-sm" data-modal-target="comments-modal"
+         hx-get="{{ url_for('comments.motion_comments', token=token, motion_id=motion.id) }}"
+         hx-target="#comments-body" hx-trigger="click" hx-swap="innerHTML">Comments ({{ motion_counts[motion.id] }})</a>
+      {% endif %}
+    </div>
     {% for amend in ams %}
       <div class="mb-4">
         <div class="font-semibold mb-2">{{ amend.text_md|markdown_to_html|safe }}</div>
@@ -26,11 +33,18 @@
           {% endfor %}
         </div>
         {% if not preview %}
-        <div hx-get="{{ url_for('comments.amendment_comments', token=token, amendment_id=amend.id) }}" hx-trigger="load" hx-swap="outerHTML"></div>
+        <a href="#" class="bp-link text-sm" data-modal-target="comments-modal"
+           hx-get="{{ url_for('comments.amendment_comments', token=token, amendment_id=amend.id) }}"
+           hx-target="#comments-body" hx-trigger="click" hx-swap="innerHTML">Comments ({{ amend_counts[amend.id] }})</a>
         {% endif %}
       </div>
     {% endfor %}
   {% endfor %}
+  <dialog id="comments-modal" class="bp-card w-full max-w-lg" role="dialog" aria-labelledby="comments-title">
+    <h2 id="comments-title" class="font-bold mb-2">Comments</h2>
+    <div id="comments-body" class="mb-4"></div>
+    <button class="bp-btn-secondary" data-close-modal>Close</button>
+  </dialog>
   {% include 'voting/_sticky_footer.html' %}
 </form>
 <script src="{{ url_for('static', filename='js/voting_footer.js') }}"></script>

@@ -11,6 +11,7 @@ from ..models import (
     Motion,
     MotionOption,
     Runoff,
+    Comment,
 )
 from .forms import VoteForm
 from flask_wtf import FlaskForm
@@ -200,6 +201,14 @@ def ballot_token(token: str):
             send_vote_receipt(member, meeting, hashes)
             return render_template("voting/confirmation.html", choice="recorded")
 
+        motion_counts = {
+            m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
+            for m in motions
+        }
+        amend_counts = {
+            a.id: Comment.query.filter_by(amendment_id=a.id, hidden=False).count()
+            for a in amendments
+        }
         motions_grouped = []
         for motion in motions:
             ams = [a for a in amendments if a.motion_id == motion.id]
@@ -211,6 +220,8 @@ def ballot_token(token: str):
             meeting=meeting,
             proxy_for=proxy_member,
             token=token,
+            motion_counts=motion_counts,
+            amend_counts=amend_counts,
         )
 
     if vote_token.stage == 1:
@@ -248,6 +259,14 @@ def ballot_token(token: str):
             send_vote_receipt(member, meeting, hashes)
             return render_template("voting/confirmation.html", choice="recorded")
 
+        motion_counts = {
+            m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
+            for m in motions
+        }
+        amend_counts = {
+            a.id: Comment.query.filter_by(amendment_id=a.id, hidden=False).count()
+            for a in amendments
+        }
         motions_grouped = []
         for motion in motions:
             ams = [a for a in amendments if a.motion_id == motion.id]
@@ -259,6 +278,8 @@ def ballot_token(token: str):
             meeting=meeting,
             proxy_for=proxy_member,
             token=token,
+            motion_counts=motion_counts,
+            amend_counts=amend_counts,
         )
 
     else:
@@ -294,6 +315,10 @@ def ballot_token(token: str):
         compiled = [
             (m, m.final_text_md or compile_motion_text(m)) for m in motions
         ]
+        motion_counts = {
+            m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
+            for m in motions
+        }
         return render_template(
             "voting/stage2_ballot.html",
             form=form,
@@ -301,6 +326,7 @@ def ballot_token(token: str):
             meeting=meeting,
             proxy_for=proxy_member,
             token=token,
+            motion_counts=motion_counts,
         )
 
 
