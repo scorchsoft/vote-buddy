@@ -114,8 +114,12 @@
   * Meeting status set to `Completed` after Stage 2 tallies are saved.
 
 ### 5.7 Proxy Voting Support (MVP Lite)
-* CSV may include `proxy_for` (member_id).  
+* CSV may include `proxy_for` (member_id).
 * During vote cast, if member is proxy holder the UI shows extra banner and logs both votes.
+
+### 5.8 Permission Management
+* Admin page to create and edit individual permission records.
+* Permissions are assigned to roles via the role form.
 
 ---
 
@@ -387,6 +391,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-20 – Updated navigation test for role badge markup.
 * 2025-06-20 – Added manual email sending page with test mode and DB logging.
 * 2025-06-20 – Added clearer member import button with downloadable sample CSV.
+* 2025-06-21 – Added permission management pages secured by 'manage_users'.
 * 2025-06-21 – Added amendment reject and merge controls on motion view page.
 * 2025-06-20 – Added moderator control to toggle member commenting rights.
 * 2025-06-21 – Removed unused `VoteForm` class and cleaned up voting routes.
