@@ -6,15 +6,11 @@
   <p class="bp-hero-subtitle">The modern digital voting platform for British Powerlifting AGMs and EGMs</p>
   <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
     <a href="{{ url_for('auth.login') }}" class="bp-btn-primary bp-btn-icon">
-      <svg class="bp-icon" viewBox="0 0 24 24">
-        <path d="M9 11H7a5 5 0 0 1 0-10h2m6 0h2a5 5 0 0 1 0 10h-2m-8-5h10" stroke="currentColor" fill="none"/>
-      </svg>
+      <img src="{{ url_for('static', filename='icons/key_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
       <span>Admin Login</span>
     </a>
     <a href="{{ url_for('meetings.list_meetings') }}" class="bp-btn-secondary bp-btn-icon">
-      <svg class="bp-icon" viewBox="0 0 24 24">
-        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" fill="none"/>
-      </svg>
+      <img src="{{ url_for('static', filename='icons/calendar_today_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
       <span>View Meetings</span>
     </a>
   </div>
@@ -40,9 +36,7 @@
 <div class="bp-feature-grid">
   <div class="bp-feature-card">
     <div class="bp-feature-icon">
-      <svg class="bp-icon w-8 h-8" viewBox="0 0 24 24">
-        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" fill="none"/>
-      </svg>
+      <img src="{{ url_for('static', filename='icons/how_to_vote_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-8 h-8">
     </div>
     <h3 class="text-xl font-bold mb-2">Two-Stage Voting</h3>
     <p class="text-gray-600">Support for amendments in Stage 1 and final motions in Stage 2, following Roberts Rules</p>
@@ -50,9 +44,7 @@
   
   <div class="bp-feature-card">
     <div class="bp-feature-icon">
-      <svg class="bp-icon w-8 h-8" viewBox="0 0 24 24">
-        <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="currentColor" fill="none"/>
-      </svg>
+      <img src="{{ url_for('static', filename='icons/key_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-8 h-8">
     </div>
     <h3 class="text-xl font-bold mb-2">Secure & Verifiable</h3>
     <p class="text-gray-600">Hashed vote tokens and ballot receipts ensure transparent and auditable results</p>
@@ -60,9 +52,7 @@
   
   <div class="bp-feature-card">
     <div class="bp-feature-icon">
-      <svg class="bp-icon w-8 h-8" viewBox="0 0 24 24">
-        <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" fill="none"/>
-      </svg>
+      <img src="{{ url_for('static', filename='icons/group_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-8 h-8">
     </div>
     <h3 class="text-xl font-bold mb-2">Email Integration</h3>
     <p class="text-gray-600">Automated voting links, reminders, and receipts sent directly to members</p>

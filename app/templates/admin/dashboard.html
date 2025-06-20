@@ -13,15 +13,11 @@
   <!-- Quick Actions -->
   <div class="flex flex-wrap gap-4 mb-12">
     <a href="{{ url_for('admin.list_users') }}" class="bp-btn-primary bp-btn-icon">
-      <svg class="bp-icon" viewBox="0 0 24 24">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" fill="none"/>
-      </svg>
+      <img src="{{ url_for('static', filename='icons/group_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
       <span>Manage Users</span>
     </a>
     <a href="{{ url_for('admin.list_objections') }}" class="bp-btn-secondary bp-btn-icon">
-      <svg class="bp-icon" viewBox="0 0 24 24">
-        <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" fill="none"/>
-      </svg>
+      <img src="{{ url_for('static', filename='icons/person_raised_hand_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
       <span>View Objections</span>
     </a>
   </div>
@@ -29,9 +25,7 @@
   <!-- My Meetings Section -->
   <div class="mb-8">
     <h2 class="text-2xl font-bold text-bp-grey-900 mb-6 flex items-center gap-2">
-      <svg class="bp-icon text-bp-blue" viewBox="0 0 24 24">
-        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" fill="none"/>
-      </svg>
+      <img src="{{ url_for('static', filename='icons/calendar_today_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon text-bp-blue w-6 h-6">
       My Meetings
     </h2>
     
@@ -65,9 +59,7 @@
         <!-- Meeting Info -->
         <h3 class="text-xl font-bold text-bp-grey-900 mb-2">{{ meeting.title }}</h3>
         <p class="text-bp-grey-600 mb-3">
-          <svg class="bp-icon inline w-4 h-4 mr-1" viewBox="0 0 24 24">
-            <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" fill="none"/>
-          </svg>
+          <img src="{{ url_for('static', filename='icons/calendar_today_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon inline w-4 h-4 mr-1">
           Notice given {{ meeting.notice_date.strftime('%B %d, %Y') if meeting.notice_date else 'N/A' }}
         </p>
         
@@ -86,9 +78,7 @@
           
           {% if meeting.status != 'Completed' %}
           <span class="bp-badge bp-badge-secondary">
-            <svg class="bp-icon w-4 h-4 mr-1" viewBox="0 0 24 24">
-              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
-            </svg>
+            <img src="{{ url_for('static', filename='icons/clock_loader_40_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-4 h-4 mr-1">
             Next reminder in {{ meeting.hours_until_next_reminder() }}h
           </span>
           {% endif %}
@@ -111,9 +101,7 @@
     </div>
     {% else %}
     <div class="text-center py-12 px-4 bp-card">
-      <svg class="bp-icon w-16 h-16 mx-auto mb-4 text-bp-grey-400" viewBox="0 0 24 24">
-        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" fill="none"/>
-      </svg>
+      <img src="{{ url_for('static', filename='icons/calendar_today_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-16 h-16 mx-auto mb-4 text-bp-grey-400">
       <h3 class="text-lg font-semibold text-bp-grey-700 mb-2">No meetings yet</h3>
       <p class="text-bp-grey-600 mb-4">Get started by creating your first meeting.</p>
       <a href="{{ url_for('meetings.create_meeting') }}" class="bp-btn-primary">
