@@ -399,6 +399,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-22 – Added public meetings pages with resend link modal and contact URL setting.
 * 2025-06-23 – Documented local PostgreSQL setup in README.
 * 2025-06-23 – Rate limited public resend link form to prevent abuse.
+* 2025-06-24 – Automatic quorum failure emails sent when Stage 1 closes below quorum.
 * 2025-06-24 – Stage calendar downloads redirect with a flash when timestamps are missing.
 * 2025-06-24 – Removed member vote weighting feature.
 * 2025-06-23 – Added revoting banner and change-vote link on confirmation page when enabled.

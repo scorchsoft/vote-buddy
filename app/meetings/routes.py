@@ -34,6 +34,7 @@ from ..services.email import (
     send_vote_invite,
     send_stage2_invite,
     send_runoff_invite,
+    send_quorum_failure,
 )
 from ..services import runoff
 from ..permissions import permission_required
@@ -755,6 +756,12 @@ def close_stage1(meeting_id: int):
     if meeting.stage1_votes_count() < meeting.quorum:
         meeting.status = "Quorum not met"
         db.session.commit()
+        members = Member.query.filter_by(meeting_id=meeting.id).all()
+        if AppSetting.get("manual_email_mode") != "1":
+            for member in members:
+                send_quorum_failure(member, meeting)
+        else:
+            flash("Automatic emails disabled - use manual send", "warning")
         flash(
             "Stage 1 quorum not met – vote void under Articles 112(d)–(f).",
             "error",
