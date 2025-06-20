@@ -84,7 +84,9 @@ def test_cast_vote_records_hash_and_marks_used():
 
         vote = Vote.query.first()
         token_db = VoteToken.query.filter_by(token=token_obj.token).first()
-        expected = hashlib.sha256(f"{member_id}forsalty".encode()).hexdigest()
+        expected = hashlib.sha256(
+            f"{member_id}{amendment.id}1for{app.config['VOTE_SALT']}".encode()
+        ).hexdigest()
     assert vote.hash == expected
     assert token_db.used_at is not None
 
@@ -119,10 +121,62 @@ def test_stage2_motion_vote():
             voting.ballot_token(plain)
 
         vote = Vote.query.first()
-        expected = hashlib.sha256(f"{member_id}againstsalty".encode()).hexdigest()
+        expected = hashlib.sha256(
+            f"{member_id}{motion.id}2against{app.config['VOTE_SALT']}".encode()
+        ).hexdigest()
         assert vote.motion_id == motion.id
         assert vote.hash == expected
         assert token_obj.used_at is not None
+
+
+def test_vote_hash_unique_per_motion():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        m1 = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        m2 = Motion(
+            meeting_id=meeting.id,
+            title="M2",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=2,
+        )
+        db.session.add_all([m1, m2])
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with app.test_request_context(
+            f"/vote/{plain}",
+            method="POST",
+            data={f"motion_{m1.id}": "for", f"motion_{m2.id}": "for"},
+        ):
+            voting.ballot_token(plain)
+
+        votes = Vote.query.order_by(Vote.motion_id).all()
+        assert len(votes) == 2
+        h1 = hashlib.sha256(
+            f"{member.id}{m1.id}2for{app.config['VOTE_SALT']}".encode()
+        ).hexdigest()
+        h2 = hashlib.sha256(
+            f"{member.id}{m2.id}2for{app.config['VOTE_SALT']}".encode()
+        ).hexdigest()
+        hashes = {votes[0].hash, votes[1].hash}
+        assert hashes == {h1, h2}
 
 
 def test_receipt_email_sent_after_vote():
@@ -339,8 +393,12 @@ def test_proxy_vote_creates_two_records():
         votes = Vote.query.order_by(Vote.member_id).all()
         assert len(votes) == 2
         assert {v.member_id for v in votes} == {member.id, proxied.id}
-        expected_alice = hashlib.sha256(f"{member.id}forsalty".encode()).hexdigest()
-        expected_bob = hashlib.sha256(f"{proxied.id}forsalty".encode()).hexdigest()
+        expected_alice = hashlib.sha256(
+            f"{member.id}{amend.id}1for{app.config['VOTE_SALT']}".encode()
+        ).hexdigest()
+        expected_bob = hashlib.sha256(
+            f"{proxied.id}{amend.id}1for{app.config['VOTE_SALT']}".encode()
+        ).hexdigest()
         assert {votes[0].hash, votes[1].hash} == {expected_alice, expected_bob}
 
 
@@ -559,7 +617,7 @@ def test_multiple_choice_motion_vote_and_receipt():
             vote_hashes = mock_receipt.call_args[0][2]
             vote = Vote.query.first()
             expected = hashlib.sha256(
-                f"{member.id}{opt2.text}{app.config['VOTE_SALT']}".encode()
+                f"{member.id}{motion.id}2{opt2.text}{app.config['VOTE_SALT']}".encode()
             ).hexdigest()
             assert vote.choice == opt2.text
             assert vote.hash == expected

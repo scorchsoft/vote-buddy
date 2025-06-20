@@ -265,10 +265,14 @@ class Vote(db.Model):
         salt: str,
         amendment_id: int | None = None,
         motion_id: int | None = None,
+        stage: int | None = None,
         is_test: bool = False,
     ) -> "Vote":
         """Create a vote with hashed choice."""
-        digest = hashlib.sha256(f"{member_id}{choice}{salt}".encode()).hexdigest()
+        target_id = amendment_id if amendment_id is not None else motion_id or ""
+        stage_val = stage if stage is not None else ""
+        digest_source = f"{member_id}{target_id}{stage_val}{choice}{salt}"
+        digest = hashlib.sha256(digest_source.encode()).hexdigest()
         vote = cls(
             member_id=member_id,
             amendment_id=amendment_id,
