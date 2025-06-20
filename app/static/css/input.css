@@ -369,6 +369,7 @@ nav {
   margin-bottom: 1rem;
   position: relative;
   z-index: 1;
+  color: white;
 }
 
 .bp-hero-subtitle {
