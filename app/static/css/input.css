@@ -158,6 +158,26 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
   height: 1.25rem;
 }
 
+/* Compact Icon Button for Tables */
+.bp-btn-compact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bp-btn-compact svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
 /* Modern Card Component */
 .bp-card {
   background: white;

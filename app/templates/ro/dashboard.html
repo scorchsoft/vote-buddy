@@ -27,32 +27,76 @@
         <td class="p-2">{{ meeting.stage1_time_remaining() }}</td>
         <td class="p-2">{{ 'Yes' if meeting.stage1_locked else 'No' }}</td>
         <td class="p-2">{{ 'Yes' if meeting.stage2_locked else 'No' }}</td>
-        <td class="p-2 space-x-2">
-          {% if meeting.stage1_locked %}
-            <form action="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=1) }}" method="post" class="inline">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-              <button type="submit" class="bp-btn-primary text-sm">Unlock S1</button>
-            </form>
-          {% else %}
-            <form action="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=1) }}" method="post" class="inline">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-              <button type="submit" class="bp-btn-primary text-sm">Lock S1</button>
-            </form>
-          {% endif %}
-          {% if meeting.stage2_locked %}
-            <form action="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=2) }}" method="post" class="inline">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-              <button type="submit" class="bp-btn-primary text-sm">Unlock S2</button>
-            </form>
-          {% else %}
-            <form action="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=2) }}" method="post" class="inline">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-              <button type="submit" class="bp-btn-primary text-sm">Lock S2</button>
-            </form>
-          {% endif %}
-          <a href="{{ url_for('ro.download_tallies', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm">CSV</a>
-          <a href="{{ url_for('ro.download_stage2_tallies', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm">Stage 2 CSV</a>
-          <a href="{{ url_for('ro.download_audit_log', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm">Audit</a>
+        <td class="p-2">
+          <div class="flex items-center gap-2">
+            <!-- Stage Lock Controls -->
+            <div class="flex items-center gap-1 p-1 bg-bp-grey-50 rounded-lg">
+              {% if meeting.stage1_locked %}
+                <form action="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=1) }}" method="post" class="inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                  <button type="submit" class="bp-btn-icon p-2 bg-red-500 hover:bg-red-600 text-white rounded transition-colors" title="Unlock Stage 1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                    </svg>
+                    <span class="text-xs ml-1">S1</span>
+                  </button>
+                </form>
+              {% else %}
+                <form action="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=1) }}" method="post" class="inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                  <button type="submit" class="bp-btn-icon p-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors" title="Lock Stage 1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span class="text-xs ml-1">S1</span>
+                  </button>
+                </form>
+              {% endif %}
+              {% if meeting.stage2_locked %}
+                <form action="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=2) }}" method="post" class="inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                  <button type="submit" class="bp-btn-icon p-2 bg-red-500 hover:bg-red-600 text-white rounded transition-colors" title="Unlock Stage 2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                    </svg>
+                    <span class="text-xs ml-1">S2</span>
+                  </button>
+                </form>
+              {% else %}
+                <form action="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=2) }}" method="post" class="inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                  <button type="submit" class="bp-btn-icon p-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors" title="Lock Stage 2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span class="text-xs ml-1">S2</span>
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+            
+            <!-- Export Controls -->
+            <div class="flex items-center gap-1 p-1 bg-bp-grey-50 rounded-lg">
+              <a href="{{ url_for('ro.download_tallies', meeting_id=meeting.id) }}" class="bp-btn-icon p-2 bg-bp-blue hover:bg-bp-blue-light text-white rounded transition-colors" title="Download Stage 1 CSV">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                </svg>
+                <span class="text-xs ml-1">CSV</span>
+              </a>
+              <a href="{{ url_for('ro.download_stage2_tallies', meeting_id=meeting.id) }}" class="bp-btn-icon p-2 bg-bp-blue hover:bg-bp-blue-light text-white rounded transition-colors" title="Download Stage 2 CSV">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                </svg>
+                <span class="text-xs ml-1">S2</span>
+              </a>
+              <a href="{{ url_for('ro.download_audit_log', meeting_id=meeting.id) }}" class="bp-btn-icon p-2 bg-purple-500 hover:bg-purple-600 text-white rounded transition-colors" title="Download Audit Log">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-xs ml-1">Audit</span>
+              </a>
+            </div>
+          </div>
         </td>
       </tr>
       <tr>
@@ -64,7 +108,7 @@
         </td>
       </tr>
       {% else %}
-      <tr><td colspan="7" class="p-2">No meetings.</td></tr>
+      <tr><td colspan="9" class="p-2">No meetings.</td></tr>
       {% endfor %}
     </tbody>
   </table>
