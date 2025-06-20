@@ -75,7 +75,7 @@ You can seed a fresh development database with example meetings and members usin
 `generate-fake-data` CLI command:
 
 ```bash
-flask --app app generate-fake-data
+python -m flask --app app generate-fake-data
 ```
 
 This creates demo coordinator and returning officer accounts and inserts a sample meeting with motions,
