@@ -8,6 +8,9 @@
     <p class="text-lg font-semibold">Preview complete – no votes were saved.</p>
     {% else %}
     <p class="text-lg font-semibold">Thank you for voting – your participation helps shape the future of the sport! You’ll get an e‑mail receipt shortly.</p>
+    {% if meeting and meeting.revoting_allowed and token %}
+    <a href="{{ url_for('voting.ballot_token', token=token) }}" class="bp-btn-primary">Change your vote</a>
+    {% endif %}
     {% endif %}
     <a href="{{ url_for('help.show_help') }}" class="bp-btn-secondary">Voting Help</a>
 </div>
