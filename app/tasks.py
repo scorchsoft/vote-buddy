@@ -3,7 +3,7 @@ from flask import current_app
 from .utils import config_or_setting
 
 from .extensions import scheduler, db
-from .models import Meeting, Member, VoteToken
+from .models import Meeting, Member, VoteToken, AppSetting
 from .services.email import send_stage1_reminder
 
 
@@ -13,6 +13,8 @@ def register_jobs():
 
 def send_stage1_reminders():
     """Check meetings nearing Stage 1 close and email reminders."""
+    if AppSetting.get("manual_email_mode") == "1":
+        return
     now = datetime.utcnow()
     soon = now + timedelta(
         hours=config_or_setting('REMINDER_HOURS_BEFORE_CLOSE', 6, parser=int)

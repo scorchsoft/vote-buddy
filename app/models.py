@@ -102,6 +102,7 @@ class Meeting(db.Model):
             .filter(
                 VoteToken.stage == 1,
                 VoteToken.used_at.isnot(None),
+                VoteToken.is_test.is_(False),
                 Member.meeting_id == self.id,
             )
             .count()
@@ -161,6 +162,7 @@ class Member(db.Model):
     weight = db.Column(db.Integer, default=1)
     email_opt_out = db.Column(db.Boolean, default=False)
     can_comment = db.Column(db.Boolean, default=True)
+    is_test = db.Column(db.Boolean, default=False)
 
 
 class Motion(db.Model):
@@ -190,6 +192,7 @@ class VoteToken(db.Model):
     member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     stage = db.Column(db.Integer)
     used_at = db.Column(db.DateTime)
+    is_test = db.Column(db.Boolean, default=False)
 
     @staticmethod
     def _hash(token: str, salt: str) -> str:
@@ -252,6 +255,7 @@ class Vote(db.Model):
     motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"), nullable=True)
     choice = db.Column(db.String(10))
     hash = db.Column(db.String(128))
+    is_test = db.Column(db.Boolean, default=False)
 
     @classmethod
     def record(
@@ -261,6 +265,7 @@ class Vote(db.Model):
         salt: str,
         amendment_id: int | None = None,
         motion_id: int | None = None,
+        is_test: bool = False,
     ) -> "Vote":
         """Create a vote with hashed choice."""
         digest = hashlib.sha256(f"{member_id}{choice}{salt}".encode()).hexdigest()
@@ -270,6 +275,7 @@ class Vote(db.Model):
             motion_id=motion_id,
             choice=choice,
             hash=digest,
+            is_test=is_test,
         )
         db.session.add(vote)
         db.session.commit()
@@ -344,4 +350,14 @@ class Comment(db.Model):
     text_md = db.Column(db.Text)
     hidden = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class EmailLog(db.Model):
+    __tablename__ = "email_logs"
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    type = db.Column(db.String(50))
+    is_test = db.Column(db.Boolean, default=False)
+    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
 

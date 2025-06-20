@@ -1,5 +1,8 @@
 Hello {{ member.name }},
 
+{% if test_mode %}*** TEST MODE - the receipt below is from a test vote ***
+{% endif %}
+
 Your votes in {{ meeting.title }} have been recorded.
 Receipt hashes:
 {% for h in hashes %}

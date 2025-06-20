@@ -25,7 +25,7 @@ def test_unsubscribe_token_created_and_link_in_email():
         db.session.commit()
         with app.test_request_context('/'):
             with patch.object(mail, 'send') as mock_send:
-                send_vote_invite(member, 'tok', meeting)
+                send_vote_invite(member, 'tok', meeting, test_mode=False)
                 mock_send.assert_called_once()
                 token = UnsubscribeToken.query.filter_by(member_id=member.id).first()
                 assert token is not None
@@ -61,5 +61,5 @@ def test_email_not_sent_when_opted_out():
         db.session.commit()
         with app.test_request_context('/'):
             with patch.object(mail, 'send') as mock_send:
-                send_vote_invite(member, 'tok', meeting)
+                send_vote_invite(member, 'tok', meeting, test_mode=False)
                 mock_send.assert_not_called()
