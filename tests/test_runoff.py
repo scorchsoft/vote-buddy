@@ -11,8 +11,10 @@ from app.models import (
     Runoff,
     VoteToken,
     Vote,
+    AppSetting,
 )
 from app.services import runoff as ro
+import json
 
 
 def _setup():
@@ -247,5 +249,48 @@ def test_close_stage1_tie_resolved_by_order():
 
         assert a1.status == 'carried'
         assert a1.tie_break_method == 'order'
+        assert a2.status == 'failed'
+        assert a2.tie_break_method == 'order'
+
+
+def test_close_stage1_tie_from_setting():
+    app = _setup()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M',
+            text_md='x',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+
+        a1 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A1', order=1)
+        a2 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A2', order=2)
+        db.session.add_all([a1, a2])
+        db.session.flush()
+
+        member = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add(member)
+        db.session.flush()
+
+        Vote.record(member_id=member.id, amendment_id=a1.id, choice='for', salt='s')
+        Vote.record(member_id=member.id, amendment_id=a1.id, choice='against', salt='s')
+        Vote.record(member_id=member.id, amendment_id=a2.id, choice='for', salt='s')
+        Vote.record(member_id=member.id, amendment_id=a2.id, choice='against', salt='s')
+
+        AppSetting.set('tie_break_decisions', json.dumps({str(a1.id): {'result': 'carried', 'method': 'chair'}}))
+
+        ro.close_stage1(meeting)
+
+        assert a1.status == 'carried'
+        assert a1.tie_break_method == 'chair'
         assert a2.status == 'failed'
         assert a2.tie_break_method == 'order'
