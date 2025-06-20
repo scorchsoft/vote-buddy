@@ -33,7 +33,7 @@ def test_send_vote_invite_sends_mail():
         db.session.commit()
         with app.test_request_context('/'):
             with patch.object(mail, 'send') as mock_send:
-                send_vote_invite(member, 'abc123', meeting)
+                send_vote_invite(member, 'abc123', meeting, test_mode=False)
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
                 assert '/vote/abc123' in sent_msg.body
@@ -59,7 +59,7 @@ def test_send_runoff_invite_uses_token_url():
         db.session.commit()
         with app.test_request_context('/'):
             with patch.object(mail, 'send') as mock_send:
-                send_runoff_invite(member, 'abc123', meeting)
+                send_runoff_invite(member, 'abc123', meeting, test_mode=False)
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
                 assert '/vote/runoff/abc123' in sent_msg.body
@@ -76,7 +76,7 @@ def test_send_stage1_reminder_uses_token_url():
         db.session.commit()
         with app.test_request_context('/'):
             with patch.object(mail, 'send') as mock_send:
-                send_stage1_reminder(member, 'abc123', meeting)
+                send_stage1_reminder(member, 'abc123', meeting, test_mode=False)
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
                 assert '/vote/abc123' in sent_msg.body
@@ -98,7 +98,7 @@ def test_send_stage2_invite_has_calendar_attachment():
         db.session.commit()
         with app.test_request_context('/'):
             with patch.object(mail, 'send') as mock_send:
-                send_stage2_invite(member, 'abc123', meeting)
+                send_stage2_invite(member, 'abc123', meeting, test_mode=False)
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
                 assert any(a.filename == 'stage2.ics' for a in sent_msg.attachments)
@@ -115,7 +115,7 @@ def test_send_vote_receipt_includes_hash():
         db.session.commit()
         with app.test_request_context('/'):
             with patch.object(mail, 'send') as mock_send:
-                send_vote_receipt(member, meeting, ['abc123'])
+                send_vote_receipt(member, meeting, ['abc123'], test_mode=False)
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
                 assert 'abc123' in sent_msg.body

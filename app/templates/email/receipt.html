@@ -7,6 +7,9 @@
   <tr>
     <td style="padding:24px;background-color:#FFFFFF;">
       <p>Hello {{ member.name }},</p>
+      {% if test_mode %}
+      <p style="color:#DC0714;"><strong>TEST MODE:</strong> the receipt below is from a test vote.</p>
+      {% endif %}
       <p>Your votes in <strong>{{ meeting.title }}</strong> have been recorded.</p>
       <p>Keep the hash values below as your receipt:</p>
       <ul style="list-style-type:none;padding:0;">

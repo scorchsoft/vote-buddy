@@ -263,6 +263,7 @@ def manage_settings():
         form.move_text.data = AppSetting.get(
             "move_text", current_app.config.get("MOVE_TEXT")
         )
+        form.manual_email_mode.data = AppSetting.get("manual_email_mode", "0") == "1"
     if form.validate_on_submit():
         AppSetting.set("site_title", form.site_title.data)
         AppSetting.set("site_logo", form.site_logo.data)
@@ -280,6 +281,7 @@ def manage_settings():
         AppSetting.set("tie_break_decisions", form.tie_break_decisions.data)
         AppSetting.set("clerical_text", form.clerical_text.data)
         AppSetting.set("move_text", form.move_text.data)
+        AppSetting.set("manual_email_mode", "1" if form.manual_email_mode.data else "0")
         flash("Settings updated", "success")
         return redirect(url_for("admin.manage_settings"))
     return render_template("admin/settings_form.html", form=form)
