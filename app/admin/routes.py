@@ -21,7 +21,13 @@ from ..models import (
     Member,
     AmendmentObjection,
 )
-from .forms import UserForm, UserCreateForm, RoleForm, SettingsForm
+from .forms import (
+    UserForm,
+    UserCreateForm,
+    RoleForm,
+    PermissionForm,
+    SettingsForm,
+)
 
 from ..permissions import permission_required
 
@@ -217,6 +223,51 @@ def edit_role(role_id):
         _save_role(form, role)
         return redirect(url_for("admin.list_roles"))
     return render_template("admin/role_form.html", form=form, role=role)
+
+
+def _save_permission(form: PermissionForm, perm: Permission | None = None) -> Permission:
+    """Populate Permission from form and persist."""
+    if perm is None:
+        perm = Permission()
+
+    perm.name = form.name.data
+
+    db.session.add(perm)
+    db.session.commit()
+    return perm
+
+
+@bp.route("/permissions")
+@login_required
+@permission_required("manage_users")
+def list_permissions():
+    permissions = Permission.query.order_by(Permission.name).all()
+    return render_template("admin/permissions.html", permissions=permissions)
+
+
+@bp.route("/permissions/create", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_users")
+def create_permission():
+    form = PermissionForm()
+    if form.validate_on_submit():
+        _save_permission(form)
+        return redirect(url_for("admin.list_permissions"))
+    return render_template("admin/permission_form.html", form=form, permission=None)
+
+
+@bp.route("/permissions/<int:permission_id>/edit", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_users")
+def edit_permission(permission_id):
+    perm = db.session.get(Permission, permission_id)
+    if perm is None:
+        abort(404)
+    form = PermissionForm(obj=perm)
+    if form.validate_on_submit():
+        _save_permission(form, perm)
+        return redirect(url_for("admin.list_permissions"))
+    return render_template("admin/permission_form.html", form=form, permission=perm)
 
 
 @bp.route("/settings", methods=["GET", "POST"])

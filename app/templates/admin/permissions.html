@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
+{% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Permissions', url_for('admin.list_permissions'))]) }}
+<h1 class="font-bold text-bp-blue mb-4">Permissions</h1>
+<div class="bp-card">
+<table class="bp-table">
+  <thead class="bg-bp-grey-50">
+    <tr>
+      <th scope="col" class="text-left p-2">Name</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for perm in permissions %}
+    <tr class="border-t">
+      <td class="p-2"><a href="{{ url_for('admin.edit_permission', permission_id=perm.id) }}" class="hover:underline">{{ perm.name }}</a></td>
+    </tr>
+  {% else %}
+    <tr><td class="p-2">No permissions defined.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<a href="{{ url_for('admin.create_permission') }}" class="bp-btn-primary mt-4 inline-block">Create Permission</a>
+{% endblock %}
