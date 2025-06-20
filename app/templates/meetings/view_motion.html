@@ -36,6 +36,18 @@
       <form method="post" action="{{ url_for('meetings.delete_amendment', amendment_id=amend.id) }}">
         <button class="bp-btn-secondary">Delete</button>
       </form>
+      {% if current_user.is_authenticated and current_user.has_permission('manage_meetings') %}
+        {% if amend.status != 'rejected' %}
+        <form method="post" action="{{ url_for('meetings.reject_amendment', amendment_id=amend.id) }}">
+          <button class="bp-btn-secondary">Reject</button>
+        </form>
+        {% endif %}
+        {% if amend.status != 'merged' %}
+        <form method="post" action="{{ url_for('meetings.mark_amendment_merged', amendment_id=amend.id) }}">
+          <button class="bp-btn-secondary">Mark merged</button>
+        </form>
+        {% endif %}
+      {% endif %}
       {% if amend.status in ['rejected', 'merged'] %}
       <a href="{{ url_for('meetings.submit_objection', amendment_id=amend.id) }}" class="bp-btn-primary">Submit objection</a>
       {% endif %}

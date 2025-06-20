@@ -12,6 +12,7 @@ from wtforms import (
     SubmitField,
 )
 from wtforms.validators import DataRequired, Optional
+from wtforms import SelectMultipleField
 
 
 class MeetingForm(FlaskForm):
@@ -145,6 +146,23 @@ class ConflictForm(FlaskForm):
 class ObjectionForm(FlaskForm):
     member_id = SelectField("Member", coerce=int, validators=[DataRequired()])
     submit = SubmitField("Submit objection")
+
+
+class ManualEmailForm(FlaskForm):
+    email_type = SelectField(
+        "Email Type",
+        choices=[
+            ("stage1_invite", "Stage 1 Invite"),
+            ("stage1_reminder", "Stage 1 Reminder"),
+            ("runoff_invite", "Run-off Invite"),
+            ("stage2_invite", "Stage 2 Invite"),
+        ],
+        validators=[DataRequired()],
+    )
+    member_ids = SelectMultipleField("Members", coerce=int)
+    send_to_all = BooleanField("Send to all members")
+    test_mode = BooleanField("Test Mode")
+    submit = SubmitField("Send")
 
 
 class MotionForm(FlaskForm):
