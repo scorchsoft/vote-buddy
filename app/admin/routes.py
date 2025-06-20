@@ -104,11 +104,13 @@ def list_users():
 
     users = query.all()
 
-    template = (
-        "admin/_user_rows.html"
-        if request.headers.get("HX-Request")
-        else "admin/users.html"
-    )
+    # Only return partial template for specific HTMX requests (search/sort)
+    # Not for general page navigation via hx-boost
+    if request.headers.get("HX-Request") and request.headers.get("HX-Target") == "user-table-body":
+        template = "admin/_user_rows.html"
+    else:
+        template = "admin/users.html"
+    
     return render_template(
         template,
         users=users,

@@ -132,11 +132,13 @@ def list_meetings():
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     meetings = pagination.items
 
-    template = (
-        "meetings/_meeting_rows.html"
-        if request.headers.get("HX-Request")
-        else "meetings_list.html"
-    )
+    # Only return partial template for specific HTMX requests (search/sort/pagination)
+    # Not for general page navigation via hx-boost
+    if request.headers.get("HX-Request") and request.headers.get("HX-Target") == "meeting-table-body":
+        template = "meetings/_meeting_rows.html"
+    else:
+        template = "meetings_list.html"
+    
     return render_template(
         template,
         meetings=meetings,

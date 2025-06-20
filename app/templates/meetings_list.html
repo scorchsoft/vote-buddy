@@ -1,74 +1,162 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-3xl font-bold text-bp-blue">
-    Meetings
-    <span class="ml-1" tabindex="0" data-tooltip="List of active and past meetings">?</span>
-  </h1>
-  {% if current_user.is_authenticated %}
-  <a href="{{ url_for('meetings.create_meeting') }}" class="bp-btn-primary">Create Meeting</a>
-  {% endif %}
+<div class="mb-8">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-bp-grey-900 mb-2">
+        Meetings
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-bp-grey-200 text-bp-grey-600 text-base ml-2" 
+              tabindex="0" 
+              data-tooltip="List of all active and past meetings. Click on a meeting to manage it.">?</span>
+      </h1>
+      <p class="text-bp-grey-600">Manage AGMs, EGMs and voting processes</p>
+    </div>
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('meetings.create_meeting') }}" class="bp-btn-primary bp-btn-icon">
+      <svg class="bp-icon" viewBox="0 0 24 24">
+        <path d="M12 4v16m8-8H4" stroke="currentColor" fill="none"/>
+      </svg>
+      <span>Create Meeting</span>
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Enhanced Search Box -->
+  <div class="bp-card mb-6">
+    <form hx-get="{{ url_for('meetings.list_meetings') }}"
+          hx-target="#meeting-table-body"
+          hx-trigger="keyup changed delay:300ms"
+          hx-push-url="true">
+      <div class="bp-form-group">
+        <input id="q" 
+               name="q" 
+               type="text" 
+               value="{{ q or '' }}" 
+               placeholder=" "
+               class="bp-input">
+        <label for="q" class="bp-form-label">
+          <svg class="bp-icon inline mr-1" viewBox="0 0 24 24">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" fill="none"/>
+          </svg>
+          Search meetings by title or type
+        </label>
+      </div>
+    </form>
+  </div>
+
+  <!-- Enhanced Table -->
+  <div class="bp-card p-0 overflow-hidden">
+    <table class="bp-table">
+      <thead>
+        <tr>
+          <th scope="col">
+            <a hx-get="{{ url_for('meetings.list_meetings', sort='title', direction='desc' if direction=='asc' and sort=='title' else 'asc', q=q) }}"
+               hx-target="#meeting-table-body" 
+               hx-push-url="true" 
+               class="flex items-center gap-1 hover:text-bp-blue transition-colors">
+              Title
+              <svg class="bp-icon w-4 h-4" viewBox="0 0 24 24">
+                <path d="M7 10l5-5 5 5M7 14l5 5 5-5" stroke="currentColor" fill="none"/>
+              </svg>
+            </a>
+          </th>
+          <th scope="col">
+            <a hx-get="{{ url_for('meetings.list_meetings', sort='type', direction='desc' if direction=='asc' and sort=='type' else 'asc', q=q) }}"
+               hx-target="#meeting-table-body" 
+               hx-push-url="true" 
+               class="flex items-center gap-1 hover:text-bp-blue transition-colors">
+              Type
+              <svg class="bp-icon w-4 h-4" viewBox="0 0 24 24">
+                <path d="M7 10l5-5 5 5M7 14l5 5 5-5" stroke="currentColor" fill="none"/>
+              </svg>
+            </a>
+          </th>
+          <th scope="col">
+            <a hx-get="{{ url_for('meetings.list_meetings', sort='status', direction='desc' if direction=='asc' and sort=='status' else 'asc', q=q) }}"
+               hx-target="#meeting-table-body" 
+               hx-push-url="true" 
+               class="flex items-center gap-1 hover:text-bp-blue transition-colors">
+              Status
+              <svg class="bp-icon w-4 h-4" viewBox="0 0 24 24">
+                <path d="M7 10l5-5 5 5M7 14l5 5 5-5" stroke="currentColor" fill="none"/>
+              </svg>
+            </a>
+          </th>
+          <th scope="col" class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="meeting-table-body">
+        {% include 'meetings/_meeting_rows.html' %}
+      </tbody>
+    </table>
+    
+    {% if meetings|length == 0 %}
+    <div class="text-center py-12 px-4">
+      <svg class="bp-icon w-16 h-16 mx-auto mb-4 text-bp-grey-400" viewBox="0 0 24 24">
+        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" fill="none"/>
+      </svg>
+      <h3 class="text-lg font-semibold text-bp-grey-700 mb-2">No meetings found</h3>
+      <p class="text-bp-grey-600 mb-4">{{ 'No meetings match your search.' if q else 'Get started by creating your first meeting.' }}</p>
+      {% if current_user.is_authenticated and not q %}
+      <a href="{{ url_for('meetings.create_meeting') }}" class="bp-btn-primary">
+        Create First Meeting
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
 </div>
 
-<form class="mb-6 bp-card bp-form"
-      hx-get="{{ url_for('meetings.list_meetings') }}"
-      hx-target="#meeting-table-body"
-      hx-trigger="keyup changed delay:300ms"
-      hx-push-url="true">
-  <label for="q" class="sr-only">Search meetings</label>
-  <input id="q" name="q" type="text" value="{{ q or '' }}" placeholder="Search meetings..." class="border p-3 rounded w-full">
-</form>
-
-<div class="bp-card mb-6">
-  <table class="bp-table">
-    <thead class="bg-bp-grey-50">
-      <tr>
-        <th scope="col" class="text-left p-2">
-          <a hx-get="{{ url_for('meetings.list_meetings', sort='title', direction='desc' if direction=='asc' and sort=='title' else 'asc', q=q) }}"
-             hx-target="#meeting-table-body" hx-push-url="true" class="hover:underline">Title</a>
-        </th>
-        <th scope="col" class="text-left p-2">
-          <a hx-get="{{ url_for('meetings.list_meetings', sort='type', direction='desc' if direction=='asc' and sort=='type' else 'asc', q=q) }}"
-             hx-target="#meeting-table-body" hx-push-url="true" class="hover:underline">Type</a>
-        </th>
-        <th scope="col" class="text-left p-2">
-          <a hx-get="{{ url_for('meetings.list_meetings', sort='status', direction='desc' if direction=='asc' and sort=='status' else 'asc', q=q) }}"
-             hx-target="#meeting-table-body" hx-push-url="true" class="hover:underline">Status</a>
-        </th>
-      </tr>
-    </thead>
-    <tbody id="meeting-table-body">
-      {% include 'meetings/_meeting_rows.html' %}
-    </tbody>
-  </table>
-</div>
 {% if pagination.pages > 1 %}
-<nav id="meeting-pagination" aria-label="Pagination" class="mt-4">
+<nav id="meeting-pagination" aria-label="Pagination" class="mt-6 flex justify-center">
   <ul class="bp-pagination">
     {% if pagination.has_prev %}
     <li>
-      <a href="{{ url_for('meetings.list_meetings', page=pagination.prev_num, q=q, sort=sort, direction=direction) }}" aria-label="Previous">&laquo;</a>
+      <a href="{{ url_for('meetings.list_meetings', page=pagination.prev_num, q=q, sort=sort, direction=direction) }}" 
+         aria-label="Previous"
+         class="hover:bg-bp-grey-100 transition-colors">
+        <svg class="bp-icon w-5 h-5" viewBox="0 0 24 24">
+          <path d="M15 19l-7-7 7-7" stroke="currentColor" fill="none"/>
+        </svg>
+      </a>
     </li>
     {% else %}
-    <li><span class="bp-disabled">&laquo;</span></li>
+    <li><span class="bp-disabled opacity-50">
+      <svg class="bp-icon w-5 h-5" viewBox="0 0 24 24">
+        <path d="M15 19l-7-7 7-7" stroke="currentColor" fill="none"/>
+      </svg>
+    </span></li>
     {% endif %}
+    
     {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
       {% if p %}
         {% if p == pagination.page %}
         <li><span class="bp-current-page">{{ p }}</span></li>
         {% else %}
-        <li><a href="{{ url_for('meetings.list_meetings', page=p, q=q, sort=sort, direction=direction) }}">{{ p }}</a></li>
+        <li><a href="{{ url_for('meetings.list_meetings', page=p, q=q, sort=sort, direction=direction) }}"
+               class="hover:bg-bp-grey-100 transition-colors">{{ p }}</a></li>
         {% endif %}
       {% else %}
-        <li><span>&hellip;</span></li>
+        <li><span class="text-bp-grey-400">&hellip;</span></li>
       {% endif %}
     {% endfor %}
+    
     {% if pagination.has_next %}
     <li>
-      <a href="{{ url_for('meetings.list_meetings', page=pagination.next_num, q=q, sort=sort, direction=direction) }}" aria-label="Next">&raquo;</a>
+      <a href="{{ url_for('meetings.list_meetings', page=pagination.next_num, q=q, sort=sort, direction=direction) }}" 
+         aria-label="Next"
+         class="hover:bg-bp-grey-100 transition-colors">
+        <svg class="bp-icon w-5 h-5" viewBox="0 0 24 24">
+          <path d="M9 5l7 7-7 7" stroke="currentColor" fill="none"/>
+        </svg>
+      </a>
     </li>
     {% else %}
-    <li><span class="bp-disabled">&raquo;</span></li>
+    <li><span class="bp-disabled opacity-50">
+      <svg class="bp-icon w-5 h-5" viewBox="0 0 24 24">
+        <path d="M9 5l7 7-7 7" stroke="currentColor" fill="none"/>
+      </svg>
+    </span></li>
     {% endif %}
   </ul>
 </nav>

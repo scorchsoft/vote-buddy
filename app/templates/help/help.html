@@ -1,10 +1,206 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="bp-card space-y-4">
-  <h1 class="text-2xl font-bold text-bp-blue">Voting Help</h1>
-  <div class="prose">
-    {{ content|safe }}
+<div class="max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <h1 class="text-4xl font-bold text-bp-grey-900 mb-4">Voting Help & Documentation</h1>
+    <p class="text-lg text-bp-grey-600">Everything you need to know about using VoteBuddy</p>
   </div>
-  <a href="{{ url_for('main.index') }}" class="bp-btn-primary">Return home</a>
+
+  <!-- Quick Navigation -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+    <a href="#overview" class="bp-card text-center hover:shadow-xl transition-all">
+      <svg class="bp-icon w-12 h-12 mx-auto mb-3 text-bp-blue" viewBox="0 0 24 24">
+        <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
+      </svg>
+      <h3 class="font-semibold">Overview</h3>
+      <p class="text-sm text-bp-grey-600 mt-1">Learn about the voting stages</p>
+    </a>
+    
+    <a href="#how-to-vote" class="bp-card text-center hover:shadow-xl transition-all">
+      <svg class="bp-icon w-12 h-12 mx-auto mb-3 text-bp-blue" viewBox="0 0 24 24">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" fill="none"/>
+      </svg>
+      <h3 class="font-semibold">How to Vote</h3>
+      <p class="text-sm text-bp-grey-600 mt-1">Step-by-step voting guide</p>
+    </a>
+    
+    <a href="#faq" class="bp-card text-center hover:shadow-xl transition-all">
+      <svg class="bp-icon w-12 h-12 mx-auto mb-3 text-bp-blue" viewBox="0 0 24 24">
+        <path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
+      </svg>
+      <h3 class="font-semibold">FAQs</h3>
+      <p class="text-sm text-bp-grey-600 mt-1">Common questions answered</p>
+    </a>
+  </div>
+
+  <!-- Content Sections -->
+  <div class="space-y-8">
+    <!-- Overview Section -->
+    <section id="overview" class="bp-card">
+      <h2 class="text-2xl font-bold text-bp-grey-900 mb-4 flex items-center gap-2">
+        <svg class="bp-icon text-bp-red" viewBox="0 0 24 24">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" fill="none"/>
+        </svg>
+        Overview of the Stages
+      </h2>
+      
+      <div class="prose max-w-none text-bp-grey-700">
+        <p class="mb-4">British Powerlifting motions are decided in two parts:</p>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="bg-bp-grey-50 rounded-lg p-6">
+            <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
+              <span class="bp-badge bp-badge-primary">Stage 1</span>
+              Amendments
+            </h3>
+            <p>Members vote on each proposed change to the motion. If no amendments qualify, this stage may be skipped.</p>
+          </div>
+          
+          <div class="bg-bp-grey-50 rounded-lg p-6">
+            <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
+              <span class="bp-badge bp-badge-primary">Stage 2</span>
+              Motion
+            </h3>
+            <p>Members vote on the final motion text after any carried amendments have been applied. A 75% majority is required for special resolutions.</p>
+          </div>
+        </div>
+        
+        <div class="bp-alert bp-alert-warning mt-6">
+          <svg class="bp-icon flex-shrink-0" viewBox="0 0 24 24">
+            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
+          </svg>
+          <p>Some ballots may combine these into one form but the sequence stays the same: know what has changed, then cast your vote on the motion.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- How to Vote Section -->
+    <section id="how-to-vote" class="bp-card">
+      <h2 class="text-2xl font-bold text-bp-grey-900 mb-4 flex items-center gap-2">
+        <svg class="bp-icon text-bp-red" viewBox="0 0 24 24">
+          <path d="M15.75 15.75L19 19m-2-7a5 5 0 11-10 0 5 5 0 0110 0z" stroke="currentColor" fill="none"/>
+        </svg>
+        How Voting Links Work
+      </h2>
+      
+      <div class="prose max-w-none text-bp-grey-700">
+        <p class="mb-4">Each eligible member receives an email with a unique link. This link contains a secure token identifying you and the stage.</p>
+        
+        <ul class="space-y-2 list-none pl-0">
+          <li class="flex items-start gap-3">
+            <svg class="bp-icon text-green-600 flex-shrink-0 mt-0.5" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" stroke="currentColor" fill="none"/>
+            </svg>
+            <span>Tokens can only be used once (unless revoting is enabled)</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg class="bp-icon text-green-600 flex-shrink-0 mt-0.5" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" stroke="currentColor" fill="none"/>
+            </svg>
+            <span>Only valid during the advertised voting window</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg class="bp-icon text-green-600 flex-shrink-0 mt-0.5" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" stroke="currentColor" fill="none"/>
+            </svg>
+            <span>Do not share your link with others</span>
+          </li>
+        </ul>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+          <p class="font-semibold mb-2">Proxy Voting</p>
+          <p>If you have been appointed as a proxy, a token will be issued for the represented member as well. Casting your vote records it for both accounts.</p>
+        </div>
+        
+        <p class="mt-4">For more details see Articles 107–115 in the governance documents.</p>
+      </div>
+    </section>
+
+    <!-- Keyboard Navigation -->
+    <section class="bp-card">
+      <h2 class="text-2xl font-bold text-bp-grey-900 mb-4 flex items-center gap-2">
+        <svg class="bp-icon text-bp-red" viewBox="0 0 24 24">
+          <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke="currentColor" fill="none"/>
+        </svg>
+        Keyboard Navigation
+      </h2>
+      
+      <div class="prose max-w-none text-bp-grey-700">
+        <p class="mb-4">All voting controls can be reached using the Tab key. After making your choices, the sticky confirmation bar becomes the final Tab stop with a prominent <span class="font-semibold">Submit vote</span> button.</p>
+      </div>
+    </section>
+
+    <!-- Additional Features -->
+    <section class="bp-card">
+      <h2 class="text-2xl font-bold text-bp-grey-900 mb-4 flex items-center gap-2">
+        <svg class="bp-icon text-bp-red" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" fill="none"/>
+        </svg>
+        Additional Features
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-semibold mb-2">Coordinators: Resending Links</h3>
+          <p class="text-bp-grey-700">If a member misplaces their invite or the token has expired, coordinators can resend the voting link from the admin results page. Use the <span class="bp-badge">Resend link</span> button beside the member's name to generate a fresh token for the current stage and email it immediately.</p>
+        </div>
+        
+        <div>
+          <h3 class="font-semibold mb-2">Verifying Your Vote Receipt</h3>
+          <p class="text-bp-grey-700">After voting you will receive an email containing one or more hash values. These hashes act as your receipt. Visit the receipt checker and enter a hash to confirm it matches a recorded vote.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="bp-card">
+      <h2 class="text-2xl font-bold text-bp-grey-900 mb-4 flex items-center gap-2">
+        <svg class="bp-icon text-bp-red" viewBox="0 0 24 24">
+          <path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
+        </svg>
+        Frequently Asked Questions
+      </h2>
+      
+      <div class="space-y-4">
+        <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
+          <summary class="font-semibold cursor-pointer">Can I change my vote after submitting?</summary>
+          <p class="mt-2 text-bp-grey-700">Only if revoting has been enabled by the administrator for that specific stage. You'll see a notification if this option is available.</p>
+        </details>
+        
+        <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
+          <summary class="font-semibold cursor-pointer">What happens if I miss the voting deadline?</summary>
+          <p class="mt-2 text-bp-grey-700">Unfortunately, votes cannot be accepted after the voting window closes. Make sure to vote before the deadline shown in your email.</p>
+        </details>
+        
+        <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
+          <summary class="font-semibold cursor-pointer">How do I know my vote was counted?</summary>
+          <p class="mt-2 text-bp-grey-700">You'll receive an email receipt with a unique hash. You can verify this hash on the receipt checker page at any time.</p>
+        </details>
+      </div>
+    </section>
+  </div>
+
+  <!-- Return Button -->
+  <div class="text-center mt-12">
+    <a href="{{ url_for('main.index') }}" class="bp-btn-primary bp-btn-icon">
+      <svg class="bp-icon" viewBox="0 0 24 24">
+        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke="currentColor" fill="none"/>
+      </svg>
+      <span>Return Home</span>
+    </a>
+  </div>
 </div>
+
+<style>
+  /* Smooth scroll for anchor links */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Offset for fixed header */
+  section {
+    scroll-margin-top: 5rem;
+  }
+</style>
 {% endblock %}

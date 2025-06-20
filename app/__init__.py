@@ -46,6 +46,15 @@ def create_app(config_object='config.DevelopmentConfig'):
         response.headers['Content-Security-Policy'] = csp
         return response
 
+    @app.after_request
+    def set_cache_control(response):
+        """Set cache control headers - prevent caching in development."""
+        if app.debug:  # Only in development mode
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+        return response
+
     return app
 
 
@@ -87,6 +96,13 @@ def register_extensions(app):
         return {
             'current_stage_label': stage_label,
             'current_quorum_pct': quorum_pct,
+        }
+
+    @app.context_processor
+    def inject_cache_bust():
+        """Add cache busting timestamp for development."""
+        return {
+            'cache_bust': int(datetime.now().timestamp()) if app.debug else '1'
         }
 
 
