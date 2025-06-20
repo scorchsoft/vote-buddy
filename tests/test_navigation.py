@@ -30,7 +30,7 @@ def test_nav_shows_user_email_and_role():
             with patch('flask_login.utils._get_user', return_value=user):
                 html = render_template('base.html')
                 assert 'alice@example.com' in html
-                assert '<span class="bp-badge">Admin</span>' in html
+                assert '<span class="bp-badge bp-badge-secondary">Admin</span>' in html
                 assert 'Dashboard' in html
                 assert 'Logout' in html
 

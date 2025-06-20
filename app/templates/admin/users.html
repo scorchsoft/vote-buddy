@@ -22,9 +22,10 @@
       </th>
     </tr>
   </thead>
-  <tbody id="user-table-body">
+<tbody id="user-table-body">
     {% include 'admin/_user_rows.html' %}
   </tbody>
 </table>
 </div>
+<a href="{{ url_for('admin.create_user') }}" class="bp-btn-primary mt-4 inline-block">Create User</a>
 {% endblock %}

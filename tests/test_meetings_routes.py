@@ -33,6 +33,7 @@ def _make_user(has_permission: bool):
     perm = Permission(name="manage_meetings") if has_permission else None
     role = Role(permissions=[perm] if perm else [])
     user = User(role=role)
+    user.email = 'admin@example.com'
     user.is_active = True
     return user
 
