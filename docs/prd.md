@@ -398,6 +398,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-21 – Tie-break decisions from settings now apply automatically when Stage 1 closes.
 * 2025-06-22 – Added Markdown preview for clerical and move text settings.
 * 2025-06-22 – Added public meetings pages with resend link modal and contact URL setting.
+* 2025-06-23 – Documented local PostgreSQL setup in README.
 
 ---
 

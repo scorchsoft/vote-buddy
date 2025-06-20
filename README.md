@@ -51,7 +51,30 @@ pip install -r requirements.txt
 docker-compose up --build
 ```
 
-Note that you don't have to run this with docker. The app will also run locally if you have python + npm + postgresql installed.
+Note that you don't have to run this with Docker. The app will also run locally if you have Python, Node and PostgreSQL installed.
+
+### Running without Docker
+
+1. Install PostgreSQL and create a database and user (example shown for Linux):
+
+```bash
+sudo -u postgres createuser -P vote_buddy
+sudo -u postgres createdb -O vote_buddy vote_buddy
+```
+
+2. Edit your copied `.env` and point `DATABASE_URL` at the new user:
+
+```env
+DATABASE_URL=postgresql+psycopg2://vote_buddy:<password>@localhost:5432/vote_buddy
+```
+
+3. Apply the migrations locally:
+
+```bash
+flask db upgrade
+```
+
+From here you can continue with the remaining steps such as building the CSS and creating an admin account.
 
 4. Install Node dependencies and compile the Tailwind CSS:
 
