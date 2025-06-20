@@ -5,7 +5,7 @@
     <div>{{ c.text_md|markdown_to_html|safe }}</div>
     {% if current_user.is_authenticated and current_user.has_permission('manage_meetings') and not c.hidden %}
     <form method="post" action="{{ url_for('comments.hide_comment', comment_id=c.id) }}" class="mt-2">
-      {{ csrf_token() }}
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <button class="bp-btn-secondary">Hide</button>
     </form>
     {% endif %}
@@ -27,7 +27,7 @@
   {% endif %}
 </nav>
 <form method="post" hx-post="{{ url_for('comments.' + ('add_motion_comment' if target[0]=='motion' else 'add_amendment_comment'), token=token, **{target[0]+'_id': target[1]}) }}" hx-target="closest div" hx-swap="outerHTML" class="bp-form space-y-2">
-  {{ csrf_token() }}
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
   <textarea name="text" class="border p-2 rounded w-full" required></textarea>
   {% set show_warn = comments|selectattr('member_id','equalto', g.member_id)|list|length == 0 %}
   {% if show_warn %}
