@@ -1113,7 +1113,11 @@ def stage1_ics(meeting_id: int):
     meeting = db.session.get(Meeting, meeting_id)
     if meeting is None:
         abort(404)
-    ics = generate_stage_ics(meeting, 1)
+    try:
+        ics = generate_stage_ics(meeting, 1)
+    except ValueError:
+        flash("Stage 1 timestamps not set", "error")
+        return redirect(request.referrer or url_for("meetings.list_meetings"))
     return send_file(
         io.BytesIO(ics),
         mimetype="text/calendar",
@@ -1130,7 +1134,11 @@ def stage2_ics(meeting_id: int):
     meeting = db.session.get(Meeting, meeting_id)
     if meeting is None:
         abort(404)
-    ics = generate_stage_ics(meeting, 2)
+    try:
+        ics = generate_stage_ics(meeting, 2)
+    except ValueError:
+        flash("Stage 2 timestamps not set", "error")
+        return redirect(request.referrer or url_for("meetings.list_meetings"))
     return send_file(
         io.BytesIO(ics),
         mimetype="text/calendar",
