@@ -377,6 +377,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-19 – Added discussion comments for motions and amendments with admin moderation.
 * 2025-06-20 – Added CLI command `generate-fake-data` to seed demo meetings and members.
 * 2025-06-20 – Meeting form auto-populates dates from AGM date with timing notes.
+* 2025-06-20 – Added tooltip explaining quorum progress banner.
 * 2025-06-21 – Documented `generate-fake-data` CLI usage and cautions in README.
 * 2025-06-20 – Fixed motion view page when amendment seconder is null.
 * 2025-06-22 – Motion creation form hides options unless "Multiple Choice" is selected and shows note about auto-added abstain.

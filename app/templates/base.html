@@ -249,6 +249,7 @@
                 <div class="bp-progress-bar" style="width: {{ current_quorum_pct }}%"></div>
               </div>
               <span class="bp-badge bp-badge-primary">{{ '%.1f'|format(current_quorum_pct) }}%</span>
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-bp-grey-200 text-bp-grey-600 text-xs" tabindex="0" data-tooltip="Stage 1 turnout vs quorum">?</span>
             </div>
             {% endif %}
             {% else %}
