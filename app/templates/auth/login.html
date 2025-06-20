@@ -4,7 +4,7 @@
 
 <form method="post" class="bp-form bp-card">
   <div>
-    {{ csrf_token() }}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <input type="hidden" name="next" value="{{ next or '' }}">
     <label for="email" class="block font-semibold">Email</label>
   <input id="email" type="email" name="email" required class="border p-3 rounded w-full">
