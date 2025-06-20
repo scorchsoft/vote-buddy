@@ -8,6 +8,9 @@
     <td style="padding:24px;background-color:#FFFFFF;">
       <p>Hello {{ member.name }},</p>
       <p>Stage 2 voting for <strong>{{ meeting.title }}</strong> is now open.</p>
+      {% if test_mode %}
+      <p style="color:#DC0714;"><strong>TEST MODE:</strong> votes cast using this link will be recorded as test data.</p>
+      {% endif %}
       <p style="text-align:center;margin:32px 0;">
         <a href="{{ link }}" style="background-color:#DC0714;color:#FFFFFF;padding:12px 24px;text-decoration:none;border-radius:4px;display:inline-block;">Cast your vote</a>
       </p>

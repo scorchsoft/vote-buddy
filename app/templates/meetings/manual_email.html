@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Send Emails{% endblock %}
+{% block content %}
+<h1 class="text-2xl mb-4">Send Emails</h1>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <div class="mb-4">
+    {{ form.email_type.label(class="block font-bold") }}
+    {{ form.email_type(class="bp-input") }}
+  </div>
+  <div class="mb-4">
+    {{ form.send_to_all() }} {{ form.send_to_all.label }}
+  </div>
+  <div class="mb-4">
+    {{ form.member_ids.label(class="block font-bold") }}
+    {{ form.member_ids(size=10, class="bp-input w-full") }}
+  </div>
+  <div class="mb-4">
+    {{ form.test_mode() }} {{ form.test_mode.label }}
+  </div>
+  <div>
+    {{ form.submit(class="bp-button") }}
+  </div>
+</form>
+{% endblock %}
