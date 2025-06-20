@@ -156,6 +156,7 @@ class Member(db.Model):
     __tablename__ = "members"
     id = db.Column(db.Integer, primary_key=True)
     meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    member_number = db.Column(db.String(50))
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
     proxy_for = db.Column(db.String(255))

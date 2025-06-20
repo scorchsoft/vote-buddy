@@ -52,10 +52,10 @@ def test_nav_highlights_current_page():
     with app.app_context():
         db.create_all()
         anon = AnonymousUserMixin()
-        with app.test_request_context('/meetings/'):
+        with app.test_request_context('/public/meetings'):
             with patch('flask_login.utils._get_user', return_value=anon):
                 html = render_template('base.html')
-                assert re.search(r'<a[^>]*href="/meetings/"[^>]*aria-current="page"', html)
+                assert re.search(r'<a[^>]*href="/public/meetings"[^>]*aria-current="page"', html)
 
 
 def test_nav_includes_site_settings_when_authorized():
