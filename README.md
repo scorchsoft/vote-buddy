@@ -1,6 +1,6 @@
-# VoteBuddy (Open source AGM and EGM software for membership organisations)
+# VoteBuddy (Free and Open source AGM and EGM software for membership organisations)
 
-VoteBuddy by [Scorchsoft](https://www.scorchsoft.com) is a Python Flask application for running electronic ballots at AGMs and EGMs, and was originally programmed for use by British Powerlifting.
+VoteBuddy by [Scorchsoft](https://www.scorchsoft.com) is an Open Source web application that membership organisations can run online voting for two stage electronic ballots at AGMs and EGMs.
 
 It supports two stage voting on amendments and final motions, sends unique voting links by email and produces auditable results.
 
@@ -20,6 +20,7 @@ VoteBuddy aims to take the tried and tested "Roberts Rules" around governance an
 - iCalendar downloads for Stage 1 and Stage 2 voting windows
 - Results exports to CSV and DOCX plus audit logs
 - Optional unsubscribe tokens for members
+- Built in Python (Flask)
 
 ## Screenshots
 
@@ -49,6 +50,8 @@ pip install -r requirements.txt
 ```bash
 docker-compose up --build
 ```
+
+Note that you don't have to run this with docker. The app will also run locally if you have python + npm + postgresql installed.
 
 4. Install Node dependencies and compile the Tailwind CSS:
 
