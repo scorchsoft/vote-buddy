@@ -27,6 +27,10 @@ The following images show the main dashboard and help section in action.
 
 ![Admin dashboard screenshot](assets/screenshots/admin-dashboard.png)
 ![Help section screenshot](assets/screenshots/help-section.png)
+![Meeting list screenshot](assets/screenshots/home.png)
+![Meeting details screenshot](assets/screenshots/view-results.png)
+
+
 
 ## Development setup
 
@@ -68,6 +72,19 @@ To run the development server directly on your machine, install the requirements
 ```bash
 python -m flask --app app run
 ```
+
+### Generating demo data
+
+You can seed a fresh development database with example meetings and members using the
+`generate-fake-data` CLI command:
+
+```bash
+python -m flask --app app generate-fake-data
+```
+
+This creates demo coordinator and returning officer accounts and inserts a sample meeting with motions,
+amendments and 30 random members. **Run it only on a local database** as it may conflict with real
+data and could trigger emails if your mail settings are active.
 
 ### Running tests
 
