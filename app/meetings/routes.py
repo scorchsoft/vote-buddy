@@ -8,6 +8,7 @@ from flask import (
     abort,
     send_file,
     current_app,
+    send_from_directory,
 )
 from flask_wtf import FlaskForm
 from wtforms import TextAreaField, SubmitField
@@ -237,21 +238,47 @@ def import_members(meeting_id):
 
         seen_emails: set[str] = set()
         tokens_to_send: list[tuple[Member, str]] = []
-        for row in reader:
+        for idx, row in enumerate(reader, start=2):
+            name = row["name"].strip()
             email = row["email"].strip().lower()
-            if email in seen_emails:
+            weight_raw = (row.get("vote_weight") or "1").strip()
+
+            if not name:
+                flash(f"Row {idx}: name is required", "error")
+                return render_template(
+                    "meetings/import_members.html", form=form, meeting=meeting
+                )
+            if not email or "@" not in email:
+                flash(f"Row {idx}: invalid email: {email}", "error")
+                return render_template(
+                    "meetings/import_members.html", form=form, meeting=meeting
+                )
+            if email in seen_emails or Member.query.filter_by(meeting_id=meeting.id, email=email).first():
                 flash(f"Duplicate email: {email}", "error")
                 return render_template(
                     "meetings/import_members.html", form=form, meeting=meeting
                 )
             seen_emails.add(email)
 
+            try:
+                weight = int(weight_raw or 1)
+            except ValueError:
+                flash(f"Row {idx}: vote_weight must be a number", "error")
+                return render_template(
+                    "meetings/import_members.html", form=form, meeting=meeting
+                )
+            if weight <= 0:
+                flash(f"Row {idx}: vote_weight must be positive", "error")
+                return render_template(
+                    "meetings/import_members.html", form=form, meeting=meeting
+                )
+
             member = Member(
                 meeting_id=meeting.id,
-                name=row["name"].strip(),
+                name=name,
                 email=email,
                 proxy_for=(row.get("proxy_for") or "").strip() or None,
-                weight=int(row.get("vote_weight") or 1),
+                weight=weight,
             )
             db.session.add(member)
             db.session.flush()
@@ -269,6 +296,15 @@ def import_members(meeting_id):
         return redirect(url_for("meetings.list_meetings"))
 
     return render_template("meetings/import_members.html", form=form, meeting=meeting)
+
+
+@bp.route("/sample-members.csv")
+@login_required
+@permission_required("manage_meetings")
+def download_sample_csv():
+    """Serve a template CSV for member uploads."""
+    path = os.path.join(current_app.root_path, "static", "sample_members.csv")
+    return send_file(path, mimetype="text/csv", as_attachment=True, download_name="sample_members.csv")
 
 
 @bp.route("/<int:meeting_id>/motions")
