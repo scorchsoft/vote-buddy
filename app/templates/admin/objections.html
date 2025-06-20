@@ -15,7 +15,7 @@
       <td class="p-2">{{ obj.created_at.strftime('%Y-%m-%d') }}</td>
       <td class="p-2">
         <form method="post" action="{{ url_for('admin.reinstate_amendment', amendment_id=amend.id) }}">
-          {{ csrf_token() }}
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button class="bp-btn-secondary">Reinstate</button>
         </form>
       </td>

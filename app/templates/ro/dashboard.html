@@ -30,23 +30,23 @@
         <td class="p-2 space-x-2">
           {% if meeting.stage1_locked %}
             <form action="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=1) }}" method="post" class="inline">
-              {{ csrf_token() }}
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <button type="submit" class="bp-btn-primary text-sm">Unlock S1</button>
             </form>
           {% else %}
             <form action="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=1) }}" method="post" class="inline">
-              {{ csrf_token() }}
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <button type="submit" class="bp-btn-primary text-sm">Lock S1</button>
             </form>
           {% endif %}
           {% if meeting.stage2_locked %}
             <form action="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=2) }}" method="post" class="inline">
-              {{ csrf_token() }}
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <button type="submit" class="bp-btn-primary text-sm">Unlock S2</button>
             </form>
           {% else %}
             <form action="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=2) }}" method="post" class="inline">
-              {{ csrf_token() }}
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <button type="submit" class="bp-btn-primary text-sm">Lock S2</button>
             </form>
           {% endif %}
