@@ -399,6 +399,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-22 – Added Markdown preview for clerical and move text settings.
 * 2025-06-22 – Added public meetings pages with resend link modal and contact URL setting.
 * 2025-06-23 – Rate limited public resend link form to prevent abuse.
+* 2025-06-23 – Added revoting banner and change-vote link on confirmation page when enabled.
 
 ---
 

@@ -149,6 +149,8 @@ def ballot_token(token: str):
             400,
         )
 
+    revote = bool(vote_token.used_at and meeting.revoting_allowed)
+
     if meeting.ballot_mode == "combined":
         motions = (
             Motion.query.filter_by(meeting_id=meeting.id)
@@ -163,6 +165,16 @@ def ballot_token(token: str):
         form = _combined_form(motions, amendments)
         if form.validate_on_submit():
             hashes = []
+            if revote:
+                for amend in amendments:
+                    Vote.query.filter_by(member_id=member.id, amendment_id=amend.id).delete()
+                    if proxy_member:
+                        Vote.query.filter_by(member_id=proxy_member.id, amendment_id=amend.id).delete()
+                for motion in motions:
+                    Vote.query.filter_by(member_id=member.id, motion_id=motion.id).delete()
+                    if proxy_member:
+                        Vote.query.filter_by(member_id=proxy_member.id, motion_id=motion.id).delete()
+                db.session.commit()
             for amend in amendments:
                 choice = form[f"amend_{amend.id}"].data
                 vote = Vote.record(
@@ -198,7 +210,12 @@ def ballot_token(token: str):
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
             send_vote_receipt(member, meeting, hashes)
-            return render_template("voting/confirmation.html", choice="recorded")
+            return render_template(
+                "voting/confirmation.html",
+                choice="recorded",
+                meeting=meeting,
+                token=token,
+            )
 
         motion_counts = {
             m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
@@ -221,6 +238,7 @@ def ballot_token(token: str):
             token=token,
             motion_counts=motion_counts,
             amend_counts=amend_counts,
+            revote=revote,
         )
 
     if vote_token.stage == 1:
@@ -237,6 +255,12 @@ def ballot_token(token: str):
         form = _amendment_form(amendments)
         if form.validate_on_submit():
             hashes = []
+            if revote:
+                for amend in amendments:
+                    Vote.query.filter_by(member_id=member.id, amendment_id=amend.id).delete()
+                    if proxy_member:
+                        Vote.query.filter_by(member_id=proxy_member.id, amendment_id=amend.id).delete()
+                db.session.commit()
             for amend in amendments:
                 choice = form[f"amend_{amend.id}"].data
                 vote = Vote.record(
@@ -256,7 +280,12 @@ def ballot_token(token: str):
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
             send_vote_receipt(member, meeting, hashes)
-            return render_template("voting/confirmation.html", choice="recorded")
+            return render_template(
+                "voting/confirmation.html",
+                choice="recorded",
+                meeting=meeting,
+                token=token,
+            )
 
         motion_counts = {
             m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
@@ -279,6 +308,7 @@ def ballot_token(token: str):
             token=token,
             motion_counts=motion_counts,
             amend_counts=amend_counts,
+            revote=revote,
         )
 
     else:
@@ -290,6 +320,12 @@ def ballot_token(token: str):
         form = _motion_form(motions)
         if form.validate_on_submit():
             hashes = []
+            if revote:
+                for motion in motions:
+                    Vote.query.filter_by(member_id=member.id, motion_id=motion.id).delete()
+                    if proxy_member:
+                        Vote.query.filter_by(member_id=proxy_member.id, motion_id=motion.id).delete()
+                db.session.commit()
             for motion in motions:
                 choice = form[f"motion_{motion.id}"].data
                 vote = Vote.record(
@@ -309,7 +345,12 @@ def ballot_token(token: str):
             vote_token.used_at = datetime.utcnow()
             db.session.commit()
             send_vote_receipt(member, meeting, hashes)
-            return render_template("voting/confirmation.html", choice="recorded")
+            return render_template(
+                "voting/confirmation.html",
+                choice="recorded",
+                meeting=meeting,
+                token=token,
+            )
 
         compiled = [
             (m, m.final_text_md or compile_motion_text(m)) for m in motions
@@ -326,6 +367,7 @@ def ballot_token(token: str):
             proxy_for=proxy_member,
             token=token,
             motion_counts=motion_counts,
+            revote=revote,
         )
 
 
