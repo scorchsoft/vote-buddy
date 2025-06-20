@@ -117,6 +117,19 @@ def test_close_stage1_creates_stage2_tokens_and_emails():
         db.session.flush()
         member = Member(meeting_id=meeting.id, name="Bob", email="b@example.com")
         db.session.add(member)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="x",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        db.session.add(amend)
         db.session.commit()
 
         with app.test_request_context(
@@ -150,6 +163,19 @@ def test_close_stage1_runoff_triggers_emails_and_tokens():
         db.session.flush()
         member = Member(meeting_id=meeting.id, name="Bob", email="b@example.com")
         db.session.add(member)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="x",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        db.session.add(amend)
         db.session.commit()
 
         runoff_obj = SimpleNamespace(id=1)
@@ -164,19 +190,51 @@ def test_close_stage1_runoff_triggers_emails_and_tokens():
         ):
             user = _make_user(True)
             with patch("flask_login.utils._get_user", return_value=user):
-                with patch(
-                    "app.meetings.routes.runoff.close_stage1",
-                    side_effect=_runoff_side_effect,
-                ):
+                from app.services import runoff
+                with patch.object(runoff, "close_stage1", side_effect=_runoff_side_effect):
                     with patch("app.meetings.routes.send_runoff_invite") as mock_send:
                         meetings.close_stage1(meeting.id)
                         mock_send.assert_called_once()
-                        assert (
-                            VoteToken.query.filter_by(
-                                member_id=member.id, stage=1
-                            ).count()
-                            == 1
-                        )
+                    assert (
+                        VoteToken.query.filter_by(
+                            member_id=member.id, stage=1
+                        ).count()
+                        == 1
+                    )
+
+
+def test_close_stage1_skips_when_no_amendments():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="Test", quorum=1)
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="Bob", email="b@example.com")
+        db.session.add(member)
+        db.session.flush()
+        token, _ = VoteToken.create(member_id=member.id, stage=1, salt="s")
+        token.used_at = datetime.utcnow()
+        db.session.commit()
+
+        with app.test_request_context(
+            f"/meetings/{meeting.id}/close-stage1", method="POST"
+        ):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.runoff.close_stage1") as close_mock:
+                    with patch("app.meetings.routes.send_stage2_invite") as send_mock:
+                        with patch("app.meetings.routes.flash") as fl:
+                            meetings.close_stage1(meeting.id)
+                            fl.assert_called()
+                        close_mock.assert_not_called()
+                        send_mock.assert_not_called()
+
+        assert meeting.status == "Pending Stage 2"
+        assert (
+            VoteToken.query.filter_by(member_id=member.id, stage=2).count() == 1
+        )
 
 
 def test_close_stage1_below_quorum_voids_vote():

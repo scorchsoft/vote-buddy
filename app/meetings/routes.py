@@ -165,6 +165,12 @@ def _save_meeting(form: MeetingForm, meeting: Meeting | None = None) -> Meeting:
     form.populate_obj(meeting)
     db.session.add(meeting)
     db.session.commit()
+    if (
+        not meeting.opens_at_stage1
+        and Amendment.query.filter_by(meeting_id=meeting.id).count() == 0
+    ):
+        meeting.status = "Pending Stage 2"
+        db.session.commit()
     return meeting
 
 
@@ -758,6 +764,23 @@ def close_stage1(meeting_id: int):
         flash(
             "Stage 1 quorum not met – vote void under Articles 112(d)–(f).",
             "error",
+        )
+        return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+
+    # if no amendments were proposed, skip Stage 1 entirely
+    if Amendment.query.filter_by(meeting_id=meeting.id).count() == 0:
+        members = Member.query.filter_by(meeting_id=meeting.id).all()
+        for member in members:
+            VoteToken.create(
+                member_id=member.id,
+                stage=2,
+                salt=current_app.config["TOKEN_SALT"],
+            )
+        meeting.status = "Pending Stage 2"
+        db.session.commit()
+        flash(
+            "No amendments submitted – Stage 1 skipped and Stage 2 tokens generated",
+            "success",
         )
         return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
 
