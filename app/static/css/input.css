@@ -378,6 +378,7 @@ nav {
   margin-bottom: 2rem;
   position: relative;
   z-index: 1;
+  color: white;
 }
 
 /* Alert Styles */

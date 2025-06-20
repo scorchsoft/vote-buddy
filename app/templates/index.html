@@ -2,8 +2,8 @@
 {% block content %}
 <!-- Hero Section -->
 <div class="bp-hero mb-8">
-  <h1 class="bp-hero-title">Welcome to {{ setting('site_title', 'VoteBuddy') }}</h1>
-  <p class="bp-hero-subtitle">The modern digital voting platform for British Powerlifting AGMs and EGMs</p>
+  <h1 class="bp-hero-title text-white">Welcome to {{ setting('site_title', 'VoteBuddy') }}</h1>
+  <p class="bp-hero-subtitle text-white">The modern digital voting platform for British Powerlifting AGMs and EGMs</p>
   <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
     <a href="{{ url_for('auth.login') }}" class="bp-btn-primary bp-btn-icon">
       <img src="{{ url_for('static', filename='icons/key_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
