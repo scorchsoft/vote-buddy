@@ -59,7 +59,7 @@ The `web` service runs migrations on start and exposes the app at `http://localh
 To run the development server directly on your machine, install the requirements and execute:
 
 ```bash
-flask --app app run
+python -m flask --app app run
 ```
 
 ### Running tests

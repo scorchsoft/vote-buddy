@@ -41,7 +41,7 @@ def create_app(config_object='config.DevelopmentConfig'):
         csp = (
             "default-src 'self'; "
             "script-src 'self' https://unpkg.com; "
-            "style-src 'self' https://unpkg.com"
+            "style-src 'self' https://unpkg.com 'unsafe-inline'"
         )
         response.headers['Content-Security-Policy'] = csp
         return response
