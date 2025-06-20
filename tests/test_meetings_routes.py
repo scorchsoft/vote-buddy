@@ -204,10 +204,14 @@ def test_close_stage1_below_quorum_voids_vote():
                             with patch(
                                 "app.meetings.routes.send_runoff_invite"
                             ) as mock_runoff:
-                                meetings.close_stage1(meeting.id)
-                                mock_close.assert_not_called()
-                                mock_stage2.assert_not_called()
-                                mock_runoff.assert_not_called()
+                                with patch(
+                                    "app.meetings.routes.send_quorum_failure"
+                                ) as mock_qfail:
+                                    meetings.close_stage1(meeting.id)
+                                    mock_close.assert_not_called()
+                                    mock_stage2.assert_not_called()
+                                    mock_runoff.assert_not_called()
+                                    mock_qfail.assert_called_once()
                                 assert meeting.status == "Quorum not met"
                                 assert (
                                     VoteToken.query.filter_by(
