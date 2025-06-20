@@ -2,39 +2,44 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Mobile Navigation Toggle
     const navToggle = document.getElementById('nav-toggle');
-    const navDrawer = document.getElementById('nav-drawer');
+    const navDrawerMobile = document.getElementById('nav-drawer-mobile');
     const body = document.body;
     
-    if (navToggle && navDrawer) {
+    if (navToggle && navDrawerMobile) {
         // Toggle mobile menu
         navToggle.addEventListener('click', function() {
             const isOpen = navToggle.getAttribute('aria-expanded') === 'true';
             
             navToggle.setAttribute('aria-expanded', !isOpen);
-            navDrawer.hidden = isOpen;
+            navDrawerMobile.hidden = isOpen;
             
             if (!isOpen) {
-                navDrawer.classList.add('open');
+                navDrawerMobile.classList.add('open');
                 // Create overlay
                 const overlay = document.createElement('div');
                 overlay.className = 'nav-overlay';
                 overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 30; transition: opacity 0.3s;';
+                overlay.style.opacity = '0';
                 overlay.onclick = () => navToggle.click();
                 body.appendChild(overlay);
                 
                 // Animate overlay
-                requestAnimationFrame(() => overlay.style.opacity = '1');
+                requestAnimationFrame(() => {
+                    overlay.style.opacity = '1';
+                });
                 
-                // Trap focus
-                navDrawer.focus();
+                // Prevent body scroll
+                body.style.overflow = 'hidden';
             } else {
-                navDrawer.classList.remove('open');
+                navDrawerMobile.classList.remove('open');
                 // Remove overlay
                 const overlay = document.querySelector('.nav-overlay');
                 if (overlay) {
                     overlay.style.opacity = '0';
                     setTimeout(() => overlay.remove(), 300);
                 }
+                // Restore body scroll
+                body.style.overflow = '';
             }
         });
         
@@ -60,6 +65,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const updateThemeIcon = (isDark) => {
             themeIcon.src = isDark ? themeIcon.dataset.sun : themeIcon.dataset.moon;
             themeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+            // Remove invert class when in dark mode since sun should be white
+            if (isDark) {
+                themeIcon.classList.remove('invert');
+            } else {
+                themeIcon.classList.add('invert');
+            }
         };
         
         updateThemeIcon(currentTheme === 'dark');

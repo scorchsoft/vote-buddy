@@ -1,43 +1,136 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
-{{ breadcrumbs([('Dashboard', url_for('admin.dashboard'))]) }}
-<div class="bp-card space-y-4">
-  <h1 class="font-bold text-bp-blue">Admin Dashboard</h1>
-  <p>Welcome to {{ setting('site_title', 'VoteBuddy') }} administration.</p>
-  <a href="{{ url_for('admin.list_users') }}" class="bp-btn-primary">Manage Users</a>
-  <a href="{{ url_for('admin.list_objections') }}" class="bp-btn-secondary ml-2">View Objections</a>
-</div>
-<h2 class="font-bold text-bp-blue mb-4">My Meetings</h2>
-<div class="bp-card-grid mb-12">
-  {% for meeting in meetings %}
-  <div class="bp-card">
-    <div class="bp-alert-warning mb-2">
-      Quorum: {{ '%.1f'|format(meeting.quorum_percentage()) }}% –
-      Stage 1 closes in {{ meeting.stage1_time_remaining() }}
-    </div>
-    <div class="bp-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ meeting.stage1_progress_percent() }}">
-      <div class="bp-progress-bar" style="width: {{ meeting.stage1_progress_percent() }}%"></div>
-      <span class="sr-only">{{ meeting.stage1_progress_percent() }}% complete</span>
-    </div>
-    <h3 class="font-semibold mb-1">{{ meeting.title }}</h3>
-    <p class="text-sm mb-1">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</p>
-    {% if meeting.status == 'Completed' %}
-    <p class="bp-alert-success text-sm mb-1">Completed</p>
-    {% else %}
-    <p class="text-sm mb-1">{{ meeting.status or 'Draft' }}</p>
-    {% endif %}
-    <span class="bp-badge">Next reminder in {{ meeting.hours_until_next_reminder() }}h</span>
-    <form action="{{ url_for('admin.toggle_public_results', meeting_id=meeting.id) }}" method="post" class="inline-block mt-2">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-      <button type="submit" class="bp-btn-secondary text-sm">
-        {{ 'Hide Results' if meeting.public_results else 'Show Results' }}
-      </button>
-    </form>
+<div class="max-w-7xl mx-auto">
+  {{ breadcrumbs([('Dashboard', url_for('admin.dashboard'))]) }}
+  
+  <!-- Header Section -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-bp-grey-900 mb-2">Admin Dashboard</h1>
+    <p class="text-bp-grey-600 text-lg">Welcome to {{ setting('site_title', 'VoteBuddy') }} administration.</p>
   </div>
-  {% else %}
-  <p>No meetings available.</p>
-  {% endfor %}
+  
+  <!-- Quick Actions -->
+  <div class="flex flex-wrap gap-4 mb-12">
+    <a href="{{ url_for('admin.list_users') }}" class="bp-btn-primary bp-btn-icon">
+      <svg class="bp-icon" viewBox="0 0 24 24">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" fill="none"/>
+      </svg>
+      <span>Manage Users</span>
+    </a>
+    <a href="{{ url_for('admin.list_objections') }}" class="bp-btn-secondary bp-btn-icon">
+      <svg class="bp-icon" viewBox="0 0 24 24">
+        <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" fill="none"/>
+      </svg>
+      <span>View Objections</span>
+    </a>
+  </div>
+  
+  <!-- My Meetings Section -->
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold text-bp-grey-900 mb-6 flex items-center gap-2">
+      <svg class="bp-icon text-bp-blue" viewBox="0 0 24 24">
+        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" fill="none"/>
+      </svg>
+      My Meetings
+    </h2>
+    
+    {% if meetings %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for meeting in meetings %}
+      <div class="bp-card hover:shadow-xl transition-all">
+        <!-- Quorum Alert -->
+        {% if meeting.status != 'Completed' %}
+        <div class="bp-alert bp-alert-warning mb-4">
+          <svg class="bp-icon flex-shrink-0" viewBox="0 0 24 24">
+            <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
+          </svg>
+          <div>
+            <div class="font-semibold">Quorum: {{ '%.1f'|format(meeting.quorum_percentage()) }}%</div>
+            <div class="text-sm">Stage 1 closes in {{ meeting.stage1_time_remaining() }}</div>
+          </div>
+        </div>
+        {% endif %}
+        
+        <!-- Progress Bar -->
+        {% if meeting.status != 'Completed' %}
+        <div class="mb-4">
+          <div class="bp-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ meeting.stage1_progress_percent() }}">
+            <div class="bp-progress-bar" style="width: {{ meeting.stage1_progress_percent() }}%"></div>
+          </div>
+          <span class="text-xs text-bp-grey-600 mt-1">{{ meeting.stage1_progress_percent() }}% voting window elapsed</span>
+        </div>
+        {% endif %}
+        
+        <!-- Meeting Info -->
+        <h3 class="text-xl font-bold text-bp-grey-900 mb-2">{{ meeting.title }}</h3>
+        <p class="text-bp-grey-600 mb-3">
+          <svg class="bp-icon inline w-4 h-4 mr-1" viewBox="0 0 24 24">
+            <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" fill="none"/>
+          </svg>
+          Notice given {{ meeting.notice_date.strftime('%B %d, %Y') if meeting.notice_date else 'N/A' }}
+        </p>
+        
+        <!-- Status Badge -->
+        <div class="flex items-center justify-between mb-4">
+          {% if meeting.status == 'Completed' %}
+          <span class="bp-badge bp-badge-success">
+            <svg class="bp-icon w-4 h-4 mr-1" viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
+            </svg>
+            Completed
+          </span>
+          {% else %}
+          <span class="bp-badge">{{ meeting.status or 'Draft' }}</span>
+          {% endif %}
+          
+          {% if meeting.status != 'Completed' %}
+          <span class="bp-badge bp-badge-secondary">
+            <svg class="bp-icon w-4 h-4 mr-1" viewBox="0 0 24 24">
+              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
+            </svg>
+            Next reminder in {{ meeting.hours_until_next_reminder() }}h
+          </span>
+          {% endif %}
+        </div>
+        
+        <!-- Actions -->
+        <div class="pt-4 border-t border-bp-grey-100 flex gap-2">
+          <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm flex-1">
+            View Details
+          </a>
+          <form action="{{ url_for('admin.toggle_public_results', meeting_id=meeting.id) }}" method="post" class="flex-1">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="bp-btn-secondary text-sm w-full">
+              {{ 'Hide Results' if meeting.public_results else 'Show Results' }}
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 px-4 bp-card">
+      <svg class="bp-icon w-16 h-16 mx-auto mb-4 text-bp-grey-400" viewBox="0 0 24 24">
+        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" fill="none"/>
+      </svg>
+      <h3 class="text-lg font-semibold text-bp-grey-700 mb-2">No meetings yet</h3>
+      <p class="text-bp-grey-600 mb-4">Get started by creating your first meeting.</p>
+      <a href="{{ url_for('meetings.create_meeting') }}" class="bp-btn-primary">
+        Create First Meeting
+      </a>
+    </div>
+    {% endif %}
+  </div>
+  
+  <!-- Floating Action Button -->
+  {% if meetings %}
+  <a href="{{ url_for('meetings.create_meeting') }}" class="fixed bottom-8 right-8 bp-btn-primary rounded-full w-14 h-14 flex items-center justify-center shadow-xl hover:shadow-2xl">
+    <svg class="bp-icon w-6 h-6" viewBox="0 0 24 24">
+      <path d="M12 4v16m8-8H4" stroke="currentColor" fill="none" stroke-width="3"/>
+    </svg>
+    <span class="sr-only">Create Meeting</span>
+  </a>
+  {% endif %}
 </div>
-<a href="{{ url_for('meetings.create_meeting') }}" class="bp-btn-primary bp-float-btn">Create Meeting</a>
 {% endblock %}
