@@ -4,7 +4,11 @@
     <svg class="w-16 h-16 mx-auto text-bp-red" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
     </svg>
+    {% if preview %}
+    <p class="text-lg font-semibold">Preview complete – no votes were saved.</p>
+    {% else %}
     <p class="text-lg font-semibold">Vote recorded! You’ll get an e‑mail receipt shortly.</p>
+    {% endif %}
     <a href="{{ url_for('help.show_help') }}" class="bp-btn-secondary">Voting Help</a>
 </div>
 {% endblock %}

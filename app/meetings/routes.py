@@ -43,7 +43,12 @@ from .forms import (
     ConflictForm,
     ObjectionForm,
 )
-from ..voting.routes import compile_motion_text
+from ..voting.routes import (
+    compile_motion_text,
+    _amendment_form,
+    _motion_form,
+    _combined_form,
+)
 from ..utils import generate_stage_ics
 import csv
 import io
@@ -753,6 +758,96 @@ def results_summary(meeting_id: int):
     results = _amendment_results(meeting)
     return render_template(
         "meetings/results_summary.html", meeting=meeting, results=results
+    )
+
+
+@bp.route("/<int:meeting_id>/preview/<int:stage>", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def preview_voting(meeting_id: int, stage: int):
+    """Display a preview of the voting screens without recording votes."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+
+    if meeting.ballot_mode == "combined":
+        motions = (
+            Motion.query.filter_by(meeting_id=meeting.id)
+            .order_by(Motion.ordering)
+            .all()
+        )
+        amendments = (
+            Amendment.query.filter(Amendment.motion_id.in_([m.id for m in motions]))
+            .order_by(Amendment.order)
+            .all()
+        )
+        form = _combined_form(motions, amendments)
+        if form.validate_on_submit():
+            flash("Preview submission complete – votes were not saved", "info")
+            return render_template("voting/confirmation.html", preview=True)
+        motions_grouped = []
+        for motion in motions:
+            ams = [a for a in amendments if a.motion_id == motion.id]
+            motions_grouped.append((motion, ams))
+        return render_template(
+            "voting/combined_ballot.html",
+            form=form,
+            motions=motions_grouped,
+            meeting=meeting,
+            proxy_for=None,
+            token="preview",
+            preview=True,
+        )
+
+    if stage == 1:
+        motions = (
+            Motion.query.filter_by(meeting_id=meeting.id)
+            .order_by(Motion.ordering)
+            .all()
+        )
+        amendments = (
+            Amendment.query.filter(Amendment.motion_id.in_([m.id for m in motions]))
+            .order_by(Amendment.order)
+            .all()
+        )
+        form = _amendment_form(amendments)
+        if form.validate_on_submit():
+            flash("Preview submission complete – votes were not saved", "info")
+            return render_template("voting/confirmation.html", preview=True)
+        motions_grouped = []
+        for motion in motions:
+            ams = [a for a in amendments if a.motion_id == motion.id]
+            motions_grouped.append((motion, ams))
+        return render_template(
+            "voting/stage1_ballot.html",
+            form=form,
+            motions=motions_grouped,
+            meeting=meeting,
+            proxy_for=None,
+            token="preview",
+            preview=True,
+        )
+
+    motions = (
+        Motion.query.filter_by(meeting_id=meeting.id)
+        .order_by(Motion.ordering)
+        .all()
+    )
+    form = _motion_form(motions)
+    if form.validate_on_submit():
+        flash("Preview submission complete – votes were not saved", "info")
+        return render_template("voting/confirmation.html", preview=True)
+    compiled = [
+        (m, m.final_text_md or compile_motion_text(m)) for m in motions
+    ]
+    return render_template(
+        "voting/stage2_ballot.html",
+        form=form,
+        motions=compiled,
+        meeting=meeting,
+        proxy_for=None,
+        token="preview",
+        preview=True,
     )
 
 
