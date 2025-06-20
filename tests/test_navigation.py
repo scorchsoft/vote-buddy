@@ -8,7 +8,7 @@ from flask_login import AnonymousUserMixin
 
 from app import create_app
 from app.extensions import db
-from app.models import User, Role
+from app.models import User, Role, Permission
 
 
 def _setup_app():
@@ -56,3 +56,35 @@ def test_nav_highlights_current_page():
             with patch('flask_login.utils._get_user', return_value=anon):
                 html = render_template('base.html')
                 assert re.search(r'<a[^>]*href="/meetings/"[^>]*aria-current="page"', html)
+
+
+def test_nav_includes_site_settings_when_authorized():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        perm = Permission(name='manage_settings')
+        role = Role(name='Admin', permissions=[perm])
+        db.session.add_all([perm, role])
+        db.session.commit()
+        user = User(email='settings@example.com', role=role)
+        user.is_active = True
+        with app.test_request_context('/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = render_template('base.html')
+                assert 'Site Settings' in html
+
+
+def test_nav_includes_ro_dashboard_when_authorized():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        perm = Permission(name='manage_meetings')
+        role = Role(name='RO', permissions=[perm])
+        db.session.add_all([perm, role])
+        db.session.commit()
+        user = User(email='ro@example.com', role=role)
+        user.is_active = True
+        with app.test_request_context('/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = render_template('base.html')
+                assert 'RO Dashboard' in html
