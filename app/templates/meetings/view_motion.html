@@ -6,7 +6,16 @@
 <a href="{{ url_for('meetings.manage_conflicts', motion_id=motion.id) }}" class="bp-btn-secondary mb-4 inline-block">Manage Conflicts</a>
 {% for amend in amendments %}
   <div class="bp-card mb-2">
-    <p class="font-semibold mb-1">Proposed by {{ amend.proposer.name }} – Seconded by {{ amend.seconder.name }}</p>
+    <p class="font-semibold mb-1">
+      Proposed by {{ amend.proposer.name }} –
+      {% if amend.seconder %}
+        Seconded by {{ amend.seconder.name }}
+      {% elif amend.board_seconded %}
+        Board seconded
+      {% else %}
+        Not seconded
+      {% endif %}
+    </p>
     {{ amend.text_md|markdown_to_html|safe }}
     {% if amend.combined_from %}
     <p class="text-sm text-bp-grey-600 mt-2">Combined from: {{ ', '.join('A' ~ a.order for a in amend.combined_from) }}</p>

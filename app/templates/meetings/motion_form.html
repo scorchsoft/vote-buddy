@@ -22,9 +22,10 @@
     {{ form.threshold.label(class_='block font-semibold') }}
     {{ form.threshold(class_='border p-3 rounded w-full') }}
   </div>
-  <div>
+  <div id="options-group">
     {{ form.options.label(class_='block font-semibold') }}
-    {{ form.options(class_='border p-3 rounded w-full') }}
+    {{ form.options(class_='border p-3 rounded w-full', **{'aria-describedby': form.options.id + '-note'}) }}
+    <p id="{{ form.options.id }}-note" class="text-xs text-bp-grey-700 mt-1">{{ form.options.description }}</p>
   </div>
   <div class="flex items-center space-x-2">
     {{ form.allow_clerical() }}
@@ -49,4 +50,5 @@
   <p class="mb-4">{{ move_text|markdown_to_html|safe }}</p>
   <button class="bp-btn-secondary" data-close-modal>Close</button>
 </dialog>
+<script src="{{ url_for('static', filename='js/motion_form.js') }}"></script>
 {% endblock %}
