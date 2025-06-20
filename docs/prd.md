@@ -387,10 +387,10 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-20 – Updated navigation test for role badge markup.
 * 2025-06-20 – Added manual email sending page with test mode and DB logging.
 * 2025-06-20 – Added clearer member import button with downloadable sample CSV.
+* 2025-06-21 – Added amendment reject and merge controls on motion view page.
 * 2025-06-20 – Added moderator control to toggle member commenting rights.
 * 2025-06-21 – Removed unused `VoteForm` class and cleaned up voting routes.
 * 2025-06-21 – Tie-break decisions from settings now apply automatically when Stage 1 closes.
-
 
 ---
 
