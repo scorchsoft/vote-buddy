@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ cache_bust }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dark.css') }}?v={{ cache_bust }}">
   </head>
-  <body hx-boost="true" class="flex flex-col min-h-screen bg-gradient-to-b from-bp-grey-50 to-white font-sans">
+  <body hx-boost="true" class="flex flex-col min-h-screen bg-gradient-to-b from-bp-grey-50 to-white font-sans" data-notice-days="{{ notice_days }}">
     <a href="#main" class="bp-skip-link sr-only focus:not-sr-only">Skip to main content</a>
     <header>
       <nav class="bg-bp-blue text-white shadow-lg">

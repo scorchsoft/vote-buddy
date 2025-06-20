@@ -165,6 +165,18 @@ def _save_meeting(form: MeetingForm, meeting: Meeting | None = None) -> Meeting:
 @permission_required("manage_meetings")
 def create_meeting():
     form = MeetingForm()
+    notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 14)
+    form.notice_date.description = (
+        f"Must be at least {notice_days} days before Stage 1 opens."
+    )
+    form.opens_at_stage1.description = (
+        f"At least {notice_days} days after notice date."
+    )
+    form.closes_at_stage1.description = "Must remain open for at least 7 days."
+    form.opens_at_stage2.description = "At least 1 day after Stage 1 closes."
+    form.closes_at_stage2.description = (
+        "Final voting deadline; at least 5 days after Stage 2 opens."
+    )
     if form.validate_on_submit():
         _save_meeting(form)
         return redirect(url_for("meetings.list_meetings"))
@@ -179,6 +191,18 @@ def edit_meeting(meeting_id):
     if meeting is None:
         abort(404)
     form = MeetingForm(obj=meeting)
+    notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 14)
+    form.notice_date.description = (
+        f"Must be at least {notice_days} days before Stage 1 opens."
+    )
+    form.opens_at_stage1.description = (
+        f"At least {notice_days} days after notice date."
+    )
+    form.closes_at_stage1.description = "Must remain open for at least 7 days."
+    form.opens_at_stage2.description = "At least 1 day after Stage 1 closes."
+    form.closes_at_stage2.description = (
+        "Final voting deadline; at least 5 days after Stage 2 opens."
+    )
     if form.validate_on_submit():
         _save_meeting(form, meeting)
         return redirect(url_for("meetings.list_meetings"))
