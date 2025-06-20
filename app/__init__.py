@@ -148,6 +148,7 @@ def register_error_handlers(app):
 
 
 def register_cli_commands(app):
-    from .cli import create_admin
+    from .cli import create_admin, generate_fake_data
     app.cli.add_command(create_admin)
+    app.cli.add_command(generate_fake_data)
 
