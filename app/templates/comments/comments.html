@@ -3,11 +3,19 @@
   <div class="bp-card mb-2">
     <p class="text-sm text-bp-grey-700 mb-1">{{ c.member.name }} – {{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
     <div>{{ c.text_md|markdown_to_html|safe }}</div>
-    {% if current_user.is_authenticated and current_user.has_permission('manage_meetings') and not c.hidden %}
-    <form method="post" action="{{ url_for('comments.hide_comment', comment_id=c.id) }}" class="mt-2">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-      <button class="bp-btn-secondary">Hide</button>
-    </form>
+    {% if current_user.is_authenticated and current_user.has_permission('manage_meetings') %}
+    <div class="mt-2 flex gap-2">
+      {% if not c.hidden %}
+      <form method="post" action="{{ url_for('comments.hide_comment', comment_id=c.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <button class="bp-btn-secondary">Hide</button>
+      </form>
+      {% endif %}
+      <form method="post" action="{{ url_for('comments.toggle_member_commenting', member_id=c.member_id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <button class="bp-btn-secondary">{{ 'Block' if c.member.can_comment else 'Allow' }} Comments</button>
+      </form>
+    </div>
     {% endif %}
   </div>
   {% else %}
