@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }}</h1>
+<p class="mb-4">Stage: {{ meeting.status or 'Draft' }} | Members: {{ member_count }}</p>
+<button class="bp-btn-secondary mb-4" data-modal-target="resend-modal">Resend Voting Email</button>
+<dialog id="resend-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="resend-title">
+  <h2 id="resend-title" class="font-bold mb-2">Request Voting Email</h2>
+  <div id="resend-modal-content" hx-target="this" hx-swap="outerHTML">
+    {% include 'resend_modal_content.html' %}
+  </div>
+  <button class="bp-btn-secondary mt-4" data-close-modal>Close</button>
+</dialog>
+{% endblock %}

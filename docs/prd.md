@@ -396,6 +396,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-20 – Added moderator control to toggle member commenting rights.
 * 2025-06-21 – Removed unused `VoteForm` class and cleaned up voting routes.
 * 2025-06-21 – Tie-break decisions from settings now apply automatically when Stage 1 closes.
+* 2025-06-22 – Added public meetings pages with resend link modal and contact URL setting.
 
 ---
 

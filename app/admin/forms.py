@@ -9,7 +9,7 @@ from wtforms import (
     IntegerField,
     TextAreaField,
 )
-from wtforms.validators import DataRequired, Email, Optional
+from wtforms.validators import DataRequired, Email, Optional, URL
 
 
 class UserForm(FlaskForm):
@@ -47,4 +47,5 @@ class SettingsForm(FlaskForm):
     clerical_text = TextAreaField("Clerical Amendment Text", validators=[Optional()])
     move_text = TextAreaField("Articles/Bylaws Placement Text", validators=[Optional()])
     manual_email_mode = BooleanField("Disable Automatic Emails")
+    contact_url = StringField("Contact URL", validators=[Optional(), URL()])
     submit = SubmitField("Save")
