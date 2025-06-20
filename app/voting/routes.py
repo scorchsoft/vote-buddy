@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Blueprint, render_template, current_app, abort
+from flask import Blueprint, render_template, current_app, abort, url_for
 
 from ..extensions import db
 from ..models import (
@@ -17,6 +17,7 @@ from flask_wtf import FlaskForm
 from wtforms import RadioField, SubmitField, StringField
 from wtforms.validators import DataRequired
 from app.services.email import send_vote_receipt
+from ..utils import carried_amendment_summary
 from ..extensions import limiter
 
 bp = Blueprint("voting", __name__, url_prefix="/vote")
@@ -318,6 +319,8 @@ def ballot_token(token: str):
             m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
             for m in motions
         }
+        carried_summary = carried_amendment_summary(meeting)
+        results_link = None if carried_summary else url_for('main.public_results', meeting_id=meeting.id)
         return render_template(
             "voting/stage2_ballot.html",
             form=form,
@@ -326,6 +329,8 @@ def ballot_token(token: str):
             proxy_for=proxy_member,
             token=token,
             motion_counts=motion_counts,
+            carried_summary=carried_summary,
+            results_link=results_link,
         )
 
 
