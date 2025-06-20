@@ -162,7 +162,10 @@ class MotionForm(FlaskForm):
         "Voting Threshold",
         choices=[("normal", "Normal"), ("special", "Special")],
     )
-    options = TextAreaField("Options (one per line)")
+    options = TextAreaField(
+        "Options (one per line)",
+        description="For multiple choice motions only. 'Abstain' is always added automatically.",
+    )
     allow_clerical = BooleanField(
         "Allow clerical corrections",
         default=True,
