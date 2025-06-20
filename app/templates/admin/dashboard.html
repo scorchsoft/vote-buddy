@@ -17,7 +17,7 @@
       <span>Manage Users</span>
     </a>
     <a href="{{ url_for('admin.list_objections') }}" class="bp-btn-secondary bp-btn-icon">
-      <img src="{{ url_for('static', filename='icons/person_raised_hand_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
+      <img src="{{ url_for('static', filename='icons/person_raised_hand_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
       <span>View Objections</span>
     </a>
   </div>
@@ -25,7 +25,7 @@
   <!-- My Meetings Section -->
   <div class="mb-8">
     <h2 class="text-2xl font-bold text-bp-grey-900 mb-6 flex items-center gap-2">
-      <img src="{{ url_for('static', filename='icons/calendar_today_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon text-bp-blue w-6 h-6">
+      <img src="{{ url_for('static', filename='icons/calendar_today_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon text-bp-blue w-6 h-6">
       My Meetings
     </h2>
     
@@ -59,7 +59,7 @@
         <!-- Meeting Info -->
         <h3 class="text-xl font-bold text-bp-grey-900 mb-2">{{ meeting.title }}</h3>
         <p class="text-bp-grey-600 mb-3">
-          <img src="{{ url_for('static', filename='icons/calendar_today_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon inline w-4 h-4 mr-1">
+          <img src="{{ url_for('static', filename='icons/calendar_today_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon inline w-4 h-4 mr-1">
           Notice given {{ meeting.notice_date.strftime('%B %d, %Y') if meeting.notice_date else 'N/A' }}
         </p>
         
@@ -101,7 +101,7 @@
     </div>
     {% else %}
     <div class="text-center py-12 px-4 bp-card">
-      <img src="{{ url_for('static', filename='icons/calendar_today_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-16 h-16 mx-auto mb-4 text-bp-grey-400">
+      <img src="{{ url_for('static', filename='icons/calendar_today_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-16 h-16 mx-auto mb-4 text-bp-grey-400">
       <h3 class="text-lg font-semibold text-bp-grey-700 mb-2">No meetings yet</h3>
       <p class="text-bp-grey-600 mb-4">Get started by creating your first meeting.</p>
       <a href="{{ url_for('meetings.create_meeting') }}" class="bp-btn-primary">

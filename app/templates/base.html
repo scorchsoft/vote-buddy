@@ -16,9 +16,7 @@
             {% if setting('site_logo') %}
             <img src="{{ url_for('static', filename=setting('site_logo')) }}" alt="{{ setting('site_title', 'VoteBuddy') }}" class="h-8">
             {% else %}
-            <svg class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-            </svg>
+            <img src="{{ url_for('static', filename='icons/how_to_vote_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="h-8 w-8">
             <span class="hidden sm:inline">{{ setting('site_title', 'VoteBuddy') }}</span>
             {% endif %}
           </a>
@@ -91,11 +89,11 @@
               </button>
               <div class="bp-dropdown-menu">
                 <a href="{{ url_for('admin.dashboard') }}" class="bp-dropdown-item">
-                  <img src="{{ url_for('static', filename='icons/house_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
+                  <img src="{{ url_for('static', filename='icons/house_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                   Dashboard
                 </a>
                 <a href="{{ url_for('auth.logout') }}" class="bp-dropdown-item">
-                  <img src="{{ url_for('static', filename='icons/logout_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
+                  <img src="{{ url_for('static', filename='icons/logout_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                   Logout
                 </a>
               </div>
