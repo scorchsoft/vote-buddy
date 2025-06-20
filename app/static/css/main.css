@@ -2123,7 +2123,7 @@ nav {
   visibility: hidden;
   transform: translateY(-10px);
   transition: all var(--transition-fast);
-  z-index: 50;
+  z-index: 90;
 }
 
 .bp-dropdown:hover .bp-dropdown-menu,
