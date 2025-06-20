@@ -1,6 +1,6 @@
 from flask import render_template, url_for, current_app
 from flask_mail import Message
-from ..utils import config_or_setting, generate_stage_ics
+from ..utils import config_or_setting, generate_stage_ics, carried_amendment_summary
 
 from ..extensions import mail, db
 from ..models import Member, Meeting, UnsubscribeToken, AppSetting, EmailLog
@@ -60,13 +60,33 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         return
     link = url_for('voting.ballot_token', token=token, _external=True)
     unsubscribe = _unsubscribe_url(member)
+    summary = carried_amendment_summary(meeting)
+    results_link = None if summary else url_for('main.public_results', meeting_id=meeting.id, _external=True)
     msg = Message(
         subject=("[TEST] " if test_mode else "") + f"Stage 2 voting open for {meeting.title}",
         recipients=[member.email],
         sender=_sender(),
     )
-    msg.body = render_template('email/stage2_invite.txt', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, test_mode=test_mode)
-    msg.html = render_template('email/stage2_invite.html', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, test_mode=test_mode)
+    msg.body = render_template(
+        'email/stage2_invite.txt',
+        member=member,
+        meeting=meeting,
+        link=link,
+        unsubscribe_url=unsubscribe,
+        summary=summary,
+        results_link=results_link,
+        test_mode=test_mode,
+    )
+    msg.html = render_template(
+        'email/stage2_invite.html',
+        member=member,
+        meeting=meeting,
+        link=link,
+        unsubscribe_url=unsubscribe,
+        summary=summary,
+        results_link=results_link,
+        test_mode=test_mode,
+    )
     try:
         ics = generate_stage_ics(meeting, 2)
     except Exception:
