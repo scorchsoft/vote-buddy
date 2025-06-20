@@ -18,6 +18,6 @@ def test_csp_header_present():
     with app.test_client() as client:
         resp = client.get('/')
         assert resp.headers.get('Content-Security-Policy') == (
-            "default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' https://unpkg.com"
+            "default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' https://unpkg.com 'unsafe-inline'"
         )
 

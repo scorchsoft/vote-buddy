@@ -8,7 +8,9 @@ import pytest
 from werkzeug.exceptions import Forbidden
 
 from app.models import Role, User, Permission
+from flask import url_for
 from app.admin.forms import UserCreateForm, RoleForm
+from app.admin import routes as admin
 from app.admin.routes import _save_user, _save_role, list_roles
 
 
@@ -61,6 +63,7 @@ def _make_user(has_permission: bool):
     perm = Permission(name='manage_users') if has_permission else None
     role = Role(permissions=[perm] if perm else [])
     user = User(role=role)
+    user.email = 'admin@example.com'
     user.is_active = True
     return user
 
@@ -97,3 +100,26 @@ def test_create_admin_cli_creates_user():
     with app.app_context():
         user = User.query.filter_by(email='admin@example.com').first()
         assert user is not None
+
+
+def test_list_users_contains_create_and_edit_links():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        perm = Permission(name='manage_users')
+        role = Role(name='Admin', permissions=[perm])
+        db.session.add_all([perm, role])
+        db.session.commit()
+
+        listed = User(email='test@example.com', role=role, is_active=True)
+        listed.set_password('pw')
+        db.session.add(listed)
+        db.session.commit()
+
+        with app.test_request_context('/admin/users'):
+            admin_user = _make_user(True)
+            with patch('flask_login.utils._get_user', return_value=admin_user):
+                html = admin.list_users()
+                assert url_for('admin.create_user') in html
+                assert url_for('admin.edit_user', user_id=listed.id) in html

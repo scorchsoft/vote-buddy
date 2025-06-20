@@ -14,6 +14,7 @@ def _make_user():
     perm = Permission(name='view_dashboard')
     role = Role(permissions=[perm])
     user = User(role=role)
+    user.email = 'admin@example.com'
     user.is_active = True
     return user
 

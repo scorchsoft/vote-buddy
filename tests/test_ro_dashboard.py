@@ -24,6 +24,7 @@ def _make_user():
     perm = Permission(name='manage_meetings')
     role = Role(permissions=[perm])
     user = User(role=role)
+    user.email = 'admin@example.com'
     user.is_active = True
     return user
 

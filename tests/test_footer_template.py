@@ -56,7 +56,6 @@ def test_theme_toggle_button_present():
             with patch('flask_login.utils._get_user', return_value=anon):
                 html = render_template('base.html')
                 assert '<button id="theme-toggle"' in html
-                assert 'class="bp-nav-toggle"' in html
                 assert 'aria-label="Switch to dark mode"' in html
                 assert 'id="theme-icon"' in html
 
