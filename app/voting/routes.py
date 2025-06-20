@@ -13,7 +13,6 @@ from ..models import (
     Runoff,
     Comment,
 )
-from .forms import VoteForm
 from flask_wtf import FlaskForm
 from wtforms import RadioField, SubmitField, StringField
 from wtforms.validators import DataRequired
