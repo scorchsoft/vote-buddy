@@ -28,6 +28,7 @@ from ..models import (
     MotionOption,
     Vote,
     Runoff,
+    AppSetting,
 )
 from ..services.email import (
     send_vote_invite,

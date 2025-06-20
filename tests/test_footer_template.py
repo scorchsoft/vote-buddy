@@ -59,3 +59,33 @@ def test_theme_toggle_button_present():
                 assert 'aria-label="Switch to dark mode"' in html
                 assert 'id="theme-icon"' in html
 
+
+def test_footer_admin_login_link_for_anonymous():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        anon = AnonymousUserMixin()
+        with app.test_request_context('/'):
+            with patch('flask_login.utils._get_user', return_value=anon):
+                html = render_template('base.html')
+                assert 'Admin Login' in html
+                assert 'Logout' not in html
+
+
+def test_footer_no_admin_login_when_authenticated():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        from app.models import User, Role
+        role = Role(name='Admin')
+        db.session.add(role)
+        user = User(email='test@example.com', role=role)
+        user.is_active = True
+        db.session.add(user)
+        db.session.commit()
+        with app.test_request_context('/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = render_template('base.html')
+                assert 'Admin Login' not in html
+                assert 'Logout' in html
+
