@@ -127,6 +127,9 @@ The `docs` directory contains background and design material:
 - **original-british-powerlifting-voting-process-motion.md** – The full text of the motion modernising British Powerlifting's voting procedure which this app implements.
 - **template-motion.md** - A more readily adoptable motion template that membership organisations can revise and adopt to make their Articles support the VoteBuddy process.
 - **full-database-structure.md** – Quick reference describing all database tables and columns.
+- **app-settings-guidance.md** – When to store global values in the `app_settings` table.
+- **member-import.md** – Steps and CSV format for uploading members and issuing tokens.
+- **unit-test-strategy.md** – Fixtures and patterns for the tests under `tests/`.
 
 Refer to these files for detail on features, design and governance context.
 
