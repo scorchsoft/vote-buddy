@@ -4,7 +4,7 @@ VoteBuddy by [Scorchsoft](https://www.scorchsoft.com) is an Open Source web appl
 
 It supports two stage voting on amendments and final motions, sends unique voting links by email and produces auditable results.
 
-VoteBuddy aims to take the tried and tested "Roberts Rules" around governance and effective meetings, and bring them up to date in a modern digital voting format.
+VoteBuddy aims to apply principles from UK Parliamentary Proceedure as well as "Roberts Rules" around governance and effective meetings, to make an online ballot format that is robust and but simple enoigh to understand as to be inclusive.
 
 ## Features
 
