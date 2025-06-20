@@ -314,6 +314,10 @@ def manage_settings():
         form.move_text.data = AppSetting.get(
             "move_text", current_app.config.get("MOVE_TEXT")
         )
+        form.contact_url.data = AppSetting.get(
+            "contact_url",
+            "https://www.britishpowerlifting.org/contactus",
+        )
         form.manual_email_mode.data = AppSetting.get("manual_email_mode", "0") == "1"
     if form.validate_on_submit():
         AppSetting.set("site_title", form.site_title.data)
@@ -332,6 +336,10 @@ def manage_settings():
         AppSetting.set("tie_break_decisions", form.tie_break_decisions.data)
         AppSetting.set("clerical_text", form.clerical_text.data)
         AppSetting.set("move_text", form.move_text.data)
+        if form.contact_url.data:
+            AppSetting.set("contact_url", form.contact_url.data)
+        else:
+            AppSetting.delete("contact_url")
         AppSetting.set("manual_email_mode", "1" if form.manual_email_mode.data else "0")
         flash("Settings updated", "success")
         return redirect(url_for("admin.manage_settings"))

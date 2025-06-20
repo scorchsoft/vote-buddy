@@ -1,6 +1,16 @@
-from flask import Blueprint, render_template, abort, jsonify
-from .extensions import db
-from .models import Meeting, Amendment, Motion, Vote
+from flask import Blueprint, render_template, abort, jsonify, request, current_app
+from .extensions import db, limiter
+from .models import (
+    Meeting,
+    Amendment,
+    Motion,
+    Vote,
+    Member,
+    VoteToken,
+    Runoff,
+    AppSetting,
+)
+from .services.email import send_vote_invite, send_stage2_invite, send_runoff_invite
 from sqlalchemy import func
 
 bp = Blueprint('main', __name__)
@@ -19,6 +29,75 @@ def results_index():
         .all()
     )
     return render_template('results_index.html', meetings=meetings)
+
+
+@bp.route('/public/meetings')
+def public_meetings():
+    """List meetings for public view."""
+    meetings = Meeting.query.order_by(Meeting.title).all()
+    member_counts = {
+        m.id: Member.query.filter_by(meeting_id=m.id).count() for m in meetings
+    }
+    return render_template(
+        'public_meetings.html', meetings=meetings, member_counts=member_counts
+    )
+
+
+@bp.route('/public/meetings/<int:meeting_id>')
+def public_meeting_detail(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    member_count = Member.query.filter_by(meeting_id=meeting.id).count()
+    contact_url = AppSetting.get(
+        'contact_url', 'https://www.britishpowerlifting.org/contactus'
+    )
+    return render_template(
+        'public_meeting.html',
+        meeting=meeting,
+        member_count=member_count,
+        contact_url=contact_url,
+    )
+
+
+@bp.post('/public/meetings/<int:meeting_id>/resend')
+@limiter.limit('5 per hour')
+def resend_meeting_link_public(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    email = request.form.get('email', '').strip().lower()
+    member_number = request.form.get('member_number', '').strip()
+    member = Member.query.filter_by(
+        meeting_id=meeting.id, member_number=member_number, email=email
+    ).first()
+    if member:
+        stage = 2 if meeting.status in {'Stage 2', 'Pending Stage 2'} else 1
+        token_obj, plain = VoteToken.create(
+            member_id=member.id, stage=stage, salt=current_app.config['TOKEN_SALT']
+        )
+        db.session.commit()
+        if stage == 2:
+            send_stage2_invite(member, plain, meeting)
+        else:
+            if Runoff.query.filter_by(meeting_id=meeting.id).count() > 0:
+                send_runoff_invite(member, plain, meeting)
+            else:
+                send_vote_invite(member, plain, meeting)
+        message = 'A new voting link has been sent to your email.'
+        success = True
+    else:
+        message = 'We could not find a member with those details.'
+        success = False
+    contact_url = AppSetting.get(
+        'contact_url', 'https://www.britishpowerlifting.org/contactus'
+    )
+    return render_template(
+        'resend_modal_content.html',
+        message=message,
+        success=success,
+        contact_url=contact_url,
+    )
 
 
 def _vote_counts(query):

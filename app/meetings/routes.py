@@ -28,6 +28,7 @@ from ..models import (
     MotionOption,
     Vote,
     Runoff,
+    AppSetting,
 )
 from ..services.email import (
     send_vote_invite,
@@ -276,6 +277,7 @@ def import_members(meeting_id):
 
             member = Member(
                 meeting_id=meeting.id,
+                member_number=row.get("member_id"),
                 name=name,
                 email=email,
                 proxy_for=(row.get("proxy_for") or "").strip() or None,

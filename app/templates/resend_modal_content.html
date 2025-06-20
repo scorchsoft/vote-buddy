@@ -1,0 +1,18 @@
+{% if message %}
+  <p class="mb-2">{{ message }}</p>
+  {% if not success %}
+  <p class="text-sm">Need help? <a href="{{ contact_url }}" class="bp-link">Contact BP</a></p>
+  {% endif %}
+{% else %}
+  <form hx-post="{{ url_for('main.resend_meeting_link_public', meeting_id=meeting.id) }}" class="bp-form space-y-4">
+    <div class="bp-form-group">
+      <input id="member_number" name="member_number" class="bp-input" required>
+      <label for="member_number" class="bp-form-label">Member Number</label>
+    </div>
+    <div class="bp-form-group">
+      <input id="email" name="email" type="email" class="bp-input" required>
+      <label for="email" class="bp-form-label">Email</label>
+    </div>
+    <button type="submit" class="bp-btn-primary">Send Email</button>
+  </form>
+{% endif %}

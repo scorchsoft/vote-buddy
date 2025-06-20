@@ -26,9 +26,9 @@
             <ul class="bp-nav-items">
               <li>
                 <a
-                  href="{{ url_for('meetings.list_meetings') }}"
-                  class="bp-nav-link{% if request.path == url_for('meetings.list_meetings') %} active{% endif %}"
-                  {% if request.path == url_for('meetings.list_meetings') %}aria-current="page"{% endif %}
+                  href="{{ current_user.is_authenticated and current_user.has_permission('manage_meetings') and url_for('meetings.list_meetings') or url_for('main.public_meetings') }}"
+                  class="bp-nav-link{% if request.path == url_for('meetings.list_meetings') or request.path == url_for('main.public_meetings') %} active{% endif %}"
+                  {% if request.path == url_for('meetings.list_meetings') or request.path == url_for('main.public_meetings') %}aria-current="page"{% endif %}
                 >
                   <img src="{{ url_for('static', filename='icons/calendar_today_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                   Meetings
@@ -135,9 +135,9 @@
         <ul class="bp-nav-items">
           <li>
             <a
-              href="{{ url_for('meetings.list_meetings') }}"
-              class="bp-nav-link text-white{% if request.path == url_for('meetings.list_meetings') %} active{% endif %}"
-              {% if request.path == url_for('meetings.list_meetings') %}aria-current="page"{% endif %}
+              href="{{ current_user.is_authenticated and current_user.has_permission('manage_meetings') and url_for('meetings.list_meetings') or url_for('main.public_meetings') }}"
+              class="bp-nav-link text-white{% if request.path == url_for('meetings.list_meetings') or request.path == url_for('main.public_meetings') %} active{% endif %}"
+              {% if request.path == url_for('meetings.list_meetings') or request.path == url_for('main.public_meetings') %}aria-current="page"{% endif %}
             >
               <img src="{{ url_for('static', filename='icons/calendar_today_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
               Meetings
@@ -262,7 +262,7 @@
           <div>
             <h3 class="font-bold text-lg mb-3">Quick Links</h3>
             <ul class="space-y-2 text-sm">
-              <li><a href="{{ url_for('meetings.list_meetings') }}" class="hover:underline opacity-90 hover:opacity-100">View Meetings</a></li>
+              <li><a href="{{ current_user.is_authenticated and current_user.has_permission('manage_meetings') and url_for('meetings.list_meetings') or url_for('main.public_meetings') }}" class="hover:underline opacity-90 hover:opacity-100">View Meetings</a></li>
               <li><a href="{{ url_for('help.show_help') }}" class="hover:underline opacity-90 hover:opacity-100">Help & Documentation</a></li>
               <li><a href="{{ url_for('main.results_index') }}" class="hover:underline opacity-90 hover:opacity-100">Results Archive</a></li>
             </ul>

@@ -95,6 +95,10 @@
       </div>
     </div>
     <div class="mb-4">
+      {{ form.contact_url.label(class='block mb-1') }}
+      {{ form.contact_url(class='bp-input w-full') }}
+    </div>
+    <div class="mb-4">
       {{ form.manual_email_mode() }} {{ form.manual_email_mode.label }}
     </div>
     {{ form.submit(class='bp-btn-primary') }}
