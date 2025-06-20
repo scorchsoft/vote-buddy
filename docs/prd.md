@@ -404,6 +404,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-24 – Removed member vote weighting feature.
 * 2025-06-23 – Added revoting banner and change-vote link on confirmation page when enabled.
 * 2025-06-24 – Added run-off closing helper and route clearing tokens.
+* 2025-06-25 – Receipt checker warns when a hash matches multiple votes and footer now links to it.
 
 
 

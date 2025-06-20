@@ -493,15 +493,22 @@ def verify_receipt():
     """Allow members to check a vote receipt hash."""
     form = ReceiptLookupForm()
     votes = None
+    message = None
     if form.validate_on_submit():
         h = form.hash.data.strip()
         raw = Vote.query.filter_by(hash=h).all()
-        votes = [
-            {
-                "choice": v.choice,
-                "motion": db.session.get(Motion, v.motion_id) if v.motion_id else None,
-                "amendment": db.session.get(Amendment, v.amendment_id) if v.amendment_id else None,
-            }
-            for v in raw
-        ]
-    return render_template("voting/verify_receipt.html", form=form, votes=votes)
+        if len(raw) == 1:
+            votes = [
+                {
+                    "choice": raw[0].choice,
+                    "motion": db.session.get(Motion, raw[0].motion_id) if raw[0].motion_id else None,
+                    "amendment": db.session.get(Amendment, raw[0].amendment_id) if raw[0].amendment_id else None,
+                }
+            ]
+        elif len(raw) > 1:
+            message = "Multiple votes share this hash. Check your email receipt or contact support."
+        else:
+            message = "No vote found for that hash."
+    return render_template(
+        "voting/verify_receipt.html", form=form, votes=votes, message=message
+    )
