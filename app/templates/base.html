@@ -252,6 +252,7 @@
             <ul class="space-y-2 text-sm">
               <li><a href="{{ current_user.is_authenticated and current_user.has_permission('manage_meetings') and url_for('meetings.list_meetings') or url_for('main.public_meetings') }}" class="hover:underline opacity-90 hover:opacity-100">View Meetings</a></li>
               <li><a href="{{ url_for('help.show_help') }}" class="hover:underline opacity-90 hover:opacity-100">Help & Documentation</a></li>
+                <li><a href="{{ url_for('voting.verify_receipt') }}" class="hover:underline opacity-90 hover:opacity-100">Receipt Checker</a></li>
                 <li><a href="{{ url_for('main.results_index') }}" class="hover:underline opacity-90 hover:opacity-100">Results Archive</a></li>
                 {% if not current_user.is_authenticated %}
                 <li><a href="{{ url_for('auth.login') }}" class="hover:underline opacity-90 hover:opacity-100">Admin Login</a></li>

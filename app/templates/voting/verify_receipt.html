@@ -11,6 +11,9 @@
   </div>
   <button type="submit" class="bp-btn-primary">Verify</button>
 </form>
+{% if message %}
+  <div class="bp-alert-warning mt-4">{{ message }}</div>
+{% endif %}
 {% if votes is not none %}
   {% if votes %}
   <div class="bp-card mt-4">

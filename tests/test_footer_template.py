@@ -89,3 +89,14 @@ def test_footer_no_admin_login_when_authenticated():
                 assert 'Admin Login' not in html
                 assert 'Logout' in html
 
+
+def test_footer_includes_receipt_link():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        anon = AnonymousUserMixin()
+        with app.test_request_context('/'):
+            with patch('flask_login.utils._get_user', return_value=anon):
+                html = render_template('base.html')
+                assert 'Receipt Checker' in html
+

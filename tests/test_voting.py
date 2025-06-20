@@ -709,3 +709,52 @@ def test_verify_receipt_not_found():
     assert resp.status_code == 200
     assert b"No vote found" in resp.data
 
+
+def test_verify_receipt_multiple_matches():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        m1 = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        m2 = Motion(
+            meeting_id=meeting.id,
+            title="M2",
+            text_md="Text",
+            category="motion",
+            threshold="normal",
+            ordering=2,
+        )
+        db.session.add_all([m1, m2])
+        member = Member(meeting_id=meeting.id, name="A", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        v1 = Vote.record(
+            member_id=member.id,
+            motion_id=m1.id,
+            choice="for",
+            salt=app.config["VOTE_SALT"],
+        )
+        Vote.record(
+            member_id=member.id,
+            motion_id=m2.id,
+            choice="for",
+            salt=app.config["VOTE_SALT"],
+        )
+        vote_hash = v1.hash
+
+    client = app.test_client()
+    resp = client.post("/vote/verify-receipt", data={"hash": vote_hash})
+    assert resp.status_code == 200
+    assert b"Multiple votes share this hash" in resp.data
+    assert b"M1" in resp.data
+    assert b"M2" in resp.data
+
