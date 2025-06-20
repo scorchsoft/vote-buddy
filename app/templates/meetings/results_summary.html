@@ -25,6 +25,9 @@
         {% else %}
           <span class="bp-tick bp-tick-fail">&#8211;</span>
         {% endif %}
+        {% if amend.tie_break_method %}
+          <div class="text-xs mt-1">Tie-break: {{ amend.tie_break_method }}</div>
+        {% endif %}
       </td>
     </tr>
   {% else %}
