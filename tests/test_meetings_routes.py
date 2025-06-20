@@ -84,8 +84,8 @@ def test_import_members_sends_invites_and_tokens():
         db.session.commit()
 
         csv_content = (
-            "member_id,name,email,vote_weight,proxy_for\n"
-            "1,Alice,alice@example.com,1,\n"
+            "member_id,name,email,proxy_for\n"
+            "1,Alice,alice@example.com,\n"
         )
         data = {"csv_file": (io.BytesIO(csv_content.encode()), "members.csv")}
         with app.test_request_context(
