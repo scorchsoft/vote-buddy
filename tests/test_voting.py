@@ -772,3 +772,90 @@ def test_verify_receipt_not_found():
     assert resp.status_code == 200
     assert b"No vote found" in resp.data
 
+
+def test_confirmation_shows_change_vote_link_when_revoting_enabled():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", revoting_allowed=True)
+        db.session.add(meeting)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md="A1", order=1)
+        db.session.add(amend)
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with patch("app.voting.routes.send_vote_receipt"):
+            with app.test_request_context(
+                f"/vote/{plain}", method="POST", data={f"amend_{amend.id}": "for"}
+            ):
+                html = voting.ballot_token(plain)
+
+        assert "Change your vote" in html
+        assert f"/vote/{plain}" in html
+
+
+def test_confirmation_hides_change_vote_link_when_disabled():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md="A1", order=1)
+        db.session.add(amend)
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with patch("app.voting.routes.send_vote_receipt"):
+            with app.test_request_context(
+                f"/vote/{plain}", method="POST", data={f"amend_{amend.id}": "for"}
+            ):
+                html = voting.ballot_token(plain)
+
+        assert "Change your vote" not in html
+
+
+def test_second_submission_overwrites_first_when_revoting_allowed():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", revoting_allowed=True)
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with patch("app.voting.routes.send_vote_receipt"):
+            with app.test_request_context(
+                f"/vote/{plain}", method="POST", data={f"motion_{motion.id}": "for"}
+            ):
+                voting.ballot_token(plain)
+
+            with app.test_request_context(
+                f"/vote/{plain}", method="POST", data={f"motion_{motion.id}": "against"}
+            ):
+                voting.ballot_token(plain)
+
+        votes = Vote.query.filter_by(member_id=member.id, motion_id=motion.id).all()
+        assert len(votes) == 1
+        assert votes[0].choice == "against"
+
