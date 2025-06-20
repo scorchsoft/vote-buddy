@@ -14,7 +14,7 @@ from flask_wtf import FlaskForm
 from wtforms import TextAreaField, SubmitField
 from wtforms.validators import DataRequired
 from datetime import datetime, timedelta
-from flask_login import login_required
+from flask_login import login_required, current_user
 from ..extensions import db
 from ..models import (
     Meeting,
@@ -43,6 +43,7 @@ from .forms import (
     MotionForm,
     ConflictForm,
     ObjectionForm,
+    ManualEmailForm,
 )
 from ..voting.routes import (
     compile_motion_text,
@@ -290,8 +291,11 @@ def import_members(meeting_id):
             tokens_to_send.append((member, plain))
 
         db.session.commit()
-        for m, t in tokens_to_send:
-            send_vote_invite(m, t, meeting)
+        if AppSetting.get("manual_email_mode") != "1":
+            for m, t in tokens_to_send:
+                send_vote_invite(m, t, meeting)
+        else:
+            flash("Automatic emails disabled - use manual send", "warning")
         flash("Members imported successfully", "success")
         return redirect(url_for("meetings.list_meetings"))
 
@@ -705,6 +709,7 @@ def _amendment_results(meeting: Meeting) -> list[tuple[Amendment, dict]]:
         rows = (
             db.session.query(Vote.choice, func.count(Vote.id))
             .filter_by(amendment_id=amend.id)
+            .filter(Vote.is_test.is_(False))
             .group_by(Vote.choice)
             .all()
         )
@@ -729,6 +734,7 @@ def _motion_results(meeting: Meeting) -> list[tuple[Motion, dict]]:
         rows = (
             db.session.query(Vote.choice, func.count(Vote.id))
             .filter_by(motion_id=motion.id)
+            .filter(Vote.is_test.is_(False))
             .group_by(Vote.choice)
             .all()
         )
@@ -771,8 +777,11 @@ def close_stage1(meeting_id: int):
     runoffs, tokens_to_send = runoff.close_stage1(meeting)
 
     if runoffs:
-        for member, token in tokens_to_send:
-            send_runoff_invite(member, token, meeting)
+        if AppSetting.get("manual_email_mode") != "1":
+            for member, token in tokens_to_send:
+                send_runoff_invite(member, token, meeting)
+        else:
+            flash("Automatic emails disabled - use manual send", "warning")
         flash("Run-off ballot issued; Stage 2 start delayed", "success")
     else:
         meeting.status = "Pending Stage 2"
@@ -795,6 +804,62 @@ def results_summary(meeting_id: int):
     return render_template(
         "meetings/results_summary.html", meeting=meeting, results=results
     )
+
+
+@bp.route("/<int:meeting_id>/send-emails", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def manual_send_emails(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    form = ManualEmailForm()
+    members = Member.query.filter_by(meeting_id=meeting.id, is_test=False).order_by(Member.name).all()
+    form.member_ids.choices = [(m.id, m.name) for m in members]
+    if form.validate_on_submit():
+        recipients = []
+        if form.test_mode.data:
+            current_user_member = Member.query.filter_by(meeting_id=meeting.id, email=current_user.email).first()
+            if not current_user_member:
+                current_user_member = Member(
+                    meeting_id=meeting.id,
+                    name=current_user.email,
+                    email=current_user.email,
+                    is_test=True,
+                )
+                db.session.add(current_user_member)
+                db.session.commit()
+            recipients = [current_user_member]
+        elif form.send_to_all.data:
+            recipients = members
+        else:
+            recipients = [m for m in members if m.id in form.member_ids.data]
+
+        for member in recipients:
+            stage = 1
+            if form.email_type.data == "stage2_invite":
+                stage = 2
+            token_obj, plain = VoteToken.create(
+                member_id=member.id,
+                stage=stage,
+                salt=current_app.config["TOKEN_SALT"],
+            )
+            token_obj.is_test = form.test_mode.data
+            db.session.commit()
+
+            if form.email_type.data == "stage1_invite":
+                send_vote_invite(member, plain, meeting, test_mode=form.test_mode.data)
+            elif form.email_type.data == "stage1_reminder":
+                send_stage1_reminder(member, plain, meeting, test_mode=form.test_mode.data)
+            elif form.email_type.data == "runoff_invite":
+                send_runoff_invite(member, plain, meeting, test_mode=form.test_mode.data)
+            elif form.email_type.data == "stage2_invite":
+                send_stage2_invite(member, plain, meeting, test_mode=form.test_mode.data)
+
+        flash("Emails sent", "success")
+        return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+
+    return render_template("meetings/manual_email.html", meeting=meeting, form=form)
 
 
 @bp.route("/<int:meeting_id>/preview/<int:stage>", methods=["GET", "POST"])
@@ -957,8 +1022,11 @@ def prepare_stage2(meeting_id: int):
             tokens_to_send.append((member, plain))
         meeting.status = "Stage 2"
         db.session.commit()
-        for m, t in tokens_to_send:
-            send_stage2_invite(m, t, meeting)
+        if AppSetting.get("manual_email_mode") != "1":
+            for m, t in tokens_to_send:
+                send_stage2_invite(m, t, meeting)
+        else:
+            flash("Automatic emails disabled - use manual send", "warning")
         flash("Stage 2 voting links sent", "success")
         return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
 

@@ -1,4 +1,5 @@
 from datetime import timedelta
+import json
 from flask import current_app
 from ..utils import config_or_setting
 
@@ -22,6 +23,11 @@ def close_stage1(meeting: Meeting) -> tuple[list[Runoff], list[tuple[Member, str
         .all()
     )
     tie_map: dict[int, list[Amendment]] = {}
+    decisions = config_or_setting(
+        'TIE_BREAK_DECISIONS',
+        {},
+        parser=lambda v: json.loads(v) if isinstance(v, str) else v,
+    )
     for amend in amendments:
         for_count = Vote.query.filter_by(amendment_id=amend.id, choice='for').count()
         against_count = Vote.query.filter_by(amendment_id=amend.id, choice='against').count()
@@ -32,7 +38,11 @@ def close_stage1(meeting: Meeting) -> tuple[list[Runoff], list[tuple[Member, str
             amend.status = 'failed'
             amend.tie_break_method = None
         else:
-            if amend.tie_break_method:
+            decision = decisions.get(str(amend.id)) or decisions.get(amend.id)
+            if decision:
+                amend.status = decision.get('result')
+                amend.tie_break_method = decision.get('method')
+            elif amend.tie_break_method:
                 # decision entered by Returning Officer
                 pass
             else:

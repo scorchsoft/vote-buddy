@@ -77,3 +77,22 @@ def test_add_comment_disallowed_when_disabled():
             else:
                 assert False, "expected 403"
         assert Comment.query.count() == 0
+
+
+def test_toggle_member_commenting_flips_flag():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", comments_enabled=True)
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="A", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        assert member.can_comment is True
+        with app.test_request_context(
+            f"/comments/member/{member.id}/toggle", method="POST"
+        ):
+            comments.toggle_member_commenting.__wrapped__.__wrapped__(member.id)
+        db.session.refresh(member)
+        assert member.can_comment is False
