@@ -27,9 +27,9 @@ The following images show the main dashboard and help section in action.
 
 ![Admin dashboard screenshot](assets/screenshots/admin-dashboard.png)
 ![Help section screenshot](assets/screenshots/help-section.png)
-![Meeting list screenshot](assets/screenshots/meeting-list.png)
-![Meeting details screenshot](assets/screenshots/meeting-details.png)
-![Voting interface screenshot](assets/screenshots/voting-interface.png)
+![Meeting list screenshot](assets/screenshots/home.png)
+![Meeting details screenshot](assets/screenshots/view-results.png)
+
 
 
 ## Development setup
