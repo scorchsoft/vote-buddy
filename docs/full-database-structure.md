@@ -78,6 +78,11 @@ This document summarises all tables and columns created by the Alembic migration
 | threshold | String(20) | |
 | ordering | Integer | |
 | status | String(50) | |
+| withdrawn | Boolean | |
+| modified_at | DateTime | |
+| withdrawal_requested_at | DateTime | |
+| chair_approved_at | DateTime | |
+| board_approved_at | DateTime | |
 
 ### motion_options
 | Column | Type | Notes |

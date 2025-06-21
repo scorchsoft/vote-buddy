@@ -204,3 +204,11 @@ class ExtendStageForm(FlaskForm):
     closes_at = DateTimeLocalField("New Closes At", format="%Y-%m-%dT%H:%M")
     reason = TextAreaField("Reason", validators=[DataRequired()])
     submit = SubmitField("Extend")
+
+
+class MotionChangeRequestForm(FlaskForm):
+    """Form for motion withdrawal or major edit requests."""
+
+    text_md = TextAreaField("Revised Motion Text", validators=[Optional()])
+    withdraw = BooleanField("Withdraw Motion")
+    submit = SubmitField("Submit Request")
