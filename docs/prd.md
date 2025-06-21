@@ -427,6 +427,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-05 – Comment posting now shows a confirmation flash message.
 * 2025-07-01 – Added manual tally entry for in-person meetings with Stage 1 and Stage 2 forms.
 * 2025-07-01 – Added resubscribe links alongside unsubscribe and a route to opt back in.
+* 2025-06-21 – Added "Need help?" link to ballot pages.
 * 2025-07-06 – AGM date field auto-completes stage times based on configured notice and duration settings.
 
 

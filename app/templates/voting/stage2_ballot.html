@@ -3,6 +3,7 @@
 {% block content %}
 {{ breadcrumbs([('Ballot', url_for('voting.ballot_home')), (meeting.title, None), ('Stage 2', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">Stage 2 – Vote on Motion</h1>
+<p class="text-sm mb-4"><a href="{{ url_for('help.show_help') }}" class="bp-link">Need help?</a></p>
 {% set current_stage = 2 %}
 {% include '_stepper.html' %}
 <div class="text-sm mb-4" role="status">Stage 2 closes in {{ meeting.stage2_time_remaining() }}</div>
