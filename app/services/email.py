@@ -13,6 +13,9 @@ from ..models import (
     AmendmentObjection,
     User,
     Role,
+    Motion,
+    MotionSubmission,
+    AmendmentSubmission,
 )
 from uuid6 import uuid7
 from sqlalchemy import func
@@ -552,6 +555,45 @@ def send_amendment_reinstated(amendment: Amendment, meeting: Meeting, *, test_mo
     )
     mail.send(msg)
 
+def send_motion_submission_alert(submission: MotionSubmission, meeting: Meeting, *, test_mode: bool = False) -> None:
+    recipient = AppSetting.get('from_email', current_app.config.get('MAIL_DEFAULT_SENDER'))
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + f"Motion submission for {meeting.title}",
+        recipients=[recipient],
+        sender=_sender(),
+    )
+    msg.body = render_template('email/motion_submission.txt', submission=submission, meeting=meeting)
+    msg.html = render_template('email/motion_submission.html', submission=submission, meeting=meeting)
+    mail.send(msg)
+
+
+def send_amendment_submission_alert(submission: AmendmentSubmission, motion: Motion, meeting: Meeting, *, test_mode: bool = False) -> None:
+    recipient = AppSetting.get('from_email', current_app.config.get('MAIL_DEFAULT_SENDER'))
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + f"Amendment submission for {motion.title}",
+        recipients=[recipient],
+        sender=_sender(),
+    )
+    msg.body = render_template('email/amendment_submission.txt', submission=submission, motion=motion)
+    msg.html = render_template('email/amendment_submission.html', submission=submission, motion=motion)
+    mail.send(msg)
+
+
+def send_submission_invite(member: Member, meeting: Meeting, *, test_mode: bool = False) -> None:
+    if member.email_opt_out:
+        return
+    link = url_for('submissions.submit_motion', meeting_id=meeting.id, _external=True)
+    unsubscribe = _unsubscribe_url(member)
+    resubscribe = _resubscribe_url(member)
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + f"Submit motions for {meeting.title}",
+        recipients=[member.email],
+        sender=_sender(),
+    )
+    msg.body = render_template('email/submission_invite.txt', member=member, meeting=meeting, link=link)
+    msg.html = render_template('email/submission_invite.html', member=member, meeting=meeting, link=link)
+    mail.send(msg)
+    _log_email(member, meeting, 'submission_invite', test_mode)
 
 def send_password_reset(user: User, token: str, *, test_mode: bool = False) -> None:
     msg = Message(

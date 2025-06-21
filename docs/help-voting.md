@@ -25,6 +25,14 @@ The public meeting page lists the opening and closing times for each stage.
 Use the **Add to calendar** links beside Stage 1, any run-off and Stage 2 to
 download an `.ics` file that you can import into most calendar apps.
 
+## Submitting motions and amendments
+
+Before the notice deadline you can propose new motions or submit amendments
+to published motions. Visit the public meeting page and click **Submit Motion**
+to file a proposal. Once motions are listed each one has a **Submit Amendment**
+link for changes. After you fill in the form the coordinators are emailed and
+will review your text before voting opens.
+
 ## Manual tally entry
 
 When a meeting uses **in-person** ballot mode no voting links are sent.

@@ -19,6 +19,7 @@ def test_help_page_loads():
     resp = client.get('/help')
     assert resp.status_code == 200
     assert b'Voting Help' in resp.data
+    assert b'Submit Motion' in resp.data
 
 
 def test_help_page_strips_script_tags():

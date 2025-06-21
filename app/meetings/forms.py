@@ -161,6 +161,7 @@ class ManualEmailForm(FlaskForm):
             ("stage1_reminder", "Stage 1 Reminder"),
             ("runoff_invite", "Run-off Invite"),
             ("stage2_invite", "Stage 2 Invite"),
+            ("submission_invite", "Motion Submission Invite"),
         ],
         validators=[DataRequired()],
     )
