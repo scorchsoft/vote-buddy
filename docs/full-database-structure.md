@@ -54,6 +54,7 @@ This document summarises all tables and columns created by the Alembic migration
 | stage2_locked | Boolean | Default `False` |
 | stage1_reminder_sent_at | DateTime | |
 | public_results | Boolean | Default `False` |
+| extension_reason | Text | Reason for extending a stage |
 
 ### members
 | Column | Type | Notes |

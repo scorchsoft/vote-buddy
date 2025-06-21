@@ -94,6 +94,7 @@ class Meeting(db.Model):
     stage1_reminder_sent_at = db.Column(db.DateTime)
     public_results = db.Column(db.Boolean, default=False)
     comments_enabled = db.Column(db.Boolean, default=False)
+    extension_reason = db.Column(db.Text)
 
     def stage1_votes_count(self) -> int:
         """Return number of verified Stage-1 votes."""
