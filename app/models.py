@@ -264,7 +264,7 @@ class VoteToken(db.Model):
     @classmethod
     def verify(cls, token: str, salt: str) -> "VoteToken | None":
         hashed = cls._hash(token, salt)
-        return cls.query.filter(db.or_(cls.token == hashed, cls.token == token)).first()
+        return cls.query.filter_by(token=hashed).first()
 
 
 class UnsubscribeToken(db.Model):

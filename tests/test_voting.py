@@ -199,9 +199,10 @@ def test_receipt_email_sent_after_vote():
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
         db.session.add(member)
         db.session.commit()
-        token = VoteToken(token=VoteToken._hash("tok-receipt", app.config["TOKEN_SALT"]), member_id=member.id, stage=2)
-        db.session.add(token)
-        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
+        token_obj, plain = VoteToken.create(
+            member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"]
+        )
+        db.session.add(token_obj)
         db.session.commit()
         
         with patch("app.voting.routes.send_vote_receipt") as mock_receipt:
