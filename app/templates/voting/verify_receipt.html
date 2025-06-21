@@ -23,6 +23,9 @@
     </ul>
   </div>
 {% elif message %}
-  <div class="bp-alert-error mt-4">{{ message }}</div>
+  <div class="bp-alert-error mt-4">
+    <p>{{ message }}</p>
+    <p class="text-sm">Need help? <a href="{{ contact_url }}" class="bp-link">Contact support</a></p>
+  </div>
 {% endif %}
 {% endblock %}

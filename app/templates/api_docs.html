@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1 class="text-2xl font-bold mb-4">Public API</h1>
+  <pre class="bg-bp-grey-100 p-4 rounded text-sm">{{ docs|tojson(indent=2) }}</pre>
+{% endblock %}
