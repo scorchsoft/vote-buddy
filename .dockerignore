@@ -1,0 +1,9 @@
+# Files and directories not needed in the runtime image
+.git
+__pycache__/
+*.pyc
+*.pyo
+tests/
+docs/
+node_modules/
+*.log
