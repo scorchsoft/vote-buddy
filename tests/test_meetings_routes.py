@@ -1055,3 +1055,18 @@ def test_default_stage_time_calculation():
             defaults["opens_at_stage2"] - defaults["closes_at_stage1"]
             >= timedelta(days=app.config["STAGE_GAP_DAYS"])
         )
+
+
+def test_prefill_form_defaults():
+    app = create_app()
+    with app.app_context():
+        app.config["WTF_CSRF_ENABLED"] = False
+        agm = (datetime.utcnow() + timedelta(days=30)).replace(second=0, microsecond=0)
+        data = MultiDict({"closes_at_stage2": agm.strftime("%Y-%m-%dT%H:%M")})
+        form = MeetingForm(formdata=data)
+        meetings._prefill_form_defaults(form)
+        assert form.notice_date.data is not None
+        assert form.opens_at_stage1.data is not None
+        assert form.closes_at_stage1.data is not None
+        assert form.opens_at_stage2.data is not None
+        assert form.closes_at_stage2.data == agm
