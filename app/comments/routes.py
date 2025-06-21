@@ -6,6 +6,7 @@ from flask import (
     url_for,
     current_app,
     g,
+    flash,
 )
 from . import bp
 from ..models import (
@@ -74,6 +75,7 @@ def add_motion_comment(token: str, motion_id: int):
         )
         db.session.add(comment)
         db.session.commit()
+        flash("Comment posted", "success")
     return redirect(url_for("comments.motion_comments", token=token, motion_id=motion.id))
 
 
@@ -116,6 +118,7 @@ def add_amendment_comment(token: str, amendment_id: int):
         )
         db.session.add(comment)
         db.session.commit()
+        flash("Comment posted", "success")
     return redirect(
         url_for("comments.amendment_comments", token=token, amendment_id=amendment.id)
     )

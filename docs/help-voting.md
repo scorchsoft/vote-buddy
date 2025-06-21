@@ -25,6 +25,15 @@ The public meeting page lists the opening and closing times for each stage.
 Use the **Add to calendar** links beside Stage 1, any run-off and Stage 2 to
 download an `.ics` file that you can import into most calendar apps.
 
+## Manual tally entry
+
+When a meeting uses **in-person** ballot mode no voting links are sent.
+Coordinators record the counts after each stage instead.
+Use the *Stage&nbsp;1 Tally* and *Stage&nbsp;2 Tally* forms on the admin
+results page to enter the numbers of votes cast. Stage&nbsp;1 only stores a
+single "votes cast" value for quorum checks. Stage&nbsp;2 captures the final
+For/Against/Abstain totals.
+
 ## Keyboard navigation
 
 All voting controls can be reached using the Tab key. After making your choices, the sticky confirmation bar becomes the final Tab stop with a prominent **Submit vote** button.
