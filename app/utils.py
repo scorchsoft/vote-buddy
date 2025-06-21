@@ -95,6 +95,32 @@ def generate_stage_ics(meeting, stage: int) -> bytes:
     return "\r\n".join(lines).encode("utf-8")
 
 
+def generate_runoff_ics(meeting) -> bytes:
+    """Return ICS file bytes for the run-off stage."""
+    start = meeting.runoff_opens_at
+    end = meeting.runoff_closes_at
+    if not start or not end:
+        raise ValueError("Run-off timestamps not set")
+
+    def fmt(dt: datetime) -> str:
+        return dt.strftime("%Y%m%dT%H%M%SZ")
+
+    lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//VoteBuddy//EN",
+        "BEGIN:VEVENT",
+        f"UID:{uuid4()}",
+        f"DTSTAMP:{fmt(datetime.utcnow())}",
+        f"DTSTART:{fmt(start)}",
+        f"DTEND:{fmt(end)}",
+        f"SUMMARY:{meeting.title} - Run-off Voting",
+        "END:VEVENT",
+        "END:VCALENDAR",
+    ]
+    return "\r\n".join(lines).encode("utf-8")
+
+
 def carried_amendment_summary(meeting: "Meeting", char_limit: int = 80) -> str | None:
     """Return Markdown bullet list summarising carried amendments.
 

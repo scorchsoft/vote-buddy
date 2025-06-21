@@ -21,3 +21,4 @@ An iCalendar file with the Stage 2 voting window is attached for your diary.
 
 If you did not expect this email you can ignore it.
 To stop these emails, visit {{ unsubscribe_url }}
+To start them again later, visit {{ resubscribe_url }}

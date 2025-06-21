@@ -3,7 +3,8 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from unittest.mock import patch
-from werkzeug.exceptions import Forbidden
+import pytest
+from werkzeug.exceptions import Forbidden, NotFound
 from flask import url_for
 
 from app import create_app
@@ -21,6 +22,7 @@ from app.models import (
 )
 import io
 from app.meetings import routes as meetings
+from docx import Document
 from app.meetings.forms import MeetingForm
 from types import SimpleNamespace
 from datetime import datetime, timedelta
@@ -271,12 +273,82 @@ def test_close_stage1_below_quorum_voids_vote():
                                     mock_runoff.assert_not_called()
                                     mock_qfail.assert_called_once()
                                 assert meeting.status == "Quorum not met"
-                                assert (
-                                    VoteToken.query.filter_by(
-                                        member_id=member.id, stage=2
-                                    ).count()
-                                    == 0
-                                )
+        assert (
+            VoteToken.query.filter_by(
+                member_id=member.id, stage=2
+            ).count()
+            == 0
+        )
+
+
+def test_close_stage1_warns_when_stage2_too_soon():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(title="Test", opens_at_stage2=now + timedelta(hours=12))
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="Bob")
+        db.session.add(member)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="x",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        db.session.add(amend)
+        db.session.commit()
+
+        with app.test_request_context(
+            f"/meetings/{meeting.id}/close-stage1", method="POST"
+        ):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.runoff.close_stage1", return_value=([], [])):
+                    with patch("app.meetings.routes.send_stage2_invite"):
+                        with patch("app.meetings.routes.flash") as fl:
+                            meetings.close_stage1(meeting.id)
+                            assert any(c.args[1] == "warning" for c in fl.call_args_list)
+
+
+def test_prepare_stage2_warns_when_too_soon():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title="Test",
+            stage1_closed_at=now,
+            opens_at_stage2=now + timedelta(hours=12),
+        )
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="x",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+
+        with app.test_request_context(f"/meetings/{meeting.id}/prepare-stage2"):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.flash") as fl:
+                    meetings.prepare_stage2(meeting.id)
+                    assert any(c.args[1] == "warning" for c in fl.call_args_list)
 
 
 def test_add_amendment_validations():
@@ -452,7 +524,12 @@ def test_results_stage2_docx_returns_file():
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     with app.app_context():
         db.create_all()
-        meeting = Meeting(title="AGM")
+        meeting = Meeting(
+            title="AGM",
+            public_results=True,
+            results_doc_published=True,
+            results_doc_intro_md="Intro"
+        )
         db.session.add(meeting)
         db.session.flush()
         motion = Motion(
@@ -469,13 +546,35 @@ def test_results_stage2_docx_returns_file():
         db.session.flush()
         Vote.record(member_id=member.id, motion_id=motion.id, choice="for", salt="s")
 
-        user = _make_user(True)
         with app.test_request_context(f"/meetings/{meeting.id}/results-stage2.docx"):
-            with patch("flask_login.utils._get_user", return_value=user):
-                resp = meetings.results_stage2_docx(meeting.id)
-                assert resp.mimetype == (
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                )
+            resp = meetings.results_stage2_docx(meeting.id)
+            assert resp.mimetype == (
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
+            resp.direct_passthrough = False
+            doc = Document(io.BytesIO(resp.get_data()))
+            assert "draft summary" in doc.paragraphs[0].text
+            assert "Intro" in doc.paragraphs[1].text
+
+
+def test_results_stage2_docx_checks_flags():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", public_results=False, results_doc_published=True)
+        db.session.add(meeting)
+        db.session.commit()
+        with app.test_request_context(f"/meetings/{meeting.id}/results-stage2.docx"):
+            with pytest.raises(NotFound):
+                meetings.results_stage2_docx(meeting.id)
+
+        meeting.public_results = True
+        meeting.results_doc_published = False
+        db.session.commit()
+        with app.test_request_context(f"/meetings/{meeting.id}/results-stage2.docx"):
+            with pytest.raises(NotFound):
+                meetings.results_stage2_docx(meeting.id)
 
 
 def test_stage_ics_downloads_with_headers():
@@ -859,3 +958,100 @@ def test_edit_and_delete_amendment():
                 meetings.delete_amendment(amend.id)
 
         assert Amendment.query.count() == 0
+
+
+        
+def test_request_motion_change_cutoff():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["WTF_CSRF_ENABLED"] = False
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="T", opens_at_stage1=datetime.utcnow() + timedelta(days=5))
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+
+        user = _make_user(True)
+        with app.test_request_context(
+            f"/meetings/motions/{motion.id}/request-change", method="POST", data={"withdraw": "y"}
+        ):
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.flash") as fl:
+                    meetings.request_motion_change(motion.id)
+                    fl.assert_called()
+
+        assert motion.withdrawal_requested_at is None
+
+
+def test_approve_motion_change_marks_withdrawn():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["WTF_CSRF_ENABLED"] = False
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="T", opens_at_stage1=datetime.utcnow() + timedelta(days=10))
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+
+        user = _make_user(True)
+        with app.test_request_context(
+            f"/meetings/motions/{motion.id}/request-change", method="POST", data={"withdraw": "y"}
+        ):
+            with patch("flask_login.utils._get_user", return_value=user):
+                meetings.request_motion_change(motion.id)
+
+        with app.test_request_context(
+            f"/meetings/motions/{motion.id}/approve-change/chair", method="POST"
+        ):
+            with patch("flask_login.utils._get_user", return_value=user):
+                meetings.approve_motion_change(motion.id, "chair")
+
+        with app.test_request_context(
+            f"/meetings/motions/{motion.id}/approve-change/board", method="POST"
+        ):
+            with patch("flask_login.utils._get_user", return_value=user):
+                meetings.approve_motion_change(motion.id, "board")
+        refreshed = db.session.get(Motion, motion.id)
+        assert refreshed.withdrawn is True
+
+def test_default_stage_time_calculation():
+    app = create_app()
+    with app.app_context():
+        agm = datetime.utcnow() + timedelta(days=60)
+        defaults = meetings._calculate_default_times(agm)
+        assert (
+            defaults["opens_at_stage1"] - defaults["notice_date"]
+            >= timedelta(days=app.config["NOTICE_PERIOD_DAYS"])
+        )
+        assert (
+            defaults["closes_at_stage1"] - defaults["opens_at_stage1"]
+            >= timedelta(days=app.config["STAGE1_LENGTH_DAYS"])
+        )
+        assert (
+            defaults["closes_at_stage2"] - defaults["opens_at_stage2"]
+            >= timedelta(days=app.config["STAGE2_LENGTH_DAYS"])
+        )
+        assert (
+            defaults["opens_at_stage2"] - defaults["closes_at_stage1"]
+            >= timedelta(days=app.config["STAGE_GAP_DAYS"])
+        )
