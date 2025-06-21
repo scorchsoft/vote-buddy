@@ -49,6 +49,7 @@ from .forms import (
     ObjectionForm,
     ManualEmailForm,
     ExtendStageForm,
+    MotionChangeRequestForm,
 )
 from ..voting.routes import (
     compile_motion_text,
@@ -418,6 +419,74 @@ def view_motion(motion_id):
         amendments=amendments,
         conflicts=conflicts,
     )
+
+
+@bp.route("/motions/<int:motion_id>/request-change", methods=["GET", "POST"])
+@login_required
+def request_motion_change(motion_id: int):
+    """Allow a user to request withdrawal or major edit of a motion."""
+    motion = db.session.get(Motion, motion_id)
+    if motion is None:
+        abort(404)
+    meeting = db.session.get(Meeting, motion.meeting_id)
+    if meeting is None:
+        abort(404)
+    if meeting.opens_at_stage1 and datetime.utcnow() > meeting.opens_at_stage1 - timedelta(days=7):
+        flash("Change requests must be made at least 7 days before Stage 1 opens.", "error")
+        return redirect(url_for("meetings.view_motion", motion_id=motion.id))
+    form = MotionChangeRequestForm()
+    if request.method == "GET":
+        form.text_md.data = motion.text_md
+    if form.validate_on_submit():
+        if form.text_md.data and form.text_md.data != motion.text_md:
+            motion.text_md = form.text_md.data
+            motion.modified_at = datetime.utcnow()
+            motion.withdrawal_requested_at = datetime.utcnow()
+        if form.withdraw.data:
+            motion.withdrawal_requested_at = datetime.utcnow()
+        db.session.commit()
+        flash("Request submitted", "success")
+        return redirect(url_for("meetings.view_motion", motion_id=motion.id))
+    return render_template("meetings/motion_change_form.html", form=form, motion=motion)
+
+
+@bp.route("/motions/<int:motion_id>/approve-change/<actor>", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def approve_motion_change(motion_id: int, actor: str):
+    """Approve a withdrawal/edit request as chair or board."""
+    motion = db.session.get(Motion, motion_id)
+    if motion is None:
+        abort(404)
+    now = datetime.utcnow()
+    if actor == "chair":
+        motion.chair_approved_at = now
+    elif actor == "board":
+        motion.board_approved_at = now
+    else:
+        abort(404)
+    if motion.chair_approved_at and motion.board_approved_at:
+        if motion.withdrawal_requested_at:
+            motion.withdrawn = True
+    db.session.commit()
+    flash("Request approved", "success")
+    return redirect(url_for("meetings.view_motion", motion_id=motion.id))
+
+
+@bp.route("/motions/<int:motion_id>/reject-change", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def reject_motion_change(motion_id: int):
+    """Reject a withdrawal/edit request."""
+    motion = db.session.get(Motion, motion_id)
+    if motion is None:
+        abort(404)
+    motion.withdrawal_requested_at = None
+    motion.chair_approved_at = None
+    motion.board_approved_at = None
+    db.session.commit()
+    flash("Request rejected", "success")
+    return redirect(url_for("meetings.view_motion", motion_id=motion.id))
 
 
 @bp.route("/motions/<int:motion_id>/amendments/add", methods=["GET", "POST"])

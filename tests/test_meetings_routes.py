@@ -890,6 +890,80 @@ def test_edit_and_delete_amendment():
         assert Amendment.query.count() == 0
 
 
+        
+def test_request_motion_change_cutoff():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["WTF_CSRF_ENABLED"] = False
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="T", opens_at_stage1=datetime.utcnow() + timedelta(days=5))
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+
+        user = _make_user(True)
+        with app.test_request_context(
+            f"/meetings/motions/{motion.id}/request-change", method="POST", data={"withdraw": "y"}
+        ):
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.flash") as fl:
+                    meetings.request_motion_change(motion.id)
+                    fl.assert_called()
+
+        assert motion.withdrawal_requested_at is None
+
+
+def test_approve_motion_change_marks_withdrawn():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["WTF_CSRF_ENABLED"] = False
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="T", opens_at_stage1=datetime.utcnow() + timedelta(days=10))
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+
+        user = _make_user(True)
+        with app.test_request_context(
+            f"/meetings/motions/{motion.id}/request-change", method="POST", data={"withdraw": "y"}
+        ):
+            with patch("flask_login.utils._get_user", return_value=user):
+                meetings.request_motion_change(motion.id)
+
+        with app.test_request_context(
+            f"/meetings/motions/{motion.id}/approve-change/chair", method="POST"
+        ):
+            with patch("flask_login.utils._get_user", return_value=user):
+                meetings.approve_motion_change(motion.id, "chair")
+
+        with app.test_request_context(
+            f"/meetings/motions/{motion.id}/approve-change/board", method="POST"
+        ):
+            with patch("flask_login.utils._get_user", return_value=user):
+                meetings.approve_motion_change(motion.id, "board")
+        refreshed = db.session.get(Motion, motion.id)
+        assert refreshed.withdrawn is True
+
 def test_default_stage_time_calculation():
     app = create_app()
     with app.app_context():

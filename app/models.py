@@ -199,6 +199,11 @@ class Motion(db.Model):
     threshold = db.Column(db.String(20))
     ordering = db.Column(db.Integer)
     status = db.Column(db.String(50))
+    withdrawn = db.Column(db.Boolean, default=False)
+    modified_at = db.Column(db.DateTime)
+    withdrawal_requested_at = db.Column(db.DateTime)
+    chair_approved_at = db.Column(db.DateTime)
+    board_approved_at = db.Column(db.DateTime)
     options = db.relationship("MotionOption", backref="motion")
 
 

@@ -61,4 +61,22 @@
 {% else %}
   <p>No amendments submitted.</p>
 {% endfor %}
+
+{% if current_user.is_authenticated and current_user.has_permission('manage_meetings') %}
+  <div class="mt-4 space-x-2">
+    {% if motion.withdrawal_requested_at %}
+      <form method="post" action="{{ url_for('meetings.approve_motion_change', motion_id=motion.id, actor='chair') }}" class="inline-block">
+        <button class="bp-btn-secondary">Chair Approve</button>
+      </form>
+      <form method="post" action="{{ url_for('meetings.approve_motion_change', motion_id=motion.id, actor='board') }}" class="inline-block">
+        <button class="bp-btn-secondary">Board Approve</button>
+      </form>
+      <form method="post" action="{{ url_for('meetings.reject_motion_change', motion_id=motion.id) }}" class="inline-block">
+        <button class="bp-btn-secondary">Reject</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('meetings.request_motion_change', motion_id=motion.id) }}" class="bp-btn-primary">Request Withdrawal/Edit</a>
+    {% endif %}
+  </div>
+{% endif %}
 {% endblock %}

@@ -208,6 +208,13 @@ class ExtendStageForm(FlaskForm):
     submit = SubmitField("Extend")
 
 
+class MotionChangeRequestForm(FlaskForm):
+    """Form for motion withdrawal or major edit requests."""
+
+    text_md = TextAreaField("Revised Motion Text", validators=[Optional()])
+    withdraw = BooleanField("Withdraw Motion")
+    submit = SubmitField("Submit Request")
+
 class Stage1TallyForm(FlaskForm):
     votes_cast = IntegerField("Votes Cast", validators=[DataRequired()])
     submit = SubmitField("Save")
