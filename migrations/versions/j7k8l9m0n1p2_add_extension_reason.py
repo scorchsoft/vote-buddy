@@ -1,14 +1,14 @@
 """add extension_reason column
 
 Revision ID: j7k8l9m0n1p2
-Revises: i1j2k3l4m5n6
+Revises: j7k8l9m0n1o2
 Create Date: 2025-06-26 00:00:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
 
 revision = 'j7k8l9m0n1p2'
-down_revision = 'i1j2k3l4m5n6'
+down_revision = 'j7k8l9m0n1o2'
 branch_labels = None
 depends_on = None
 
