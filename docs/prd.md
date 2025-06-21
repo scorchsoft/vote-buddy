@@ -407,7 +407,8 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-20 – Stage 1 is skipped when no amendments exist by the deadline; Stage 2 tokens are generated.
 * 2025-06-25 – Receipt checker warns when a hash matches multiple votes and footer now links to it.
 * 2025-06-26 – Final results email dispatched with summary and DOCX attachment.
-
+* 2025-06-27 – Amendments store merge/rejection reason displayed on motion view.
+* 2025-06-26 – Added stage extension form and reason display on results page.
 
 
 
