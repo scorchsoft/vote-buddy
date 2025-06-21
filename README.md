@@ -6,6 +6,9 @@ It supports two stage voting on amendments and final motions, sends unique votin
 
 VoteBuddy aims to apply principles from UK Parliamentary Proceedure as well as "Roberts Rules" around governance and effective meetings, to make an online ballot format that is robust and but simple enough to understand as to be inclusive.
 
+VoteBuddy also includes a [special resolution motion template](docs/template-motion.md) to guide you through implementing the governance changes necessary for your organisation to follow this tool's recommended process.
+
+
 ## Features
 
 - Flask 3 with SQLAlchemy ORM
