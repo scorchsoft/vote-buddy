@@ -46,6 +46,37 @@ def test_add_comment_records_text():
         assert c.member_id == member.id
 
 
+def test_flash_message_after_comment_post():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", comments_enabled=True)
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="A", email="a@example.com")
+        db.session.add(member)
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="t",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt="salty")
+        db.session.commit()
+        client = app.test_client()
+        resp = client.post(
+            f"/comments/{plain}/motion/{motion.id}",
+            data={"text": "Hi"},
+            follow_redirects=True,
+        )
+        assert resp.status_code == 200
+        assert b"Comment posted" in resp.data
+
+
 def test_add_comment_disallowed_when_disabled():
     app = _setup_app()
     with app.app_context():

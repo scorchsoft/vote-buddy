@@ -172,6 +172,7 @@ class Member(db.Model):
     email_opt_out = db.Column(db.Boolean, default=False)
     can_comment = db.Column(db.Boolean, default=True)
     is_test = db.Column(db.Boolean, default=False)
+    comments = db.relationship("Comment", backref="member")
 
 
 class Motion(db.Model):
