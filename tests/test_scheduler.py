@@ -43,8 +43,9 @@ def test_send_stage1_reminders_sends_emails():
         member = Member(meeting_id=meeting.id, name='Ann', email='a@example.com')
         db.session.add(member)
         db.session.flush()
-        token_hash = VoteToken._hash('tok', app.config['TOKEN_SALT'])
-        token = VoteToken(token=token_hash, member_id=member.id, stage=1)
+        token, _ = VoteToken.create(
+            member_id=member.id, stage=1, salt=app.config['TOKEN_SALT']
+        )
         db.session.add(token)
         db.session.commit()
         with patch('app.tasks.send_stage1_reminder') as mock_send:
@@ -94,10 +95,11 @@ def test_cleanup_vote_tokens_removes_expired_and_used():
         db.session.add_all([member1, member2])
         db.session.flush()
 
-        t_used = VoteToken(token=VoteToken._hash('used', app.config['TOKEN_SALT']), member_id=member1.id, stage=1, used_at=now)
-        t_expired1 = VoteToken(token=VoteToken._hash('exp1', app.config['TOKEN_SALT']), member_id=member1.id, stage=1)
-        t_expired2 = VoteToken(token=VoteToken._hash('exp2', app.config['TOKEN_SALT']), member_id=member1.id, stage=2)
-        t_valid = VoteToken(token=VoteToken._hash('valid', app.config['TOKEN_SALT']), member_id=member2.id, stage=1)
+        t_used, _ = VoteToken.create(member_id=member1.id, stage=1, salt=app.config['TOKEN_SALT'])
+        t_used.used_at = now
+        t_expired1, _ = VoteToken.create(member_id=member1.id, stage=1, salt=app.config['TOKEN_SALT'])
+        t_expired2, _ = VoteToken.create(member_id=member1.id, stage=2, salt=app.config['TOKEN_SALT'])
+        t_valid, _ = VoteToken.create(member_id=member2.id, stage=1, salt=app.config['TOKEN_SALT'])
         db.session.add_all([t_used, t_expired1, t_expired2, t_valid])
         db.session.commit()
 
