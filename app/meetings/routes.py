@@ -1147,18 +1147,23 @@ def prepare_stage2(meeting_id: int):
 
 
 @bp.route("/<int:meeting_id>/results-stage2.docx")
-@login_required
-@permission_required("manage_meetings")
 def results_stage2_docx(meeting_id: int):
     """Download DOCX summarising carried amendments and final motion results."""
     meeting = db.session.get(Meeting, meeting_id)
     if meeting is None:
+        abort(404)
+    if not meeting.public_results or not meeting.results_doc_published:
         abort(404)
     amend_results = _amendment_results(meeting)
     motion_results = _motion_results(meeting)
 
     include_logo = request.args.get("logo") == "1"
     doc = _styled_doc(f"{meeting.title} - Final Results", include_logo)
+    para = doc.add_paragraph(
+        "This document is a draft summary. The organisation reserves the right to issue a final official version." )
+    para.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    if meeting.results_doc_intro_md:
+        doc.add_paragraph(meeting.results_doc_intro_md)
 
     doc.add_heading("Carried Amendments", level=2)
     carried = [a for a, c in amend_results if c.get("for", 0) > c.get("against", 0)]

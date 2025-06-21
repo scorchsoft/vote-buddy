@@ -97,6 +97,8 @@ class Meeting(db.Model):
     public_results = db.Column(db.Boolean, default=False)
     comments_enabled = db.Column(db.Boolean, default=False)
     extension_reason = db.Column(db.Text)
+    results_doc_published = db.Column(db.Boolean, default=False)
+    results_doc_intro_md = db.Column(db.Text)
 
     def stage1_votes_count(self) -> int:
         """Return number of verified Stage-1 votes."""
