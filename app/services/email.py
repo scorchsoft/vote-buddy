@@ -505,3 +505,15 @@ def send_amendment_reinstated(amendment: Amendment, meeting: Meeting, *, test_mo
     )
     mail.send(msg)
 
+
+def send_password_reset(user: User, token: str, *, test_mode: bool = False) -> None:
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + "Reset your password",
+        recipients=[user.email],
+        sender=_sender(),
+    )
+    link = url_for("auth.reset_password", token=token, _external=True)
+    msg.body = render_template("email/password_reset.txt", user=user, link=link)
+    msg.html = render_template("email/password_reset.html", user=user, link=link)
+    mail.send(msg)
+
