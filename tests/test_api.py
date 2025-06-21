@@ -62,3 +62,33 @@ def test_api_results_matches_public_json():
             data = api_json.get_json()
             assert data['meeting_id'] == meeting.id
             assert any(r['for'] == 1 for r in data['tallies'] if r['type'] == 'amendment')
+
+
+def test_api_stage1_results_endpoint():
+    app = _setup_app()
+    app.config['TOKEN_SALT'] = 't'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(
+            title='AGM',
+            public_results=False,
+            early_public_results=True,
+            status='Pending Stage 2',
+        )
+        db.session.add(meeting)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, text_md='A1', order=1)
+        member = Member(meeting_id=meeting.id, name='Bob')
+        db.session.add_all([amend, member])
+        db.session.commit()
+        Vote.record(member_id=member.id, amendment_id=amend.id, choice='for', salt='t')
+        token_obj, plain = ApiToken.create('test', app.config['API_TOKEN_SALT'])
+        db.session.commit()
+        with app.test_request_context(
+            f'/api/meetings/{meeting.id}/stage1-results',
+            headers={'Authorization': f'Bearer {plain}'},
+        ):
+            api_json = api.meeting_stage1_results(meeting.id)
+            data = api_json.get_json()
+            assert data['meeting_id'] == meeting.id
+            assert data['tallies'][0]['for'] == 1
