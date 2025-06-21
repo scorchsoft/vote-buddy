@@ -123,6 +123,18 @@ Install the dependencies and execute:
 pytest -q
 ```
 
+### Local email testing
+
+To prevent real emails being sent during local testing, set `MAIL_SUPPRESS_SEND=1` in your environment:
+
+```bash
+export MAIL_SUPPRESS_SEND=1
+```
+
+You can also run a local SMTP capture tool like [MailHog](https://github.com/mailhog/MailHog) and point
+`MAIL_SERVER` and `MAIL_PORT` to it, e.g. `MAIL_SERVER=localhost` and `MAIL_PORT=1025`.
+
+
 ### Security testing
 
 Run the automated OWASP ZAP baseline scan against the local server:
