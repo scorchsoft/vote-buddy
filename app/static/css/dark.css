@@ -227,6 +227,11 @@
   box-shadow: var(--shadow-xl);
 }
 
+.dark .bp-dropdown-label {
+  color: var(--bp-grey-500);
+  border-bottom-color: var(--bp-grey-300);
+}
+
 .dark .bp-dropdown-item {
   color: var(--bp-grey-800);
   border-bottom-color: var(--bp-grey-300);
