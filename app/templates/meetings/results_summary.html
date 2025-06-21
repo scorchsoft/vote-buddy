@@ -38,6 +38,30 @@
   {% endfor %}
   </tbody>
 </table>
+<h2 class="font-bold text-bp-blue mt-6">Members</h2>
+<table class="bp-table w-full mt-2">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Email</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for m in members %}
+    <tr class="border-t">
+      <td class="p-2">{{ m.name }}</td>
+      <td class="p-2">{{ m.email }}</td>
+      <td class="p-2">
+        <form method="post" action="{{ url_for('meetings.resend_member_link', meeting_id=meeting.id, member_id=m.id) }}" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <button type="submit" class="bp-btn-secondary">Resend link</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 {% if unused_proxy_tokens %}
 <h2 class="font-bold text-bp-blue mt-6">Unused Proxy Tokens</h2>
 <table class="bp-table w-full mt-2">
@@ -68,8 +92,15 @@
 {% endif %}
 <a href="{{ url_for('meetings.results_docx', meeting_id=meeting.id) }}" class="bp-btn-secondary mt-4 inline-block">Download DOCX</a>
 <a href="{{ url_for('meetings.results_stage2_docx', meeting_id=meeting.id) }}" class="bp-btn-secondary mt-4 inline-block ml-2">Download Final DOCX</a>
+{% if manual_email_mode and current_user.has_permission('manage_meetings') %}
+<a href="{{ url_for('meetings.manual_send_emails', meeting_id=meeting.id) }}" class="bp-btn-secondary mt-4 inline-block ml-2">Send Emails</a>
+{% endif %}
 {% if meeting.status == 'Pending Stage 2' %}
 <a href="{{ url_for('meetings.prepare_stage2', meeting_id=meeting.id) }}" class="bp-btn-primary mt-4 inline-block ml-2">Prepare Stage 2 Motion</a>
+{% elif meeting.status == 'Stage 2' %}
+<form method="post" action="{{ url_for('meetings.close_stage2', meeting_id=meeting.id) }}" class="inline-block ml-2">
+  <button type="submit" class="bp-btn-primary">Close Stage 2</button>
+</form>
 {% elif meeting.status == 'Completed' %}
 <p class="bp-alert-success mt-4">Meeting Completed</p>
 {% endif %}

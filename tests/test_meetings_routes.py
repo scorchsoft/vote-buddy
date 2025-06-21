@@ -962,6 +962,32 @@ def test_results_summary_lists_unused_proxies():
                 assert url in html
 
 
+def test_results_summary_shows_member_resend_links():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["TOKEN_SALT"] = "s"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="M", email="m@example.com")
+        db.session.add(member)
+        db.session.commit()
+
+        with app.test_request_context(f"/meetings/{meeting.id}/results"):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                html = meetings.results_summary(meeting.id)
+                assert "m@example.com" in html
+                url = url_for(
+                    "meetings.resend_member_link",
+                    meeting_id=meeting.id,
+                    member_id=member.id,
+                )
+                assert url in html
+
+
 def test_resend_and_invalidate_proxy_token():
     app = create_app()
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
