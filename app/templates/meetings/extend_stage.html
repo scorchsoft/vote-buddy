@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
+{% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Extend Stage', None)]) }}
+<h1 class="font-bold text-bp-blue mb-4">Extend Stage {{ stage }}</h1>
+<form method="post" class="bp-form bp-card space-y-4">
+  {{ form.hidden_tag() }}
+  <div>
+    {{ form.opens_at.label(class_='block font-semibold') }}
+    {{ form.opens_at(class_='border p-3 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.closes_at.label(class_='block font-semibold') }}
+    {{ form.closes_at(class_='border p-3 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.reason.label(class_='block font-semibold') }}
+    {{ form.reason(class_='border p-3 rounded w-full') }}
+  </div>
+  <button type="submit" class="bp-btn-primary">Extend</button>
+</form>
+{% endblock %}

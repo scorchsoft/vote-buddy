@@ -1,0 +1,17 @@
+Hello {{ member.name }},
+
+{% if test_mode %}*** TEST MODE - results below come from a test ballot ***
+{% endif %}
+
+{{ meeting.title }} has concluded.
+
+{{ summary }}
+
+{% if results_link %}
+See the full results: {{ results_link }}
+{% else %}
+The certified results document is attached.
+{% endif %}
+
+If you did not expect this email you can ignore it.
+To stop these emails, visit {{ unsubscribe_url }}

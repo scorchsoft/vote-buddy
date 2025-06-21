@@ -1,0 +1,30 @@
+<table width="600" style="font-family:Gotham,Arial,Helvetica Neue,sans-serif;font-size:16px;line-height:1.4;color:#3F4854;margin:0 auto;">
+  <tr>
+    <td style="background-color:#002D59;padding:12px 24px;color:white;">
+      <strong>British Powerlifting</strong>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:24px;background-color:#FFFFFF;">
+      <p>Hello {{ member.name }},</p>
+      <p><strong>{{ meeting.title }}</strong> has concluded.</p>
+      <div style="border:1px solid #F7F7F9;border-radius:16px;padding:12px;margin:16px 0;">
+        {{ summary|markdown_to_html|safe }}
+      </div>
+      {% if results_link %}
+      <p>See the full results: <a href="{{ results_link }}">{{ results_link }}</a></p>
+      {% else %}
+      <p>The certified results document is attached.</p>
+      {% endif %}
+      {% if test_mode %}
+      <p style="color:#DC0714;"><strong>TEST MODE:</strong> results below come from a test ballot.</p>
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <td style="background-color:#F7F7F9;padding:12px 24px;font-size:14px;color:#3F4854;">
+      <p style="margin:0;">Voting assistance: <a href="mailto:support@example.com">support@example.com</a></p>
+      <p style="margin:0;">Company No. 12345678 · <a href="{{ unsubscribe_url }}">Unsubscribe</a></p>
+    </td>
+  </tr>
+</table>
