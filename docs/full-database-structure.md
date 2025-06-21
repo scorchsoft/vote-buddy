@@ -110,6 +110,7 @@ This document summarises all tables and columns created by the Alembic migration
 | meeting_id | Integer | FK `meetings.id` |
 | amendment_a_id | Integer | FK `amendments.id` |
 | amendment_b_id | Integer | FK `amendments.id` |
+| tie_break_method | String(20) | |
 
 ### amendment_merges
 | Column | Type | Notes |
@@ -133,6 +134,7 @@ This document summarises all tables and columns created by the Alembic migration
 | meeting_id | Integer | FK `meetings.id` |
 | amendment_a_id | Integer | FK `amendments.id` |
 | amendment_b_id | Integer | FK `amendments.id` |
+| tie_break_method | String(20) | |
 
 ### vote_tokens
 | Column | Type | Notes |
