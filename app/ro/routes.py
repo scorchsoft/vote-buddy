@@ -175,6 +175,18 @@ def _tie_break_form(amendments: list[Amendment]) -> FlaskForm:
     return type("TieBreakForm", (FlaskForm,), fields)()
 
 
+def _runoff_tie_break_form(runoffs: list[Runoff]) -> FlaskForm:
+    fields = {}
+    for r in runoffs:
+        fields[f"method_{r.id}"] = SelectField(
+            "Method",
+            choices=[("chair", "Chair"), ("board", "Board"), ("order", "Order")],
+            validators=[DataRequired()],
+        )
+    fields["submit"] = SubmitField("Save")
+    return type("RunoffTieBreakForm", (FlaskForm,), fields)()
+
+
 @bp.route('/<int:meeting_id>/tie-breaks', methods=['GET', 'POST'])
 @login_required
 @permission_required('manage_meetings')
@@ -200,6 +212,34 @@ def tie_breaks(meeting_id: int):
         form[f"decision_{a.id}"].data = a.status or 'carried'
         form[f"method_{a.id}"].data = a.tie_break_method or 'chair'
     return render_template('ro/tie_break_form.html', meeting=meeting, amendments=amends, form=form)
+
+
+@bp.route('/<int:meeting_id>/runoff-tie-breaks', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
+def tie_breaks_runoff(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    runoffs = Runoff.query.filter_by(meeting_id=meeting.id).all()
+    pairs = [
+        (
+            r,
+            db.session.get(Amendment, r.amendment_a_id),
+            db.session.get(Amendment, r.amendment_b_id),
+        )
+        for r in runoffs
+    ]
+    form = _runoff_tie_break_form(runoffs)
+    if form.validate_on_submit():
+        for r in runoffs:
+            r.tie_break_method = form[f"method_{r.id}"].data
+        db.session.commit()
+        flash('Run-off tie break methods saved', 'success')
+        return redirect(url_for('ro.dashboard'))
+    for r in runoffs:
+        form[f"method_{r.id}"].data = r.tie_break_method or 'order'
+    return render_template('ro/runoff_tie_break_form.html', meeting=meeting, runoffs=pairs, form=form)
 
 
 @bp.route('/<int:meeting_id>/stage2_tallies.csv')

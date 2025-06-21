@@ -314,6 +314,7 @@ class Runoff(db.Model):
     meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
     amendment_a_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
     amendment_b_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
+    tie_break_method = db.Column(db.String(20))
 
 
 class AmendmentConflict(db.Model):

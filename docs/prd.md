@@ -330,6 +330,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Voting route rejects ballots when a stage is locked.
 * 2025-06-15 – Run-off and reminder emails now link to `/vote/<token>`.
 * 2025-06-17 – Stage 1 closing now voids the vote when quorum is not met.
+* 2025-06-30 – Run-off tie break method recorded per run-off with RO form and service logic.
 * 2025-06-16 – Run-off invite emails now use `/vote/runoff/<token>` links.
 * 2025-06-15 – Added `aria-describedby` error hints on admin and meeting forms.
 * 2025-06-15 – Dashboard shows countdown to next reminder using badge design.
