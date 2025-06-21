@@ -14,7 +14,7 @@ def test_markdown_to_html_sanitizes_and_marks_safe():
 from dataclasses import dataclass
 from datetime import datetime
 import pytest
-from app.utils import generate_stage_ics
+from app.utils import generate_stage_ics, generate_runoff_ics
 
 
 @dataclass
@@ -24,6 +24,13 @@ class DummyMeeting:
     closes_at_stage1: datetime | None = None
     opens_at_stage2: datetime | None = None
     closes_at_stage2: datetime | None = None
+
+
+@dataclass
+class RunoffMeeting:
+    title: str
+    runoff_opens_at: datetime | None = None
+    runoff_closes_at: datetime | None = None
 
 
 def test_generate_stage1_ics_contains_calendar_and_title():
@@ -54,4 +61,22 @@ def test_generate_stage_ics_missing_timestamps_raises_error():
     meeting = DummyMeeting(title="Broken")
     with pytest.raises(ValueError):
         generate_stage_ics(meeting, 2)
+
+
+def test_generate_runoff_ics_contains_calendar_and_title():
+    meeting = RunoffMeeting(
+        title="Test Meeting",
+        runoff_opens_at=datetime(2030, 1, 3, 9),
+        runoff_closes_at=datetime(2030, 1, 3, 10),
+    )
+    ics = generate_runoff_ics(meeting)
+    text = ics.decode()
+    assert "BEGIN:VCALENDAR" in text
+    assert "Test Meeting" in text
+
+
+def test_generate_runoff_ics_missing_timestamps_raises_error():
+    meeting = RunoffMeeting(title="Broken")
+    with pytest.raises(ValueError):
+        generate_runoff_ics(meeting)
 
