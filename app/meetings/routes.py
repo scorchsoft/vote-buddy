@@ -592,6 +592,20 @@ def mark_amendment_merged(amendment_id: int):
     return redirect(url_for("meetings.view_motion", motion_id=amendment.motion_id))
 
 
+@bp.route("/<int:meeting_id>/member-search")
+def member_search(meeting_id: int):
+    """Return member options filtered by query."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    q = request.args.get("q", "").strip()
+    query = Member.query.filter_by(meeting_id=meeting.id)
+    if q:
+        query = query.filter(Member.name.ilike(f"%{q}%"))
+    members = query.order_by(Member.name).limit(20).all()
+    return render_template("meetings/_member_options.html", members=members)
+
+
 @bp.route("/amendments/<int:amendment_id>/object", methods=["GET", "POST"])
 def submit_objection(amendment_id: int):
     """Allow a member to submit an objection."""
@@ -602,11 +616,24 @@ def submit_objection(amendment_id: int):
     if meeting is None:
         abort(404)
     form = ObjectionForm()
-    members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
-    form.member_id.choices = [(m.id, m.name) for m in members]
     if form.validate_on_submit():
+        try:
+            member_id = int(form.member_id.data)
+        except (TypeError, ValueError):
+            flash("Invalid member", "error")
+            return render_template(
+                "meetings/objection_form.html", form=form, amendment=amendment
+            )
+
+        member = Member.query.filter_by(id=member_id, meeting_id=meeting.id).first()
+        if not member:
+            flash("Member not found", "error")
+            return render_template(
+                "meetings/objection_form.html", form=form, amendment=amendment
+            )
+
         obj = AmendmentObjection(
-            amendment_id=amendment.id, member_id=form.member_id.data
+            amendment_id=amendment.id, member_id=member.id
         )
         db.session.add(obj)
         db.session.commit()
