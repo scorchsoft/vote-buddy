@@ -96,6 +96,7 @@ class Meeting(db.Model):
     stage2_locked = db.Column(db.Boolean, default=False)
     stage1_reminder_sent_at = db.Column(db.DateTime)
     public_results = db.Column(db.Boolean, default=False)
+    early_public_results = db.Column(db.Boolean, default=False)
     comments_enabled = db.Column(db.Boolean, default=False)
     extension_reason = db.Column(db.Text)
     results_doc_published = db.Column(db.Boolean, default=False)

@@ -195,6 +195,27 @@ def _vote_counts(query):
     return counts
 
 
+@bp.route('/results/<int:meeting_id>/stage1')
+def public_stage1_results(meeting_id: int):
+    """Show Stage 1 results when awaiting Stage 2."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    if meeting.status != 'Pending Stage 2' or not meeting.early_public_results:
+        abort(404)
+
+    amendments = (
+        Amendment.query.filter_by(meeting_id=meeting.id)
+        .order_by(Amendment.order)
+        .all()
+    )
+    results = []
+    for amend in amendments:
+        results.append((amend, _vote_counts(Vote.amendment_id == amend.id)))
+
+    return render_template('public_stage1_results.html', meeting=meeting, results=results)
+
+
 @bp.route('/results/<int:meeting_id>')
 def public_results(meeting_id: int):
     meeting = db.session.get(Meeting, meeting_id)
