@@ -78,24 +78,28 @@ def generate_fake_data() -> None:
     db.session.commit()
 
     members = []
-    for _ in range(30):
+    for i in range(30):
         member = Member(
             meeting_id=meeting.id,
             name=fake.name(),
-            email=fake.unique.email(),
+            email=f"{fake.unique.user_name()}@example.invalid",
+            member_number=str(1000 + i),
+            is_test=True,
         )
         db.session.add(member)
         db.session.flush()
-        VoteToken.create(
+        t1, _ = VoteToken.create(
             member_id=member.id,
             stage=1,
             salt=current_app.config["TOKEN_SALT"],
         )
-        VoteToken.create(
+        t2, _ = VoteToken.create(
             member_id=member.id,
             stage=2,
             salt=current_app.config["TOKEN_SALT"],
         )
+        t1.is_test = True
+        t2.is_test = True
         members.append(member)
 
     motions = []
@@ -140,6 +144,7 @@ def generate_fake_data() -> None:
                 choice=random.choice(choices),
                 salt=current_app.config["VOTE_SALT"],
                 stage=1,
+                is_test=True,
             )
         for motion in motions:
             Vote.record(
@@ -148,6 +153,7 @@ def generate_fake_data() -> None:
                 choice=random.choice(choices),
                 salt=current_app.config["VOTE_SALT"],
                 stage=2,
+                is_test=True,
             )
         t1 = VoteToken.query.filter_by(member_id=member.id, stage=1).first()
         t2 = VoteToken.query.filter_by(member_id=member.id, stage=2).first()
