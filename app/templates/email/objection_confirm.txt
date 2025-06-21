@@ -1,0 +1,8 @@
+Hello,
+
+You requested to object to amendment A{{ amendment.order }} in {{ meeting.title }}.
+Please confirm by visiting the link below:
+
+{{ link }}
+
+If you did not make this request you can ignore this email.

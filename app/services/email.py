@@ -3,7 +3,7 @@ from flask_mail import Message
 from ..utils import config_or_setting, generate_stage_ics, carried_amendment_summary
 
 from ..extensions import mail, db
-from ..models import Member, Meeting, UnsubscribeToken, AppSetting, EmailLog
+from ..models import Member, Meeting, Amendment, UnsubscribeToken, AppSetting, EmailLog
 from uuid6 import uuid7
 
 
@@ -191,4 +191,27 @@ def send_quorum_failure(member: Member, meeting: Meeting, *, test_mode: bool = F
     )
     mail.send(msg)
     _log_email(member, meeting, 'quorum_failure', test_mode)
+
+
+def send_objection_confirmation(email: str, amendment: Amendment, meeting: Meeting, token: str) -> None:
+    """Email confirmation link for an amendment objection."""
+    link = url_for('meetings.confirm_objection', token=token, _external=True)
+    msg = Message(
+        subject=f"Confirm your objection for {meeting.title}",
+        recipients=[email],
+        sender=_sender(),
+    )
+    msg.body = render_template(
+        'email/objection_confirm.txt',
+        amendment=amendment,
+        meeting=meeting,
+        link=link,
+    )
+    msg.html = render_template(
+        'email/objection_confirm.html',
+        amendment=amendment,
+        meeting=meeting,
+        link=link,
+    )
+    mail.send(msg)
 

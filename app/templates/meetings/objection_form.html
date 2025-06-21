@@ -9,6 +9,11 @@
     {{ form.member_id.label(class_='block font-semibold') }}
     {{ form.member_id(class_='border p-2 rounded w-full') }}
   </div>
+  <div>
+    {{ form.email.label(class_='block font-semibold') }}
+    {{ form.email(class_='border p-2 rounded w-full') }}
+  </div>
+  <p class="text-sm text-gray-700">We'll email you a confirmation link. Your objection only counts once you confirm.</p>
   <button type="submit" class="bp-btn-primary">Submit</button>
 </form>
 {% endblock %}

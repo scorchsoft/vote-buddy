@@ -8,12 +8,15 @@ from app.meetings import routes as meetings
 from app.admin import routes as admin
 from unittest.mock import patch
 from datetime import datetime
+import pytest
+from werkzeug.exceptions import Forbidden
 
 
 def _setup_app():
     app = create_app()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['WTF_CSRF_ENABLED'] = False
+    app.config['MAIL_SUPPRESS_SEND'] = True
     return app
 
 
@@ -41,10 +44,20 @@ def test_submit_objection_creates_record():
         db.session.add(amend)
         db.session.commit()
 
-        data = {'member_id': member.id}
+        data = {'member_id': member.id, 'email': 'a@example.com'}
         with app.test_request_context(f'/meetings/amendments/{amend.id}/object', method='POST', data=data):
-            html = meetings.submit_objection(amend.id)
-            assert AmendmentObjection.query.count() == 1
+            with patch('app.meetings.routes.send_objection_confirmation') as send_mail:
+                meetings.submit_objection(amend.id)
+                send_mail.assert_called_once()
+                obj = AmendmentObjection.query.first()
+                assert obj.email == 'a@example.com'
+                assert obj.confirmed is False
+
+        token = obj.token
+        client = app.test_client()
+        resp = client.get(f'/meetings/objections/confirm/{token}')
+        assert resp.status_code == 302
+        assert AmendmentObjection.query.first().confirmed is True
 
 
 def test_reinstate_amendment_when_threshold_met():
@@ -73,4 +86,11 @@ def test_reinstate_amendment_when_threshold_met():
             with patch('flask_login.utils._get_user', return_value=user):
                 admin.reinstate_amendment(amend.id)
                 assert amend.status is None
+
+        with app.test_request_context(f'/admin/objections/{amend.id}/reinstate', method='POST'):
+            user = _make_admin()
+            user.role.permissions = []
+            with patch('flask_login.utils._get_user', return_value=user):
+                with pytest.raises(Forbidden):
+                    admin.reinstate_amendment(amend.id)
 

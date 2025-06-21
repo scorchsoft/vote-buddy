@@ -10,6 +10,7 @@ from wtforms import (
     IntegerField,
     TextAreaField,
     SubmitField,
+    EmailField,
 )
 from wtforms.validators import DataRequired, Optional
 from wtforms import SelectMultipleField
@@ -145,6 +146,7 @@ class ConflictForm(FlaskForm):
 
 class ObjectionForm(FlaskForm):
     member_id = SelectField("Member", coerce=int, validators=[DataRequired()])
+    email = EmailField("Email", validators=[DataRequired()])
     submit = SubmitField("Submit objection")
 
 

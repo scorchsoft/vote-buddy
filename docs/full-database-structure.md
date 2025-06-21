@@ -122,6 +122,9 @@ This document summarises all tables and columns created by the Alembic migration
 | id | Integer | Primary key |
 | amendment_id | Integer | FK `amendments.id` |
 | member_id | Integer | FK `members.id` |
+| email | String | |
+| token | String | |
+| confirmed | Boolean | |
 | created_at | DateTime | |
 
 ### runoffs

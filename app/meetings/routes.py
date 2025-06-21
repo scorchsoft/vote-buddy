@@ -35,6 +35,7 @@ from ..services.email import (
     send_stage2_invite,
     send_runoff_invite,
     send_quorum_failure,
+    send_objection_confirmation,
 )
 from ..services import runoff
 from ..permissions import permission_required
@@ -601,16 +602,31 @@ def submit_objection(amendment_id: int):
     members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
     form.member_id.choices = [(m.id, m.name) for m in members]
     if form.validate_on_submit():
+        token = str(uuid7())
         obj = AmendmentObjection(
-            amendment_id=amendment.id, member_id=form.member_id.data
+            amendment_id=amendment.id,
+            member_id=form.member_id.data,
+            email=form.email.data,
+            token=token,
+            confirmed=False,
         )
         db.session.add(obj)
         db.session.commit()
-        flash("Objection submitted", "success")
+        send_objection_confirmation(form.email.data, amendment, meeting, token)
+        flash("Check your email to confirm your objection", "success")
         return redirect(url_for("meetings.view_motion", motion_id=amendment.motion_id))
     return render_template(
         "meetings/objection_form.html", form=form, amendment=amendment
     )
+
+
+@bp.route("/objections/confirm/<token>")
+def confirm_objection(token: str):
+    obj = AmendmentObjection.query.filter_by(token=token).first_or_404()
+    obj.confirmed = True
+    db.session.commit()
+    flash("Objection confirmed", "success")
+    return redirect(url_for("meetings.view_motion", motion_id=obj.amendment_id))
 
 
 @bp.route("/motions/<int:motion_id>/conflicts", methods=["GET", "POST"])

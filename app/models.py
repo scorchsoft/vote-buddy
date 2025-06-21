@@ -339,6 +339,9 @@ class AmendmentObjection(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amendment_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
     member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    email = db.Column(db.String(255))
+    token = db.Column(db.String(36))
+    confirmed = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
