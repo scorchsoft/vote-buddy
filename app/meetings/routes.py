@@ -114,6 +114,31 @@ def _styled_doc(title: str, include_logo: bool) -> Document:
     return doc
 
 
+def _calculate_default_times(agm_date: datetime) -> dict:
+    """Return default timeline values relative to the AGM date."""
+    cfg = current_app.config
+    opens_at_stage2 = agm_date - timedelta(days=cfg.get("STAGE2_LENGTH_DAYS", 5))
+    closes_at_stage1 = opens_at_stage2 - timedelta(days=cfg.get("STAGE_GAP_DAYS", 1))
+    opens_at_stage1 = closes_at_stage1 - timedelta(days=cfg.get("STAGE1_LENGTH_DAYS", 7))
+    notice_date = opens_at_stage1 - timedelta(days=cfg.get("NOTICE_PERIOD_DAYS", 14))
+    return {
+        "notice_date": notice_date,
+        "opens_at_stage1": opens_at_stage1,
+        "closes_at_stage1": closes_at_stage1,
+        "opens_at_stage2": opens_at_stage2,
+        "closes_at_stage2": agm_date,
+    }
+
+
+def _prefill_form_defaults(form: MeetingForm) -> None:
+    """Set form defaults based on AGM date if fields are empty."""
+    if form.closes_at_stage2.data:
+        defaults = _calculate_default_times(form.closes_at_stage2.data)
+        for field, value in defaults.items():
+            if getattr(form, field).data is None:
+                getattr(form, field).data = value
+
+
 @bp.route("/")
 @login_required
 @permission_required("manage_meetings")
@@ -165,7 +190,7 @@ def _save_meeting(form: MeetingForm, meeting: Meeting | None = None) -> Meeting:
     """Populate Meeting from form and save."""
     if meeting is None:
         meeting = Meeting()
-
+    _prefill_form_defaults(form)
     form.populate_obj(meeting)
     db.session.add(meeting)
     db.session.commit()
@@ -195,6 +220,8 @@ def create_meeting():
     form.closes_at_stage2.description = (
         "Final voting deadline; at least 5 days after Stage 2 opens."
     )
+    if request.method == "GET":
+        _prefill_form_defaults(form)
     if form.validate_on_submit():
         _save_meeting(form)
         return redirect(url_for("meetings.list_meetings"))
@@ -221,6 +248,8 @@ def edit_meeting(meeting_id):
     form.closes_at_stage2.description = (
         "Final voting deadline; at least 5 days after Stage 2 opens."
     )
+    if request.method == "GET":
+        _prefill_form_defaults(form)
     if form.validate_on_submit():
         _save_meeting(form, meeting)
         return redirect(url_for("meetings.list_meetings"))

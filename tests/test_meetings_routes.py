@@ -888,3 +888,26 @@ def test_edit_and_delete_amendment():
                 meetings.delete_amendment(amend.id)
 
         assert Amendment.query.count() == 0
+
+
+def test_default_stage_time_calculation():
+    app = create_app()
+    with app.app_context():
+        agm = datetime.utcnow() + timedelta(days=60)
+        defaults = meetings._calculate_default_times(agm)
+        assert (
+            defaults["opens_at_stage1"] - defaults["notice_date"]
+            >= timedelta(days=app.config["NOTICE_PERIOD_DAYS"])
+        )
+        assert (
+            defaults["closes_at_stage1"] - defaults["opens_at_stage1"]
+            >= timedelta(days=app.config["STAGE1_LENGTH_DAYS"])
+        )
+        assert (
+            defaults["closes_at_stage2"] - defaults["opens_at_stage2"]
+            >= timedelta(days=app.config["STAGE2_LENGTH_DAYS"])
+        )
+        assert (
+            defaults["opens_at_stage2"] - defaults["closes_at_stage1"]
+            >= timedelta(days=app.config["STAGE_GAP_DAYS"])
+        )

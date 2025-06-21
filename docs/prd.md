@@ -415,6 +415,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-26 – Added stage extension form and reason display on results page.
 * 2025-06-30 – Run-off tie breaks recorded with chair/board/order option and service respects setting.
 * 2025-06-28 – Objection submissions now require email confirmation via token link.
+* 2025-06-30 – Meeting form now pre-fills default stage dates from the AGM date.
 * 2025-06-30 – Confirmation screen links to public results once a meeting is completed.
 * 2025-06-21 – Ballot pages show time remaining with ARIA status announcements.
 * 2025-07-05 – Comment posting now shows a confirmation flash message.
