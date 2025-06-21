@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="font-bold text-bp-blue mb-4">{{ meeting.title }} – Record Stage 1 Tally</h1>
+<form method="post" class="bp-form bp-card space-y-4">
+  {{ form.hidden_tag() }}
+  <div>
+    {{ form.votes_cast.label(class_='block font-semibold') }}
+    {{ form.votes_cast(class_='bp-input w-full') }}
+  </div>
+  <button type="submit" class="bp-btn-primary">Save</button>
+</form>
+{% endblock %}

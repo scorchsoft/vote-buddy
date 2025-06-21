@@ -11,6 +11,9 @@
     {% if meeting and meeting.revoting_allowed and token %}
     <a href="{{ url_for('voting.ballot_token', token=token) }}" class="bp-btn-primary">Change your vote</a>
     {% endif %}
+    {% if meeting and meeting.public_results and meeting.status == 'Completed' %}
+    <a href="{{ url_for('main.public_results', meeting_id=meeting.id) }}" class="bp-btn-primary">View results</a>
+    {% endif %}
     {% endif %}
     <a href="{{ url_for('help.show_help') }}" class="bp-btn-secondary">Voting Help</a>
 </div>

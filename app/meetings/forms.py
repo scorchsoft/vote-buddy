@@ -206,3 +206,15 @@ class ExtendStageForm(FlaskForm):
     closes_at = DateTimeLocalField("New Closes At", format="%Y-%m-%dT%H:%M")
     reason = TextAreaField("Reason", validators=[DataRequired()])
     submit = SubmitField("Extend")
+
+
+class Stage1TallyForm(FlaskForm):
+    votes_cast = IntegerField("Votes Cast", validators=[DataRequired()])
+    submit = SubmitField("Save")
+
+
+class Stage2TallyForm(FlaskForm):
+    for_votes = IntegerField("For", validators=[DataRequired()])
+    against_votes = IntegerField("Against", validators=[DataRequired()])
+    abstain_votes = IntegerField("Abstain", validators=[DataRequired()])
+    submit = SubmitField("Save")
