@@ -302,6 +302,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Implemented meetings list view with table layout.
 * 2025-06-14 – Enhanced meetings list with htmx search and sort.
 * 2025-07-01 – Added publishable Stage 2 results document with custom intro text.
+* 2025-07-02 – Enabled voters to edit their comments for 15 minutes with audit history.
 * 2025-06-20 – Added comment count badges and modal viewer on ballots; improved thank-you screen.
 * 2025-06-30 – Added motion withdrawal/edit request workflow with chair and board approvals.
 * 2025-06-14 – Added meeting create/edit form with CSRF protection.
@@ -430,6 +431,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-21 – Added "Need help?" link to ballot pages.
 * 2025-07-06 – AGM date field auto-completes stage times based on configured notice and duration settings.
 * 2025-07-07 – Added meeting cloning option to duplicate motions and amendments.
+* 2025-06-21 – Added admin audit logging of key actions.
 
 
 
