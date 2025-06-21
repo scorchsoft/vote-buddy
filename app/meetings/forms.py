@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from flask import current_app
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileRequired
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import (
     StringField,
     SelectField,
@@ -164,6 +164,15 @@ class MemberImportForm(FlaskForm):
     """Upload CSV file of members."""
 
     csv_file = FileField("CSV File", validators=[FileRequired()])
+    submit = SubmitField("Upload")
+
+
+class MeetingFileForm(FlaskForm):
+    file = FileField(
+        "PDF File", validators=[FileRequired(), FileAllowed(["pdf"], "PDF only!")]
+    )
+    title = StringField("Title", validators=[DataRequired()])
+    description = TextAreaField("Description")
     submit = SubmitField("Upload")
 
 

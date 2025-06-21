@@ -194,3 +194,13 @@ This document summarises all tables and columns created by the Alembic migration
 | value | String(255) | |
 | group | String(50) | |
 
+
+### meeting_files
+| Column | Type | Notes |
+|-------|------|-------|
+| id | Integer | Primary key |
+| meeting_id | Integer | FK `meetings.id` |
+| filename | String(255) | |
+| title | String(255) | |
+| description | Text | |
+| uploaded_at | DateTime | |

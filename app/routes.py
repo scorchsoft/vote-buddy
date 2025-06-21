@@ -9,6 +9,7 @@ from .models import (
     VoteToken,
     Runoff,
     AppSetting,
+    MeetingFile,
 )
 from .services.email import send_vote_invite, send_stage2_invite, send_runoff_invite
 from .utils import generate_stage_ics, generate_runoff_ics, generate_results_pdf
@@ -51,6 +52,7 @@ def public_meeting_detail(meeting_id: int):
     if meeting is None:
         abort(404)
     member_count = Member.query.filter_by(meeting_id=meeting.id).count()
+    files = MeetingFile.query.filter_by(meeting_id=meeting.id).all()
     contact_url = AppSetting.get(
         'contact_url', 'https://www.britishpowerlifting.org/contactus'
     )
@@ -65,6 +67,7 @@ def public_meeting_detail(meeting_id: int):
         stage1_ics_url=stage1_ics_url,
         runoff_ics_url=runoff_ics_url,
         stage2_ics_url=stage2_ics_url,
+        files=files,
     )
 
 
@@ -179,6 +182,27 @@ def public_runoff_ics(meeting_id: int):
         mimetype='text/calendar',
         as_attachment=True,
         download_name='runoff.ics',
+    )
+
+
+@bp.route('/public/meetings/<int:meeting_id>/files/<int:file_id>')
+def public_meeting_file(meeting_id: int, file_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    file_rec = MeetingFile.query.filter_by(meeting_id=meeting.id, id=file_id).first()
+    if file_rec is None:
+        abort(404)
+    root = current_app.config.get(
+        'UPLOAD_FOLDER', os.path.join(current_app.instance_path, 'files')
+    )
+    meeting_dir = os.path.join(root, str(meeting.id))
+    return send_from_directory(
+        meeting_dir,
+        file_rec.filename,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f"{file_rec.title or 'file'}.pdf",
     )
 
 

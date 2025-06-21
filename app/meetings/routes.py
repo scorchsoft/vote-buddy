@@ -29,6 +29,7 @@ from ..models import (
     Vote,
     Runoff,
     AppSetting,
+    MeetingFile,
 )
 from ..services.email import (
     send_vote_invite,
@@ -52,6 +53,7 @@ from .forms import (
     ManualEmailForm,
     ExtendStageForm,
     MotionChangeRequestForm,
+    MeetingFileForm,
 )
 from ..voting.routes import (
     compile_motion_text,
@@ -433,6 +435,40 @@ def download_sample_csv():
     """Serve a template CSV for member uploads."""
     path = os.path.join(current_app.root_path, "static", "sample_members.csv")
     return send_file(path, mimetype="text/csv", as_attachment=True, download_name="sample_members.csv")
+
+
+@bp.route("/<int:meeting_id>/files", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def meeting_files(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    form = MeetingFileForm()
+    if form.validate_on_submit():
+        data = form.file.data
+        root = current_app.config.get(
+            "UPLOAD_FOLDER", os.path.join(current_app.instance_path, "files")
+        )
+        meeting_dir = os.path.join(root, str(meeting.id))
+        os.makedirs(meeting_dir, exist_ok=True)
+        filename = f"{uuid7()}.pdf"
+        path = os.path.join(meeting_dir, filename)
+        data.save(path)
+        mf = MeetingFile(
+            meeting_id=meeting.id,
+            filename=filename,
+            title=form.title.data,
+            description=form.description.data,
+        )
+        db.session.add(mf)
+        db.session.commit()
+        flash("File uploaded", "success")
+        return redirect(url_for("meetings.meeting_files", meeting_id=meeting.id))
+    files = MeetingFile.query.filter_by(meeting_id=meeting.id).all()
+    return render_template(
+        "meetings/meeting_files.html", meeting=meeting, form=form, files=files
+    )
 
 
 @bp.route("/<int:meeting_id>/motions")

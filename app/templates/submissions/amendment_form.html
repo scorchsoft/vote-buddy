@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
-{{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (motion.meeting.title, url_for('main.public_meeting_detail', meeting_id=motion.meeting_id)), (motion.title, url_for('meetings.view_motion', motion_id=motion.id)), ('Submit Amendment', None)]) }}
+{{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), (motion.title, url_for('meetings.view_motion', motion_id=motion.id)), ('Submit Amendment', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">Submit Amendment</h1>
 <form method="post" class="bp-form bp-card space-y-4">
   {{ form.hidden_tag() }}

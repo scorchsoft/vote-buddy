@@ -196,4 +196,4 @@ def submit_amendment(token: str, motion_id: int):
             notify_seconder_amendment(seconder, meeting, motion)
         flash('Amendment submitted for review', 'success')
         return redirect(url_for('meetings.view_motion', motion_id=motion.id))
-    return render_template('submissions/amendment_form.html', form=form, motion=motion)
+    return render_template('submissions/amendment_form.html', form=form, motion=motion, meeting=meeting)
