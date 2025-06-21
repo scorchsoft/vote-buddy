@@ -32,7 +32,7 @@ def test_register_jobs_adds_interval_job():
         assert add_job.call_count == 4
 
 
-def test_send_stage1_reminders_sends_emails():
+def test_send_stage1_reminders_sends_only_unvoted():
     app = _setup_app()
     with app.app_context():
         db.create_all()
@@ -40,21 +40,23 @@ def test_send_stage1_reminders_sends_emails():
         meeting = Meeting(title='M', closes_at_stage1=now + timedelta(hours=1), quorum=5)
         db.session.add(meeting)
         db.session.flush()
-        member = Member(meeting_id=meeting.id, name='Ann', email='a@example.com')
-        db.session.add(member)
+        m1 = Member(meeting_id=meeting.id, name='Ann', email='a@example.com')
+        m2 = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add_all([m1, m2])
         db.session.flush()
-        token, _ = VoteToken.create(
-            member_id=member.id, stage=1, salt=app.config['TOKEN_SALT']
-        )
-        db.session.add(token)
+        t1, _ = VoteToken.create(member_id=m1.id, stage=1, salt=app.config['TOKEN_SALT'])
+        t2, _ = VoteToken.create(member_id=m2.id, stage=1, salt=app.config['TOKEN_SALT'])
+        t2.used_at = now
+        db.session.add_all([t1, t2])
         db.session.commit()
         with patch('app.tasks.send_stage1_reminder') as mock_send:
             send_stage1_reminders()
-            assert mock_send.called
+            assert mock_send.call_count == 1
+            assert mock_send.call_args.args[0].id == m1.id
             assert meeting.stage1_reminder_sent_at is not None
 
 
-def test_send_stage2_reminders_sends_emails():
+def test_send_stage2_reminders_sends_only_unvoted():
     app = _setup_app()
     with app.app_context():
         db.create_all()
@@ -62,16 +64,21 @@ def test_send_stage2_reminders_sends_emails():
         meeting = Meeting(title='M', closes_at_stage2=now + timedelta(hours=1))
         db.session.add(meeting)
         db.session.flush()
-        member = Member(meeting_id=meeting.id, name='Ann', email='a@example.com')
-        db.session.add(member)
+        m1 = Member(meeting_id=meeting.id, name='Ann', email='a@example.com')
+        m2 = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add_all([m1, m2])
         db.session.flush()
-        token_hash = VoteToken._hash('tok', app.config['TOKEN_SALT'])
-        token = VoteToken(token=token_hash, member_id=member.id, stage=2)
-        db.session.add(token)
+        token_hash1 = VoteToken._hash('tok1', app.config['TOKEN_SALT'])
+        token1 = VoteToken(token=token_hash1, member_id=m1.id, stage=2)
+        token_hash2 = VoteToken._hash('tok2', app.config['TOKEN_SALT'])
+        token2 = VoteToken(token=token_hash2, member_id=m2.id, stage=2)
+        token2.used_at = now
+        db.session.add_all([token1, token2])
         db.session.commit()
         with patch('app.tasks.send_stage2_reminder') as mock_send:
             send_stage2_reminders()
-            assert mock_send.called
+            assert mock_send.call_count == 1
+            assert mock_send.call_args.args[0].id == m1.id
             assert meeting.stage2_reminder_sent_at is not None
 
 
