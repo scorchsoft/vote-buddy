@@ -160,6 +160,14 @@ This document summarises all tables and columns created by the Alembic migration
 | member_id | Integer | FK `members.id` |
 | created_at | DateTime | |
 
+### password_reset_tokens
+| Column | Type | Notes |
+|-------|------|-------|
+| token | String(36) | Primary key |
+| user_id | Integer | FK `users.id` |
+| created_at | DateTime | |
+| used_at | DateTime | |
+
 ### votes
 | Column | Type | Notes |
 |-------|------|-------|
