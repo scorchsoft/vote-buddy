@@ -70,6 +70,10 @@
 <a href="{{ url_for('meetings.results_stage2_docx', meeting_id=meeting.id) }}" class="bp-btn-secondary mt-4 inline-block ml-2">Download Final DOCX</a>
 {% if meeting.status == 'Pending Stage 2' %}
 <a href="{{ url_for('meetings.prepare_stage2', meeting_id=meeting.id) }}" class="bp-btn-primary mt-4 inline-block ml-2">Prepare Stage 2 Motion</a>
+{% elif meeting.status == 'Stage 2' %}
+<form method="post" action="{{ url_for('meetings.close_stage2', meeting_id=meeting.id) }}" class="inline-block ml-2">
+  <button type="submit" class="bp-btn-primary">Close Stage 2</button>
+</form>
 {% elif meeting.status == 'Completed' %}
 <p class="bp-alert-success mt-4">Meeting Completed</p>
 {% endif %}
