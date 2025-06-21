@@ -86,6 +86,10 @@ class Meeting(db.Model):
     closes_at_stage2 = db.Column(db.DateTime)
     runoff_opens_at = db.Column(db.DateTime)
     runoff_closes_at = db.Column(db.DateTime)
+    motions_opens_at = db.Column(db.DateTime)
+    motions_closes_at = db.Column(db.DateTime)
+    amendments_opens_at = db.Column(db.DateTime)
+    amendments_closes_at = db.Column(db.DateTime)
     ballot_mode = db.Column(db.String(20))
     revoting_allowed = db.Column(db.Boolean, default=False)
     status = db.Column(db.String(50))
@@ -106,6 +110,7 @@ class Meeting(db.Model):
     stage2_manual_for = db.Column(db.Integer, default=0)
     stage2_manual_against = db.Column(db.Integer, default=0)
     stage2_manual_abstain = db.Column(db.Integer, default=0)
+    submission_invites_sent_at = db.Column(db.DateTime)
 
     def stage1_votes_count(self) -> int:
         """Return number of verified Stage-1 votes."""
@@ -213,6 +218,7 @@ class Motion(db.Model):
     threshold = db.Column(db.String(20))
     ordering = db.Column(db.Integer)
     status = db.Column(db.String(50))
+    is_published = db.Column(db.Boolean, default=False)
     withdrawn = db.Column(db.Boolean, default=False)
     modified_at = db.Column(db.DateTime)
     withdrawal_requested_at = db.Column(db.DateTime)
@@ -352,6 +358,7 @@ class Amendment(db.Model):
     text_md = db.Column(db.Text)
     order = db.Column(db.Integer)
     status = db.Column(db.String(50))
+    is_published = db.Column(db.Boolean, default=False)
     reason = db.Column(db.Text)
     proposer_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))

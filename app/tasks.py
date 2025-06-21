@@ -17,6 +17,7 @@ from .services.email import (
     send_stage2_reminder,
     send_board_notice,
     send_amendment_reinstated,
+    send_submission_invite,
 )
 
 
@@ -25,6 +26,7 @@ def register_jobs():
     scheduler.add_job('stage2_reminders', send_stage2_reminders, trigger='interval', hours=1)
     scheduler.add_job('token_cleanup', cleanup_vote_tokens, trigger='cron', hour=0)
     scheduler.add_job('objection_check', check_objection_deadlines, trigger='cron', hour='*')
+    scheduler.add_job('submission_invites', send_submission_invites, trigger='cron', hour='*')
 
 
 def send_stage1_reminders():
@@ -208,4 +210,22 @@ def check_objection_deadlines() -> None:
         AmendmentObjection.query.filter_by(amendment_id=obj.amendment_id).update(
             {"deadline_final": None}, synchronize_session=False
         )
+        db.session.commit()
+
+
+def send_submission_invites() -> None:
+    """Send motion submission invites when the window opens."""
+    if AppSetting.get("manual_email_mode") == "1":
+        return
+    now = datetime.utcnow()
+    meetings = Meeting.query.filter(
+        Meeting.motions_opens_at.isnot(None),
+        Meeting.motions_opens_at <= now,
+        Meeting.submission_invites_sent_at.is_(None),
+    ).all()
+    for meeting in meetings:
+        members = Member.query.filter_by(meeting_id=meeting.id).all()
+        for member in members:
+            send_submission_invite(member, meeting)
+        meeting.submission_invites_sent_at = now
         db.session.commit()

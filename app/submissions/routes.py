@@ -17,6 +17,100 @@ from ..services.email import (
 )
 from . import bp
 from .forms import MotionSubmissionForm, AmendmentSubmissionForm
+from ..auth.routes import permission_required
+from flask_login import login_required
+
+
+@bp.route('/<int:meeting_id>')
+@login_required
+@permission_required('manage_meetings')
+def list_submissions(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    motions = MotionSubmission.query.filter_by(meeting_id=meeting.id).all()
+    amendments = (
+        AmendmentSubmission.query.join(Motion, AmendmentSubmission.motion_id == Motion.id)
+        .filter(Motion.meeting_id == meeting.id)
+        .all()
+    )
+    return render_template('submissions/list.html', meeting=meeting, motions=motions, amendments=amendments)
+
+
+@bp.post('/motion/<int:submission_id>/publish')
+@login_required
+@permission_required('manage_meetings')
+def publish_motion(submission_id: int):
+    sub = db.session.get(MotionSubmission, submission_id)
+    if sub is None:
+        abort(404)
+    motion = Motion(
+        meeting_id=sub.meeting_id,
+        title=sub.title,
+        text_md=sub.text_md,
+        category='motion',
+        threshold='normal',
+        ordering=Motion.query.filter_by(meeting_id=sub.meeting_id).count() + 1,
+        is_published=True,
+    )
+    db.session.add(motion)
+    db.session.delete(sub)
+    db.session.commit()
+    flash('Motion published', 'success')
+    return redirect(url_for('submissions.list_submissions', meeting_id=motion.meeting_id))
+
+
+@bp.post('/amendment/<int:submission_id>/publish')
+@login_required
+@permission_required('manage_meetings')
+def publish_amendment(submission_id: int):
+    sub = db.session.get(AmendmentSubmission, submission_id)
+    if sub is None:
+        abort(404)
+    motion = db.session.get(Motion, sub.motion_id)
+    amend = Amendment(
+        meeting_id=motion.meeting_id,
+        motion_id=motion.id,
+        text_md=sub.text_md,
+        order=Amendment.query.filter_by(motion_id=motion.id).count() + 1,
+        proposer_id=sub.member_id,
+        seconder_id=sub.seconder_id,
+        is_published=True,
+    )
+    db.session.add(amend)
+    db.session.delete(sub)
+    db.session.commit()
+    flash('Amendment published', 'success')
+    return redirect(url_for('submissions.list_submissions', meeting_id=motion.meeting_id))
+
+
+@bp.post('/motion/<int:submission_id>/reject')
+@login_required
+@permission_required('manage_meetings')
+def reject_motion(submission_id: int):
+    sub = db.session.get(MotionSubmission, submission_id)
+    if sub is None:
+        abort(404)
+    meeting_id = sub.meeting_id
+    db.session.delete(sub)
+    db.session.commit()
+    flash('Motion rejected', 'success')
+    return redirect(url_for('submissions.list_submissions', meeting_id=meeting_id))
+
+
+@bp.post('/amendment/<int:submission_id>/reject')
+@login_required
+@permission_required('manage_meetings')
+def reject_amendment(submission_id: int):
+    sub = db.session.get(AmendmentSubmission, submission_id)
+    if sub is None:
+        abort(404)
+    motion = db.session.get(Motion, sub.motion_id)
+    meeting_id = motion.meeting_id if motion else None
+    db.session.delete(sub)
+    db.session.commit()
+    flash('Amendment rejected', 'success')
+    return redirect(url_for('submissions.list_submissions', meeting_id=meeting_id))
 
 
 @bp.route('/<token>/motion/<int:meeting_id>', methods=['GET', 'POST'])
@@ -27,6 +121,13 @@ def submit_motion(token: str, meeting_id: int):
     meeting = db.session.get(Meeting, meeting_id)
     if meeting is None:
         abort(404)
+    now = datetime.utcnow()
+    if meeting.motions_opens_at and now < meeting.motions_opens_at:
+        flash('Motion submissions have not opened yet.', 'error')
+        return redirect(url_for('main.public_meeting_detail', meeting_id=meeting.id))
+    if meeting.motions_closes_at and now > meeting.motions_closes_at:
+        flash('Motion submission window has closed.', 'error')
+        return redirect(url_for('main.public_meeting_detail', meeting_id=meeting.id))
     member = db.session.get(Member, token_obj.member_id)
     if member is None or member.meeting_id != meeting_id:
         abort(404)
@@ -67,6 +168,13 @@ def submit_amendment(token: str, motion_id: int):
     member = db.session.get(Member, token_obj.member_id)
     if member is None or member.meeting_id != meeting.id:
         abort(404)
+    now = datetime.utcnow()
+    if meeting.amendments_opens_at and now < meeting.amendments_opens_at:
+        flash('Amendment submissions have not opened yet.', 'error')
+        return redirect(url_for('meetings.view_motion', motion_id=motion.id))
+    if meeting.amendments_closes_at and now > meeting.amendments_closes_at:
+        flash('Amendment submission window has closed.', 'error')
+        return redirect(url_for('meetings.view_motion', motion_id=motion.id))
     form = AmendmentSubmissionForm(name=member.name, email=member.email)
     members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
     form.seconder_id.choices = [(m.id, m.name) for m in members if m.id != member.id]

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="font-bold text-bp-blue mb-4">Submissions for {{ meeting.title }}</h1>
+<h2 class="font-semibold mb-2">Motions</h2>
+{% for sub in motions %}
+  <div class="bp-card mb-2">
+    <p class="font-semibold">{{ sub.title }}</p>
+    <form method="post" action="{{ url_for('submissions.publish_motion', submission_id=sub.id) }}" class="inline">
+      <button class="bp-btn-primary">Publish</button>
+    </form>
+    <form method="post" action="{{ url_for('submissions.reject_motion', submission_id=sub.id) }}" class="inline ml-2">
+      <button class="bp-btn-secondary">Reject</button>
+    </form>
+  </div>
+{% else %}
+  <p>No motion submissions.</p>
+{% endfor %}
+<h2 class="font-semibold mt-4 mb-2">Amendments</h2>
+{% for sub in amendments %}
+  <div class="bp-card mb-2">
+    <p class="mb-1">{{ sub.text_md }}</p>
+    <form method="post" action="{{ url_for('submissions.publish_amendment', submission_id=sub.id) }}" class="inline">
+      <button class="bp-btn-primary">Publish</button>
+    </form>
+    <form method="post" action="{{ url_for('submissions.reject_amendment', submission_id=sub.id) }}" class="inline ml-2">
+      <button class="bp-btn-secondary">Reject</button>
+    </form>
+  </div>
+{% else %}
+  <p>No amendment submissions.</p>
+{% endfor %}
+{% endblock %}
