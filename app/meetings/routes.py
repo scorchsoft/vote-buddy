@@ -36,6 +36,7 @@ from ..services.email import (
     send_runoff_invite,
     send_quorum_failure,
     send_final_results,
+    send_objection_confirmation,
 )
 from ..services import runoff
 from ..permissions import permission_required
@@ -638,15 +639,28 @@ def submit_objection(amendment_id: int):
             )
 
         obj = AmendmentObjection(
-            amendment_id=amendment.id, member_id=member.id
+            amendment_id=amendment.id,
+            member_id=member.id,
+            email=form.email.data.strip().lower(),
+            token=str(uuid7()),
         )
         db.session.add(obj)
         db.session.commit()
-        flash("Objection submitted", "success")
+        send_objection_confirmation(obj, amendment, meeting)
+        flash("Check your email to confirm the objection", "success")
         return redirect(url_for("meetings.view_motion", motion_id=amendment.motion_id))
     return render_template(
         "meetings/objection_form.html", form=form, amendment=amendment
     )
+
+
+@bp.get("/objection/confirm/<token>")
+def confirm_objection(token: str):
+    obj = AmendmentObjection.query.filter_by(token=token).first_or_404()
+    if not obj.confirmed_at:
+        obj.confirmed_at = datetime.utcnow()
+        db.session.commit()
+    return render_template("meetings/objection_confirmed.html", objection=obj)
 
 
 @bp.route("/motions/<int:motion_id>/conflicts", methods=["GET", "POST"])

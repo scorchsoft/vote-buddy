@@ -7,6 +7,7 @@ from app.models import Meeting, Member, Motion, Amendment, AmendmentObjection, R
 from app.meetings import routes as meetings
 from app.admin import routes as admin
 from unittest.mock import patch
+import pytest
 from datetime import datetime
 
 
@@ -41,10 +42,15 @@ def test_submit_objection_creates_record():
         db.session.add(amend)
         db.session.commit()
 
-        data = {'member_id': member.id}
-        with app.test_request_context(f'/meetings/amendments/{amend.id}/object', method='POST', data=data):
-            html = meetings.submit_objection(amend.id)
-            assert AmendmentObjection.query.count() == 1
+        data = {'member_id': member.id, 'email': 'x@example.com'}
+        with patch('app.meetings.routes.send_objection_confirmation') as mock_send:
+            with app.test_request_context(f'/meetings/amendments/{amend.id}/object', method='POST', data=data):
+                meetings.submit_objection(amend.id)
+                obj = AmendmentObjection.query.first()
+                assert obj.email == 'x@example.com'
+                assert obj.token is not None
+                assert not obj.confirmed
+                mock_send.assert_called_once()
 
 
 def test_reinstate_amendment_when_threshold_met():
@@ -74,3 +80,24 @@ def test_reinstate_amendment_when_threshold_met():
                 admin.reinstate_amendment(amend.id)
                 assert amend.status is None
 
+
+def test_reinstate_requires_permission():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(meeting_id=meeting.id, title='M1', text_md='x', category='motion', threshold='normal', ordering=1)
+        db.session.add(motion)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A1', order=1, status='rejected')
+        db.session.add(amend)
+        db.session.commit()
+
+        with app.test_request_context(f'/admin/objections/{amend.id}/reinstate', method='POST'):
+            user = User(role=Role(permissions=[]))
+            user.is_active = True
+            with patch('flask_login.utils._get_user', return_value=user):
+                with pytest.raises(Exception):
+                    admin.reinstate_amendment(amend.id)
