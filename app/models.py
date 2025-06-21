@@ -86,6 +86,10 @@ class Meeting(db.Model):
     closes_at_stage2 = db.Column(db.DateTime)
     runoff_opens_at = db.Column(db.DateTime)
     runoff_closes_at = db.Column(db.DateTime)
+    motions_opens_at = db.Column(db.DateTime)
+    motions_closes_at = db.Column(db.DateTime)
+    amendments_opens_at = db.Column(db.DateTime)
+    amendments_closes_at = db.Column(db.DateTime)
     ballot_mode = db.Column(db.String(20))
     revoting_allowed = db.Column(db.Boolean, default=False)
     status = db.Column(db.String(50))
@@ -106,6 +110,7 @@ class Meeting(db.Model):
     stage2_manual_for = db.Column(db.Integer, default=0)
     stage2_manual_against = db.Column(db.Integer, default=0)
     stage2_manual_abstain = db.Column(db.Integer, default=0)
+    submission_invites_sent_at = db.Column(db.DateTime)
 
     files = db.relationship(
         "MeetingFile", backref="meeting", cascade="all, delete-orphan"
@@ -217,6 +222,7 @@ class Motion(db.Model):
     threshold = db.Column(db.String(20))
     ordering = db.Column(db.Integer)
     status = db.Column(db.String(50))
+    is_published = db.Column(db.Boolean, default=False)
     withdrawn = db.Column(db.Boolean, default=False)
     modified_at = db.Column(db.DateTime)
     withdrawal_requested_at = db.Column(db.DateTime)
@@ -268,6 +274,35 @@ class VoteToken(db.Model):
 
     @classmethod
     def verify(cls, token: str, salt: str) -> "VoteToken | None":
+        hashed = cls._hash(token, salt)
+        return cls.query.filter_by(token=hashed).first()
+
+
+class SubmissionToken(db.Model):
+    """Token used for motion and amendment submissions."""
+
+    __tablename__ = "submission_tokens"
+
+    token = db.Column(db.String(64), primary_key=True)
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    used_at = db.Column(db.DateTime)
+
+    @staticmethod
+    def _hash(token: str, salt: str) -> str:
+        return hashlib.sha256(f"{token}{salt}".encode()).hexdigest()
+
+    @classmethod
+    def create(cls, member_id: int, meeting_id: int, salt: str) -> tuple["SubmissionToken", str]:
+        """Create token, store hash and return plain value."""
+        plain = str(uuid7())
+        hashed = cls._hash(plain, salt)
+        obj = cls(token=hashed, member_id=member_id, meeting_id=meeting_id)
+        db.session.add(obj)
+        return obj, plain
+
+    @classmethod
+    def verify(cls, token: str, salt: str) -> "SubmissionToken | None":
         hashed = cls._hash(token, salt)
         return cls.query.filter_by(token=hashed).first()
 
@@ -327,6 +362,7 @@ class Amendment(db.Model):
     text_md = db.Column(db.Text)
     order = db.Column(db.Integer)
     status = db.Column(db.String(50))
+    is_published = db.Column(db.Boolean, default=False)
     reason = db.Column(db.Text)
     proposer_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
@@ -510,8 +546,10 @@ class MotionSubmission(db.Model):
     __tablename__ = "motion_submissions"
     id = db.Column(db.Integer, primary_key=True)
     meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
+    seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     title = db.Column(db.String(255))
     text_md = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -520,8 +558,10 @@ class AmendmentSubmission(db.Model):
     __tablename__ = "amendment_submissions"
     id = db.Column(db.Integer, primary_key=True)
     motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
+    seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     text_md = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

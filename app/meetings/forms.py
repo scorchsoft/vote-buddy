@@ -34,6 +34,26 @@ class MeetingForm(FlaskForm):
         format="%Y-%m-%dT%H:%M",
         description="Must remain open for at least 7 days.",
     )
+    motions_opens_at = DateTimeLocalField(
+        "Motions Open",
+        format="%Y-%m-%dT%H:%M",
+        description="When members may start submitting motions.",
+    )
+    motions_closes_at = DateTimeLocalField(
+        "Motions Close",
+        format="%Y-%m-%dT%H:%M",
+        description="Deadline for new motion submissions.",
+    )
+    amendments_opens_at = DateTimeLocalField(
+        "Amendments Open",
+        format="%Y-%m-%dT%H:%M",
+        description="When members may start submitting amendments.",
+    )
+    amendments_closes_at = DateTimeLocalField(
+        "Amendments Close",
+        format="%Y-%m-%dT%H:%M",
+        description="Deadline for amendment submissions.",
+    )
     opens_at_stage2 = DateTimeLocalField(
         "Stage 2 Opens",
         format="%Y-%m-%dT%H:%M",
@@ -99,6 +119,21 @@ class MeetingForm(FlaskForm):
             ):
                 self.closes_at_stage1.errors.append(
                     "Stage 1 must remain open for at least 7 days."
+                )
+                is_valid = False
+
+        # motion submission window
+        if self.motions_opens_at.data and self.motions_closes_at.data:
+            if self.motions_closes_at.data <= self.motions_opens_at.data:
+                self.motions_closes_at.errors.append(
+                    "Motion close must be after it opens."
+                )
+                is_valid = False
+
+        if self.amendments_opens_at.data and self.amendments_closes_at.data:
+            if self.amendments_closes_at.data <= self.amendments_opens_at.data:
+                self.amendments_closes_at.errors.append(
+                    "Amendment close must be after it opens."
                 )
                 is_valid = False
 

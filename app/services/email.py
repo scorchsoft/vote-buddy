@@ -16,6 +16,7 @@ from ..models import (
     Motion,
     MotionSubmission,
     AmendmentSubmission,
+    SubmissionToken,
 )
 from uuid6 import uuid7
 from sqlalchemy import func
@@ -579,10 +580,42 @@ def send_amendment_submission_alert(submission: AmendmentSubmission, motion: Mot
     mail.send(msg)
 
 
+def notify_seconder_motion(seconder: Member, meeting: Meeting, *, test_mode: bool = False) -> None:
+    if seconder.email_opt_out:
+        return
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + "Motion seconded notification",
+        recipients=[seconder.email],
+        sender=_sender(),
+    )
+    msg.body = render_template("email/seconder_notice.txt", meeting=meeting)
+    msg.html = render_template("email/seconder_notice.html", meeting=meeting)
+    mail.send(msg)
+
+
+def notify_seconder_amendment(seconder: Member, meeting: Meeting, motion: Motion, *, test_mode: bool = False) -> None:
+    if seconder.email_opt_out:
+        return
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + "Amendment seconded notification",
+        recipients=[seconder.email],
+        sender=_sender(),
+    )
+    msg.body = render_template("email/seconder_notice.txt", meeting=meeting, motion=motion)
+    msg.html = render_template("email/seconder_notice.html", meeting=meeting, motion=motion)
+    mail.send(msg)
+
+
 def send_submission_invite(member: Member, meeting: Meeting, *, test_mode: bool = False) -> None:
     if member.email_opt_out:
         return
-    link = url_for('submissions.submit_motion', meeting_id=meeting.id, _external=True)
+    token_obj, plain = SubmissionToken.create(
+        member_id=member.id,
+        meeting_id=meeting.id,
+        salt=current_app.config["TOKEN_SALT"],
+    )
+    db.session.commit()
+    link = url_for('submissions.submit_motion', token=plain, meeting_id=meeting.id, _external=True)
     unsubscribe = _unsubscribe_url(member)
     resubscribe = _resubscribe_url(member)
     msg = Message(

@@ -3,7 +3,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import create_app
 from app.extensions import db
-from app.models import Meeting, Motion
+from app.models import Meeting, Motion, Member, SubmissionToken
 
 
 def setup_app():
@@ -20,13 +20,18 @@ def test_submit_pages_load():
         meeting = Meeting(title='T')
         db.session.add(meeting)
         db.session.flush()
-        meeting_id = meeting.id
-        motion = Motion(meeting_id=meeting_id, title='M', text_md='t', category='motion', threshold='normal', ordering=1)
+        member = Member(meeting_id=meeting.id, name='Alice', email='a@example.com')
+        db.session.add(member)
+        db.session.flush()
+        motion = Motion(meeting_id=meeting.id, title='M', text_md='t', category='motion', threshold='normal', ordering=1)
         db.session.add(motion)
         db.session.commit()
-        motion_id = motion.id
+        token_obj, plain = SubmissionToken.create(member.id, meeting.id, 's')
+        db.session.commit()
     client = app.test_client()
-    resp = client.get(f'/submit/motion/{meeting_id}')
+    resp = client.get(f'/submit/{plain}/motion/{meeting.id}')
     assert resp.status_code == 200
-    resp = client.get(f'/submit/amendment/{motion_id}')
+    token_obj2, plain2 = SubmissionToken.create(member.id, meeting.id, 's')
+    db.session.commit()
+    resp = client.get(f'/submit/{plain2}/amendment/{motion.id}')
     assert resp.status_code == 200

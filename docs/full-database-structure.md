@@ -153,6 +153,14 @@ This document summarises all tables and columns created by the Alembic migration
 | stage | Integer | |
 | used_at | DateTime | |
 
+### submission_tokens
+| Column | Type | Notes |
+|-------|------|-------|
+| token | String(64) | SHA-256 hash of the emailed token |
+| member_id | Integer | FK `members.id` |
+| meeting_id | Integer | FK `meetings.id` |
+| used_at | DateTime | |
+
 ### unsubscribe_tokens
 | Column | Type | Notes |
 |-------|------|-------|
