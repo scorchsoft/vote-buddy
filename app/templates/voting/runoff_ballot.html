@@ -20,7 +20,17 @@
     </div>
     <div class="space-x-4 mb-4">
       {% for sub in form['runoff_' ~ runoff.id] %}
-        <label class="inline-flex items-center mr-4">{{ sub() }}<span>{{ sub.label.text }}</span></label>
+        <label class="inline-flex items-center mr-4">{{ sub() }}
+          <span>
+            {% if sub._value() == 'a' %}
+              {{ sub.label.text }} – {{ snippet(amend_a) }}
+            {% elif sub._value() == 'b' %}
+              {{ sub.label.text }} – {{ snippet(amend_b) }}
+            {% else %}
+              {{ sub.label.text }}
+            {% endif %}
+          </span>
+        </label>
       {% endfor %}
     </div>
   {% endfor %}

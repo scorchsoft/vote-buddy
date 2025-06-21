@@ -96,6 +96,7 @@ class Meeting(db.Model):
     stage1_reminder_sent_at = db.Column(db.DateTime)
     public_results = db.Column(db.Boolean, default=False)
     comments_enabled = db.Column(db.Boolean, default=False)
+    extension_reason = db.Column(db.Text)
 
     def stage1_votes_count(self) -> int:
         """Return number of verified Stage-1 votes."""
@@ -230,6 +231,7 @@ class Amendment(db.Model):
     text_md = db.Column(db.Text)
     order = db.Column(db.Integer)
     status = db.Column(db.String(50))
+    reason = db.Column(db.Text)
     proposer_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     board_seconded = db.Column(db.Boolean, default=False)

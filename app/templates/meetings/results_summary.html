@@ -2,6 +2,9 @@
 {% block content %}
 <h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} - Stage 1 Results</h1>
 <p class="mb-4">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</p>
+{% if meeting.extension_reason %}
+<p class="bp-alert-info mb-4">Extension reason: {{ meeting.extension_reason }}</p>
+{% endif %}
 <table class="bp-table w-full">
   <thead>
     <tr>
