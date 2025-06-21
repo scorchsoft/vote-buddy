@@ -219,6 +219,7 @@ class VoteToken(db.Model):
     __tablename__ = "vote_tokens"
     token = db.Column(db.String(64), primary_key=True)
     member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    proxy_holder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     stage = db.Column(db.Integer)
     used_at = db.Column(db.DateTime)
     is_test = db.Column(db.Boolean, default=False)
@@ -228,11 +229,23 @@ class VoteToken(db.Model):
         return hashlib.sha256(f"{token}{salt}".encode()).hexdigest()
 
     @classmethod
-    def create(cls, member_id: int, stage: int, salt: str) -> tuple["VoteToken", str]:
+    def create(
+        cls,
+        member_id: int,
+        stage: int,
+        salt: str,
+        *,
+        proxy_holder_id: int | None = None,
+    ) -> tuple["VoteToken", str]:
         """Create token, store hash and return plain value."""
         plain = str(uuid7())
         hashed = cls._hash(plain, salt)
-        obj = cls(token=hashed, member_id=member_id, stage=stage)
+        obj = cls(
+            token=hashed,
+            member_id=member_id,
+            stage=stage,
+            proxy_holder_id=proxy_holder_id,
+        )
         db.session.add(obj)
         return obj, plain
 

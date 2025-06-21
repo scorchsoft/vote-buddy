@@ -62,6 +62,9 @@
                   <img src="{{ url_for('static', filename='icons/keyboard_arrow_down_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-4 h-4">
                 </button>
                 <div class="bp-dropdown-menu">
+                  {% if current_user.role %}
+                  <div class="bp-dropdown-label cursor-default">{{ current_user.role.name }}</div>
+                  {% endif %}
                   <a href="{{ url_for('admin.dashboard') }}" class="bp-dropdown-item">
                     <img src="{{ url_for('static', filename='icons/house_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     Dashboard
@@ -89,9 +92,6 @@
               {% if current_user.is_authenticated %}
               <div class="flex items-center gap-2 ml-4">
                 <span class="text-white/80 text-sm">{{ current_user.email.split('@')[0] }}</span>
-                {% if current_user.role %}
-                <span class="bp-badge bp-badge-secondary">{{ current_user.role.name }}</span>
-                {% endif %}
                 <a href="{{ url_for('auth.logout') }}" class="bp-btn-secondary text-sm py-1 px-3">
                   <img src="{{ url_for('static', filename='icons/logout_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-1 w-4 h-4">
                   Logout
@@ -184,6 +184,9 @@
           </li>
           <li class="mt-4 pt-4 border-t border-white/20">
             <div class="text-white/80 mb-2">{{ current_user.email }}</div>
+            {% if current_user.role %}
+            <div class="text-white/60 text-sm mb-2">{{ current_user.role.name }}</div>
+            {% endif %}
             <a href="{{ url_for('auth.logout') }}" class="bp-nav-link text-white">
               <img src="{{ url_for('static', filename='icons/logout_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
               Logout

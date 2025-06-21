@@ -1,14 +1,12 @@
-Hello {{ member.name }},
+Hello {{ proxy.name }},
 
 {% if test_mode %}*** TEST MODE - votes cast using this link will be recorded as test data ***
 {% endif %}
 
-A run-off vote is needed for {{ meeting.title }}.
-Use the link below to cast your ballot:
+You have been nominated as a proxy for {{ principal.name }} in {{ meeting.title }}.
+Use the link below to cast their ballot:
 
 {{ link }}
-
-An iCalendar file with the run-off voting window is attached for your diary.
 
 If you did not expect this email you can ignore it.
 To stop these emails, visit {{ unsubscribe_url }}

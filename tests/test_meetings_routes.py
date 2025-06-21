@@ -185,7 +185,7 @@ def test_close_stage1_runoff_triggers_emails_and_tokens():
         def _runoff_side_effect(mtg):
             token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt="s")
             db.session.commit()
-            return [runoff_obj], [(member, plain)]
+            return [runoff_obj], [(member, None, plain)]
 
         with app.test_request_context(
             f"/meetings/{meeting.id}/close-stage1", method="POST"
@@ -194,7 +194,7 @@ def test_close_stage1_runoff_triggers_emails_and_tokens():
             with patch("flask_login.utils._get_user", return_value=user):
                 from app.services import runoff
                 with patch.object(runoff, "close_stage1", side_effect=_runoff_side_effect):
-                    with patch("app.meetings.routes.send_runoff_invite") as mock_send:
+                    with patch("app.meetings.routes.send_proxy_invite") as mock_proxy, patch("app.meetings.routes.send_runoff_invite") as mock_send:
                         meetings.close_stage1(meeting.id)
                         mock_send.assert_called_once()
                     assert (
@@ -1055,3 +1055,18 @@ def test_default_stage_time_calculation():
             defaults["opens_at_stage2"] - defaults["closes_at_stage1"]
             >= timedelta(days=app.config["STAGE_GAP_DAYS"])
         )
+
+
+def test_prefill_form_defaults():
+    app = create_app()
+    with app.app_context():
+        app.config["WTF_CSRF_ENABLED"] = False
+        agm = (datetime.utcnow() + timedelta(days=30)).replace(second=0, microsecond=0)
+        data = MultiDict({"closes_at_stage2": agm.strftime("%Y-%m-%dT%H:%M")})
+        form = MeetingForm(formdata=data)
+        meetings._prefill_form_defaults(form)
+        assert form.notice_date.data is not None
+        assert form.opens_at_stage1.data is not None
+        assert form.closes_at_stage1.data is not None
+        assert form.opens_at_stage2.data is not None
+        assert form.closes_at_stage2.data == agm

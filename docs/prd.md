@@ -114,7 +114,7 @@
 
 ### 5.7 Proxy Voting Support (MVP Lite)
 * CSV may include `proxy_for` (member_id).
-* During vote cast, if member is proxy holder the UI shows extra banner and logs both votes.
+* Proxy holders receive a separate token for the represented member. Whoever votes first – the holder or original member – has their ballot recorded.
 
 ### 5.8 Permission Management
 * Admin page to create and edit individual permission records.
@@ -332,6 +332,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Voting route rejects ballots when a stage is locked.
 * 2025-06-15 – Run-off and reminder emails now link to `/vote/<token>`.
 * 2025-06-17 – Stage 1 closing now voids the vote when quorum is not met.
+* 2025-06-21 – Proxy tokens issued separately; first ballot from member or proxy counts.
 * 2025-06-16 – Run-off invite emails now use `/vote/runoff/<token>` links.
 * 2025-06-15 – Added `aria-describedby` error hints on admin and meeting forms.
 * 2025-06-15 – Dashboard shows countdown to next reminder using badge design.
@@ -416,6 +417,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-26 – Added stage extension form and reason display on results page.
 * 2025-06-30 – Run-off tie breaks recorded with chair/board/order option and service respects setting.
 * 2025-06-28 – Objection submissions now require email confirmation via token link.
+* 2025-06-30 – Role badge moved from header to admin dropdown menu.
 * 2025-07-01 – Daily job purges used or expired vote tokens.
 * 2025-07-01 – Public meeting page lists stage times with calendar downloads.
 * 2025-07-01 – Stage 2 scheduling warns if less than 24 hours after Stage 1 closure.
@@ -426,6 +428,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-01 – Added manual tally entry for in-person meetings with Stage 1 and Stage 2 forms.
 * 2025-07-01 – Added resubscribe links alongside unsubscribe and a route to opt back in.
 * 2025-06-21 – Added "Need help?" link to ballot pages.
+* 2025-07-06 – AGM date field auto-completes stage times based on configured notice and duration settings.
 
 
 

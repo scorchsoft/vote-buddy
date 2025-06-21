@@ -504,6 +504,15 @@ nav {
   z-index: 50;
 }
 
+.bp-dropdown-label {
+  display: block;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--bp-grey-600);
+  border-bottom: 1px solid var(--bp-grey-100);
+  cursor: default;
+}
+
 .bp-dropdown:hover .bp-dropdown-menu,
 .bp-dropdown:focus-within .bp-dropdown-menu {
   opacity: 1;
