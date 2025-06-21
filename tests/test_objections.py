@@ -53,6 +53,28 @@ def test_submit_objection_creates_record():
                 mock_send.assert_called_once()
 
 
+def test_confirm_sets_deadline_first():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='A')
+        db.session.add(member)
+        motion = Motion(meeting_id=meeting.id, title='M1', text_md='x', category='motion', threshold='normal', ordering=1)
+        db.session.add(motion)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A1', order=1, status='rejected')
+        db.session.add(amend)
+        obj = AmendmentObjection(amendment_id=amend.id, member_id=member.id, token='tok')
+        db.session.add(obj)
+        db.session.commit()
+        with app.test_request_context(f'/objection/confirm/{obj.token}'):
+            meetings.confirm_objection(obj.token)
+            assert obj.deadline_first is not None
+
+
 def test_reinstate_amendment_when_threshold_met():
     app = _setup_app()
     with app.app_context():

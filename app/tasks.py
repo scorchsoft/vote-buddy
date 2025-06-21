@@ -3,13 +3,26 @@ from flask import current_app
 from .utils import config_or_setting
 
 from .extensions import scheduler, db
-from .models import Meeting, Member, VoteToken, AppSetting
-from .services.email import send_stage1_reminder
+from .models import (
+    Meeting,
+    Member,
+    VoteToken,
+    AppSetting,
+    AmendmentObjection,
+    Amendment,
+)
+import math
+from .services.email import (
+    send_stage1_reminder,
+    send_board_notice,
+    send_amendment_reinstated,
+)
 
 
 def register_jobs():
     scheduler.add_job('stage1_reminders', send_stage1_reminders, trigger='interval', hours=1)
     scheduler.add_job('token_cleanup', cleanup_vote_tokens, trigger='cron', hour=0)
+    scheduler.add_job('objection_check', check_objection_deadlines, trigger='cron', hour='*')
 
 
 def send_stage1_reminders():
@@ -81,3 +94,58 @@ def cleanup_vote_tokens() -> None:
     for token in tokens:
         db.session.delete(token)
     db.session.commit()
+
+
+def _time_remaining(dt: datetime) -> str:
+    delta = dt - datetime.utcnow()
+    if delta.total_seconds() <= 0:
+        return "0d 0h"
+    days = delta.days
+    hours = delta.seconds // 3600
+    return f"{days}d {hours}h"
+
+
+def check_objection_deadlines() -> None:
+    now = datetime.utcnow()
+    objs_first = AmendmentObjection.query.filter(
+        AmendmentObjection.deadline_first.isnot(None),
+        AmendmentObjection.deadline_first <= now,
+        AmendmentObjection.deadline_final.is_(None),
+    ).all()
+    for obj in objs_first:
+        count = (
+            AmendmentObjection.query.filter_by(amendment_id=obj.amendment_id)
+            .filter(AmendmentObjection.confirmed_at.isnot(None))
+            .count()
+        )
+        if count >= 10:
+            amendment = db.session.get(Amendment, obj.amendment_id)
+            meeting = db.session.get(Meeting, amendment.meeting_id)
+            send_board_notice(amendment, meeting)
+            deadline = obj.deadline_first + timedelta(days=5)
+            AmendmentObjection.query.filter_by(amendment_id=obj.amendment_id).update(
+                {"deadline_final": deadline}, synchronize_session=False
+            )
+            db.session.commit()
+
+    objs_final = AmendmentObjection.query.filter(
+        AmendmentObjection.deadline_final.isnot(None),
+        AmendmentObjection.deadline_final <= now,
+    ).all()
+    for obj in objs_final:
+        amendment = db.session.get(Amendment, obj.amendment_id)
+        meeting = db.session.get(Meeting, amendment.meeting_id)
+        count = (
+            AmendmentObjection.query.filter_by(amendment_id=obj.amendment_id)
+            .filter(AmendmentObjection.confirmed_at.isnot(None))
+            .count()
+        )
+        total = Member.query.filter_by(meeting_id=meeting.id).count()
+        threshold = max(25, math.ceil(total * 0.05))
+        if count >= threshold:
+            amendment.status = None
+            send_amendment_reinstated(amendment, meeting)
+        AmendmentObjection.query.filter_by(amendment_id=obj.amendment_id).update(
+            {"deadline_final": None}, synchronize_session=False
+        )
+        db.session.commit()

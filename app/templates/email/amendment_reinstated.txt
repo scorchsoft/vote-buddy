@@ -1,0 +1,3 @@
+Amendment {{ amendment.id }} has met the objection threshold and is reinstated for Stage 1.
+
+Meeting: {{ meeting.title }}
