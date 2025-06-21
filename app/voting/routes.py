@@ -476,6 +476,7 @@ class ReceiptLookupForm(FlaskForm):
 
 
 @bp.route("/verify-receipt", methods=["GET", "POST"])
+@limiter.limit("20 per hour")
 def verify_receipt():
     """Allow members to check a vote receipt hash."""
     form = ReceiptLookupForm()
