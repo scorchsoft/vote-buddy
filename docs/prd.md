@@ -449,6 +449,14 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-21 – Rate limited comment posting to 5 per minute.
 * 2025-06-21 – Added public motion/amendment submission forms with email alerts.
 * 2025-07-12 – Added motion/amendment submission windows with automatic invites and approval workflow.
+* * 2025-07-15 – Added meeting file uploads with public links.
+* 2025-07-16 – Expanded help docs with motion and amendment submission steps.
+* 2025-07-17 – Fake data generator now assigns member numbers, uses `.invalid` emails and marks demo records as test-only.
+* 2025-07-17 – Added .dockerignore to reduce Docker build context.
+* 2025-07-19 – RO dashboard now highlights pending tie-break decisions with direct links.
+* 2025-07-18 – Added Stage 2 close button on results summary page.
+* 2025-07-18 – Linked manual email sending page from results summary.
+* 2025-07-19 – Added per-member resend link on results summary.
 
 
 ---
@@ -464,15 +472,8 @@ SES/SMTP  ─── Outbound mail
 
 ---
 
-*Draft v0.1 – generated 13 Jun 2025.*
-* 2025-07-15 – Added meeting file uploads with public links.
-* 2025-07-16 – Expanded help docs with motion and amendment submission steps.
-* 2025-07-17 – Fake data generator now assigns member numbers, uses `.invalid` emails and marks demo records as test-only.
-* 2025-07-17 – Added .dockerignore to reduce Docker build context.
-* 2025-07-19 – RO dashboard now highlights pending tie-break decisions with direct links.
-* 2025-07-18 – Added Stage 2 close button on results summary page.
-* 2025-07-18 – Linked manual email sending page from results summary.
-* 2025-07-19 – Added per-member resend link on results summary.
+
+
 
 
 
