@@ -22,6 +22,12 @@ VoteBuddy aims to apply principles from UK Parliamentary Proceedure as well as "
 - Clone meetings to duplicate motions and amendments
 - Token-based forms for submitting motions and amendments with coordinator review
 - Optional unsubscribe tokens for members
+- Resubscribe links allow members to opt back in to emails
+- Manual tally entry for in-person meetings with PDF results export
+- Live countdown timers and progress bars on public pages
+- Early Stage 1 results page and token-based public API with rate limits
+- Password reset flow via emailed tokens
+- File uploads per meeting with optional public links
 - Built in Python (Flask)
 
 ## Screenshots
