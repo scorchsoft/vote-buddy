@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bp-card text-center space-y-4">
+  <h1 class="text-3xl font-bold text-bp-blue">Voting not yet open</h1>
+  <p class="text-bp-grey-700">
+    Voting for this stage will be open from {{ start|format_dt }} until {{ end|format_dt }}.
+  </p>
+  <a href="{{ url_for('main.index') }}" class="bp-btn-secondary">Return home</a>
+</div>
+{% endblock %}

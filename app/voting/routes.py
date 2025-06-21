@@ -129,7 +129,16 @@ def ballot_token(token: str):
     else:
         opens = meeting.opens_at_stage2
         closes = meeting.closes_at_stage2
-    if (opens and now < opens) or (closes and now > closes):
+    if opens and now < opens:
+        return (
+            render_template(
+                "voting/token_not_open.html",
+                start=opens,
+                end=closes,
+            ),
+            400,
+        )
+    if closes and now > closes:
         return (
             render_template(
                 "voting/token_error.html",

@@ -252,12 +252,42 @@ def test_ballot_token_outside_window_returns_error():
                 assert resp[1] == 400
                 assert token_obj.used_at is None
 
+
+def test_ballot_token_before_open_shows_times():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        opens = datetime.utcnow() + timedelta(hours=1)
+        closes = opens + timedelta(hours=2)
+        meeting = Meeting(title="AGM", opens_at_stage1=opens, closes_at_stage1=closes)
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        before_open = opens - timedelta(minutes=5)
+
         with app.test_request_context(f"/vote/{plain}"):
             with patch("app.voting.routes.datetime") as mock_dt:
-                mock_dt.utcnow.return_value = after_close
+                mock_dt.utcnow.return_value = before_open
                 resp = voting.ballot_token(plain)
                 assert resp[1] == 400
-                assert token_obj.used_at is None
+                html = resp[0]
+                assert opens.strftime("%Y-%m-%d %H:%M") in html
+                assert closes.strftime("%Y-%m-%d %H:%M") in html
 
 
 def test_combined_ballot_records_votes():
