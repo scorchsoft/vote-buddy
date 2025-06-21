@@ -37,11 +37,8 @@ SES/SMTP  ─── Outbound mail
 ├── Dockerfile
 ├── LICENCE.md
 ├── README.md
-├── __pycache__
-│   └── config.cpython-311.pyc
 ├── app
 │   ├── __init__.py
-│   ├── __pycache__
 │   ├── admin
 │   ├── api
 │   ├── auth
@@ -82,7 +79,6 @@ SES/SMTP  ─── Outbound mail
 │   └── unit-test-strategy.md
 ├── migrations
 │   ├── README
-│   ├── __pycache__
 │   ├── alembic.ini
 │   ├── env.py
 │   ├── script.py.mako
@@ -94,7 +90,6 @@ SES/SMTP  ─── Outbound mail
 │   └── zap_baseline.py
 ├── tailwind.config.cjs
 ├── tests
-│   ├── __pycache__
 │   ├── test_admin_audit.py
 │   ├── test_admin_dashboard.py
 │   ├── test_admin_permissions.py
@@ -131,7 +126,7 @@ SES/SMTP  ─── Outbound mail
 │   └── test_voting.py
 └── wsgi.py
 
-27 directories, 71 files
+23 directories, 72 files
 ```
 
 ## Root Files
