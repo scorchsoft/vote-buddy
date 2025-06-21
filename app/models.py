@@ -97,9 +97,15 @@ class Meeting(db.Model):
     public_results = db.Column(db.Boolean, default=False)
     comments_enabled = db.Column(db.Boolean, default=False)
     extension_reason = db.Column(db.Text)
+    stage1_manual_votes = db.Column(db.Integer, default=0)
+    stage2_manual_for = db.Column(db.Integer, default=0)
+    stage2_manual_against = db.Column(db.Integer, default=0)
+    stage2_manual_abstain = db.Column(db.Integer, default=0)
 
     def stage1_votes_count(self) -> int:
         """Return number of verified Stage-1 votes."""
+        if self.ballot_mode == "in-person":
+            return self.stage1_manual_votes or 0
         return (
             VoteToken.query.join(Member, VoteToken.member_id == Member.id)
             .filter(
