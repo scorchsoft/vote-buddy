@@ -60,14 +60,27 @@ def public_meeting_detail(meeting_id: int):
     )
 
 
+def _resend_key_func():
+    email = request.form.get("email", "").strip().lower()
+    return email or request.remote_addr
+
+
 @bp.post('/public/meetings/<int:meeting_id>/resend')
-@limiter.limit('5 per hour')
+@limiter.limit('5 per hour', key_func=_resend_key_func)
 def resend_meeting_link_public(meeting_id: int):
     meeting = db.session.get(Meeting, meeting_id)
     if meeting is None:
         abort(404)
     email = request.form.get('email', '').strip().lower()
     member_number = request.form.get('member_number', '').strip()
+
+    current_app.logger.info(
+        'Resend attempt for meeting=%s email=%s member=%s',
+        meeting_id,
+        email,
+        member_number,
+    )
+
     member = Member.query.filter_by(
         meeting_id=meeting.id, member_number=member_number, email=email
     ).first()
@@ -84,11 +97,18 @@ def resend_meeting_link_public(meeting_id: int):
                 send_runoff_invite(member, plain, meeting)
             else:
                 send_vote_invite(member, plain, meeting)
-        message = 'A new voting link has been sent to your email.'
-        success = True
+        current_app.logger.info(
+            'Resend email sent to %s for member %s', email, member_number
+        )
     else:
-        message = 'We could not find a member with those details.'
-        success = False
+        current_app.logger.info(
+            'Resend attempted for unknown member: %s/%s', email, member_number
+        )
+
+    message = (
+        'If the details are correct, a new voting link will be sent shortly.'
+    )
+    success = True
     contact_url = AppSetting.get(
         'contact_url', 'https://www.britishpowerlifting.org/contactus'
     )
