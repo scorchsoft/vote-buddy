@@ -21,7 +21,7 @@ from ..models import (
 from uuid6 import uuid7
 from sqlalchemy import func
 from docx import Document
-from docx.shared import RGBColor, Inches, Pt
+from docx.shared import RGBColor, Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
