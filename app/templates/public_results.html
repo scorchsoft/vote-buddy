@@ -13,6 +13,9 @@
   <a href="{{ url_for('meetings.results_stage2_docx', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block">Download Certified Results</a>
 </p>
 {% endif %}
+<p class="mb-4">
+  <a href="{{ url_for('main.public_results_pdf', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block">Download PDF Summary</a>
+</p>
 <div class="space-y-8">
   <div class="bp-card">
     <h3 class="font-semibold mb-2">Stage 1 Amendments</h3>

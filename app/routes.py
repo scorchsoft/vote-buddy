@@ -11,7 +11,7 @@ from .models import (
     AppSetting,
 )
 from .services.email import send_vote_invite, send_stage2_invite, send_runoff_invite
-from .utils import generate_stage_ics, generate_runoff_ics
+from .utils import generate_stage_ics, generate_runoff_ics, generate_results_pdf
 import io
 from sqlalchemy import func
 
@@ -296,3 +296,33 @@ def public_results_json(meeting_id: int):
         )
 
     return jsonify({"meeting_id": meeting.id, "tallies": tallies})
+
+
+@bp.route('/results/<int:meeting_id>/final.pdf')
+def public_results_pdf(meeting_id: int):
+    """Download PDF summary of Stage 1 and Stage 2 results."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    if not meeting.public_results:
+        abort(404)
+
+    amendments = (
+        Amendment.query.filter_by(meeting_id=meeting.id)
+        .order_by(Amendment.order)
+        .all()
+    )
+    stage1 = [(a, _vote_counts(Vote.amendment_id == a.id)) for a in amendments]
+
+    motions = (
+        Motion.query.filter_by(meeting_id=meeting.id)
+        .order_by(Motion.ordering)
+        .all()
+    )
+    stage2 = [(m, _vote_counts(Vote.motion_id == m.id)) for m in motions]
+
+    pdf_bytes = generate_results_pdf(meeting, stage1, stage2)
+    return send_file(
+        io.BytesIO(pdf_bytes),
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name='final_results.pdf',
+    )
