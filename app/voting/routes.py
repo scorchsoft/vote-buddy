@@ -91,6 +91,14 @@ def compile_motion_text(motion: Motion) -> str:
     return "\n\n".join(parts)
 
 
+def amendment_snippet(amendment: Amendment, char_limit: int = 40) -> str:
+    """Return the first ``char_limit`` characters of an amendment."""
+    text = (amendment.text_md or "").strip()
+    if len(text) > char_limit:
+        return text[:char_limit].rstrip() + "..."
+    return text
+
+
 @bp.route("/<token>", methods=["GET", "POST"])
 @limiter.limit("10 per minute")
 def ballot_token(token: str):
@@ -480,6 +488,7 @@ def runoff_ballot(token: str):
         runoffs=pairs,
         meeting=meeting,
         proxy_for=proxy_member,
+        snippet=amendment_snippet,
     )
 
 
