@@ -434,6 +434,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-07 – Added meeting cloning option to duplicate motions and amendments.
 * 2025-07-08 – Added Stage 2 progress bars and calculation method.
 * 2025-06-21 – Added admin audit logging of key actions.
+* 2025-07-08 – Public meeting times now show timezone abbreviation.
 
 
 

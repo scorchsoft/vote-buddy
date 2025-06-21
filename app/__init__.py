@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from flask import Flask, render_template
-from .utils import markdown_to_html
+from .utils import markdown_to_html, format_dt
 
 from .extensions import (
     db,
@@ -75,6 +75,7 @@ def register_extensions(app):
 
     # register template filters
     app.jinja_env.filters['markdown_to_html'] = markdown_to_html
+    app.jinja_env.filters['format_dt'] = format_dt
 
     from .models import User, AppSetting, Meeting
 

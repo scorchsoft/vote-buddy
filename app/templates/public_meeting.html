@@ -5,24 +5,24 @@
 {% if meeting.opens_at_stage1 and meeting.closes_at_stage1 %}
 <p class="mb-2">
   Stage 1:
-  {{ meeting.opens_at_stage1.strftime('%Y-%m-%d %H:%M') }} –
-  {{ meeting.closes_at_stage1.strftime('%Y-%m-%d %H:%M') }}
+  {{ meeting.opens_at_stage1|format_dt }} –
+  {{ meeting.closes_at_stage1|format_dt }}
   <a href="{{ stage1_ics_url }}" class="text-bp-blue hover:underline ml-2">Add to calendar</a>
 </p>
 {% endif %}
 {% if meeting.runoff_opens_at and meeting.runoff_closes_at %}
 <p class="mb-2">
   Run-off:
-  {{ meeting.runoff_opens_at.strftime('%Y-%m-%d %H:%M') }} –
-  {{ meeting.runoff_closes_at.strftime('%Y-%m-%d %H:%M') }}
+  {{ meeting.runoff_opens_at|format_dt }} –
+  {{ meeting.runoff_closes_at|format_dt }}
   <a href="{{ runoff_ics_url }}" class="text-bp-blue hover:underline ml-2">Add to calendar</a>
 </p>
 {% endif %}
 {% if meeting.opens_at_stage2 and meeting.closes_at_stage2 %}
 <p class="mb-4">
   Stage 2:
-  {{ meeting.opens_at_stage2.strftime('%Y-%m-%d %H:%M') }} –
-  {{ meeting.closes_at_stage2.strftime('%Y-%m-%d %H:%M') }}
+  {{ meeting.opens_at_stage2|format_dt }} –
+  {{ meeting.closes_at_stage2|format_dt }}
   <a href="{{ stage2_ics_url }}" class="text-bp-blue hover:underline ml-2">Add to calendar</a>
 </p>
 <div class="mb-6">
