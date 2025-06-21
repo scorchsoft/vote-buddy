@@ -3,7 +3,7 @@ import os
 import yaml
 from flask import request, abort, jsonify, current_app, render_template
 
-from ..extensions import db
+from ..extensions import db, limiter
 from ..models import Meeting, Amendment, Motion, Vote, ApiToken
 from . import bp
 
@@ -20,6 +20,14 @@ def token_required(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def token_key_func():
+    """Rate limit key using the API token."""
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        return auth.split(None, 1)[1]
+    return request.remote_addr
 
 
 def _vote_counts(query):
@@ -45,6 +53,7 @@ def api_docs():
 
 @bp.get("/meetings")
 @token_required
+@limiter.limit("60 per minute", key_func=token_key_func)
 def list_meetings():
     meetings = (
         Meeting.query.filter_by(public_results=True)
@@ -56,6 +65,7 @@ def list_meetings():
 
 @bp.get("/meetings/<int:meeting_id>/results")
 @token_required
+@limiter.limit("60 per minute", key_func=token_key_func)
 def meeting_results(meeting_id: int):
     meeting = Meeting.query.get_or_404(meeting_id)
     if not meeting.public_results:
@@ -90,6 +100,35 @@ def meeting_results(meeting_id: int):
                 "type": "motion",
                 "id": motion.id,
                 "text": motion.title,
+                **counts,
+            }
+        )
+
+    return jsonify({"meeting_id": meeting.id, "tallies": tallies})
+
+
+@bp.get("/meetings/<int:meeting_id>/stage1-results")
+@token_required
+@limiter.limit("60 per minute", key_func=token_key_func)
+def meeting_stage1_results(meeting_id: int):
+    """Return amendment tallies if stage results are public."""
+    meeting = Meeting.query.get_or_404(meeting_id)
+    if not (meeting.early_public_results or meeting.public_results):
+        abort(404)
+
+    tallies = []
+    amendments = (
+        Amendment.query.filter_by(meeting_id=meeting.id)
+        .order_by(Amendment.order)
+        .all()
+    )
+    for amend in amendments:
+        counts = _vote_counts(Vote.amendment_id == amend.id)
+        tallies.append(
+            {
+                "type": "amendment",
+                "id": amend.id,
+                "text": amend.text_md[:40],
                 **counts,
             }
         )
