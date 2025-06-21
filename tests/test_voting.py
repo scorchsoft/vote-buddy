@@ -63,13 +63,18 @@ def test_cast_vote_records_hash_and_marks_used():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
         db.session.add(member)
         amendment = Amendment(
-            meeting_id=meeting.id, motion_id=motion.id, text_md="Test", order=1
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md="Test",
+            order=1,
+            is_published=True,
         )
         db.session.add(amendment)
         db.session.commit()
@@ -105,6 +110,7 @@ def test_stage2_motion_vote():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -143,6 +149,7 @@ def test_vote_hash_unique_per_motion():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         m2 = Motion(
             meeting_id=meeting.id,
@@ -151,6 +158,7 @@ def test_vote_hash_unique_per_motion():
             category="motion",
             threshold="normal",
             ordering=2,
+            is_published=True,
         )
         db.session.add_all([m1, m2])
         db.session.flush()
@@ -193,6 +201,7 @@ def test_receipt_email_sent_after_vote():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -234,6 +243,7 @@ def test_ballot_token_outside_window_returns_error():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -270,6 +280,7 @@ def test_ballot_token_before_open_shows_times():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -305,6 +316,7 @@ def test_combined_ballot_records_votes():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -313,6 +325,7 @@ def test_combined_ballot_records_votes():
             motion_id=motion.id,
             text_md="A1",
             order=1,
+            is_published=True,
         )
         db.session.add(amend)
         member = Member(meeting_id=meeting.id, name="Bob", email="b@example.com")
@@ -350,6 +363,7 @@ def test_stage2_token_window_enforcement():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -390,6 +404,7 @@ def test_proxy_vote_records_for_principal_only_and_blocks_second():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -398,6 +413,7 @@ def test_proxy_vote_records_for_principal_only_and_blocks_second():
             motion_id=motion.id,
             text_md="A1",
             order=1,
+            is_published=True,
         )
         db.session.add(amend)
         proxied = Member(meeting_id=meeting.id, name="Bob", email="b@example.com")
@@ -445,6 +461,7 @@ def test_compile_motion_text_orders_carried_amendments():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -454,6 +471,7 @@ def test_compile_motion_text_orders_carried_amendments():
             text_md="A1",
             order=2,
             status="carried",
+            is_published=True,
         )
         a2 = Amendment(
             meeting_id=meeting.id,
@@ -461,6 +479,7 @@ def test_compile_motion_text_orders_carried_amendments():
             text_md="A2",
             order=1,
             status="carried",
+            is_published=True,
         )
         a3 = Amendment(
             meeting_id=meeting.id,
@@ -468,6 +487,7 @@ def test_compile_motion_text_orders_carried_amendments():
             text_md="X",
             order=3,
             status="failed",
+            is_published=True,
         )
         db.session.add_all([a1, a2, a3])
         db.session.commit()
@@ -499,6 +519,7 @@ def test_stage2_ballot_displays_compiled_text():
                 text_md="Add",
                 order=1,
                 status="carried",
+                is_published=True,
             )
         )
         db.session.commit()
@@ -527,6 +548,7 @@ def test_stage2_ballot_uses_final_text():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -554,6 +576,7 @@ def test_stage2_ballot_includes_carried_summary():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -564,6 +587,7 @@ def test_stage2_ballot_includes_carried_summary():
                 text_md="Add something important",
                 order=1,
                 status="carried",
+                is_published=True,
             )
         )
         member = Member(meeting_id=meeting.id, name="A", email="a@e.co")
@@ -590,6 +614,7 @@ def test_stage2_ballot_links_results_when_no_summary():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -617,6 +642,7 @@ def test_multiple_choice_motion_vote_and_receipt():
             category="multiple_choice",
             threshold="plurality",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -668,6 +694,7 @@ def test_stage1_locked_rejects_vote():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -697,6 +724,7 @@ def test_stage2_locked_rejects_vote():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
@@ -726,11 +754,12 @@ def test_runoff_ballot_display_and_submit():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         db.session.flush()
-        a1 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1, status="carried")
-        a2 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A2", order=2, status="carried")
+        a1 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1, status="carried", is_published=True)
+        a2 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A2", order=2, status="carried", is_published=True)
         db.session.add_all([a1, a2])
         db.session.flush()
         rof = Runoff(meeting_id=meeting.id, amendment_a_id=a1.id, amendment_b_id=a2.id)
@@ -771,9 +800,10 @@ def test_stepper_shows_stage1_current():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
-        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1, is_published=True)
         db.session.add(amend)
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
         db.session.add(member)
@@ -802,6 +832,7 @@ def test_stepper_shows_stage2_current_and_stage1_complete():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
@@ -830,9 +861,10 @@ def test_stepper_combined_ballot_single_label():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
-        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1, is_published=True)
         db.session.add(amend)
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
         db.session.add(member)
@@ -862,6 +894,7 @@ def test_verify_receipt_found():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         member = Member(meeting_id=meeting.id, name="A", email="a@example.com")
@@ -907,6 +940,7 @@ def test_verify_receipt_multiple_matches():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         member = Member(meeting_id=meeting.id, name="A", email="a@example.com")
@@ -942,7 +976,7 @@ def test_confirmation_shows_change_vote_link_when_revoting_enabled():
         meeting = Meeting(title="AGM", revoting_allowed=True)
         db.session.add(meeting)
         db.session.flush()
-        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md="A1", order=1)
+        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md="A1", order=1, is_published=True)
         db.session.add(amend)
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
         db.session.add(member)
@@ -967,7 +1001,7 @@ def test_confirmation_hides_change_vote_link_when_disabled():
         meeting = Meeting(title="AGM")
         db.session.add(meeting)
         db.session.flush()
-        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md="A1", order=1)
+        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md="A1", order=1, is_published=True)
         db.session.add(amend)
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
         db.session.add(member)
@@ -998,6 +1032,7 @@ def test_second_submission_overwrites_first_when_revoting_allowed():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
@@ -1036,6 +1071,7 @@ def test_confirmation_links_to_public_results_after_stage2():
             category="motion",
             threshold="normal",
             ordering=1,
+            is_published=True,
         )
         db.session.add(motion)
         member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
