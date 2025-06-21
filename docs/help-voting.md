@@ -19,6 +19,12 @@ If you have been appointed as a proxy, a token will be issued for the represente
 
 For more details see Articles 107–115 in the governance documents.
 
+## Calendar reminders
+
+The public meeting page lists the opening and closing times for each stage.
+Use the **Add to calendar** links beside Stage 1, any run-off and Stage 2 to
+download an `.ics` file that you can import into most calendar apps.
+
 ## Keyboard navigation
 
 All voting controls can be reached using the Tab key. After making your choices, the sticky confirmation bar becomes the final Tab stop with a prominent **Submit vote** button.
