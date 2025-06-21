@@ -144,6 +144,18 @@ requirements.txt    Python dependencies
 wsgi.py         App entry for Gunicorn
 ```
 
+### Public API
+
+Token-authenticated endpoints provide read-only access to meeting results.
+Generate a token in the admin dashboard then query using the `Authorization`
+header:
+
+```bash
+curl -H "Authorization: Bearer <token>" https://example.com/api/meetings
+```
+
+See the [API Docs](/api/docs) page for full details.
+
 ### Documentation
 
 The `docs` directory contains background and design material:

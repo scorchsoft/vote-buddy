@@ -84,6 +84,10 @@
                     <img src="{{ url_for('static', filename='icons/data_usage_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     Site Settings
                   </a>
+                  <a href="{{ url_for('admin.manage_api_tokens') }}" class="bp-dropdown-item">
+                    <img src="{{ url_for('static', filename='icons/key_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
+                    API Tokens
+                  </a>
                   {% endif %}
                 </div>
               </li>
@@ -180,6 +184,10 @@
               <img src="{{ url_for('static', filename='icons/data_usage_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
               Site Settings
             </a>
+            <a href="{{ url_for('admin.manage_api_tokens') }}" class="bp-nav-link text-white">
+              <img src="{{ url_for('static', filename='icons/key_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
+              API Tokens
+            </a>
             {% endif %}
           </li>
           <li class="mt-4 pt-4 border-t border-white/20">
@@ -257,6 +265,7 @@
               <li><a href="{{ url_for('help.show_help') }}" class="hover:underline opacity-90 hover:opacity-100">Help & Documentation</a></li>
               <li><a href="{{ url_for('voting.verify_receipt') }}" class="hover:underline opacity-90 hover:opacity-100">Verify Receipt</a></li>
                 <li><a href="{{ url_for('main.results_index') }}" class="hover:underline opacity-90 hover:opacity-100">Results Archive</a></li>
+                <li><a href="{{ url_for('api.api_docs') }}" class="hover:underline opacity-90 hover:opacity-100">API Docs</a></li>
                 {% if not current_user.is_authenticated %}
                 <li><a href="{{ url_for('auth.login') }}" class="hover:underline opacity-90 hover:opacity-100">Admin Login</a></li>
                 {% endif %}

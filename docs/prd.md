@@ -429,6 +429,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-01 – Added resubscribe links alongside unsubscribe and a route to opt back in.
 * 2025-06-21 – Added "Need help?" link to ballot pages.
 * 2025-07-06 – AGM date field auto-completes stage times based on configured notice and duration settings.
+* 2025-07-07 – Added token-based public API with admin management and docs page.
 
 
 
