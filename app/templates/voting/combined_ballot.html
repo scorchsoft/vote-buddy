@@ -7,6 +7,7 @@
 {% set combined = True %}
 {% set combined_label = 'Combined Ballot' %}
 {% include '_stepper.html' %}
+<div class="text-sm mb-4" role="status">Stage 1 closes in {{ meeting.stage1_time_remaining() }}</div>
 {% if preview %}
 <div class="bp-alert-info text-center mb-4">Preview mode – votes will not be saved.</div>
 {% endif %}
