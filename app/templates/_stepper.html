@@ -1,6 +1,12 @@
 <nav aria-label="Voting progress" class="mb-4">
+  {% if combined %}
+  <ol class="bp-stepper">
+    <li class="bp-stepper-current" aria-current="step" data-step="1">{{ combined_label or 'Combined Ballot' }}</li>
+  </ol>
+  {% else %}
   <ol class="bp-stepper">
     <li class="{% if current_stage == 1 %}bp-stepper-current{% elif current_stage > 1 %}bp-stepper-complete{% endif %}"{% if current_stage == 1 %} aria-current="step"{% endif %} data-step="1">Stage 1</li>
     <li class="{% if current_stage == 2 %}bp-stepper-current{% elif current_stage > 2 %}bp-stepper-complete{% endif %}"{% if current_stage == 2 %} aria-current="step"{% endif %} data-step="2">Stage 2</li>
   </ol>
+  {% endif %}
 </nav>

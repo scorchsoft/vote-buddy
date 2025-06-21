@@ -787,6 +787,38 @@ def test_stepper_shows_stage2_current_and_stage1_complete():
             assert 'bp-stepper-current" aria-current="step" data-step="2"' in html
 
 
+def test_stepper_combined_ballot_single_label():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", ballot_mode="combined")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        db.session.add(amend)
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with app.test_request_context(f"/vote/{plain}"):
+            html = voting.ballot_token(plain)
+            assert 'Combined Ballot' in html
+            assert 'bp-stepper-current' in html
+            assert 'data-step="1"' in html
+            assert 'Stage 2' not in html
+
+
 def test_verify_receipt_found():
     app = _setup_app()
     with app.app_context():
