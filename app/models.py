@@ -416,3 +416,16 @@ class EmailLog(db.Model):
     is_test = db.Column(db.Boolean, default=False)
     sent_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+class AdminLog(db.Model):
+    """Record an administrative action performed by a user."""
+
+    __tablename__ = "admin_logs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user = db.relationship("User")
+    action = db.Column(db.String(50))
+    details = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
