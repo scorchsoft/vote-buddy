@@ -155,7 +155,8 @@ header:
 curl -H "Authorization: Bearer <token>" https://example.com/api/meetings
 ```
 
-See the [API Docs](/api/docs) page for full details.
+See the [API Docs](/api/docs) page for full details. Endpoints include
+`/meetings/{id}/stage1-results` once Stage 1 tallies are published.
 
 ### Documentation
 

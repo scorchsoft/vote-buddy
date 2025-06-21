@@ -2,6 +2,10 @@ openapi: 3.0.0
 info:
   title: VoteBuddy Public API
   version: '1.0'
+  description: |
+    Authenticate using an API token. Email support@britishpowerlifting.org to
+    request a token for read-only access. Endpoints are limited to
+    60 requests per minute per token.
 paths:
   /api/meetings:
     get:
@@ -25,6 +29,44 @@ paths:
   /api/meetings/{id}/results:
     get:
       summary: Tallies for a meeting
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meeting_id:
+                    type: integer
+                  tallies:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        id:
+                          type: integer
+                        text:
+                          type: string
+                        for:
+                          type: integer
+                        against:
+                          type: integer
+        abstain:
+          type: integer
+  /api/meetings/{id}/stage1-results:
+    get:
+      summary: Stage 1 tallies
       security:
         - bearerAuth: []
       parameters:
