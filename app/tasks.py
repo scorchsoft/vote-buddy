@@ -158,15 +158,6 @@ def cleanup_vote_tokens() -> None:
     db.session.commit()
 
 
-def _time_remaining(dt: datetime) -> str:
-    delta = dt - datetime.utcnow()
-    if delta.total_seconds() <= 0:
-        return "0d 0h"
-    days = delta.days
-    hours = delta.seconds // 3600
-    return f"{days}d {hours}h"
-
-
 def check_objection_deadlines() -> None:
     now = datetime.utcnow()
     objs_first = AmendmentObjection.query.filter(
