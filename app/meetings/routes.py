@@ -403,13 +403,18 @@ def add_amendment(motion_id):
     form.seconder_id.choices = [(0, "")] + choices
     if form.validate_on_submit():
         meeting = db.session.get(Meeting, motion.meeting_id)
+        deadline = None
         if meeting.opens_at_stage1:
             deadline = meeting.opens_at_stage1 - timedelta(days=21)
-            if datetime.utcnow() > deadline:
-                flash("Amendment deadline has passed.", "error")
-                return render_template(
-                    "meetings/amendment_form.html", form=form, motion=motion
-                )
+        elif meeting.notice_date:
+            notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 14)
+            deadline = meeting.notice_date + timedelta(days=notice_days)
+
+        if deadline and datetime.utcnow() > deadline:
+            flash("Amendment deadline has passed.", "error")
+            return render_template(
+                "meetings/amendment_form.html", form=form, motion=motion
+            )
 
         if not form.seconder_id.data and not form.board_seconded.data:
             flash("Select a seconder or confirm board approval.", "error")

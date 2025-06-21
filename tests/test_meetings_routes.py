@@ -399,6 +399,54 @@ def test_add_amendment_validations():
         assert Amendment.query.count() == 4
 
 
+def test_add_amendment_notice_deadline():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["WTF_CSRF_ENABLED"] = False
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(
+            title="Test",
+            notice_date=datetime.utcnow() - timedelta(days=20),
+        )
+        db.session.add(meeting)
+        db.session.flush()
+        members = [
+            Member(meeting_id=meeting.id, name="A"),
+            Member(meeting_id=meeting.id, name="B"),
+        ]
+        db.session.add_all(members)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="t",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+
+        user = _make_user(True)
+        data = {
+            "text_md": "late",
+            "proposer_id": members[0].id,
+            "seconder_id": members[1].id,
+        }
+        with app.test_request_context(
+            f"/meetings/motions/{motion.id}/amendments/add",
+            method="POST",
+            data=data,
+        ):
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.flash") as fl:
+                    meetings.add_amendment(motion.id)
+                    fl.assert_called()
+
+        assert Amendment.query.count() == 0
+
+
 def test_results_stage2_docx_returns_file():
     app = create_app()
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
