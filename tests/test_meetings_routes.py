@@ -1070,3 +1070,47 @@ def test_prefill_form_defaults():
         assert form.closes_at_stage1.data is not None
         assert form.opens_at_stage2.data is not None
         assert form.closes_at_stage2.data == agm
+
+
+def test_clone_meeting_creates_copy():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        src = Meeting(title="AGM", type="AGM", ballot_mode="two-stage", quorum=5)
+        db.session.add(src)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=src.id,
+            title="M1",
+            text_md="text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        db.session.add(
+            Amendment(
+                meeting_id=src.id,
+                motion_id=motion.id,
+                text_md="A1",
+                order=1,
+                status="pending",
+            )
+        )
+        db.session.commit()
+
+        with app.test_request_context(f"/meetings/{src.id}/clone"):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                resp = meetings.clone_meeting(src.id)
+                assert resp.status_code == 302
+
+        clones = Meeting.query.filter(Meeting.id != src.id).all()
+        assert len(clones) == 1
+        cloned = clones[0]
+        assert cloned.ballot_mode == src.ballot_mode
+        assert cloned.opens_at_stage1 is None
+        assert Motion.query.filter_by(meeting_id=cloned.id).count() == 1
+        assert Amendment.query.filter_by(meeting_id=cloned.id).count() == 1

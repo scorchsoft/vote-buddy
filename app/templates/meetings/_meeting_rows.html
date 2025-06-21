@@ -11,6 +11,9 @@
       {{ meeting.status or 'Draft' }}
     {% endif %}
   </td>
+  <td class="p-2 text-right">
+    <a href="{{ url_for('meetings.clone_meeting', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm">Clone Meeting</a>
+  </td>
 </tr>
 {% else %}
 <tr>
