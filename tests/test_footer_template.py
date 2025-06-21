@@ -42,6 +42,42 @@ def test_sticky_footer_rendered():
             assert 'Submit vote' in html
 
 
+def test_ballot_templates_include_help_link():
+    """Ensure all ballot templates have a Need help? link."""
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(meeting_id=meeting.id, title='M1', text_md='T', category='motion', threshold='normal', ordering=1)
+        db.session.add(motion)
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md='A1', order=1)
+        db.session.add(amend)
+        member = Member(meeting_id=meeting.id, name='Alice', email='a@e.co')
+        db.session.add(member)
+        db.session.commit()
+
+        _, stage1_plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config['TOKEN_SALT'])
+        _, stage2_plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config['TOKEN_SALT'])
+        db.session.commit()
+
+        with app.test_request_context(f'/vote/{stage1_plain}'):
+            html = voting.ballot_token(stage1_plain)
+            assert 'Need help?' in html
+            assert '/help' in html
+
+        meeting.ballot_mode = 'combined'
+        db.session.commit()
+        with app.test_request_context(f'/vote/{stage1_plain}'):
+            html = voting.ballot_token(stage1_plain)
+            assert 'Need help?' in html
+
+        with app.test_request_context(f'/vote/{stage2_plain}'):
+            html = voting.ballot_token(stage2_plain)
+            assert 'Need help?' in html
+
+
 def test_theme_toggle_button_present():
     """Render base.html and check the dark mode toggle is included.
 
