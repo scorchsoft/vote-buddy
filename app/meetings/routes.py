@@ -907,10 +907,18 @@ def close_stage1(meeting_id: int):
     if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
 
+    meeting.stage1_closed_at = datetime.utcnow()
+
     # check whether Stage 1 reached quorum
     if meeting.stage1_votes_count() < meeting.quorum:
         meeting.status = "Quorum not met"
         db.session.commit()
+        if meeting.opens_at_stage2 and meeting.stage1_closed_at:
+            if meeting.opens_at_stage2 - meeting.stage1_closed_at < timedelta(hours=24):
+                flash(
+                    "Stage 2 opens less than 24 hours after Stage 1 closed",
+                    "warning",
+                )
         members = Member.query.filter_by(meeting_id=meeting.id).all()
         if AppSetting.get("manual_email_mode") != "1":
             for member in members:
@@ -935,6 +943,12 @@ def close_stage1(meeting_id: int):
                 )
         meeting.status = "Pending Stage 2"
         db.session.commit()
+        if meeting.opens_at_stage2 and meeting.stage1_closed_at:
+            if meeting.opens_at_stage2 - meeting.stage1_closed_at < timedelta(hours=24):
+                flash(
+                    "Stage 2 opens less than 24 hours after Stage 1 closed",
+                    "warning",
+                )
         flash(
             "No amendments submitted – Stage 1 skipped and Stage 2 tokens generated",
             "success",
@@ -954,6 +968,12 @@ def close_stage1(meeting_id: int):
     else:
         meeting.status = "Pending Stage 2"
         db.session.commit()
+        if meeting.opens_at_stage2 and meeting.stage1_closed_at:
+            if meeting.opens_at_stage2 - meeting.stage1_closed_at < timedelta(hours=24):
+                flash(
+                    "Stage 2 opens less than 24 hours after Stage 1 closed",
+                    "warning",
+                )
         flash(
             "Stage 1 closed. Prepare final motion text before opening Stage 2",
             "success",
@@ -1256,6 +1276,12 @@ def prepare_stage2(meeting_id: int):
     meeting = db.session.get(Meeting, meeting_id)
     if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
+    if meeting.opens_at_stage2 and meeting.stage1_closed_at:
+        if meeting.opens_at_stage2 - meeting.stage1_closed_at < timedelta(hours=24):
+            flash(
+                "Stage 2 opens less than 24 hours after Stage 1 closed",
+                "warning",
+            )
     motions = (
         Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
     )
