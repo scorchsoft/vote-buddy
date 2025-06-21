@@ -190,6 +190,7 @@ The `docs` directory contains background and design material:
 - **app-settings-guidance.md** – When to store global values in the `app_settings` table.
 - **member-import.md** – Steps and CSV format for uploading members and issuing tokens.
 - **unit-test-strategy.md** – Fixtures and patterns for the tests under `tests/`.
+- **ARCHITECTURE.md** – Overview of the code layout and responsibilities.
 
 Refer to these files for detail on features, design and governance context.
 
