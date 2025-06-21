@@ -1,6 +1,6 @@
 # Full Database Structure
 
-_Last updated: 2025-06-23_
+_Last updated: 2025-06-27_
 
 This document summarises all tables and columns created by the Alembic migrations. It should help contributors and AI tools understand the schema without opening each migration file.
 
@@ -94,6 +94,7 @@ This document summarises all tables and columns created by the Alembic migration
 | text_md | Text | |
 | order | Integer | |
 | status | String(50) | |
+| reason | Text | |
 | proposer_id | Integer | FK `members.id` |
 | seconder_id | Integer | FK `members.id` |
 | board_seconded | Boolean | |
