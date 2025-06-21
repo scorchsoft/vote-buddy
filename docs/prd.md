@@ -445,6 +445,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-10 – Added PDF export for final results on public results page.
 * 2025-07-10 – Added Stage 2 reminder job and email templates.
 * 2025-07-10 – Added password reset flow with email tokens.
+* 2025-07-11 – Submission links now use member tokens and notify seconders.
 * 2025-06-21 – Rate limited comment posting to 5 per minute.
 * 2025-06-21 – Added public motion/amendment submission forms with email alerts.
 
