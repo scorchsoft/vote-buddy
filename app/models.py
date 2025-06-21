@@ -97,6 +97,8 @@ class Meeting(db.Model):
     public_results = db.Column(db.Boolean, default=False)
     comments_enabled = db.Column(db.Boolean, default=False)
     extension_reason = db.Column(db.Text)
+    results_doc_published = db.Column(db.Boolean, default=False)
+    results_doc_intro_md = db.Column(db.Text)
     stage1_manual_votes = db.Column(db.Integer, default=0)
     stage2_manual_for = db.Column(db.Integer, default=0)
     stage2_manual_against = db.Column(db.Integer, default=0)

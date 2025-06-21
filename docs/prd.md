@@ -301,6 +301,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Expanded UI/UX design guidance with extended design patterns.
 * 2025-06-14 – Implemented meetings list view with table layout.
 * 2025-06-14 – Enhanced meetings list with htmx search and sort.
+* 2025-07-01 – Added publishable Stage 2 results document with custom intro text.
 * 2025-06-20 – Added comment count badges and modal viewer on ballots; improved thank-you screen.
 * 2025-06-14 – Added meeting create/edit form with CSRF protection.
 * 2025-06-14 – Added member CSV import with token generation.
