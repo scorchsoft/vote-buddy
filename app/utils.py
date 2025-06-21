@@ -19,6 +19,9 @@ ALLOWED_TAGS = (
 from flask import current_app
 from .models import AppSetting, Amendment
 import json
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+from uuid import uuid4
 
 
 def config_or_setting(
@@ -60,8 +63,26 @@ def markdown_to_html(text: str) -> Markup:
     cleaned = bleach.clean(raw_html, tags=ALLOWED_TAGS, strip=True)
     return Markup(cleaned)
 
-from uuid import uuid4
-from datetime import datetime
+
+def format_dt(dt: datetime, tz_name: str | None = None) -> str:
+    """Return formatted datetime with timezone abbreviation.
+
+    Parameters
+    ----------
+    dt: datetime
+        Naive or aware datetime object.
+    tz_name: str | None
+        Optional timezone name; defaults to ``app.config['TIMEZONE']`` or ``UTC``.
+    """
+
+    if dt is None:
+        return ""
+    tz_name = tz_name or current_app.config.get("TIMEZONE", "UTC")
+    tz = ZoneInfo(tz_name)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(tz).strftime("%Y-%m-%d %H:%M %Z")
+
 
 
 def generate_stage_ics(meeting, stage: int) -> bytes:
