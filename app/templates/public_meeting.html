@@ -9,6 +9,15 @@
   {{ meeting.closes_at_stage1|format_dt }}
   <a href="{{ stage1_ics_url }}" class="text-bp-blue hover:underline ml-2">Add to calendar</a>
 </p>
+<div class="mb-4">
+  <div id="stage1-progress" class="bp-progress" data-progress-open="{{ meeting.opens_at_stage1.isoformat() }}Z" data-progress-close="{{ meeting.closes_at_stage1.isoformat() }}Z" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <div class="bp-progress-bar"></div>
+    <span class="sr-only"><span id="stage1-percent-text">{{ meeting.stage1_progress_percent() }}</span>% complete</span>
+  </div>
+  <span id="stage1-info" class="text-xs text-bp-grey-600 mt-1" role="status" aria-live="polite">
+    <span id="stage1-countdown">{{ meeting.stage1_time_remaining() }}</span> left
+  </span>
+</div>
 {% endif %}
 {% if meeting.runoff_opens_at and meeting.runoff_closes_at %}
 <p class="mb-2">
@@ -26,11 +35,13 @@
   <a href="{{ stage2_ics_url }}" class="text-bp-blue hover:underline ml-2">Add to calendar</a>
 </p>
 <div class="mb-6">
-  <div class="bp-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ meeting.stage2_progress_percent() }}">
-    <div class="bp-progress-bar" style="width: {{ meeting.stage2_progress_percent() }}%"></div>
-    <span class="sr-only">{{ meeting.stage2_progress_percent() }}% complete</span>
+  <div id="stage2-progress" class="bp-progress" data-progress-open="{{ meeting.opens_at_stage2.isoformat() }}Z" data-progress-close="{{ meeting.closes_at_stage2.isoformat() }}Z" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <div class="bp-progress-bar"></div>
+    <span class="sr-only"><span id="stage2-percent-text">{{ meeting.stage2_progress_percent() }}</span>% complete</span>
   </div>
-  <span class="text-xs text-bp-grey-600 mt-1">{{ meeting.stage2_progress_percent() }}% of Stage 2 voting window elapsed</span>
+  <span id="stage2-info" class="text-xs text-bp-grey-600 mt-1" role="status" aria-live="polite">
+    <span id="stage2-countdown">{{ meeting.stage2_time_remaining() }}</span> left
+  </span>
 </div>
 {% endif %}
 <button class="bp-btn-secondary mb-4" data-modal-target="resend-modal">Resend Voting Email</button>
@@ -41,4 +52,5 @@
   </div>
   <button class="bp-btn-secondary mt-4" data-close-modal>Close</button>
 </dialog>
+<script src="{{ url_for('static', filename='js/stage_progress.js') }}"></script>
 {% endblock %}
