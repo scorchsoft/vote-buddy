@@ -414,6 +414,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-26 – Added stage extension form and reason display on results page.
 * 2025-06-30 – Run-off tie breaks recorded with chair/board/order option and service respects setting.
 * 2025-06-28 – Objection submissions now require email confirmation via token link.
+* 2025-07-01 – Added manual tally entry for in-person meetings with Stage 1 and Stage 2 forms.
 * 2025-07-01 – Added resubscribe links alongside unsubscribe and a route to opt back in.
 
 
