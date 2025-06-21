@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, abort, jsonify, request, current_app
+from flask import Blueprint, render_template, abort, jsonify, request, current_app, send_file, url_for
 from .extensions import db, limiter
 from .models import (
     Meeting,
@@ -11,6 +11,8 @@ from .models import (
     AppSetting,
 )
 from .services.email import send_vote_invite, send_stage2_invite, send_runoff_invite
+from .utils import generate_stage_ics, generate_runoff_ics
+import io
 from sqlalchemy import func
 
 bp = Blueprint('main', __name__)
@@ -52,11 +54,17 @@ def public_meeting_detail(meeting_id: int):
     contact_url = AppSetting.get(
         'contact_url', 'https://www.britishpowerlifting.org/contactus'
     )
+    stage1_ics_url = url_for('main.public_stage1_ics', meeting_id=meeting.id)
+    stage2_ics_url = url_for('main.public_stage2_ics', meeting_id=meeting.id)
+    runoff_ics_url = url_for('main.public_runoff_ics', meeting_id=meeting.id)
     return render_template(
         'public_meeting.html',
         meeting=meeting,
         member_count=member_count,
         contact_url=contact_url,
+        stage1_ics_url=stage1_ics_url,
+        runoff_ics_url=runoff_ics_url,
+        stage2_ics_url=stage2_ics_url,
     )
 
 
@@ -117,6 +125,60 @@ def resend_meeting_link_public(meeting_id: int):
         message=message,
         success=success,
         contact_url=contact_url,
+    )
+
+
+@bp.route('/public/meetings/<int:meeting_id>/stage1.ics')
+def public_stage1_ics(meeting_id: int):
+    """Download Stage 1 calendar file for the public."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    try:
+        ics = generate_stage_ics(meeting, 1)
+    except ValueError:
+        abort(404)
+    return send_file(
+        io.BytesIO(ics),
+        mimetype='text/calendar',
+        as_attachment=True,
+        download_name='stage1.ics',
+    )
+
+
+@bp.route('/public/meetings/<int:meeting_id>/stage2.ics')
+def public_stage2_ics(meeting_id: int):
+    """Download Stage 2 calendar file for the public."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    try:
+        ics = generate_stage_ics(meeting, 2)
+    except ValueError:
+        abort(404)
+    return send_file(
+        io.BytesIO(ics),
+        mimetype='text/calendar',
+        as_attachment=True,
+        download_name='stage2.ics',
+    )
+
+
+@bp.route('/public/meetings/<int:meeting_id>/runoff.ics')
+def public_runoff_ics(meeting_id: int):
+    """Download run-off calendar file if timestamps are set."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    try:
+        ics = generate_runoff_ics(meeting)
+    except ValueError:
+        abort(404)
+    return send_file(
+        io.BytesIO(ics),
+        mimetype='text/calendar',
+        as_attachment=True,
+        download_name='runoff.ics',
     )
 
 

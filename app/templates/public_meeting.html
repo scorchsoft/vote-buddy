@@ -2,6 +2,30 @@
 {% block content %}
 <h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }}</h1>
 <p class="mb-4">Stage: {{ meeting.status or 'Draft' }} | Members: {{ member_count }}</p>
+{% if meeting.opens_at_stage1 and meeting.closes_at_stage1 %}
+<p class="mb-2">
+  Stage 1:
+  {{ meeting.opens_at_stage1.strftime('%Y-%m-%d %H:%M') }} –
+  {{ meeting.closes_at_stage1.strftime('%Y-%m-%d %H:%M') }}
+  <a href="{{ stage1_ics_url }}" class="text-bp-blue hover:underline ml-2">Add to calendar</a>
+</p>
+{% endif %}
+{% if meeting.runoff_opens_at and meeting.runoff_closes_at %}
+<p class="mb-2">
+  Run-off:
+  {{ meeting.runoff_opens_at.strftime('%Y-%m-%d %H:%M') }} –
+  {{ meeting.runoff_closes_at.strftime('%Y-%m-%d %H:%M') }}
+  <a href="{{ runoff_ics_url }}" class="text-bp-blue hover:underline ml-2">Add to calendar</a>
+</p>
+{% endif %}
+{% if meeting.opens_at_stage2 and meeting.closes_at_stage2 %}
+<p class="mb-4">
+  Stage 2:
+  {{ meeting.opens_at_stage2.strftime('%Y-%m-%d %H:%M') }} –
+  {{ meeting.closes_at_stage2.strftime('%Y-%m-%d %H:%M') }}
+  <a href="{{ stage2_ics_url }}" class="text-bp-blue hover:underline ml-2">Add to calendar</a>
+</p>
+{% endif %}
 <button class="bp-btn-secondary mb-4" data-modal-target="resend-modal">Resend Voting Email</button>
 <dialog id="resend-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="resend-title">
   <h2 id="resend-title" class="font-bold mb-2">Request Voting Email</h2>

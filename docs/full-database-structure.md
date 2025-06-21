@@ -55,6 +55,10 @@ This document summarises all tables and columns created by the Alembic migration
 | stage1_reminder_sent_at | DateTime | |
 | public_results | Boolean | Default `False` |
 | extension_reason | Text | Reason for extending a stage |
+| stage1_manual_votes | Integer | Manual Stage 1 turnout |
+| stage2_manual_for | Integer | Manual Stage 2 'for' count |
+| stage2_manual_against | Integer | Manual Stage 2 'against' count |
+| stage2_manual_abstain | Integer | Manual Stage 2 'abstain' count |
 
 ### members
 | Column | Type | Notes |
@@ -78,6 +82,11 @@ This document summarises all tables and columns created by the Alembic migration
 | threshold | String(20) | |
 | ordering | Integer | |
 | status | String(50) | |
+| withdrawn | Boolean | |
+| modified_at | DateTime | |
+| withdrawal_requested_at | DateTime | |
+| chair_approved_at | DateTime | |
+| board_approved_at | DateTime | |
 
 ### motion_options
 | Column | Type | Notes |
