@@ -457,6 +457,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-21 – Added Stage 2 close button on results summary page.
 * 2025-06-21 – Linked manual email sending page from results summary.
 * 2025-06-21 – Added per-member resend link on results summary.
+* 2025-06-21 – Default calendar timezone now Europe/London.
 
 
 ---
