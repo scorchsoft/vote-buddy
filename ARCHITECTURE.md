@@ -2,6 +2,33 @@
 
 This document describes the overall structure of the VoteBuddy code base. VoteBuddy is a Flask 3 application using SQLAlchemy ORM and Alembic migrations. Functionality is organised into blueprints so each feature area is isolated and easy to maintain.
 
+## System Architecture
+
+VoteBuddy normally runs behind **Nginx** with **Gunicorn** serving the Flask
+application from `wsgi.py`.  The application factory `create_app` in
+`app/__init__.py` initialises SQLAlchemy, Mail and other extensions.  Database
+access goes through PostgreSQL and SQLAlchemy.  A built‑in **APScheduler**
+instance handles routine jobs such as reminder emails and token cleanup.  For
+larger deployments, **Celery** with Redis can be added for asynchronous tasks.
+Outbound email uses SMTP or AWS SES and static files are served from local
+storage or optionally S3.
+
+The stack can be visualised as:
+
+```text
+Nginx
+  ↳ Gunicorn (Flask)
+       ↳ Blueprints
+            auth/
+            meetings/
+            voting/
+            admin/
+Postgres  ─── SQLAlchemy ORM
+Redis (optional) ─── Celery worker (optional)
+Local storage ─── Static files & document exports
+SES/SMTP  ─── Outbound mail
+```
+
 ## Directory Tree
 
 ```
@@ -174,6 +201,14 @@ Each subfolder implements a blueprint with its own templates and forms.
 - **services/audit.py** – Record administrative actions for the audit log.
 - **services/email.py** – Build and send all emails (invites, reminders, receipts, board notices).
 - **services/runoff.py** – Detect ties and create run‑off ballots.
+
+### Scheduler Jobs
+The APScheduler instance registers several periodic tasks when the app starts:
+- `stage1_reminders` – email members when Stage 1 voting is almost closed.
+- `stage2_reminders` – send reminders for Stage 2 closing soon.
+- `token_cleanup` – remove used or expired vote tokens each day.
+- `objection_check` – process amendment objection deadlines hourly.
+- `submission_invites` – dispatch submission invites when the window opens.
 
 ### Static files and templates
 - **static/** – Compiled CSS/JS assets and a sample member CSV.
