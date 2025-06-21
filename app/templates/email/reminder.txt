@@ -12,3 +12,4 @@ If you already voted, you can ignore this email.
 Submit an objection:
 {{ objection_link }}
 To stop these reminders, visit {{ unsubscribe_url }}
+To start them again later, visit {{ resubscribe_url }}
