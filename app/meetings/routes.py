@@ -281,12 +281,13 @@ def import_members(meeting_id):
             )
             db.session.add(member)
             db.session.flush()
-            token_obj, plain = VoteToken.create(
-                member_id=member.id,
-                stage=1,
-                salt=current_app.config["TOKEN_SALT"],
-            )
-            tokens_to_send.append((member, plain))
+            if meeting.ballot_mode != "in-person":
+                token_obj, plain = VoteToken.create(
+                    member_id=member.id,
+                    stage=1,
+                    salt=current_app.config["TOKEN_SALT"],
+                )
+                tokens_to_send.append((member, plain))
 
         db.session.commit()
         if AppSetting.get("manual_email_mode") != "1":
@@ -805,7 +806,7 @@ def _merge_form(motions: list[Motion]) -> FlaskForm:
 def close_stage1(meeting_id: int):
     """Close Stage 1 and handle run-offs or open Stage 2."""
     meeting = db.session.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
 
     # check whether Stage 1 reached quorum
@@ -827,12 +828,13 @@ def close_stage1(meeting_id: int):
     # if no amendments were proposed, skip Stage 1 entirely
     if Amendment.query.filter_by(meeting_id=meeting.id).count() == 0:
         members = Member.query.filter_by(meeting_id=meeting.id).all()
-        for member in members:
-            VoteToken.create(
-                member_id=member.id,
-                stage=2,
-                salt=current_app.config["TOKEN_SALT"],
-            )
+        if meeting.ballot_mode != "in-person":
+            for member in members:
+                VoteToken.create(
+                    member_id=member.id,
+                    stage=2,
+                    salt=current_app.config["TOKEN_SALT"],
+                )
         meeting.status = "Pending Stage 2"
         db.session.commit()
         flash(
@@ -879,7 +881,7 @@ def results_summary(meeting_id: int):
 @permission_required("manage_meetings")
 def manual_send_emails(meeting_id: int):
     meeting = db.session.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
     form = ManualEmailForm()
     members = Member.query.filter_by(meeting_id=meeting.id, is_test=False).order_by(Member.name).all()
@@ -962,6 +964,56 @@ def extend_stage(meeting_id: int, stage: int):
         form=form,
         meeting=meeting,
         stage=stage,
+    )
+
+
+@bp.route("/<int:meeting_id>/stage1-tally", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def stage1_tally(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None or meeting.ballot_mode != "in-person":
+        abort(404)
+    form = Stage1TallyForm()
+    if request.method == "GET":
+        form.votes_cast.data = meeting.stage1_manual_votes
+    if form.validate_on_submit():
+        meeting.stage1_manual_votes = form.votes_cast.data or 0
+        meeting.status = "Pending Stage 2"
+        db.session.commit()
+        flash("Stage 1 tally saved", "success")
+        return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+    return render_template(
+        "meetings/stage1_tally_form.html",
+        form=form,
+        meeting=meeting,
+    )
+
+
+@bp.route("/<int:meeting_id>/stage2-tally", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def stage2_tally(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None or meeting.ballot_mode != "in-person":
+        abort(404)
+    form = Stage2TallyForm()
+    if request.method == "GET":
+        form.for_votes.data = meeting.stage2_manual_for
+        form.against_votes.data = meeting.stage2_manual_against
+        form.abstain_votes.data = meeting.stage2_manual_abstain
+    if form.validate_on_submit():
+        meeting.stage2_manual_for = form.for_votes.data or 0
+        meeting.stage2_manual_against = form.against_votes.data or 0
+        meeting.stage2_manual_abstain = form.abstain_votes.data or 0
+        meeting.status = "Completed"
+        db.session.commit()
+        flash("Stage 2 tally saved", "success")
+        return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+    return render_template(
+        "meetings/stage2_tally_form.html",
+        form=form,
+        meeting=meeting,
     )
 
 
@@ -1104,7 +1156,7 @@ def results_docx(meeting_id: int):
 def prepare_stage2(meeting_id: int):
     """Allow a human to merge amendments into final motion text."""
     meeting = db.session.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
     motions = (
         Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
@@ -1269,7 +1321,7 @@ def close_runoff(meeting_id: int):
 def close_stage2(meeting_id: int):
     """Finalize Stage 2 results and record motion outcomes."""
     meeting = db.session.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
     motion_results = _motion_results(meeting)
 
@@ -1305,7 +1357,7 @@ def close_stage2(meeting_id: int):
 def resend_member_link(meeting_id: int, member_id: int):
     """Generate a new voting token for the current stage and email it."""
     meeting = db.session.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
     member = Member.query.filter_by(id=member_id, meeting_id=meeting.id).first_or_404()
 
