@@ -397,66 +397,66 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-20 – Added clearer member import button with downloadable sample CSV.
 * 2025-06-21 – Added permission management pages secured by 'manage_users'.
 * 2025-06-21 – Added amendment reject and merge controls on motion view page.
-* 2025-06-20 – Added moderator control to toggle member commenting rights.
+* 2025-06-21 – Added moderator control to toggle member commenting rights.
 * 2025-06-21 – Removed unused `VoteForm` class and cleaned up voting routes.
 * 2025-06-21 – Tie-break decisions from settings now apply automatically when Stage 1 closes.
-* 2025-06-22 – Added Markdown preview for clerical and move text settings.
-* 2025-06-22 – Added public meetings pages with resend link modal and contact URL setting.
-* 2025-06-23 – Documented local PostgreSQL setup in README.
-* 2025-06-23 – Rate limited public resend link form to prevent abuse.
-* 2025-06-24 – Automatic quorum failure emails sent when Stage 1 closes below quorum.
-* 2025-06-24 – Stage calendar downloads redirect with a flash when timestamps are missing.
-* 2025-06-24 – Removed member vote weighting feature.
-* 2025-06-23 – Added revoting banner and change-vote link on confirmation page when enabled.
-* 2025-06-24 – Added run-off closing helper and route clearing tokens.
-* 2025-06-20 – Stage 1 is skipped when no amendments exist by the deadline; Stage 2 tokens are generated.
-* 2025-06-25 – Receipt checker warns when a hash matches multiple votes and footer now links to it.
+* 2025-06-21 – Added Markdown preview for clerical and move text settings.
+* 2025-06-21 – Added public meetings pages with resend link modal and contact URL setting.
+* 2025-06-21 – Documented local PostgreSQL setup in README.
+* 2025-06-21 – Rate limited public resend link form to prevent abuse.
+* 2025-06-21 – Automatic quorum failure emails sent when Stage 1 closes below quorum.
+* 2025-06-21 – Stage calendar downloads redirect with a flash when timestamps are missing.
+* 2025-06-21 – Removed member vote weighting feature.
+* 2025-06-21 – Added revoting banner and change-vote link on confirmation page when enabled.
+* 2025-06-21 – Added run-off closing helper and route clearing tokens.
+* 2025-06-21 – Stage 1 is skipped when no amendments exist by the deadline; Stage 2 tokens are generated.
+* 2025-06-21 – Receipt checker warns when a hash matches multiple votes and footer now links to it.
 * 2025-06-21 – Run-off ballots now respect a dedicated time window and can be closed early by the RO.
-* 2025-06-26 – Combined ballot stepper now shows "Combined Ballot" label.
-* 2025-06-26 – Objection form uses member autocomplete with `/meetings/<id>/member-search`.
-* 2025-06-26 – Final results email dispatched with summary and DOCX attachment.
-* 2025-06-27 – Amendments store merge/rejection reason displayed on motion view.
-* 2025-06-26 – Added stage extension form and reason display on results page.
-* 2025-06-30 – Run-off tie breaks recorded with chair/board/order option and service respects setting.
-* 2025-06-28 – Objection submissions now require email confirmation via token link.
-* 2025-06-30 – Role badge moved from header to admin dropdown menu.
-* 2025-07-01 – Daily job purges used or expired vote tokens.
-* 2025-07-01 – Public meeting page lists stage times with calendar downloads.
-* 2025-07-01 – Stage 2 scheduling warns if less than 24 hours after Stage 1 closure.
-* 2025-06-30 – Meeting form now pre-fills default stage dates from the AGM date.
-* 2025-06-30 – Confirmation screen links to public results once a meeting is completed.
+* 2025-06-21 – Combined ballot stepper now shows "Combined Ballot" label.
+* 2025-06-21 – Objection form uses member autocomplete with `/meetings/<id>/member-search`.
+* 2025-06-21 – Final results email dispatched with summary and DOCX attachment.
+* 2025-06-21 – Amendments store merge/rejection reason displayed on motion view.
+* 2025-06-21 – Added stage extension form and reason display on results page.
+* 2025-06-21 – Run-off tie breaks recorded with chair/board/order option and service respects setting.
+* 2025-06-21 – Objection submissions now require email confirmation via token link.
+* 2025-06-21 – Role badge moved from header to admin dropdown menu.
+* 2025-06-21 – Daily job purges used or expired vote tokens.
+* 2025-06-21 – Public meeting page lists stage times with calendar downloads.
+* 2025-06-21 – Stage 2 scheduling warns if less than 24 hours after Stage 1 closure.
+* 2025-06-21 – Meeting form now pre-fills default stage dates from the AGM date.
+* 2025-06-21 – Confirmation screen links to public results once a meeting is completed.
 * 2025-06-21 – Ballot pages show time remaining with ARIA status announcements.
-* 2025-07-05 – Comment posting now shows a confirmation flash message.
-* 2025-07-01 – Added manual tally entry for in-person meetings with Stage 1 and Stage 2 forms.
-* 2025-07-01 – Added resubscribe links alongside unsubscribe and a route to opt back in.
+* 2025-06-21 – Comment posting now shows a confirmation flash message.
+* 2025-06-21 – Added manual tally entry for in-person meetings with Stage 1 and Stage 2 forms.
+* 2025-06-21 – Added resubscribe links alongside unsubscribe and a route to opt back in.
 * 2025-06-21 – Added "Need help?" link to ballot pages.
-* 2025-07-06 – AGM date field auto-completes stage times based on configured notice and duration settings.
-* 2025-07-07 – Added token-based public API with admin management and docs page.
-* 2025-07-07 – Added meeting cloning option to duplicate motions and amendments.
-* 2025-07-08 – Objection deadlines auto-send board notices and reinstatement emails.
-* 2025-07-08 – Optional public page showing Stage 1 results before Stage 2 opens.
-* 2025-07-08 – Added Stage 2 progress bars and calculation method.
+* 2025-06-21 – AGM date field auto-completes stage times based on configured notice and duration settings.
+* 2025-06-21 – Added token-based public API with admin management and docs page.
+* 2025-06-21 – Added meeting cloning option to duplicate motions and amendments.
+* 2025-06-21 – Objection deadlines auto-send board notices and reinstatement emails.
+* 2025-06-21 – Optional public page showing Stage 1 results before Stage 2 opens.
+* 2025-06-21 – Added Stage 2 progress bars and calculation method.
 * 2025-06-21 – Added admin audit logging of key actions.
-* 2025-07-08 – Public meeting times now show timezone abbreviation.
-* 2025-07-09 – Results summary lists unused proxy tokens with resend and invalidate actions.
-* 2025-07-09 – Public meeting page displays live countdown timers for stage closings.
-* 2025-07-09 – API tokens documented with rate limits and Stage 1 results endpoint.
-* 2025-07-10 – Ballot token page shows scheduled voting times when accessed early.
-* 2025-07-10 – Added PDF export for final results on public results page.
-* 2025-07-10 – Added Stage 2 reminder job and email templates.
-* 2025-07-10 – Added password reset flow with email tokens.
-* 2025-07-11 – Submission links now use member tokens and notify seconders.
+* 2025-06-21 – Public meeting times now show timezone abbreviation.
+* 2025-06-21 – Results summary lists unused proxy tokens with resend and invalidate actions.
+* 2025-06-21 – Public meeting page displays live countdown timers for stage closings.
+* 2025-06-21 – API tokens documented with rate limits and Stage 1 results endpoint.
+* 2025-06-21 – Ballot token page shows scheduled voting times when accessed early.
+* 2025-06-21 – Added PDF export for final results on public results page.
+* 2025-06-21 – Added Stage 2 reminder job and email templates.
+* 2025-06-21 – Added password reset flow with email tokens.
+* 2025-06-21 – Submission links now use member tokens and notify seconders.
 * 2025-06-21 – Rate limited comment posting to 5 per minute.
 * 2025-06-21 – Added public motion/amendment submission forms with email alerts.
-* 2025-07-12 – Added motion/amendment submission windows with automatic invites and approval workflow.
-* * 2025-07-15 – Added meeting file uploads with public links.
-* 2025-07-16 – Expanded help docs with motion and amendment submission steps.
-* 2025-07-17 – Fake data generator now assigns member numbers, uses `.invalid` emails and marks demo records as test-only.
-* 2025-07-17 – Added .dockerignore to reduce Docker build context.
-* 2025-07-19 – RO dashboard now highlights pending tie-break decisions with direct links.
-* 2025-07-18 – Added Stage 2 close button on results summary page.
-* 2025-07-18 – Linked manual email sending page from results summary.
-* 2025-07-19 – Added per-member resend link on results summary.
+* 2025-06-21 – Added motion/amendment submission windows with automatic invites and approval workflow.
+* 2025-06-21 – Added meeting file uploads with public links.
+* 2025-06-21 – Expanded help docs with motion and amendment submission steps.
+* 2025-06-21 – Fake data generator now assigns member numbers, uses `.invalid` emails and marks demo records as test-only.
+* 2025-06-21 – Added .dockerignore to reduce Docker build context.
+* 2025-06-21 – RO dashboard now highlights pending tie-break decisions with direct links.
+* 2025-06-21 – Added Stage 2 close button on results summary page.
+* 2025-06-21 – Linked manual email sending page from results summary.
+* 2025-06-21 – Added per-member resend link on results summary.
 
 
 ---
