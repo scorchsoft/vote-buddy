@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from app import create_app
 from app.extensions import db, scheduler
 from app.models import Meeting, Member, VoteToken
-from app.tasks import register_jobs, send_stage1_reminders
+from app.tasks import register_jobs, send_stage1_reminders, cleanup_vote_tokens
 
 
 def _setup_app():
@@ -22,7 +22,7 @@ def _setup_app():
 def test_register_jobs_adds_interval_job():
     with patch.object(scheduler, 'add_job') as add_job:
         register_jobs()
-        add_job.assert_called_once()
+        assert add_job.call_count == 2
 
 
 def test_send_stage1_reminders_sends_emails():
@@ -44,3 +44,36 @@ def test_send_stage1_reminders_sends_emails():
             send_stage1_reminders()
             assert mock_send.called
             assert meeting.stage1_reminder_sent_at is not None
+
+
+def test_cleanup_vote_tokens_removes_expired_and_used():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        m1 = Meeting(
+            title='M1',
+            closes_at_stage1=now - timedelta(hours=1),
+            closes_at_stage2=now - timedelta(hours=1),
+            runoff_closes_at=now - timedelta(hours=1),
+        )
+        m2 = Meeting(title='M2', closes_at_stage1=now + timedelta(hours=1))
+        db.session.add_all([m1, m2])
+        db.session.flush()
+
+        member1 = Member(meeting_id=m1.id, name='Ann')
+        member2 = Member(meeting_id=m2.id, name='Bob')
+        db.session.add_all([member1, member2])
+        db.session.flush()
+
+        t_used = VoteToken(token=VoteToken._hash('used', app.config['TOKEN_SALT']), member_id=member1.id, stage=1, used_at=now)
+        t_expired1 = VoteToken(token=VoteToken._hash('exp1', app.config['TOKEN_SALT']), member_id=member1.id, stage=1)
+        t_expired2 = VoteToken(token=VoteToken._hash('exp2', app.config['TOKEN_SALT']), member_id=member1.id, stage=2)
+        t_valid = VoteToken(token=VoteToken._hash('valid', app.config['TOKEN_SALT']), member_id=member2.id, stage=1)
+        db.session.add_all([t_used, t_expired1, t_expired2, t_valid])
+        db.session.commit()
+
+        cleanup_vote_tokens()
+        remaining = VoteToken.query.all()
+        assert len(remaining) == 1
+        assert remaining[0].token == t_valid.token
