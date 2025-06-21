@@ -7,6 +7,7 @@
 {% set combined = True %}
 {% set combined_label = 'Combined Ballot' %}
 {% include '_stepper.html' %}
+<p class="text-sm mb-4">Need help? <a href="{{ url_for('help.show_help') }}" class="bp-link">Voting Help</a></p>
 {% if preview %}
 <div class="bp-alert-info text-center mb-4">Preview mode – votes will not be saved.</div>
 {% endif %}

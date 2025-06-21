@@ -757,6 +757,8 @@ def test_stepper_shows_stage1_current():
             assert 'bp-stepper-current" aria-current="step" data-step="1"' in html
             assert 'data-step="2"' in html
             assert 'bp-stepper-complete' not in html
+            assert 'Need help?' in html
+            assert 'href="/help"' in html
 
 
 def test_stepper_shows_stage2_current_and_stage1_complete():
@@ -785,6 +787,8 @@ def test_stepper_shows_stage2_current_and_stage1_complete():
             html = voting.ballot_token(plain)
             assert 'bp-stepper-complete" data-step="1"' in html
             assert 'bp-stepper-current" aria-current="step" data-step="2"' in html
+            assert 'Need help?' in html
+            assert 'href="/help"' in html
 
 
 def test_stepper_combined_ballot_single_label():
@@ -817,6 +821,8 @@ def test_stepper_combined_ballot_single_label():
             assert 'bp-stepper-current' in html
             assert 'data-step="1"' in html
             assert 'Stage 2' not in html
+            assert 'Need help?' in html
+            assert 'href="/help"' in html
 
 
 def test_verify_receipt_found():

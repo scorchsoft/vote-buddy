@@ -5,6 +5,7 @@
 <h1 class="font-bold text-bp-blue mb-4">Stage 2 – Vote on Motion</h1>
 {% set current_stage = 2 %}
 {% include '_stepper.html' %}
+<p class="text-sm mb-4">Need help? <a href="{{ url_for('help.show_help') }}" class="bp-link">Voting Help</a></p>
 {% if carried_summary %}
 <div class="bp-card mb-4">{{ carried_summary|markdown_to_html|safe }}</div>
 {% elif results_link %}
