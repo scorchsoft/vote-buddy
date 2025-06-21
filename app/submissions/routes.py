@@ -50,4 +50,4 @@ def submit_amendment(motion_id: int):
         send_amendment_submission_alert(sub, motion, meeting)
         flash('Amendment submitted for review', 'success')
         return redirect(url_for('meetings.view_motion', motion_id=motion.id))
-    return render_template('submissions/amendment_form.html', form=form, motion=motion)
+    return render_template('submissions/amendment_form.html', form=form, motion=motion, meeting=meeting)

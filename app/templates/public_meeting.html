@@ -44,6 +44,19 @@
   </span>
 </div>
 {% endif %}
+{% if files %}
+<div class="mb-4">
+  <h2 class="font-semibold mb-2">Documents</h2>
+  <ul class="list-disc pl-5">
+  {% for f in files %}
+    <li class="mb-1">
+      <a href="{{ url_for('main.public_meeting_file', meeting_id=meeting.id, file_id=f.id) }}" class="text-bp-blue hover:underline">{{ f.title }}</a>
+      {% if f.description %}<p class="text-sm text-bp-grey-700">{{ f.description }}</p>{% endif %}
+    </li>
+  {% endfor %}
+  </ul>
+</div>
+{% endif %}
 <button class="bp-btn-secondary mb-4" data-modal-target="resend-modal">Resend Voting Email</button>
 <dialog id="resend-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="resend-title">
   <h2 id="resend-title" class="font-bold mb-2">Request Voting Email</h2>

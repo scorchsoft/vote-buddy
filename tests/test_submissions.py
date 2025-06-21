@@ -20,11 +20,13 @@ def test_submit_pages_load():
         meeting = Meeting(title='T')
         db.session.add(meeting)
         db.session.flush()
-        motion = Motion(meeting_id=meeting.id, title='M', text_md='t', category='motion', threshold='normal', ordering=1)
+        meeting_id = meeting.id
+        motion = Motion(meeting_id=meeting_id, title='M', text_md='t', category='motion', threshold='normal', ordering=1)
         db.session.add(motion)
         db.session.commit()
+        motion_id = motion.id
     client = app.test_client()
-    resp = client.get(f'/submit/motion/{meeting.id}')
+    resp = client.get(f'/submit/motion/{meeting_id}')
     assert resp.status_code == 200
-    resp = client.get(f'/submit/amendment/{motion.id}')
+    resp = client.get(f'/submit/amendment/{motion_id}')
     assert resp.status_code == 200

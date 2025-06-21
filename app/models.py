@@ -107,6 +107,10 @@ class Meeting(db.Model):
     stage2_manual_against = db.Column(db.Integer, default=0)
     stage2_manual_abstain = db.Column(db.Integer, default=0)
 
+    files = db.relationship(
+        "MeetingFile", backref="meeting", cascade="all, delete-orphan"
+    )
+
     def stage1_votes_count(self) -> int:
         """Return number of verified Stage-1 votes."""
         if self.ballot_mode == "in-person":
@@ -520,3 +524,13 @@ class AmendmentSubmission(db.Model):
     email = db.Column(db.String(255))
     text_md = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class MeetingFile(db.Model):
+    __tablename__ = "meeting_files"
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    filename = db.Column(db.String(255))
+    title = db.Column(db.String(255))
+    description = db.Column(db.Text)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)

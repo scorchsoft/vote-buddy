@@ -18,10 +18,12 @@ from app.models import (
     Member,
     Motion,
     Amendment,
+    MeetingFile,
     Vote,
 )
 import io
 from app.meetings import routes as meetings
+from app import routes as main
 from docx import Document
 from app.meetings.forms import MeetingForm
 from types import SimpleNamespace
@@ -606,6 +608,35 @@ def test_stage_ics_downloads_with_headers():
                 assert resp2.mimetype == "text/calendar"
                 cd2 = resp2.headers["Content-Disposition"]
                 assert "stage2.ics" in cd2
+
+
+def test_meeting_files_upload_and_public_view(tmp_path):
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["WTF_CSRF_ENABLED"] = False
+    app.config["UPLOAD_FOLDER"] = str(tmp_path)
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.commit()
+        user = _make_user(True)
+        data = {
+            "file": (io.BytesIO(b"%PDF-1.4"), "test.pdf"),
+            "title": "Agenda",
+            "description": "AGM agenda",
+        }
+        with app.test_request_context(
+            f"/meetings/{meeting.id}/files", method="POST", data=data
+        ):
+            with patch("flask_login.utils._get_user", return_value=user):
+                resp = meetings.meeting_files(meeting.id)
+                assert resp.status_code == 302
+                assert MeetingFile.query.count() == 1
+
+        with app.test_request_context(f"/public/meetings/{meeting.id}"):
+            html = main.public_meeting_detail(meeting.id)
+            assert "Agenda" in html
 
 
 def test_stage_ics_missing_timestamps_redirects():
