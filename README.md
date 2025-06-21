@@ -20,6 +20,7 @@ VoteBuddy aims to apply principles from UK Parliamentary Proceedure as well as "
 - iCalendar downloads for Stage 1 and Stage 2 voting windows
 - Results exports to CSV and DOCX plus audit logs
 - Clone meetings to duplicate motions and amendments
+- Token-based forms for submitting motions and amendments with coordinator review
 - Optional unsubscribe tokens for members
 - Built in Python (Flask)
 

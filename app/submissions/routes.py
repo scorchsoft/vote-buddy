@@ -17,7 +17,7 @@ from ..services.email import (
 )
 from . import bp
 from .forms import MotionSubmissionForm, AmendmentSubmissionForm
-from ..auth.routes import permission_required
+from ..permissions import permission_required
 from flask_login import login_required
 
 
