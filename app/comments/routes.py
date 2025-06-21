@@ -16,6 +16,7 @@ from ..models import (
     Motion,
     Amendment,
     Comment,
+    CommentRevision,
 )
 from ..extensions import db
 from ..utils import markdown_to_html
@@ -34,6 +35,11 @@ def _verify_token(token: str) -> tuple[Member, Meeting]:
         abort(403)
     g.member_id = member.id
     return member, meeting
+
+
+def _editing_allowed(comment: Comment, meeting: Meeting) -> bool:
+    minutes = current_app.config.get("COMMENT_EDIT_MINUTES", 15)
+    return comment.can_edit(meeting, minutes)
 
 
 @bp.get("/<token>/motion/<int:motion_id>")
@@ -55,6 +61,7 @@ def motion_comments(token: str, motion_id: int):
         pagination=pagination,
         token=token,
         target=("motion", motion.id),
+        meeting=meeting,
     )
 
 
@@ -98,6 +105,7 @@ def amendment_comments(token: str, amendment_id: int):
         pagination=pagination,
         token=token,
         target=("amendment", amendment.id),
+        meeting=meeting,
     )
 
 
@@ -150,3 +158,43 @@ def toggle_member_commenting(member_id: int):
     member.can_comment = not member.can_comment
     db.session.commit()
     return redirect(request.referrer or url_for("meetings.list_meetings"))
+
+
+@bp.get("/<token>/edit/<int:comment_id>")
+def edit_comment_form(token: str, comment_id: int):
+    member, meeting = _verify_token(token)
+    comment = db.session.get(Comment, comment_id)
+    if not comment or comment.member_id != member.id:
+        abort(404)
+    if not _editing_allowed(comment, meeting):
+        abort(403)
+    target = ("motion", comment.motion_id) if comment.motion_id else ("amendment", comment.amendment_id)
+    return render_template(
+        "comments/edit_comment.html",
+        comment=comment,
+        token=token,
+        target=target,
+    )
+
+
+@bp.post("/<token>/edit/<int:comment_id>")
+def edit_comment(token: str, comment_id: int):
+    member, meeting = _verify_token(token)
+    comment = db.session.get(Comment, comment_id)
+    if not comment or comment.member_id != member.id:
+        abort(404)
+    if not _editing_allowed(comment, meeting):
+        abort(403)
+    text = request.form.get("text", "").strip()
+    if text and text != comment.text_md:
+        rev = CommentRevision(comment_id=comment.id, text_md=comment.text_md, edited_at=datetime.utcnow())
+        db.session.add(rev)
+        comment.text_md = text
+        comment.edited_at = datetime.utcnow()
+        db.session.commit()
+        flash("Comment updated", "success")
+    target = ("motion", comment.motion_id) if comment.motion_id else ("amendment", comment.amendment_id)
+    if target[0] == "motion":
+        return redirect(url_for("comments.motion_comments", token=token, motion_id=target[1]))
+    else:
+        return redirect(url_for("comments.amendment_comments", token=token, amendment_id=target[1]))

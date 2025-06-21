@@ -36,6 +36,7 @@ class Config:
     RATELIMIT_DEFAULT = os.getenv("RATELIMIT_DEFAULT", "1000 per day")
     RATELIMIT_STORAGE_URL = os.getenv("RATELIMIT_STORAGE_URL", "memory://")
     COMMENTS_PER_PAGE = int(os.getenv("COMMENTS_PER_PAGE", "10"))
+    COMMENT_EDIT_MINUTES = int(os.getenv("COMMENT_EDIT_MINUTES", "15"))
 
 
 class DevelopmentConfig(Config):
