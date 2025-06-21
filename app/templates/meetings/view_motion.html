@@ -4,6 +4,9 @@
 <div class="bp-card bp-glow mb-4">{{ (motion.text_md or 'No motion text.')|markdown_to_html|safe }}</div>
 <h3 class="font-bold mb-2">Amendments</h3>
 <a href="{{ url_for('meetings.manage_conflicts', motion_id=motion.id) }}" class="bp-btn-secondary mb-4 inline-block">Manage Conflicts</a>
+{% if token %}
+<a href="{{ url_for('submissions.submit_amendment', token=token, motion_id=motion.id) }}" class="bp-btn-primary mb-4 inline-block">Submit Amendment</a>
+{% endif %}
 {% for amend in amendments %}
   <div class="bp-card mb-2">
     <p class="font-semibold mb-1">

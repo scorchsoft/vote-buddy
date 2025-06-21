@@ -31,13 +31,12 @@ Before the notice deadline you can propose new motions or submit amendments to
 published motions.
 
 1. When the submission window opens you'll receive a special **Submit Motion**
-   link by email. Follow it to fill out a short form with your motion title,
-   text and chosen seconder.
-2. After submitting you'll see a confirmation message while coordinators review
+   link by email. This link includes a personal token authorising submissions.
+2. Keep that email handy&mdash;the same token lets you submit amendments. Open
+   the motion you wish to change and click **Submit Amendment** to access the
+   form.
+3. After submitting you'll see a confirmation message while coordinators review
    your proposal.
-3. To change an existing motion, open it on the meeting page and click
-   **Submit Amendment**. Enter your wording and seconder just like the motion
-   form. You'll get an email once your amendment is accepted or rejected.
 
 ## Manual tally entry
 

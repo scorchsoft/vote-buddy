@@ -549,11 +549,17 @@ def view_motion(motion_id):
         .filter(Amendment.motion_id == motion.id)
         .all()
     )
+    token = request.args.get("token")
+    if token:
+        token_obj = SubmissionToken.verify(token, current_app.config["TOKEN_SALT"])
+        if not token_obj or token_obj.meeting_id != motion.meeting_id:
+            token = None
     return render_template(
         "meetings/view_motion.html",
         motion=motion,
         amendments=amendments,
         conflicts=conflicts,
+        token=token,
     )
 
 
