@@ -174,6 +174,17 @@ class Meeting(db.Model):
         percent = max(0.0, min(100.0, (elapsed / total) * 100))
         return int(percent)
 
+    def stage2_progress_percent(self) -> int:
+        """Return percentage of Stage-2 voting period elapsed."""
+        if not self.opens_at_stage2 or not self.closes_at_stage2:
+            return 0
+        total = (self.closes_at_stage2 - self.opens_at_stage2).total_seconds()
+        if total <= 0:
+            return 0
+        elapsed = (datetime.utcnow() - self.opens_at_stage2).total_seconds()
+        percent = max(0.0, min(100.0, (elapsed / total) * 100))
+        return int(percent)
+
 
 class Member(db.Model):
     __tablename__ = "members"

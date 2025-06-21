@@ -25,6 +25,13 @@
   {{ meeting.closes_at_stage2.strftime('%Y-%m-%d %H:%M') }}
   <a href="{{ stage2_ics_url }}" class="text-bp-blue hover:underline ml-2">Add to calendar</a>
 </p>
+<div class="mb-6">
+  <div class="bp-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ meeting.stage2_progress_percent() }}">
+    <div class="bp-progress-bar" style="width: {{ meeting.stage2_progress_percent() }}%"></div>
+    <span class="sr-only">{{ meeting.stage2_progress_percent() }}% complete</span>
+  </div>
+  <span class="text-xs text-bp-grey-600 mt-1">{{ meeting.stage2_progress_percent() }}% of Stage 2 voting window elapsed</span>
+</div>
 {% endif %}
 <button class="bp-btn-secondary mb-4" data-modal-target="resend-modal">Resend Voting Email</button>
 <dialog id="resend-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="resend-title">
