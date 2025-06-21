@@ -35,7 +35,9 @@ This open-source licence applies **only** to the contents of this repository. It
 
 ## Contributor Agreement
 
-If you'd like to contribute code, bug fixes, or features, you’ll need to agree to our [Contributor Licence Agreement (CLA)](CLA.md), which allows us to dual-license contributions in the future to support commercial use-cases.
+If you'd like to contribute code, bug fixes, or features, you’ll need to agree to our
+[Contributor Licence Agreement (CLA)](./CLA.md), which allows us to dual-license
+contributions under the Apache 2.0 terms.
 
 ---
 
