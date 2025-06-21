@@ -49,6 +49,7 @@ from .forms import (
     ObjectionForm,
     ManualEmailForm,
     ExtendStageForm,
+    MotionChangeRequestForm,
 )
 from ..voting.routes import (
     compile_motion_text,
@@ -114,6 +115,31 @@ def _styled_doc(title: str, include_logo: bool) -> Document:
     return doc
 
 
+def _calculate_default_times(agm_date: datetime) -> dict:
+    """Return default timeline values relative to the AGM date."""
+    cfg = current_app.config
+    opens_at_stage2 = agm_date - timedelta(days=cfg.get("STAGE2_LENGTH_DAYS", 5))
+    closes_at_stage1 = opens_at_stage2 - timedelta(days=cfg.get("STAGE_GAP_DAYS", 1))
+    opens_at_stage1 = closes_at_stage1 - timedelta(days=cfg.get("STAGE1_LENGTH_DAYS", 7))
+    notice_date = opens_at_stage1 - timedelta(days=cfg.get("NOTICE_PERIOD_DAYS", 14))
+    return {
+        "notice_date": notice_date,
+        "opens_at_stage1": opens_at_stage1,
+        "closes_at_stage1": closes_at_stage1,
+        "opens_at_stage2": opens_at_stage2,
+        "closes_at_stage2": agm_date,
+    }
+
+
+def _prefill_form_defaults(form: MeetingForm) -> None:
+    """Set form defaults based on AGM date if fields are empty."""
+    if form.closes_at_stage2.data:
+        defaults = _calculate_default_times(form.closes_at_stage2.data)
+        for field, value in defaults.items():
+            if getattr(form, field).data is None:
+                getattr(form, field).data = value
+
+
 @bp.route("/")
 @login_required
 @permission_required("manage_meetings")
@@ -165,7 +191,7 @@ def _save_meeting(form: MeetingForm, meeting: Meeting | None = None) -> Meeting:
     """Populate Meeting from form and save."""
     if meeting is None:
         meeting = Meeting()
-
+    _prefill_form_defaults(form)
     form.populate_obj(meeting)
     db.session.add(meeting)
     db.session.commit()
@@ -195,6 +221,8 @@ def create_meeting():
     form.closes_at_stage2.description = (
         "Final voting deadline; at least 5 days after Stage 2 opens."
     )
+    if request.method == "GET":
+        _prefill_form_defaults(form)
     if form.validate_on_submit():
         _save_meeting(form)
         return redirect(url_for("meetings.list_meetings"))
@@ -221,6 +249,8 @@ def edit_meeting(meeting_id):
     form.closes_at_stage2.description = (
         "Final voting deadline; at least 5 days after Stage 2 opens."
     )
+    if request.method == "GET":
+        _prefill_form_defaults(form)
     if form.validate_on_submit():
         _save_meeting(form, meeting)
         return redirect(url_for("meetings.list_meetings"))
@@ -281,12 +311,13 @@ def import_members(meeting_id):
             )
             db.session.add(member)
             db.session.flush()
-            token_obj, plain = VoteToken.create(
-                member_id=member.id,
-                stage=1,
-                salt=current_app.config["TOKEN_SALT"],
-            )
-            tokens_to_send.append((member, plain))
+            if meeting.ballot_mode != "in-person":
+                token_obj, plain = VoteToken.create(
+                    member_id=member.id,
+                    stage=1,
+                    salt=current_app.config["TOKEN_SALT"],
+                )
+                tokens_to_send.append((member, plain))
 
         db.session.commit()
         if AppSetting.get("manual_email_mode") != "1":
@@ -388,6 +419,74 @@ def view_motion(motion_id):
         amendments=amendments,
         conflicts=conflicts,
     )
+
+
+@bp.route("/motions/<int:motion_id>/request-change", methods=["GET", "POST"])
+@login_required
+def request_motion_change(motion_id: int):
+    """Allow a user to request withdrawal or major edit of a motion."""
+    motion = db.session.get(Motion, motion_id)
+    if motion is None:
+        abort(404)
+    meeting = db.session.get(Meeting, motion.meeting_id)
+    if meeting is None:
+        abort(404)
+    if meeting.opens_at_stage1 and datetime.utcnow() > meeting.opens_at_stage1 - timedelta(days=7):
+        flash("Change requests must be made at least 7 days before Stage 1 opens.", "error")
+        return redirect(url_for("meetings.view_motion", motion_id=motion.id))
+    form = MotionChangeRequestForm()
+    if request.method == "GET":
+        form.text_md.data = motion.text_md
+    if form.validate_on_submit():
+        if form.text_md.data and form.text_md.data != motion.text_md:
+            motion.text_md = form.text_md.data
+            motion.modified_at = datetime.utcnow()
+            motion.withdrawal_requested_at = datetime.utcnow()
+        if form.withdraw.data:
+            motion.withdrawal_requested_at = datetime.utcnow()
+        db.session.commit()
+        flash("Request submitted", "success")
+        return redirect(url_for("meetings.view_motion", motion_id=motion.id))
+    return render_template("meetings/motion_change_form.html", form=form, motion=motion)
+
+
+@bp.route("/motions/<int:motion_id>/approve-change/<actor>", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def approve_motion_change(motion_id: int, actor: str):
+    """Approve a withdrawal/edit request as chair or board."""
+    motion = db.session.get(Motion, motion_id)
+    if motion is None:
+        abort(404)
+    now = datetime.utcnow()
+    if actor == "chair":
+        motion.chair_approved_at = now
+    elif actor == "board":
+        motion.board_approved_at = now
+    else:
+        abort(404)
+    if motion.chair_approved_at and motion.board_approved_at:
+        if motion.withdrawal_requested_at:
+            motion.withdrawn = True
+    db.session.commit()
+    flash("Request approved", "success")
+    return redirect(url_for("meetings.view_motion", motion_id=motion.id))
+
+
+@bp.route("/motions/<int:motion_id>/reject-change", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def reject_motion_change(motion_id: int):
+    """Reject a withdrawal/edit request."""
+    motion = db.session.get(Motion, motion_id)
+    if motion is None:
+        abort(404)
+    motion.withdrawal_requested_at = None
+    motion.chair_approved_at = None
+    motion.board_approved_at = None
+    db.session.commit()
+    flash("Request rejected", "success")
+    return redirect(url_for("meetings.view_motion", motion_id=motion.id))
 
 
 @bp.route("/motions/<int:motion_id>/amendments/add", methods=["GET", "POST"])
@@ -805,7 +904,7 @@ def _merge_form(motions: list[Motion]) -> FlaskForm:
 def close_stage1(meeting_id: int):
     """Close Stage 1 and handle run-offs or open Stage 2."""
     meeting = db.session.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
 
     meeting.stage1_closed_at = datetime.utcnow()
@@ -835,12 +934,13 @@ def close_stage1(meeting_id: int):
     # if no amendments were proposed, skip Stage 1 entirely
     if Amendment.query.filter_by(meeting_id=meeting.id).count() == 0:
         members = Member.query.filter_by(meeting_id=meeting.id).all()
-        for member in members:
-            VoteToken.create(
-                member_id=member.id,
-                stage=2,
-                salt=current_app.config["TOKEN_SALT"],
-            )
+        if meeting.ballot_mode != "in-person":
+            for member in members:
+                VoteToken.create(
+                    member_id=member.id,
+                    stage=2,
+                    salt=current_app.config["TOKEN_SALT"],
+                )
         meeting.status = "Pending Stage 2"
         db.session.commit()
         if meeting.opens_at_stage2 and meeting.stage1_closed_at:
@@ -899,7 +999,7 @@ def results_summary(meeting_id: int):
 @permission_required("manage_meetings")
 def manual_send_emails(meeting_id: int):
     meeting = db.session.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
     form = ManualEmailForm()
     members = Member.query.filter_by(meeting_id=meeting.id, is_test=False).order_by(Member.name).all()
@@ -982,6 +1082,56 @@ def extend_stage(meeting_id: int, stage: int):
         form=form,
         meeting=meeting,
         stage=stage,
+    )
+
+
+@bp.route("/<int:meeting_id>/stage1-tally", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def stage1_tally(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None or meeting.ballot_mode != "in-person":
+        abort(404)
+    form = Stage1TallyForm()
+    if request.method == "GET":
+        form.votes_cast.data = meeting.stage1_manual_votes
+    if form.validate_on_submit():
+        meeting.stage1_manual_votes = form.votes_cast.data or 0
+        meeting.status = "Pending Stage 2"
+        db.session.commit()
+        flash("Stage 1 tally saved", "success")
+        return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+    return render_template(
+        "meetings/stage1_tally_form.html",
+        form=form,
+        meeting=meeting,
+    )
+
+
+@bp.route("/<int:meeting_id>/stage2-tally", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def stage2_tally(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None or meeting.ballot_mode != "in-person":
+        abort(404)
+    form = Stage2TallyForm()
+    if request.method == "GET":
+        form.for_votes.data = meeting.stage2_manual_for
+        form.against_votes.data = meeting.stage2_manual_against
+        form.abstain_votes.data = meeting.stage2_manual_abstain
+    if form.validate_on_submit():
+        meeting.stage2_manual_for = form.for_votes.data or 0
+        meeting.stage2_manual_against = form.against_votes.data or 0
+        meeting.stage2_manual_abstain = form.abstain_votes.data or 0
+        meeting.status = "Completed"
+        db.session.commit()
+        flash("Stage 2 tally saved", "success")
+        return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+    return render_template(
+        "meetings/stage2_tally_form.html",
+        form=form,
+        meeting=meeting,
     )
 
 
@@ -1124,7 +1274,7 @@ def results_docx(meeting_id: int):
 def prepare_stage2(meeting_id: int):
     """Allow a human to merge amendments into final motion text."""
     meeting = db.session.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
     if meeting.opens_at_stage2 and meeting.stage1_closed_at:
         if meeting.opens_at_stage2 - meeting.stage1_closed_at < timedelta(hours=24):
@@ -1173,18 +1323,23 @@ def prepare_stage2(meeting_id: int):
 
 
 @bp.route("/<int:meeting_id>/results-stage2.docx")
-@login_required
-@permission_required("manage_meetings")
 def results_stage2_docx(meeting_id: int):
     """Download DOCX summarising carried amendments and final motion results."""
     meeting = db.session.get(Meeting, meeting_id)
     if meeting is None:
+        abort(404)
+    if not meeting.public_results or not meeting.results_doc_published:
         abort(404)
     amend_results = _amendment_results(meeting)
     motion_results = _motion_results(meeting)
 
     include_logo = request.args.get("logo") == "1"
     doc = _styled_doc(f"{meeting.title} - Final Results", include_logo)
+    para = doc.add_paragraph(
+        "This document is a draft summary. The organisation reserves the right to issue a final official version." )
+    para.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    if meeting.results_doc_intro_md:
+        doc.add_paragraph(meeting.results_doc_intro_md)
 
     doc.add_heading("Carried Amendments", level=2)
     carried = [a for a, c in amend_results if c.get("for", 0) > c.get("against", 0)]
@@ -1295,7 +1450,7 @@ def close_runoff(meeting_id: int):
 def close_stage2(meeting_id: int):
     """Finalize Stage 2 results and record motion outcomes."""
     meeting = db.session.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
     motion_results = _motion_results(meeting)
 
@@ -1331,7 +1486,7 @@ def close_stage2(meeting_id: int):
 def resend_member_link(meeting_id: int, member_id: int):
     """Generate a new voting token for the current stage and email it."""
     meeting = db.session.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
     member = Member.query.filter_by(id=member_id, meeting_id=meeting.id).first_or_404()
 

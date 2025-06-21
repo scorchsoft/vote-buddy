@@ -54,6 +54,18 @@ def toggle_public_results(meeting_id: int):
     return redirect(url_for("admin.dashboard"))
 
 
+@bp.route("/meetings/<int:meeting_id>/toggle-doc", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def toggle_results_doc(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    meeting.results_doc_published = not meeting.results_doc_published
+    db.session.commit()
+    return redirect(url_for("admin.dashboard"))
+
+
 @bp.route("/objections")
 @login_required
 @permission_required("manage_meetings")

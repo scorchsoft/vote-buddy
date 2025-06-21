@@ -990,3 +990,35 @@ def test_second_submission_overwrites_first_when_revoting_allowed():
         assert len(votes) == 1
         assert votes[0].choice == "against"
 
+
+def test_confirmation_links_to_public_results_after_stage2():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", public_results=True, status="Completed")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        member = Member(meeting_id=meeting.id, name="Alice", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=2, salt=app.config["TOKEN_SALT"])
+        db.session.commit()
+
+        with patch("app.voting.routes.send_vote_receipt"):
+            with app.test_request_context(
+                f"/vote/{plain}", method="POST", data={f"motion_{motion.id}": "for"}
+            ):
+                html = voting.ballot_token(plain)
+
+        assert f"href=\"/results/{meeting.id}\"" in html
+        assert "View results" in html
+

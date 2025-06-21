@@ -98,9 +98,17 @@ class Meeting(db.Model):
     public_results = db.Column(db.Boolean, default=False)
     comments_enabled = db.Column(db.Boolean, default=False)
     extension_reason = db.Column(db.Text)
+    results_doc_published = db.Column(db.Boolean, default=False)
+    results_doc_intro_md = db.Column(db.Text)
+    stage1_manual_votes = db.Column(db.Integer, default=0)
+    stage2_manual_for = db.Column(db.Integer, default=0)
+    stage2_manual_against = db.Column(db.Integer, default=0)
+    stage2_manual_abstain = db.Column(db.Integer, default=0)
 
     def stage1_votes_count(self) -> int:
         """Return number of verified Stage-1 votes."""
+        if self.ballot_mode == "in-person":
+            return self.stage1_manual_votes or 0
         return (
             VoteToken.query.join(Member, VoteToken.member_id == Member.id)
             .filter(
@@ -144,6 +152,17 @@ class Meeting(db.Model):
         minutes = rem // 60
         return f"{hours}h {minutes}m"
 
+    def stage2_time_remaining(self) -> str:
+        """Return human-friendly countdown until Stage-2 closes."""
+        if not self.closes_at_stage2:
+            return "N/A"
+        delta = self.closes_at_stage2 - datetime.utcnow()
+        if delta.total_seconds() <= 0:
+            return "Closed"
+        hours, rem = divmod(int(delta.total_seconds()), 3600)
+        minutes = rem // 60
+        return f"{hours}h {minutes}m"
+
     def stage1_progress_percent(self) -> int:
         """Return percentage of Stage-1 voting period elapsed."""
         if not self.opens_at_stage1 or not self.closes_at_stage1:
@@ -167,6 +186,7 @@ class Member(db.Model):
     email_opt_out = db.Column(db.Boolean, default=False)
     can_comment = db.Column(db.Boolean, default=True)
     is_test = db.Column(db.Boolean, default=False)
+    comments = db.relationship("Comment", backref="member")
 
 
 class Motion(db.Model):
@@ -180,6 +200,11 @@ class Motion(db.Model):
     threshold = db.Column(db.String(20))
     ordering = db.Column(db.Integer)
     status = db.Column(db.String(50))
+    withdrawn = db.Column(db.Boolean, default=False)
+    modified_at = db.Column(db.DateTime)
+    withdrawal_requested_at = db.Column(db.DateTime)
+    chair_approved_at = db.Column(db.DateTime)
+    board_approved_at = db.Column(db.DateTime)
     options = db.relationship("MotionOption", backref="motion")
 
 
