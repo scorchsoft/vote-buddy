@@ -10,5 +10,8 @@ Use the link below to cast your ballot:
 
 An iCalendar file with the voting window is attached for your diary.
 
+Submit an objection to a rejected amendment:
+{{ objection_link }}
+
 If you did not expect this email you can ignore it.
 To stop these emails, visit {{ unsubscribe_url }}

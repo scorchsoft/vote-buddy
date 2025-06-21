@@ -16,6 +16,11 @@
     <datalist id="member-options"></datalist>
     {{ form.member_id(id='member_id') }}
   </div>
+  <div>
+    <label for="email" class="block font-semibold">{{ form.email.label.text }}</label>
+    {{ form.email(id='email', class='border p-2 rounded w-full') }}
+  </div>
+  <p class="text-bp-grey-700 text-sm">You will receive an email with a confirmation link. Your objection only counts once confirmed.</p>
   <button type="submit" class="bp-btn-primary">Submit</button>
 </form>
 <script src="{{ url_for('static', filename='js/objection_form.js') }}"></script>

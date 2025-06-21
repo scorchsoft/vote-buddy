@@ -3,7 +3,15 @@ from flask_mail import Message
 from ..utils import config_or_setting, generate_stage_ics, carried_amendment_summary
 
 from ..extensions import mail, db
-from ..models import Member, Meeting, UnsubscribeToken, AppSetting, EmailLog
+from ..models import (
+    Member,
+    Meeting,
+    UnsubscribeToken,
+    AppSetting,
+    EmailLog,
+    Amendment,
+    AmendmentObjection,
+)
 from uuid6 import uuid7
 from sqlalchemy import func
 from docx import Document
@@ -50,8 +58,9 @@ def send_vote_invite(member: Member, token: str, meeting: Meeting, *, test_mode:
         recipients=[member.email],
         sender=_sender(),
     )
-    msg.body = render_template('email/invite.txt', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, test_mode=test_mode)
-    msg.html = render_template('email/invite.html', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, test_mode=test_mode)
+    objection_link = url_for('main.public_meeting_detail', meeting_id=meeting.id, _external=True)
+    msg.body = render_template('email/invite.txt', member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, test_mode=test_mode)
+    msg.html = render_template('email/invite.html', member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, test_mode=test_mode)
     try:
         ics = generate_stage_ics(meeting, 1)
     except Exception:
@@ -133,12 +142,14 @@ def send_stage1_reminder(member: Member, token: str, meeting: Meeting, *, test_m
         recipients=[member.email],
         sender=_sender(),
     )
-    msg.body = render_template(f"{template_base}.txt", member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, test_mode=test_mode)
+    objection_link = url_for('main.public_meeting_detail', meeting_id=meeting.id, _external=True)
+    msg.body = render_template(f"{template_base}.txt", member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, test_mode=test_mode)
     msg.html = render_template(
         f"{template_base}.html",
         member=member,
         meeting=meeting,
         link=link,
+        objection_link=objection_link,
         unsubscribe_url=unsubscribe,
         test_mode=test_mode,
     )
@@ -362,4 +373,16 @@ def send_final_results(member: Member, meeting: Meeting, *, test_mode: bool = Fa
         )
     mail.send(msg)
     _log_email(member, meeting, 'final_results', test_mode)
+
+
+def send_objection_confirmation(obj: AmendmentObjection, amendment: Amendment, meeting: Meeting, *, test_mode: bool = False) -> None:
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + "Confirm your objection",
+        recipients=[obj.email],
+        sender=_sender(),
+    )
+    link = url_for('meetings.confirm_objection', token=obj.token, _external=True)
+    msg.body = render_template('email/objection_confirm.txt', link=link)
+    msg.html = render_template('email/objection_confirm.html', link=link)
+    mail.send(msg)
 
