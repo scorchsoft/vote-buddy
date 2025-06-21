@@ -276,6 +276,7 @@ def clone_meeting(meeting_id: int):
         "chair_notes_md",
         "quorum",
         "public_results",
+        "early_public_results",
         "comments_enabled",
         "extension_reason",
         "results_doc_published",

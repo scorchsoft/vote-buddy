@@ -125,7 +125,13 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting, *, test_mod
     unsubscribe = _unsubscribe_url(member)
     resubscribe = _resubscribe_url(member)
     summary = carried_amendment_summary(meeting)
-    results_link = None if summary else url_for('main.public_results', meeting_id=meeting.id, _external=True)
+    if summary:
+        results_link = None
+    else:
+        if meeting.early_public_results:
+            results_link = url_for('main.public_stage1_results', meeting_id=meeting.id, _external=True)
+        else:
+            results_link = url_for('main.public_results', meeting_id=meeting.id, _external=True)
     msg = Message(
         subject=("[TEST] " if test_mode else "") + f"Stage 2 voting open for {meeting.title}",
         recipients=[member.email],
