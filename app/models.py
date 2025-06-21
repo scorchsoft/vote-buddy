@@ -268,6 +268,35 @@ class VoteToken(db.Model):
         return cls.query.filter_by(token=hashed).first()
 
 
+class SubmissionToken(db.Model):
+    """Token used for motion and amendment submissions."""
+
+    __tablename__ = "submission_tokens"
+
+    token = db.Column(db.String(64), primary_key=True)
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    used_at = db.Column(db.DateTime)
+
+    @staticmethod
+    def _hash(token: str, salt: str) -> str:
+        return hashlib.sha256(f"{token}{salt}".encode()).hexdigest()
+
+    @classmethod
+    def create(cls, member_id: int, meeting_id: int, salt: str) -> tuple["SubmissionToken", str]:
+        """Create token, store hash and return plain value."""
+        plain = str(uuid7())
+        hashed = cls._hash(plain, salt)
+        obj = cls(token=hashed, member_id=member_id, meeting_id=meeting_id)
+        db.session.add(obj)
+        return obj, plain
+
+    @classmethod
+    def verify(cls, token: str, salt: str) -> "SubmissionToken | None":
+        hashed = cls._hash(token, salt)
+        return cls.query.filter_by(token=hashed).first()
+
+
 class UnsubscribeToken(db.Model):
     __tablename__ = "unsubscribe_tokens"
     token = db.Column(db.String(36), primary_key=True)
@@ -506,8 +535,10 @@ class MotionSubmission(db.Model):
     __tablename__ = "motion_submissions"
     id = db.Column(db.Integer, primary_key=True)
     meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
+    seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     title = db.Column(db.String(255))
     text_md = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -516,7 +547,9 @@ class AmendmentSubmission(db.Model):
     __tablename__ = "amendment_submissions"
     id = db.Column(db.Integer, primary_key=True)
     motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
+    seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     text_md = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
