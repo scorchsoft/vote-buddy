@@ -190,3 +190,7 @@ Refer to these files for detail on features, design and governance context.
 ## Contributing
 
 Pull requests are welcome. Please include updates to migrations or documentation where relevant.
+
+## License
+
+This project is released under the [Apache 2.0](LICENCE.md) license.
