@@ -4,8 +4,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app import create_app
 from app.extensions import db
-from app.models import Meeting, Member, Motion, VoteToken, Comment
+from app.models import Meeting, Member, Motion, VoteToken, Comment, CommentRevision
 from app.comments import routes as comments
+from datetime import datetime, timedelta
 
 
 def _setup_app():
@@ -127,3 +128,81 @@ def test_toggle_member_commenting_flips_flag():
             comments.toggle_member_commenting.__wrapped__.__wrapped__(member.id)
         db.session.refresh(member)
         assert member.can_comment is False
+
+
+def _create_comment(app):
+    db.create_all()
+    meeting = Meeting(title="AGM", comments_enabled=True)
+    db.session.add(meeting)
+    db.session.flush()
+    member = Member(meeting_id=meeting.id, name="A", email="a@example.com")
+    db.session.add(member)
+    motion = Motion(
+        meeting_id=meeting.id,
+        title="M1",
+        text_md="text",
+        category="motion",
+        threshold="normal",
+        ordering=1,
+    )
+    db.session.add(motion)
+    db.session.commit()
+    token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt="salty")
+    db.session.commit()
+    with app.test_request_context(
+        f"/comments/{plain}/motion/{motion.id}", method="POST", data={"text": "Hi"}
+    ):
+        comments.add_motion_comment(plain, motion.id)
+    comment = Comment.query.first()
+    return comment, plain, meeting
+
+
+def test_edit_comment_updates_text_and_sets_flag():
+    app = _setup_app()
+    with app.app_context():
+        comment, token, meeting = _create_comment(app)
+        with app.test_request_context(
+            f"/comments/{token}/edit/{comment.id}", method="POST", data={"text": "Bye"}
+        ):
+            comments.edit_comment(token, comment.id)
+        db.session.refresh(comment)
+        assert comment.text_md == "Bye"
+        assert comment.edited_at is not None
+        assert CommentRevision.query.count() == 1
+
+
+def test_edit_comment_denied_when_not_owner():
+    app = _setup_app()
+    with app.app_context():
+        comment, token, meeting = _create_comment(app)
+        other = Member(meeting_id=meeting.id, name="B")
+        db.session.add(other)
+        db.session.commit()
+        other_token, p2 = VoteToken.create(member_id=other.id, stage=1, salt="salty")
+        db.session.commit()
+        with app.test_request_context(
+            f"/comments/{p2}/edit/{comment.id}", method="POST", data={"text": "No"}
+        ):
+            try:
+                comments.edit_comment(p2, comment.id)
+            except Exception as e:
+                assert e.code == 404
+            else:
+                assert False, "expected 404"
+
+
+def test_edit_comment_denied_after_window():
+    app = _setup_app()
+    with app.app_context():
+        comment, token, meeting = _create_comment(app)
+        comment.created_at = datetime.utcnow() - timedelta(minutes=20)
+        db.session.commit()
+        with app.test_request_context(
+            f"/comments/{token}/edit/{comment.id}", method="POST", data={"text": "Late"}
+        ):
+            try:
+                comments.edit_comment(token, comment.id)
+            except Exception as e:
+                assert e.code == 403
+            else:
+                assert False, "expected 403"

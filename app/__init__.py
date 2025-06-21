@@ -111,6 +111,14 @@ def register_extensions(app):
             'notice_days': app.config.get('NOTICE_PERIOD_DAYS', 14)
         }
 
+    @app.context_processor
+    def inject_comment_utils():
+        from .models import Comment, Meeting
+        def editing_allowed(comment: Comment, meeting: Meeting) -> bool:
+            minutes = app.config.get('COMMENT_EDIT_MINUTES', 15)
+            return comment.can_edit(meeting, minutes)
+        return {'editing_allowed': editing_allowed}
+
 
     @login_manager.user_loader
     def load_user(user_id: str) -> User | None:

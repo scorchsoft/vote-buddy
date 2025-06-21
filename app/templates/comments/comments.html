@@ -10,8 +10,16 @@
 <div class="mb-4">
   {% for c in comments %}
   <div class="bp-card mb-2">
-    <p class="text-sm text-bp-grey-700 mb-1">{{ c.member.name }} – {{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+    <p class="text-sm text-bp-grey-700 mb-1">
+      {{ c.member.name }} – {{ c.created_at.strftime('%Y-%m-%d %H:%M') }}
+      {% if c.edited_at %}<span class="italic">(edited)</span>{% endif %}
+    </p>
     <div>{{ c.text_md|markdown_to_html|safe }}</div>
+    {% if g.member_id == c.member_id and editing_allowed(c, meeting) %}
+    <div class="mt-1">
+      <a href="{{ url_for('comments.edit_comment_form', token=token, comment_id=c.id) }}" class="bp-link">Edit</a>
+    </div>
+    {% endif %}
     {% if current_user.is_authenticated and current_user.has_permission('manage_meetings') %}
     <div class="mt-2 flex gap-2">
       {% if not c.hidden %}
