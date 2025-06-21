@@ -43,6 +43,15 @@ def _unsubscribe_url(member: Member) -> str:
     return url_for('notifications.unsubscribe', token=token.token, _external=True)
 
 
+def _resubscribe_url(member: Member) -> str:
+    token = UnsubscribeToken.query.filter_by(member_id=member.id).first()
+    if not token:
+        token = UnsubscribeToken(token=str(uuid7()), member_id=member.id)
+        db.session.add(token)
+        db.session.commit()
+    return url_for('notifications.resubscribe', token=token.token, _external=True)
+
+
 def _sender() -> str | None:
     return AppSetting.get('from_email', current_app.config.get('MAIL_DEFAULT_SENDER'))
 
@@ -53,14 +62,15 @@ def send_vote_invite(member: Member, token: str, meeting: Meeting, *, test_mode:
         return
     link = url_for('voting.ballot_token', token=token, _external=True)
     unsubscribe = _unsubscribe_url(member)
+    resubscribe = _resubscribe_url(member)
     msg = Message(
         subject=("[TEST] " if test_mode else "") + f"Your voting link for {meeting.title}",
         recipients=[member.email],
         sender=_sender(),
     )
     objection_link = url_for('main.public_meeting_detail', meeting_id=meeting.id, _external=True)
-    msg.body = render_template('email/invite.txt', member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, test_mode=test_mode)
-    msg.html = render_template('email/invite.html', member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, test_mode=test_mode)
+    msg.body = render_template('email/invite.txt', member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, resubscribe_url=resubscribe, test_mode=test_mode)
+    msg.html = render_template('email/invite.html', member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, resubscribe_url=resubscribe, test_mode=test_mode)
     try:
         ics = generate_stage_ics(meeting, 1)
     except Exception:
@@ -77,6 +87,7 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         return
     link = url_for('voting.ballot_token', token=token, _external=True)
     unsubscribe = _unsubscribe_url(member)
+    resubscribe = _resubscribe_url(member)
     summary = carried_amendment_summary(meeting)
     results_link = None if summary else url_for('main.public_results', meeting_id=meeting.id, _external=True)
     msg = Message(
@@ -90,6 +101,7 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         meeting=meeting,
         link=link,
         unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
         summary=summary,
         results_link=results_link,
         test_mode=test_mode,
@@ -100,6 +112,7 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         meeting=meeting,
         link=link,
         unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
         summary=summary,
         results_link=results_link,
         test_mode=test_mode,
@@ -119,13 +132,14 @@ def send_runoff_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         return
     link = url_for('voting.runoff_ballot', token=token, _external=True)
     unsubscribe = _unsubscribe_url(member)
+    resubscribe = _resubscribe_url(member)
     msg = Message(
         subject=("[TEST] " if test_mode else "") + f"Run-off vote for {meeting.title}",
         recipients=[member.email],
         sender=_sender(),
     )
-    msg.body = render_template('email/runoff_invite.txt', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, test_mode=test_mode)
-    msg.html = render_template('email/runoff_invite.html', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, test_mode=test_mode)
+    msg.body = render_template('email/runoff_invite.txt', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, resubscribe_url=resubscribe, test_mode=test_mode)
+    msg.html = render_template('email/runoff_invite.html', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, resubscribe_url=resubscribe, test_mode=test_mode)
     mail.send(msg)
     _log_email(member, meeting, 'runoff_invite', test_mode)
 
@@ -137,13 +151,14 @@ def send_stage1_reminder(member: Member, token: str, meeting: Meeting, *, test_m
     link = url_for('voting.ballot_token', token=token, _external=True)
     template_base = config_or_setting('REMINDER_TEMPLATE', 'email/reminder')
     unsubscribe = _unsubscribe_url(member)
+    resubscribe = _resubscribe_url(member)
     msg = Message(
         subject=("[TEST] " if test_mode else "") + f"Reminder: vote in {meeting.title}",
         recipients=[member.email],
         sender=_sender(),
     )
     objection_link = url_for('main.public_meeting_detail', meeting_id=meeting.id, _external=True)
-    msg.body = render_template(f"{template_base}.txt", member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, test_mode=test_mode)
+    msg.body = render_template(f"{template_base}.txt", member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, resubscribe_url=resubscribe, test_mode=test_mode)
     msg.html = render_template(
         f"{template_base}.html",
         member=member,
@@ -151,6 +166,7 @@ def send_stage1_reminder(member: Member, token: str, meeting: Meeting, *, test_m
         link=link,
         objection_link=objection_link,
         unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
         test_mode=test_mode,
     )
     mail.send(msg)
@@ -160,6 +176,7 @@ def send_stage1_reminder(member: Member, token: str, meeting: Meeting, *, test_m
 def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str], *, test_mode: bool = False) -> None:
     """Email a receipt containing vote hashes."""
     unsubscribe = _unsubscribe_url(member)
+    resubscribe = _resubscribe_url(member)
     msg = Message(
         subject=("[TEST] " if test_mode else "") + f"Your vote receipt for {meeting.title}",
         recipients=[member.email],
@@ -171,6 +188,7 @@ def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str], *, te
         meeting=meeting,
         hashes=hashes,
         unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
         test_mode=test_mode,
     )
     msg.html = render_template(
@@ -179,6 +197,7 @@ def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str], *, te
         meeting=meeting,
         hashes=hashes,
         unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
         test_mode=test_mode,
     )
     mail.send(msg)
@@ -189,6 +208,7 @@ def send_quorum_failure(member: Member, meeting: Meeting, *, test_mode: bool = F
     if member.email_opt_out:
         return
     unsubscribe = _unsubscribe_url(member)
+    resubscribe = _resubscribe_url(member)
     msg = Message(
         subject=("[TEST] " if test_mode else "") + f"Stage 1 vote void for {meeting.title}",
         recipients=[member.email],
@@ -199,6 +219,7 @@ def send_quorum_failure(member: Member, meeting: Meeting, *, test_mode: bool = F
         member=member,
         meeting=meeting,
         unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
         test_mode=test_mode,
     )
     msg.html = render_template(
@@ -206,6 +227,7 @@ def send_quorum_failure(member: Member, meeting: Meeting, *, test_mode: bool = F
         member=member,
         meeting=meeting,
         unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
         test_mode=test_mode,
     )
     mail.send(msg)
@@ -328,6 +350,7 @@ def send_final_results(member: Member, meeting: Meeting, *, test_mode: bool = Fa
         return
 
     unsubscribe = _unsubscribe_url(member)
+    resubscribe = _resubscribe_url(member)
     from ..utils import carried_amendment_summary, motion_results_summary
 
     ca_summary = carried_amendment_summary(meeting) or "No amendments carried."
@@ -352,6 +375,7 @@ def send_final_results(member: Member, meeting: Meeting, *, test_mode: bool = Fa
         summary=summary,
         results_link=results_link,
         unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
         test_mode=test_mode,
     )
     msg.html = render_template(
@@ -361,6 +385,7 @@ def send_final_results(member: Member, meeting: Meeting, *, test_mode: bool = Fa
         summary=summary,
         results_link=results_link,
         unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
         test_mode=test_mode,
     )
 
