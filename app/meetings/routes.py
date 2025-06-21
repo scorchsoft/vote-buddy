@@ -46,6 +46,7 @@ from .forms import (
     ConflictForm,
     ObjectionForm,
     ManualEmailForm,
+    ExtendStageForm,
 )
 from ..voting.routes import (
     compile_motion_text,
@@ -878,6 +879,41 @@ def manual_send_emails(meeting_id: int):
         return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
 
     return render_template("meetings/manual_email.html", meeting=meeting, form=form)
+
+
+@bp.route("/<int:meeting_id>/extend/<int:stage>", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def extend_stage(meeting_id: int, stage: int):
+    """Allow admin to extend Stage 1 or 2 voting window."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None or stage not in (1, 2):
+        abort(404)
+    form = ExtendStageForm()
+    if request.method == "GET":
+        if stage == 1:
+            form.opens_at.data = meeting.opens_at_stage1
+            form.closes_at.data = meeting.closes_at_stage1
+        else:
+            form.opens_at.data = meeting.opens_at_stage2
+            form.closes_at.data = meeting.closes_at_stage2
+    if form.validate_on_submit():
+        if stage == 1:
+            meeting.opens_at_stage1 = form.opens_at.data
+            meeting.closes_at_stage1 = form.closes_at.data
+        else:
+            meeting.opens_at_stage2 = form.opens_at.data
+            meeting.closes_at_stage2 = form.closes_at.data
+        meeting.extension_reason = form.reason.data
+        db.session.commit()
+        flash("Stage dates updated", "success")
+        return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+    return render_template(
+        "meetings/extend_stage.html",
+        form=form,
+        meeting=meeting,
+        stage=stage,
+    )
 
 
 @bp.route("/<int:meeting_id>/preview/<int:stage>", methods=["GET", "POST"])
