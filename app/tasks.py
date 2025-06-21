@@ -49,7 +49,19 @@ def send_stage1_reminders():
         )
         if last and now - last < cooldown:
             continue
-        members = Member.query.filter_by(meeting_id=meeting.id).all()
+        members = (
+            Member.query.join(
+                VoteToken,
+                db.and_(
+                    VoteToken.member_id == Member.id,
+                    VoteToken.stage == 1,
+                    VoteToken.used_at.is_(None),
+                ),
+            )
+            .filter(Member.meeting_id == meeting.id)
+            .distinct()
+            .all()
+        )
         for member in members:
             _, plain = VoteToken.create(
                 member_id=member.id,
@@ -57,8 +69,9 @@ def send_stage1_reminders():
                 salt=current_app.config["TOKEN_SALT"],
             )
             send_stage1_reminder(member, plain, meeting)
-        meeting.stage1_reminder_sent_at = now
-        db.session.commit()
+        if members:
+            meeting.stage1_reminder_sent_at = now
+            db.session.commit()
 
 
 def send_stage2_reminders():
