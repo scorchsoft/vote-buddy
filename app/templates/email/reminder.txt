@@ -9,4 +9,6 @@ Voting closes soon. Use the link below:
 {{ link }}
 
 If you already voted, you can ignore this email.
+Submit an objection:
+{{ objection_link }}
 To stop these reminders, visit {{ unsubscribe_url }}

@@ -343,7 +343,14 @@ class AmendmentObjection(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amendment_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
     member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    email = db.Column(db.String(255))
+    token = db.Column(db.String(36))
+    confirmed_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @property
+    def confirmed(self) -> bool:
+        return self.confirmed_at is not None
 
 
 class Comment(db.Model):

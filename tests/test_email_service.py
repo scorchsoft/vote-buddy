@@ -40,6 +40,7 @@ def test_send_vote_invite_sends_mail():
                 sent_msg = mock_send.call_args[0][0]
                 assert '/vote/abc123' in sent_msg.body
                 assert any(a.filename == 'stage1.ics' for a in sent_msg.attachments)
+                assert '/public/meetings/1' in sent_msg.body
 
 
 def _setup_app():
@@ -82,6 +83,7 @@ def test_send_stage1_reminder_uses_token_url():
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
                 assert '/vote/abc123' in sent_msg.body
+                assert '/public/meetings/1' in sent_msg.body
 
 
 def test_send_stage2_invite_has_calendar_attachment():
