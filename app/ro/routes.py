@@ -37,13 +37,43 @@ def _stage1_vote_count(meeting: Meeting) -> int:
     )
 
 
+def _pending_tie_breaks(meeting: Meeting) -> bool:
+    """Return True if any Stage 1 amendment ties await a decision."""
+    return (
+        Amendment.query.filter_by(meeting_id=meeting.id, status="tied").count()
+        > 0
+    )
+
+
+def _pending_runoff_tie_breaks(meeting: Meeting) -> bool:
+    """Return True if any run-off votes are tied without a decision."""
+    runoffs = Runoff.query.filter_by(meeting_id=meeting.id).all()
+    for rof in runoffs:
+        a_for = Vote.query.filter_by(
+            amendment_id=rof.amendment_a_id, choice="for"
+        ).count()
+        b_for = Vote.query.filter_by(
+            amendment_id=rof.amendment_b_id, choice="for"
+        ).count()
+        if a_for == b_for and rof.tie_break_method is None:
+            return True
+    return False
+
+
 @bp.route('/')
 @login_required
 @permission_required('manage_meetings')
 def dashboard():
-    data: list[tuple[Meeting, int]] = []
+    data: list[tuple[Meeting, int, bool, bool]] = []
     for m in Meeting.query.all():
-        data.append((m, _stage1_vote_count(m)))
+        data.append(
+            (
+                m,
+                _stage1_vote_count(m),
+                _pending_tie_breaks(m),
+                _pending_runoff_tie_breaks(m),
+            )
+        )
     return render_template('ro/dashboard.html', meetings=data)
 
 
