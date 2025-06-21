@@ -115,3 +115,19 @@ def carried_amendment_summary(meeting: "Meeting", char_limit: int = 80) -> str |
             text = text[:char_limit].rstrip() + "..."
         lines.append(f"* {text}")
     return "\n".join(lines)
+
+
+def motion_results_summary(meeting: "Meeting") -> str:
+    """Return Markdown bullet list summarising motion outcomes."""
+    from .models import Motion
+
+    motions = (
+        Motion.query.filter_by(meeting_id=meeting.id)
+        .order_by(Motion.ordering)
+        .all()
+    )
+    lines = []
+    for motion in motions:
+        status = (motion.status or "?").capitalize()
+        lines.append(f"* {motion.title}: {status}")
+    return "\n".join(lines)

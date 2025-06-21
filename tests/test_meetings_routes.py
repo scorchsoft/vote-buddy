@@ -532,7 +532,9 @@ def test_close_stage2_sets_motion_statuses():
             f"/meetings/{meeting.id}/close-stage2", method="POST"
         ):
             with patch("flask_login.utils._get_user", return_value=user):
-                meetings.close_stage2(meeting.id)
+                with patch("app.meetings.routes.send_final_results") as mock_send:
+                    meetings.close_stage2(meeting.id)
+                    assert mock_send.call_count == len(members)
 
         assert m1.status == "carried"
         assert m2.status == "carried"

@@ -5,6 +5,14 @@ from ..utils import config_or_setting, generate_stage_ics, carried_amendment_sum
 from ..extensions import mail, db
 from ..models import Member, Meeting, UnsubscribeToken, AppSetting, EmailLog
 from uuid6 import uuid7
+from sqlalchemy import func
+from docx import Document
+from docx.shared import RGBColor, Inches, Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
+import io
+import os
 
 
 def _log_email(member: Member, meeting: Meeting, kind: str, test_mode: bool) -> None:
@@ -191,4 +199,167 @@ def send_quorum_failure(member: Member, meeting: Meeting, *, test_mode: bool = F
     )
     mail.send(msg)
     _log_email(member, meeting, 'quorum_failure', test_mode)
+
+
+def _shade_cell(cell, color_hex: str) -> None:
+    shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{color_hex}"/>')
+    cell._tc.get_or_add_tcPr().append(shading)
+
+
+def _styled_doc(title: str) -> Document:
+    doc = Document()
+    normal = doc.styles["Normal"].font
+    normal.name = "Gotham"
+    normal.size = Pt(11)
+    for level in ["Heading 2", "Heading 3"]:
+        h = doc.styles[level].font
+        h.name = "Gotham"
+        h.color.rgb = RGBColor(0xDC, 0x07, 0x14)
+    table = doc.add_table(rows=1, cols=1)
+    cell = table.rows[0].cells[0]
+    para = cell.paragraphs[0]
+    run = para.add_run(title)
+    run.bold = True
+    run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+    para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    _shade_cell(cell, "002D59")
+    return doc
+
+
+def _final_results_docx(meeting: Meeting) -> bytes:
+    from ..models import Amendment, Motion, Vote
+    amend_results = (
+        Amendment.query.filter_by(meeting_id=meeting.id)
+        .order_by(Amendment.order)
+        .all()
+    )
+    motion_results = (
+        Motion.query.filter_by(meeting_id=meeting.id)
+        .order_by(Motion.ordering)
+        .all()
+    )
+
+    doc = _styled_doc(f"{meeting.title} - Final Results")
+    doc.add_heading("Carried Amendments", level=2)
+    carried = []
+    for amend in amend_results:
+        counts = {
+            "for": 0,
+            "against": 0,
+        }
+        rows = (
+            db.session.query(Vote.choice, func.count(Vote.id))
+            .filter_by(amendment_id=amend.id)
+            .filter(Vote.is_test.is_(False))
+            .group_by(Vote.choice)
+            .all()
+        )
+        for choice, count in rows:
+            counts[choice] = count
+        if counts.get("for", 0) > counts.get("against", 0):
+            carried.append(amend)
+
+    table_ca = doc.add_table(rows=1, cols=1)
+    if carried:
+        for idx, amend in enumerate(carried, start=1):
+            row = table_ca.add_row().cells
+            row[0].text = amend.text_md or ""
+            if idx % 2 == 0:
+                _shade_cell(row[0], "F7F7F9")
+    else:
+        table_ca.rows[0].cells[0].text = "No amendments carried."
+
+    doc.add_heading("Motion Outcomes", level=2)
+    table = doc.add_table(rows=1, cols=5)
+    hdr = table.rows[0].cells
+    hdr[0].text = "Motion"
+    hdr[1].text = "For"
+    hdr[2].text = "Against"
+    hdr[3].text = "Abstain"
+    hdr[4].text = "Outcome"
+    for cell in hdr:
+        for run in cell.paragraphs[0].runs:
+            run.bold = True
+    for idx, motion in enumerate(motion_results, start=1):
+        counts = {
+            "for": 0,
+            "against": 0,
+            "abstain": 0,
+        }
+        rows = (
+            db.session.query(Vote.choice, func.count(Vote.id))
+            .filter_by(motion_id=motion.id)
+            .filter(Vote.is_test.is_(False))
+            .group_by(Vote.choice)
+            .all()
+        )
+        for choice, count in rows:
+            counts[choice] = count
+        row = table.add_row().cells
+        row[0].text = motion.title or "Motion"
+        row[1].text = str(counts["for"])
+        row[2].text = str(counts["against"])
+        row[3].text = str(counts["abstain"])
+        row[4].text = (motion.status or "?").capitalize()
+        if idx % 2 == 0:
+            for c in row:
+                _shade_cell(c, "F7F7F9")
+
+    buf = io.BytesIO()
+    doc.save(buf)
+    buf.seek(0)
+    return buf.read()
+
+
+def send_final_results(member: Member, meeting: Meeting, *, test_mode: bool = False) -> None:
+    """Email certified results to a member."""
+    if member.email_opt_out:
+        return
+
+    unsubscribe = _unsubscribe_url(member)
+    from ..utils import carried_amendment_summary, motion_results_summary
+
+    ca_summary = carried_amendment_summary(meeting) or "No amendments carried."
+    motion_summary = motion_results_summary(meeting)
+    summary = f"{ca_summary}\n\nMotion Outcomes:\n{motion_summary}"
+
+    results_link = (
+        url_for('main.public_results', meeting_id=meeting.id, _external=True)
+        if meeting.public_results
+        else None
+    )
+
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + f"Certified results for {meeting.title}",
+        recipients=[member.email],
+        sender=_sender(),
+    )
+    msg.body = render_template(
+        'email/final_results.txt',
+        member=member,
+        meeting=meeting,
+        summary=summary,
+        results_link=results_link,
+        unsubscribe_url=unsubscribe,
+        test_mode=test_mode,
+    )
+    msg.html = render_template(
+        'email/final_results.html',
+        member=member,
+        meeting=meeting,
+        summary=summary,
+        results_link=results_link,
+        unsubscribe_url=unsubscribe,
+        test_mode=test_mode,
+    )
+
+    if not results_link:
+        doc_bytes = _final_results_docx(meeting)
+        msg.attach(
+            'final_results.docx',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            doc_bytes,
+        )
+    mail.send(msg)
+    _log_email(member, meeting, 'final_results', test_mode)
 

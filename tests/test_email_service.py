@@ -5,7 +5,7 @@ from unittest.mock import patch
 from datetime import datetime, timedelta
 from app import create_app
 from app.extensions import db, mail
-from app.models import Member, Meeting
+from app.models import Member, Meeting, Motion, Vote
 from app.services.email import (
     send_vote_invite,
     send_runoff_invite,
@@ -13,6 +13,7 @@ from app.services.email import (
     send_stage2_invite,
     send_vote_receipt,
     send_quorum_failure,
+    send_final_results,
 )
 
 
@@ -139,3 +140,68 @@ def test_send_quorum_failure_email():
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
                 assert 'Stage 1 vote void' in sent_msg.subject
+
+
+def _setup_final_app():
+    app = _setup_app()
+    return app
+
+
+def test_send_final_results_attaches_docx_when_not_public():
+    app = _setup_final_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM', public_results=False)
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M1',
+            text_md='text',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+            status='carried',
+        )
+        db.session.add(motion)
+        member = Member(name='Gina', email='g@example.com', meeting_id=meeting.id)
+        db.session.add(member)
+        db.session.flush()
+        Vote.record(member_id=member.id, motion_id=motion.id, choice='for', salt='s')
+        db.session.commit()
+        with app.test_request_context('/'):
+            with patch.object(mail, 'send') as mock_send:
+                send_final_results(member, meeting, test_mode=False)
+                mock_send.assert_called_once()
+                sent_msg = mock_send.call_args[0][0]
+                assert any(a.filename == 'final_results.docx' for a in sent_msg.attachments)
+
+
+def test_send_final_results_uses_results_link_when_public():
+    app = _setup_final_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM', public_results=True)
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title='M1',
+            text_md='text',
+            category='motion',
+            threshold='normal',
+            ordering=1,
+            status='failed',
+        )
+        db.session.add(motion)
+        member = Member(name='Hal', email='h@example.com', meeting_id=meeting.id)
+        db.session.add(member)
+        db.session.flush()
+        Vote.record(member_id=member.id, motion_id=motion.id, choice='against', salt='s')
+        db.session.commit()
+        with app.test_request_context('/'):
+            with patch.object(mail, 'send') as mock_send:
+                send_final_results(member, meeting, test_mode=False)
+                mock_send.assert_called_once()
+                sent_msg = mock_send.call_args[0][0]
+                assert '/results/' in sent_msg.body
