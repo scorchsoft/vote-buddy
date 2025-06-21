@@ -84,6 +84,8 @@ class Meeting(db.Model):
     closes_at_stage1 = db.Column(db.DateTime)
     opens_at_stage2 = db.Column(db.DateTime)
     closes_at_stage2 = db.Column(db.DateTime)
+    runoff_opens_at = db.Column(db.DateTime)
+    runoff_closes_at = db.Column(db.DateTime)
     ballot_mode = db.Column(db.String(20))
     revoting_allowed = db.Column(db.Boolean, default=False)
     status = db.Column(db.String(50))

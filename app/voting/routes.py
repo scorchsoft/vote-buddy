@@ -432,6 +432,18 @@ def runoff_ballot(token: str):
             400,
         )
 
+    now = datetime.utcnow()
+    if (meeting.runoff_opens_at and now < meeting.runoff_opens_at) or (
+        meeting.runoff_closes_at and now > meeting.runoff_closes_at
+    ):
+        return (
+            render_template(
+                "voting/token_error.html",
+                message="Run-off voting is not currently open.",
+            ),
+            400,
+        )
+
     fields = {}
     for r in runoffs:
         fields[f"runoff_{r.id}"] = RadioField(

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from io import StringIO
 import csv
+from datetime import datetime
 from flask import (
     Blueprint,
     render_template,
@@ -72,6 +73,18 @@ def unlock_stage(meeting_id: int, stage: int):
         meeting.stage1_locked = False
     else:
         meeting.stage2_locked = False
+    db.session.commit()
+    return redirect(url_for('ro.dashboard'))
+
+
+@bp.route('/<int:meeting_id>/close-runoffs', methods=['POST'])
+@login_required
+@permission_required('manage_meetings')
+def close_runoffs(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    meeting.runoff_closes_at = datetime.utcnow()
     db.session.commit()
     return redirect(url_for('ro.dashboard'))
 
