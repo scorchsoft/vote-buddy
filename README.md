@@ -55,6 +55,9 @@ The following images show the main dashboard and help section in action.
 ```bash
 pip install -r requirements.txt
 ```
+If the `flask` command isn't found after installation, run commands using
+`python -m flask --app app` instead of `flask`.
+
 3. Build and start the containers:
 
 ```bash
@@ -103,10 +106,15 @@ flask --app app create-admin
 
 The `web` service runs migrations on start and exposes the app at `http://localhost:8000`.
 
-To run the development server directly on your machine, install the requirements and execute:
+To run the development server directly on your machine, first install the requirements and then execute:
 
 ```bash
-python -m flask --app app run
+FLASK_APP=app flask run --port 5555
+```
+If the `flask` command is unavailable, use:
+
+```bash
+python -m flask --app app run --port 5555
 ```
 
 ### Generating demo data

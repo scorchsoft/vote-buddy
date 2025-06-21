@@ -20,7 +20,8 @@ This guide directs AI and human contributors for all folders in this repository.
 | Task | Command |
 |------|--------|
 | Start containers | `docker-compose up --build` |
-| Run dev server | `flask --app app run` |
+| Install dependencies | `pip install -r requirements.txt` |
+| Run dev server | `FLASK_APP=app flask run --port 5555` |
 | Apply migrations | `flask db upgrade` |
 
 ## Documentation Rules
@@ -55,13 +56,16 @@ Docker-compose commands dont work in OpenAI Codex, you'll get this error so dont
 docker-compose up --build -d (failed to run: docker-compose: command not found
 ```
 
-When running flask for testing try a non standard port as sometimes we get this error:
+When running Flask for testing, use a non-standard port as sometimes we get this error:
 ```
 flask --app app run (failed: port already in use in second attempt)
 ```
+Always install dependencies first with `pip install -r requirements.txt` so the `flask` command is available.
+If `flask` still isn't found, invoke commands via `python -m flask --app app`.
 
 ## Change Log
 | Date | Author | Reason |
 |------|--------|-------|
 | 2025-06-13 | Initial draft | Repository documentation for agents |
+| 2025-06-21 | Docs update | Added Flask troubleshooting and install step |
 
