@@ -136,3 +136,26 @@ def test_footer_includes_receipt_link():
                 html = render_template('base.html')
                 assert 'href="/vote/verify-receipt"' in html
 
+
+def test_confirmation_includes_verify_receipt_link():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md='A1', order=1)
+        db.session.add(amend)
+        member = Member(meeting_id=meeting.id, name='Alice', email='a@e.co')
+        db.session.add(member)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config['TOKEN_SALT'])
+        db.session.commit()
+
+        with patch('app.voting.routes.send_vote_receipt'):
+            with app.test_request_context(f'/vote/{plain}', method='POST', data={f'amend_{amend.id}': 'for'}):
+                html = voting.ballot_token(plain)
+
+        assert 'href="/vote/verify-receipt"' in html
+        assert 'aria-label="Verify your receipt hash"' in html
+
