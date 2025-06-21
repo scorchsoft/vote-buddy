@@ -1130,6 +1130,11 @@ def results_summary(meeting_id: int):
         abort(404)
     results = _amendment_results(meeting)
     stage = 2 if meeting.status in {"Stage 2", "Pending Stage 2"} else 1
+    members = (
+        Member.query.filter_by(meeting_id=meeting.id, is_test=False)
+        .order_by(Member.name)
+        .all()
+    )
     tokens = (
         VoteToken.query
         .filter_by(stage=stage, used_at=None, is_test=False)
@@ -1151,6 +1156,7 @@ def results_summary(meeting_id: int):
         "meetings/results_summary.html",
         meeting=meeting,
         results=results,
+        members=members,
         unused_proxy_tokens=unused_proxy_tokens,
     )
 
