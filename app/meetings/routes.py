@@ -1248,6 +1248,27 @@ def stage2_ics(meeting_id: int):
     )
 
 
+@bp.route("/<int:meeting_id>/runoff.ics")
+@login_required
+@permission_required("manage_meetings")
+def runoff_ics(meeting_id: int):
+    """Download run-off calendar file."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    try:
+        ics = generate_stage_ics(meeting, 0)
+    except ValueError:
+        flash("Run-off timestamps not set", "error")
+        return redirect(request.referrer or url_for("meetings.list_meetings"))
+    return send_file(
+        io.BytesIO(ics),
+        mimetype="text/calendar",
+        as_attachment=True,
+        download_name="runoff.ics",
+    )
+
+
 @bp.route("/<int:meeting_id>/close-runoff", methods=["POST"])
 @login_required
 @permission_required("manage_meetings")

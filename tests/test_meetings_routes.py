@@ -859,3 +859,40 @@ def test_edit_and_delete_amendment():
                 meetings.delete_amendment(amend.id)
 
         assert Amendment.query.count() == 0
+
+
+def test_runoff_ics_and_email_attachment():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["MAIL_SUPPRESS_SEND"] = True
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title="AGM",
+            runoff_opens_at=now,
+            runoff_closes_at=now + timedelta(hours=1),
+        )
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="Ann", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+
+        user = _make_user(True)
+        with app.test_request_context(f"/meetings/{meeting.id}/runoff.ics"):
+            with patch("flask_login.utils._get_user", return_value=user):
+                resp = meetings.runoff_ics(meeting.id)
+                assert resp.mimetype == "text/calendar"
+                cd = resp.headers["Content-Disposition"]
+                assert "runoff.ics" in cd
+
+        from app.services.email import send_runoff_invite
+        from app.extensions import mail
+
+        with app.test_request_context('/'):
+            with patch.object(mail, 'send') as mock_send:
+                send_runoff_invite(member, 'abc123', meeting, test_mode=False)
+                mock_send.assert_called_once()
+                sent = mock_send.call_args[0][0]
+                assert any(a.filename == 'runoff.ics' for a in sent.attachments)

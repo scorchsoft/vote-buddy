@@ -65,13 +65,23 @@ from datetime import datetime
 
 
 def generate_stage_ics(meeting, stage: int) -> bytes:
-    """Return ICS file bytes for the given meeting stage."""
+    """Return ICS file bytes for the given meeting stage.
+
+    ``stage`` may be ``1`` or ``2`` for the normal voting stages or ``0``
+    to generate a calendar entry for a run-off vote.
+    """
     if stage == 1:
         start = meeting.opens_at_stage1
         end = meeting.closes_at_stage1
-    else:
+        summary = f"{meeting.title} - Stage 1 Voting"
+    elif stage == 2:
         start = meeting.opens_at_stage2
         end = meeting.closes_at_stage2
+        summary = f"{meeting.title} - Stage 2 Voting"
+    else:  # run-off calendar
+        start = meeting.runoff_opens_at
+        end = meeting.runoff_closes_at
+        summary = f"{meeting.title} - Run-off Voting"
 
     if not start or not end:
         raise ValueError("Stage timestamps not set")
@@ -88,7 +98,7 @@ def generate_stage_ics(meeting, stage: int) -> bytes:
         f"DTSTAMP:{fmt(datetime.utcnow())}",
         f"DTSTART:{fmt(start)}",
         f"DTEND:{fmt(end)}",
-        f"SUMMARY:{meeting.title} - Stage {stage} Voting",
+        f"SUMMARY:{summary}",
         "END:VEVENT",
         "END:VCALENDAR",
     ]

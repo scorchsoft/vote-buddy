@@ -126,6 +126,12 @@ def send_runoff_invite(member: Member, token: str, meeting: Meeting, *, test_mod
     )
     msg.body = render_template('email/runoff_invite.txt', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, test_mode=test_mode)
     msg.html = render_template('email/runoff_invite.html', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, test_mode=test_mode)
+    try:
+        ics = generate_stage_ics(meeting, 0)
+    except Exception:
+        ics = None
+    if ics:
+        msg.attach('runoff.ics', 'text/calendar', ics)
     mail.send(msg)
     _log_email(member, meeting, 'runoff_invite', test_mode)
 
