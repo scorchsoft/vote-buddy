@@ -38,6 +38,30 @@
   {% endfor %}
   </tbody>
 </table>
+<h2 class="font-bold text-bp-blue mt-6">Members</h2>
+<table class="bp-table w-full mt-2">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Email</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for m in members %}
+    <tr class="border-t">
+      <td class="p-2">{{ m.name }}</td>
+      <td class="p-2">{{ m.email }}</td>
+      <td class="p-2">
+        <form method="post" action="{{ url_for('meetings.resend_member_link', meeting_id=meeting.id, member_id=m.id) }}" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <button type="submit" class="bp-btn-secondary">Resend link</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 {% if unused_proxy_tokens %}
 <h2 class="font-bold text-bp-blue mt-6">Unused Proxy Tokens</h2>
 <table class="bp-table w-full mt-2">

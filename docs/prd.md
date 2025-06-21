@@ -478,3 +478,4 @@ SES/SMTP  ─── Outbound mail
 
 
 
+* 2025-07-19 – Added per-member resend link on results summary.
