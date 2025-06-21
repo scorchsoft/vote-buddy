@@ -17,7 +17,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for meeting, count in meetings %}
+      {% for meeting, count, tie_pending, runoff_pending in meetings %}
       <tr class="border-t">
         <td class="p-2">{{ meeting.title }}</td>
         <td class="p-2">{{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</td>
@@ -74,6 +74,13 @@
                 </form>
               {% endif %}
             </div>
+
+            {% if tie_pending %}
+            <a href="{{ url_for('ro.tie_breaks', meeting_id=meeting.id) }}" class="bp-btn-secondary text-xs">Tie Breaks</a>
+            {% endif %}
+            {% if runoff_pending %}
+            <a href="{{ url_for('ro.tie_breaks_runoff', meeting_id=meeting.id) }}" class="bp-btn-secondary text-xs">Run-off Tie Breaks</a>
+            {% endif %}
 
             {% if meeting.runoff_closes_at %}
             <form action="{{ url_for('ro.close_runoffs', meeting_id=meeting.id) }}" method="post" class="inline">
