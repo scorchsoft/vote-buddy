@@ -901,6 +901,76 @@ def test_resend_member_token_stage2():
                     )
 
 
+def test_results_summary_lists_unused_proxies():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["TOKEN_SALT"] = "s"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        principal = Member(meeting_id=meeting.id, name="P", email="p@example.com")
+        proxy = Member(meeting_id=meeting.id, name="X", email="x@example.com")
+        db.session.add_all([principal, proxy])
+        db.session.flush()
+        tok, plain = VoteToken.create(
+            member_id=principal.id,
+            stage=1,
+            salt="s",
+            proxy_holder_id=proxy.id,
+        )
+        db.session.commit()
+
+        with app.test_request_context(f"/meetings/{meeting.id}/results"):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                html = meetings.results_summary(meeting.id)
+                assert "X" in html
+                url = url_for("meetings.resend_proxy_token", meeting_id=meeting.id, token=tok.token)
+                assert url in html
+
+
+def test_resend_and_invalidate_proxy_token():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["TOKEN_SALT"] = "s"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        principal = Member(meeting_id=meeting.id, name="P", email="p@example.com")
+        proxy = Member(meeting_id=meeting.id, name="X", email="x@example.com")
+        db.session.add_all([principal, proxy])
+        db.session.flush()
+        tok, plain = VoteToken.create(
+            member_id=principal.id,
+            stage=1,
+            salt="s",
+            proxy_holder_id=proxy.id,
+        )
+        db.session.commit()
+
+        with app.test_request_context(
+            f"/meetings/{meeting.id}/proxy-tokens/{tok.token}/resend", method="POST"
+        ):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.send_proxy_invite") as mock_send:
+                    meetings.resend_proxy_token(meeting.id, tok.token)
+                    mock_send.assert_called_once()
+                    assert VoteToken.query.filter_by(proxy_holder_id=proxy.id).count() == 2
+
+        with app.test_request_context(
+            f"/meetings/{meeting.id}/proxy-tokens/{tok.token}/invalidate", method="POST"
+        ):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                meetings.invalidate_proxy_token(meeting.id, tok.token)
+        assert db.session.get(VoteToken, tok.token).used_at is not None
+
+
 def test_edit_and_delete_amendment():
     app = create_app()
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
