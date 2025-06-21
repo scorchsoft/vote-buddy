@@ -1,4 +1,4 @@
-"""add submission tables"""
+"""add submission tables
 
 Revision ID: p2q3r4s5
 Revises: p1q2r3s4

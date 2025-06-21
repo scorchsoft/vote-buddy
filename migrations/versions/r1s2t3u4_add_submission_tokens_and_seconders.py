@@ -1,4 +1,4 @@
-"""add submission tokens and seconder fields"""
+"""add submission tokens and seconder fields
 
 Revision ID: r1s2t3u4
 Revises: q1w2e3r4

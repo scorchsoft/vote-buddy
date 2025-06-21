@@ -22,7 +22,7 @@ This guide directs AI and human contributors for all folders in this repository.
 | Start containers | `docker-compose up --build` |
 | Install dependencies | `pip install -r requirements.txt` |
 | Run dev server | `FLASK_APP=app flask run --port 5555` |
-| Apply migrations | `flask db upgrade` |
+| Apply migrations | `FLASK_APP=app flask db upgrade` |
 
 ## Documentation Rules
 - When merging a feature PR, append a date + summary to `docs/prd.md` under **Changelog**.
