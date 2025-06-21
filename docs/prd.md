@@ -441,6 +441,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-09 – Public meeting page displays live countdown timers for stage closings.
 * 2025-07-09 – API tokens documented with rate limits and Stage 1 results endpoint.
 
+* 2025-07-10 – Stage 1 reminder emails now skip members who have already voted.
 
 ---
 

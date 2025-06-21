@@ -49,6 +49,13 @@ def send_stage1_reminders():
             continue
         members = Member.query.filter_by(meeting_id=meeting.id).all()
         for member in members:
+            voted = (
+                VoteToken.query.filter_by(member_id=member.id, stage=1)
+                .filter(VoteToken.used_at.isnot(None))
+                .first()
+            )
+            if voted:
+                continue
             _, plain = VoteToken.create(
                 member_id=member.id,
                 stage=1,

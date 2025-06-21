@@ -46,6 +46,40 @@ def test_send_stage1_reminders_sends_emails():
             assert meeting.stage1_reminder_sent_at is not None
 
 
+def test_send_stage1_reminders_skips_voted_members():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(title='M', closes_at_stage1=now + timedelta(hours=1), quorum=5)
+        db.session.add(meeting)
+        db.session.flush()
+
+        voted = Member(meeting_id=meeting.id, name='Ann', email='a@example.com')
+        not_voted = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add_all([voted, not_voted])
+        db.session.flush()
+
+        token_voted = VoteToken(
+            token=VoteToken._hash('tok1', app.config['TOKEN_SALT']),
+            member_id=voted.id,
+            stage=1,
+            used_at=now,
+        )
+        token_unvoted = VoteToken(
+            token=VoteToken._hash('tok2', app.config['TOKEN_SALT']),
+            member_id=not_voted.id,
+            stage=1,
+        )
+        db.session.add_all([token_voted, token_unvoted])
+        db.session.commit()
+
+        with patch('app.tasks.send_stage1_reminder') as mock_send:
+            send_stage1_reminders()
+            assert mock_send.call_count == 1
+            assert mock_send.call_args.args[0].id == not_voted.id
+
+
 def test_cleanup_vote_tokens_removes_expired_and_used():
     app = _setup_app()
     with app.app_context():
