@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} - Stage 1 Results</h1>
+<p class="mb-4">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</p>
+{% if meeting.extension_reason %}
+<p class="bp-alert-info mb-4">Extension reason: {{ meeting.extension_reason }}</p>
+{% endif %}
+<table class="bp-table w-full">
+  <thead>
+    <tr>
+      <th scope="col">Amendment</th>
+      <th scope="col">For</th>
+      <th scope="col">Against</th>
+      <th scope="col">Abstain</th>
+      <th scope="col">Outcome</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for amend, counts in results %}
+    <tr class="border-t">
+      <td class="p-2">{{ amend.text_md|markdown_to_html|safe }}</td>
+      <td class="p-2 text-center">{{ counts.for }}</td>
+      <td class="p-2 text-center">{{ counts.against }}</td>
+      <td class="p-2 text-center">{{ counts.abstain }}</td>
+      <td class="p-2 text-center">
+        {% if counts.for > counts.against %}
+          <span class="bp-tick bp-tick-pass">&#10003;</span>
+        {% else %}
+          <span class="bp-tick bp-tick-fail">&#8211;</span>
+        {% endif %}
+        {% if amend.tie_break_method %}
+          <div class="text-xs mt-1">Tie-break: {{ amend.tie_break_method }}</div>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="p-2">No amendments.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

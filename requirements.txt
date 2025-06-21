@@ -16,3 +16,4 @@ Markdown==3.8
 bleach==6.0.0
 Flask-Limiter==3.12
 Faker==37.4.0
+PyYAML==6.0

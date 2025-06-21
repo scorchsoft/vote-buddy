@@ -72,3 +72,38 @@ def test_hours_until_next_reminder_after_first():
         db.session.add(meeting)
         db.session.commit()
         assert meeting.hours_until_next_reminder(now=now) == 24
+
+
+def test_stage_progress_percentages():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title='AGM',
+            opens_at_stage1=now - timedelta(hours=1),
+            closes_at_stage1=now + timedelta(hours=1),
+            opens_at_stage2=now - timedelta(hours=2),
+            closes_at_stage2=now + timedelta(hours=2)
+        )
+        db.session.add(meeting)
+        db.session.commit()
+        assert meeting.stage1_progress_percent() == 50
+        assert meeting.stage2_progress_percent() == 50
+
+
+def test_stage2_progress_percent_future():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title='AGM',
+            opens_at_stage2=now + timedelta(hours=1),
+            closes_at_stage2=now + timedelta(hours=2)
+        )
+        db.session.add(meeting)
+        db.session.commit()
+        assert meeting.stage2_progress_percent() == 0

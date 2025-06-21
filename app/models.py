@@ -96,6 +96,7 @@ class Meeting(db.Model):
     stage2_locked = db.Column(db.Boolean, default=False)
     stage1_reminder_sent_at = db.Column(db.DateTime)
     public_results = db.Column(db.Boolean, default=False)
+    early_public_results = db.Column(db.Boolean, default=False)
     comments_enabled = db.Column(db.Boolean, default=False)
     extension_reason = db.Column(db.Text)
     results_doc_published = db.Column(db.Boolean, default=False)
@@ -171,6 +172,17 @@ class Meeting(db.Model):
         if total <= 0:
             return 0
         elapsed = (datetime.utcnow() - self.opens_at_stage1).total_seconds()
+        percent = max(0.0, min(100.0, (elapsed / total) * 100))
+        return int(percent)
+
+    def stage2_progress_percent(self) -> int:
+        """Return percentage of Stage-2 voting period elapsed."""
+        if not self.opens_at_stage2 or not self.closes_at_stage2:
+            return 0
+        total = (self.closes_at_stage2 - self.opens_at_stage2).total_seconds()
+        if total <= 0:
+            return 0
+        elapsed = (datetime.utcnow() - self.opens_at_stage2).total_seconds()
         percent = max(0.0, min(100.0, (elapsed / total) * 100))
         return int(percent)
 
@@ -260,6 +272,35 @@ class UnsubscribeToken(db.Model):
     token = db.Column(db.String(36), primary_key=True)
     member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ApiToken(db.Model):
+    """Token for authenticating API requests."""
+
+    __tablename__ = "api_tokens"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    token_hash = db.Column(db.String(64), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @staticmethod
+    def _hash(token: str, salt: str) -> str:
+        return hashlib.sha256(f"{token}{salt}".encode()).hexdigest()
+
+    @classmethod
+    def create(cls, name: str, salt: str) -> tuple["ApiToken", str]:
+        """Create token, store hash and return plain value."""
+        plain = str(uuid7())
+        hashed = cls._hash(plain, salt)
+        obj = cls(name=name, token_hash=hashed)
+        db.session.add(obj)
+        return obj, plain
+
+    @classmethod
+    def verify(cls, token: str, salt: str) -> "ApiToken | None":
+        hashed = cls._hash(token, salt)
+        return cls.query.filter_by(token_hash=hashed).first()
 
 
 class Amendment(db.Model):

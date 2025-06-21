@@ -21,6 +21,7 @@ from ..models import (
     Amendment,
     Member,
     AmendmentObjection,
+    ApiToken,
 )
 from .forms import (
     UserForm,
@@ -28,6 +29,7 @@ from .forms import (
     RoleForm,
     PermissionForm,
     SettingsForm,
+    ApiTokenForm,
 )
 
 from ..permissions import permission_required
@@ -406,6 +408,33 @@ def reset_setting(key: str):
     flash("Setting reset to default", "success")
     return redirect(url_for("admin.manage_settings"))
 
+
+@bp.route("/api-tokens", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_settings")
+def manage_api_tokens():
+    form = ApiTokenForm()
+    if form.validate_on_submit():
+        token_obj, plain = ApiToken.create(
+            form.name.data, current_app.config["API_TOKEN_SALT"]
+        )
+        db.session.commit()
+        flash(f"New token: {plain}", "success")
+        return redirect(url_for("admin.manage_api_tokens"))
+    tokens = ApiToken.query.order_by(ApiToken.created_at.desc()).all()
+    return render_template("admin/api_tokens.html", form=form, tokens=tokens)
+
+
+@bp.post("/api-tokens/<int:token_id>/revoke")
+@login_required
+@permission_required("manage_settings")
+def revoke_api_token(token_id: int):
+    token = db.session.get(ApiToken, token_id)
+    if token:
+        db.session.delete(token)
+        db.session.commit()
+        flash("Token revoked", "success")
+    return redirect(url_for("admin.manage_api_tokens"))
 
 @bp.route("/audit")
 @login_required
