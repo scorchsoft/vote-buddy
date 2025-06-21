@@ -301,6 +301,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Expanded UI/UX design guidance with extended design patterns.
 * 2025-06-14 – Implemented meetings list view with table layout.
 * 2025-06-14 – Enhanced meetings list with htmx search and sort.
+* 2025-07-01 – Added publishable Stage 2 results document with custom intro text.
 * 2025-06-20 – Added comment count badges and modal viewer on ballots; improved thank-you screen.
 * 2025-06-30 – Added motion withdrawal/edit request workflow with chair and board approvals.
 * 2025-06-14 – Added meeting create/edit form with CSRF protection.
@@ -415,6 +416,12 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-26 – Added stage extension form and reason display on results page.
 * 2025-06-30 – Run-off tie breaks recorded with chair/board/order option and service respects setting.
 * 2025-06-28 – Objection submissions now require email confirmation via token link.
+* 2025-06-30 – Meeting form now pre-fills default stage dates from the AGM date.
+* 2025-06-30 – Confirmation screen links to public results once a meeting is completed.
+* 2025-06-21 – Ballot pages show time remaining with ARIA status announcements.
+* 2025-07-05 – Comment posting now shows a confirmation flash message.
+* 2025-07-01 – Added manual tally entry for in-person meetings with Stage 1 and Stage 2 forms.
+* 2025-07-01 – Added resubscribe links alongside unsubscribe and a route to opt back in.
 
 
 

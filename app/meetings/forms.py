@@ -54,6 +54,8 @@ class MeetingForm(FlaskForm):
     )
     revoting_allowed = BooleanField("Revoting Allowed")
     public_results = BooleanField("Public Results")
+    results_doc_published = BooleanField("Publish Final Results Doc")
+    results_doc_intro_md = TextAreaField("Results Doc Intro")
     comments_enabled = BooleanField("Enable Comments")
     quorum = IntegerField("Quorum")
     status = StringField("Status")
@@ -212,3 +214,14 @@ class MotionChangeRequestForm(FlaskForm):
     text_md = TextAreaField("Revised Motion Text", validators=[Optional()])
     withdraw = BooleanField("Withdraw Motion")
     submit = SubmitField("Submit Request")
+
+class Stage1TallyForm(FlaskForm):
+    votes_cast = IntegerField("Votes Cast", validators=[DataRequired()])
+    submit = SubmitField("Save")
+
+
+class Stage2TallyForm(FlaskForm):
+    for_votes = IntegerField("For", validators=[DataRequired()])
+    against_votes = IntegerField("Against", validators=[DataRequired()])
+    abstain_votes = IntegerField("Abstain", validators=[DataRequired()])
+    submit = SubmitField("Save")

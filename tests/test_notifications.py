@@ -31,6 +31,7 @@ def test_unsubscribe_token_created_and_link_in_email():
                 assert token is not None
                 sent = mock_send.call_args[0][0]
                 assert f'/unsubscribe/{token.token}' in sent.body
+                assert f'/resubscribe/{token.token}' in sent.body
 
 
 def test_unsubscribe_route_marks_opt_out():
@@ -48,6 +49,23 @@ def test_unsubscribe_route_marks_opt_out():
         resp = client.get(f'/unsubscribe/{token.token}')
         assert resp.status_code == 200
         assert db.session.get(Member, 1).email_opt_out is True
+
+
+def test_resubscribe_route_clears_opt_out():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='M')
+        db.session.add(meeting)
+        member = Member(name='D', email='d@example.com', meeting_id=1, email_opt_out=True)
+        db.session.add(member)
+        token = UnsubscribeToken(token='t2', member_id=1)
+        db.session.add(token)
+        db.session.commit()
+        client = app.test_client()
+        resp = client.get(f'/resubscribe/{token.token}')
+        assert resp.status_code == 200
+        assert db.session.get(Member, 1).email_opt_out is False
 
 
 def test_email_not_sent_when_opted_out():
