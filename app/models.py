@@ -303,6 +303,17 @@ class ApiToken(db.Model):
         return cls.query.filter_by(token_hash=hashed).first()
 
 
+class PasswordResetToken(db.Model):
+    __tablename__ = "password_reset_tokens"
+
+    token = db.Column(db.String(36), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    used_at = db.Column(db.DateTime)
+
+    user = db.relationship("User")
+
+
 class Amendment(db.Model):
     __tablename__ = "amendments"
     id = db.Column(db.Integer, primary_key=True)
