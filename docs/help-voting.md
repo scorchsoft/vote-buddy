@@ -19,6 +19,15 @@ If you have been appointed as a proxy, a token will be issued for the represente
 
 For more details see Articles 107–115 in the governance documents.
 
+## Manual tally entry
+
+When a meeting uses **in-person** ballot mode no voting links are sent.
+Coordinators record the counts after each stage instead.
+Use the *Stage&nbsp;1 Tally* and *Stage&nbsp;2 Tally* forms on the admin
+results page to enter the numbers of votes cast. Stage&nbsp;1 only stores a
+single "votes cast" value for quorum checks. Stage&nbsp;2 captures the final
+For/Against/Abstain totals.
+
 ## Keyboard navigation
 
 All voting controls can be reached using the Tab key. After making your choices, the sticky confirmation bar becomes the final Tab stop with a prominent **Submit vote** button.
