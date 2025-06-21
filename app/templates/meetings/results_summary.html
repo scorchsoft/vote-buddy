@@ -68,6 +68,9 @@
 {% endif %}
 <a href="{{ url_for('meetings.results_docx', meeting_id=meeting.id) }}" class="bp-btn-secondary mt-4 inline-block">Download DOCX</a>
 <a href="{{ url_for('meetings.results_stage2_docx', meeting_id=meeting.id) }}" class="bp-btn-secondary mt-4 inline-block ml-2">Download Final DOCX</a>
+{% if manual_email_mode %}
+<a href="{{ url_for('meetings.manual_send_emails', meeting_id=meeting.id) }}" class="bp-btn-primary mt-4 inline-block ml-2">Send Emails</a>
+{% endif %}
 {% if meeting.status == 'Pending Stage 2' %}
 <a href="{{ url_for('meetings.prepare_stage2', meeting_id=meeting.id) }}" class="bp-btn-primary mt-4 inline-block ml-2">Prepare Stage 2 Motion</a>
 {% elif meeting.status == 'Completed' %}

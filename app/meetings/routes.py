@@ -1147,11 +1147,13 @@ def results_summary(meeting_id: int):
             and principal.meeting_id == meeting.id
         ):
             unused_proxy_tokens.append((t, proxy, principal))
+    manual_email_mode = AppSetting.get("manual_email_mode") == "1"
     return render_template(
         "meetings/results_summary.html",
         meeting=meeting,
         results=results,
         unused_proxy_tokens=unused_proxy_tokens,
+        manual_email_mode=manual_email_mode,
     )
 
 
