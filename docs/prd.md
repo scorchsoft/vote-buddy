@@ -470,6 +470,9 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-17 – Fake data generator now assigns member numbers, uses `.invalid` emails and marks demo records as test-only.
 * 2025-07-17 – Added .dockerignore to reduce Docker build context.
 * 2025-07-18 – Added Stage 2 close button on results summary page.
+* 2025-07-18 – Linked manual email sending page from results summary.
+* 2025-07-19 – Added per-member resend link on results summary.
+
 
 
 
