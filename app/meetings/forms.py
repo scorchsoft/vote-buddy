@@ -193,3 +193,12 @@ class MotionForm(FlaskForm):
         default=True,
     )
     submit = SubmitField("Save")
+
+
+class ExtendStageForm(FlaskForm):
+    """Admin form to extend a stage voting window."""
+
+    opens_at = DateTimeLocalField("New Opens At", format="%Y-%m-%dT%H:%M")
+    closes_at = DateTimeLocalField("New Closes At", format="%Y-%m-%dT%H:%M")
+    reason = TextAreaField("Reason", validators=[DataRequired()])
+    submit = SubmitField("Extend")
