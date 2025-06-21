@@ -248,9 +248,16 @@ def import_members(meeting_id):
                 "meetings/import_members.html", form=form, meeting=meeting
             )
 
+        rows = list(reader)
+        file_ids = {r.get("member_id", "").strip() for r in rows if r.get("member_id")}
+        existing_ids = {
+            m.member_number
+            for m in Member.query.with_entities(Member.member_number).filter_by(meeting_id=meeting.id)
+        }
+
         seen_emails: set[str] = set()
         tokens_to_send: list[tuple[Member, str]] = []
-        for idx, row in enumerate(reader, start=2):
+        for idx, row in enumerate(rows, start=2):
             name = row["name"].strip()
             email = row["email"].strip().lower()
 
@@ -271,13 +278,19 @@ def import_members(meeting_id):
                 )
             seen_emails.add(email)
 
+            proxy_ref = (row.get("proxy_for") or "").strip()
+            if proxy_ref and proxy_ref not in file_ids | existing_ids:
+                flash(f"Row {idx}: invalid proxy reference {proxy_ref}", "error")
+                return render_template(
+                    "meetings/import_members.html", form=form, meeting=meeting
+                )
 
             member = Member(
                 meeting_id=meeting.id,
                 member_number=row.get("member_id"),
                 name=name,
                 email=email,
-                proxy_for=(row.get("proxy_for") or "").strip() or None,
+                proxy_for=proxy_ref or None,
             )
             db.session.add(member)
             db.session.flush()

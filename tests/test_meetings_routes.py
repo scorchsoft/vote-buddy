@@ -96,6 +96,7 @@ def test_import_members_sends_invites_and_tokens():
                 csv_file=SimpleNamespace(data=io.BytesIO(csv_content.encode()))
             )
             dummy_form.validate_on_submit = lambda: True
+            dummy_form.hidden_tag = lambda: ""
             with patch("flask_login.utils._get_user", return_value=user):
                 with patch(
                     "app.meetings.routes.MemberImportForm", return_value=dummy_form
@@ -104,6 +105,43 @@ def test_import_members_sends_invites_and_tokens():
                         meetings.import_members(meeting.id)
                         mock_send.assert_called_once()
                         assert VoteToken.query.count() == 1
+
+
+def test_import_members_invalid_proxy_reference():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="Test")
+        db.session.add(meeting)
+        db.session.commit()
+
+        csv_content = (
+            "member_id,name,email,proxy_for\n"
+            "1,Alice,alice@example.com,999\n"
+            "2,Bob,bob@example.com,\n"
+        )
+        data = {"csv_file": (io.BytesIO(csv_content.encode()), "members.csv")}
+        with app.test_request_context(
+            f"/meetings/{meeting.id}/import-members", method="POST", data=data
+        ):
+            user = _make_user(True)
+            dummy_form = SimpleNamespace(
+                csv_file=SimpleNamespace(data=io.BytesIO(csv_content.encode()))
+            )
+            dummy_form.validate_on_submit = lambda: True
+            dummy_form.hidden_tag = lambda: ""
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch(
+                    "app.meetings.routes.MemberImportForm", return_value=dummy_form
+                ):
+                    with patch("app.meetings.routes.send_vote_invite") as mock_send:
+                        with patch("app.meetings.routes.flash") as fl:
+                            with patch("app.meetings.routes.render_template", return_value=""):
+                                meetings.import_members(meeting.id)
+                            fl.assert_called()
+                        mock_send.assert_not_called()
+                        assert VoteToken.query.count() == 0
 
 
 def test_close_stage1_creates_stage2_tokens_and_emails():
