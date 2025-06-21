@@ -35,6 +35,7 @@ from ..services.email import (
     send_stage2_invite,
     send_runoff_invite,
     send_quorum_failure,
+    send_final_results,
 )
 from ..services import runoff
 from ..permissions import permission_required
@@ -1240,6 +1241,14 @@ def close_stage2(meeting_id: int):
 
     meeting.status = "Completed"
     db.session.commit()
+
+    members = Member.query.filter_by(meeting_id=meeting.id).all()
+    if AppSetting.get("manual_email_mode") != "1":
+        for member in members:
+            send_final_results(member, meeting)
+    else:
+        flash("Automatic emails disabled - use manual send", "warning")
+
     flash("Stage 2 closed and motions tallied", "success")
     return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
 
