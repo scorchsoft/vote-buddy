@@ -14,6 +14,7 @@ from .models import (
 import math
 from .services.email import (
     send_stage1_reminder,
+    send_stage2_reminder,
     send_board_notice,
     send_amendment_reinstated,
 )
@@ -21,6 +22,7 @@ from .services.email import (
 
 def register_jobs():
     scheduler.add_job('stage1_reminders', send_stage1_reminders, trigger='interval', hours=1)
+    scheduler.add_job('stage2_reminders', send_stage2_reminders, trigger='interval', hours=1)
     scheduler.add_job('token_cleanup', cleanup_vote_tokens, trigger='cron', hour=0)
     scheduler.add_job('objection_check', check_objection_deadlines, trigger='cron', hour='*')
 
@@ -57,6 +59,51 @@ def send_stage1_reminders():
             send_stage1_reminder(member, plain, meeting)
         meeting.stage1_reminder_sent_at = now
         db.session.commit()
+
+
+def send_stage2_reminders():
+    """Check meetings nearing Stage 2 close and email reminders."""
+    if AppSetting.get("manual_email_mode") == "1":
+        return
+    now = datetime.utcnow()
+    soon = now + timedelta(
+        hours=config_or_setting('STAGE2_REMINDER_HOURS_BEFORE_CLOSE', 6, parser=int)
+    )
+    meetings = Meeting.query.filter(
+        Meeting.closes_at_stage2.isnot(None),
+        Meeting.closes_at_stage2 <= soon,
+        Meeting.closes_at_stage2 >= now,
+    ).all()
+    for meeting in meetings:
+        last = getattr(meeting, 'stage2_reminder_sent_at', None)
+        cooldown = timedelta(
+            hours=config_or_setting('STAGE2_REMINDER_COOLDOWN_HOURS', 24, parser=int)
+        )
+        if last and now - last < cooldown:
+            continue
+        members = (
+            Member.query.join(
+                VoteToken,
+                db.and_(
+                    VoteToken.member_id == Member.id,
+                    VoteToken.stage == 2,
+                    VoteToken.used_at.is_(None),
+                ),
+            )
+            .filter(Member.meeting_id == meeting.id)
+            .distinct()
+            .all()
+        )
+        for member in members:
+            _, plain = VoteToken.create(
+                member_id=member.id,
+                stage=2,
+                salt=current_app.config["TOKEN_SALT"],
+            )
+            send_stage2_reminder(member, plain, meeting)
+        if members:
+            meeting.stage2_reminder_sent_at = now
+            db.session.commit()
 
 
 def cleanup_vote_tokens() -> None:

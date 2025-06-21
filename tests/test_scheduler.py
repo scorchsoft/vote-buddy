@@ -7,7 +7,12 @@ from datetime import datetime, timedelta
 from app import create_app
 from app.extensions import db, scheduler
 from app.models import Meeting, Member, VoteToken
-from app.tasks import register_jobs, send_stage1_reminders, cleanup_vote_tokens
+from app.tasks import (
+    register_jobs,
+    send_stage1_reminders,
+    send_stage2_reminders,
+    cleanup_vote_tokens,
+)
 
 
 def _setup_app():
@@ -15,6 +20,8 @@ def _setup_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['REMINDER_HOURS_BEFORE_CLOSE'] = 2
     app.config['REMINDER_COOLDOWN_HOURS'] = 24
+    app.config['STAGE2_REMINDER_HOURS_BEFORE_CLOSE'] = 2
+    app.config['STAGE2_REMINDER_COOLDOWN_HOURS'] = 24
     app.config['TOKEN_SALT'] = 's'
     return app
 
@@ -22,7 +29,7 @@ def _setup_app():
 def test_register_jobs_adds_interval_job():
     with patch.object(scheduler, 'add_job') as add_job:
         register_jobs()
-        assert add_job.call_count == 3
+        assert add_job.call_count == 4
 
 
 def test_send_stage1_reminders_sends_emails():
@@ -44,6 +51,27 @@ def test_send_stage1_reminders_sends_emails():
             send_stage1_reminders()
             assert mock_send.called
             assert meeting.stage1_reminder_sent_at is not None
+
+
+def test_send_stage2_reminders_sends_emails():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(title='M', closes_at_stage2=now + timedelta(hours=1))
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='Ann', email='a@example.com')
+        db.session.add(member)
+        db.session.flush()
+        token_hash = VoteToken._hash('tok', app.config['TOKEN_SALT'])
+        token = VoteToken(token=token_hash, member_id=member.id, stage=2)
+        db.session.add(token)
+        db.session.commit()
+        with patch('app.tasks.send_stage2_reminder') as mock_send:
+            send_stage2_reminders()
+            assert mock_send.called
+            assert meeting.stage2_reminder_sent_at is not None
 
 
 def test_cleanup_vote_tokens_removes_expired_and_used():
