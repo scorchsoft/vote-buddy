@@ -124,12 +124,20 @@ def _calculate_default_times(agm_date: datetime) -> dict:
     closes_at_stage1 = opens_at_stage2 - timedelta(days=cfg.get("STAGE_GAP_DAYS", 1))
     opens_at_stage1 = closes_at_stage1 - timedelta(days=cfg.get("STAGE1_LENGTH_DAYS", 7))
     notice_date = opens_at_stage1 - timedelta(days=cfg.get("NOTICE_PERIOD_DAYS", 14))
+    motions_closes_at = notice_date - timedelta(days=cfg.get("MOTION_DEADLINE_GAP_DAYS", 7))
+    motions_opens_at = motions_closes_at - timedelta(days=cfg.get("MOTION_WINDOW_DAYS", 7))
+    amendments_opens_at = notice_date
+    amendments_closes_at = opens_at_stage1 - timedelta(days=21)
     return {
         "notice_date": notice_date,
         "opens_at_stage1": opens_at_stage1,
         "closes_at_stage1": closes_at_stage1,
         "opens_at_stage2": opens_at_stage2,
         "closes_at_stage2": agm_date,
+        "motions_opens_at": motions_opens_at,
+        "motions_closes_at": motions_closes_at,
+        "amendments_opens_at": amendments_opens_at,
+        "amendments_closes_at": amendments_closes_at,
     }
 
 
@@ -489,6 +497,8 @@ def create_motion(meeting_id):
 def view_motion(motion_id):
     motion = db.session.get(Motion, motion_id)
     if motion is None:
+        abort(404)
+    if not motion.is_published:
         abort(404)
     amendments = (
         Amendment.query.filter_by(motion_id=motion.id).order_by(Amendment.order).all()

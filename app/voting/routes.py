@@ -177,12 +177,15 @@ def ballot_token(token: str):
 
     if meeting.ballot_mode == "combined":
         motions = (
-            Motion.query.filter_by(meeting_id=meeting.id)
+            Motion.query.filter_by(meeting_id=meeting.id, is_published=True)
             .order_by(Motion.ordering)
             .all()
         )
         amendments = (
-            Amendment.query.filter(Amendment.motion_id.in_([m.id for m in motions]))
+            Amendment.query.filter(
+                Amendment.motion_id.in_([m.id for m in motions]),
+                Amendment.is_published.is_(True),
+            )
             .order_by(Amendment.order)
             .all()
         )
@@ -252,12 +255,15 @@ def ballot_token(token: str):
 
     if vote_token.stage == 1:
         motions = (
-            Motion.query.filter_by(meeting_id=meeting.id)
+            Motion.query.filter_by(meeting_id=meeting.id, is_published=True)
             .order_by(Motion.ordering)
             .all()
         )
         amendments = (
-            Amendment.query.filter(Amendment.motion_id.in_([m.id for m in motions]))
+            Amendment.query.filter(
+                Amendment.motion_id.in_([m.id for m in motions]),
+                Amendment.is_published.is_(True),
+            )
             .order_by(Amendment.order)
             .all()
         )
@@ -315,7 +321,7 @@ def ballot_token(token: str):
 
     else:
         motions = (
-            Motion.query.filter_by(meeting_id=meeting.id)
+            Motion.query.filter_by(meeting_id=meeting.id, is_published=True)
             .order_by(Motion.ordering)
             .all()
         )
