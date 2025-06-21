@@ -55,6 +55,26 @@
       </div>
     </div>
     <div class="mb-4">
+      {{ form.stage2_reminder_hours_before_close.label(class='block mb-1') }}
+      <div class="flex gap-2">
+        {{ form.stage2_reminder_hours_before_close(class='bp-input w-full') }}
+        <form action="{{ url_for('admin.reset_setting', key='stage2_reminder_hours_before_close') }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <button type="submit" class="text-sm underline">Reset default</button>
+        </form>
+      </div>
+    </div>
+    <div class="mb-4">
+      {{ form.stage2_reminder_cooldown_hours.label(class='block mb-1') }}
+      <div class="flex gap-2">
+        {{ form.stage2_reminder_cooldown_hours(class='bp-input w-full') }}
+        <form action="{{ url_for('admin.reset_setting', key='stage2_reminder_cooldown_hours') }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <button type="submit" class="text-sm underline">Reset default</button>
+        </form>
+      </div>
+    </div>
+    <div class="mb-4">
       {{ form.reminder_template.label(class='block mb-1') }}
       <div class="flex gap-2">
         {{ form.reminder_template(class='bp-input w-full') }}

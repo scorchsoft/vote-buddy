@@ -228,6 +228,53 @@ def send_stage1_reminder(member: Member, token: str, meeting: Meeting, *, test_m
     _log_email(member, meeting, 'stage1_reminder', test_mode)
 
 
+def send_stage2_reminder(member: Member, token: str, meeting: Meeting, *, test_mode: bool = False) -> None:
+    """Email reminder to cast Stage 2 vote."""
+    if member.email_opt_out:
+        return
+    link = url_for('voting.ballot_token', token=token, _external=True)
+    template_base = config_or_setting('STAGE2_REMINDER_TEMPLATE', 'email/stage2_reminder')
+    unsubscribe = _unsubscribe_url(member)
+    resubscribe = _resubscribe_url(member)
+    summary = carried_amendment_summary(meeting)
+    if summary:
+        results_link = None
+    else:
+        if meeting.early_public_results:
+            results_link = url_for('main.public_stage1_results', meeting_id=meeting.id, _external=True)
+        else:
+            results_link = url_for('main.public_results', meeting_id=meeting.id, _external=True)
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + f"Reminder: vote in {meeting.title}",
+        recipients=[member.email],
+        sender=_sender(),
+    )
+    msg.body = render_template(
+        f"{template_base}.txt",
+        member=member,
+        meeting=meeting,
+        link=link,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        summary=summary,
+        results_link=results_link,
+        test_mode=test_mode,
+    )
+    msg.html = render_template(
+        f"{template_base}.html",
+        member=member,
+        meeting=meeting,
+        link=link,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        summary=summary,
+        results_link=results_link,
+        test_mode=test_mode,
+    )
+    mail.send(msg)
+    _log_email(member, meeting, 'stage2_reminder', test_mode)
+
+
 def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str], *, test_mode: bool = False) -> None:
     """Email a receipt containing vote hashes."""
     unsubscribe = _unsubscribe_url(member)
@@ -503,5 +550,17 @@ def send_amendment_reinstated(amendment: Amendment, meeting: Meeting, *, test_mo
     msg.html = render_template(
         "email/amendment_reinstated.html", amendment=amendment, meeting=meeting
     )
+    mail.send(msg)
+
+
+def send_password_reset(user: User, token: str, *, test_mode: bool = False) -> None:
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + "Reset your password",
+        recipients=[user.email],
+        sender=_sender(),
+    )
+    link = url_for("auth.reset_password", token=token, _external=True)
+    msg.body = render_template("email/password_reset.txt", user=user, link=link)
+    msg.html = render_template("email/password_reset.html", user=user, link=link)
     mail.send(msg)
 
