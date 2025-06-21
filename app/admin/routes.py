@@ -30,6 +30,7 @@ from .forms import (
 )
 
 from ..permissions import permission_required
+from ..services.audit import record_action, get_logs
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -51,6 +52,7 @@ def toggle_public_results(meeting_id: int):
         abort(404)
     meeting.public_results = not meeting.public_results
     db.session.commit()
+    record_action('toggle_public_results', f'meeting_id={meeting.id}')
     return redirect(url_for("admin.dashboard"))
 
 
@@ -63,6 +65,7 @@ def toggle_results_doc(meeting_id: int):
         abort(404)
     meeting.results_doc_published = not meeting.results_doc_published
     db.session.commit()
+    record_action('toggle_results_doc', f'meeting_id={meeting.id}')
     return redirect(url_for("admin.dashboard"))
 
 
@@ -161,7 +164,8 @@ def create_user():
     form = UserCreateForm()
     form.role_id.choices = [(r.id, r.name) for r in Role.query.order_by(Role.name)]
     if form.validate_on_submit():
-        _save_user(form)
+        user = _save_user(form)
+        record_action("create_user", f"user_id={user.id}")
         return redirect(url_for("admin.list_users"))
     return render_template("admin/user_form.html", form=form, user=None)
 
@@ -176,7 +180,8 @@ def edit_user(user_id):
     form = UserForm(obj=user)
     form.role_id.choices = [(r.id, r.name) for r in Role.query.order_by(Role.name)]
     if form.validate_on_submit():
-        _save_user(form, user)
+        updated = _save_user(form, user)
+        record_action("edit_user", f"user_id={updated.id}")
         return redirect(url_for("admin.list_users"))
     return render_template("admin/user_form.html", form=form, user=user)
 
@@ -353,6 +358,7 @@ def manage_settings():
         else:
             AppSetting.delete("contact_url")
         AppSetting.set("manual_email_mode", "1" if form.manual_email_mode.data else "0")
+        record_action("update_settings")
         flash("Settings updated", "success")
         return redirect(url_for("admin.manage_settings"))
     return render_template("admin/settings_form.html", form=form)
@@ -363,5 +369,19 @@ def manage_settings():
 @permission_required("manage_settings")
 def reset_setting(key: str):
     AppSetting.delete(key)
+    record_action("reset_setting", key)
     flash("Setting reset to default", "success")
     return redirect(url_for("admin.manage_settings"))
+
+
+@bp.route("/audit")
+@login_required
+@permission_required("manage_users")
+def view_audit():
+    page = request.args.get("page", 1, type=int)
+    pagination = get_logs(page=page, per_page=20)
+    return render_template(
+        "admin/audit.html",
+        logs=pagination.items,
+        pagination=pagination,
+    )
