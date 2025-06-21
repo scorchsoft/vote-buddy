@@ -466,3 +466,4 @@ SES/SMTP  ─── Outbound mail
 
 *Draft v0.1 – generated 13 Jun 2025.*
 * 2025-07-15 – Added meeting file uploads with public links.
+* 2025-07-16 – Expanded help docs with motion and amendment submission steps.

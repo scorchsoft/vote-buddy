@@ -27,11 +27,17 @@ download an `.ics` file that you can import into most calendar apps.
 
 ## Submitting motions and amendments
 
-Before the notice deadline you can propose new motions or submit amendments
-to published motions. Visit the public meeting page and click **Submit Motion**
-to file a proposal. Once motions are listed each one has a **Submit Amendment**
-link for changes. After you fill in the form the coordinators are emailed and
-will review your text before voting opens.
+Before the notice deadline you can propose new motions or submit amendments to
+published motions.
+
+1. When the submission window opens you'll receive a special **Submit Motion**
+   link by email. Follow it to fill out a short form with your motion title,
+   text and chosen seconder.
+2. After submitting you'll see a confirmation message while coordinators review
+   your proposal.
+3. To change an existing motion, open it on the meeting page and click
+   **Submit Amendment**. Enter your wording and seconder just like the motion
+   form. You'll get an email once your amendment is accepted or rejected.
 
 ## Manual tally entry
 
