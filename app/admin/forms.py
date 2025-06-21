@@ -42,6 +42,8 @@ class SettingsForm(FlaskForm):
     runoff_extension_minutes = IntegerField("Run-off Extension Minutes")
     reminder_hours_before_close = IntegerField("Reminder Hours Before Close")
     reminder_cooldown_hours = IntegerField("Reminder Cooldown Hours")
+    stage2_reminder_hours_before_close = IntegerField("Stage 2 Reminder Hours Before Close")
+    stage2_reminder_cooldown_hours = IntegerField("Stage 2 Reminder Cooldown Hours")
     reminder_template = StringField("Reminder Template")
     tie_break_decisions = TextAreaField("Tie Break Decisions", validators=[Optional()])
     clerical_text = TextAreaField("Clerical Amendment Text", validators=[Optional()])

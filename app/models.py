@@ -95,6 +95,7 @@ class Meeting(db.Model):
     stage1_closed_at = db.Column(db.DateTime)
     stage2_locked = db.Column(db.Boolean, default=False)
     stage1_reminder_sent_at = db.Column(db.DateTime)
+    stage2_reminder_sent_at = db.Column(db.DateTime)
     public_results = db.Column(db.Boolean, default=False)
     early_public_results = db.Column(db.Boolean, default=False)
     comments_enabled = db.Column(db.Boolean, default=False)
@@ -301,6 +302,17 @@ class ApiToken(db.Model):
     def verify(cls, token: str, salt: str) -> "ApiToken | None":
         hashed = cls._hash(token, salt)
         return cls.query.filter_by(token_hash=hashed).first()
+
+
+class PasswordResetToken(db.Model):
+    __tablename__ = "password_reset_tokens"
+
+    token = db.Column(db.String(36), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    used_at = db.Column(db.DateTime)
+
+    user = db.relationship("User")
 
 
 class Amendment(db.Model):

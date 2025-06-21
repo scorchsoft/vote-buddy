@@ -38,9 +38,10 @@ The following images show the main dashboard and help section in action.
 
 1. Copy `.env.example` to `.env` and review the values.
    The defaults include options for email reminders and run-off timing such as
-   `RUNOFF_EXTENSION_MINUTES`, `REMINDER_HOURS_BEFORE_CLOSE`,
-   `REMINDER_COOLDOWN_HOURS`, `REMINDER_TEMPLATE`, `TIE_BREAK_DECISIONS` and
-   `MAIL_USE_TLS`. These can later be changed in the Settings UI.
+  `RUNOFF_EXTENSION_MINUTES`, `REMINDER_HOURS_BEFORE_CLOSE`,
+  `REMINDER_COOLDOWN_HOURS`, `REMINDER_TEMPLATE`,
+  `STAGE2_REMINDER_HOURS_BEFORE_CLOSE`, `STAGE2_REMINDER_COOLDOWN_HOURS`,
+  `STAGE2_REMINDER_TEMPLATE`, `TIE_BREAK_DECISIONS` and `MAIL_USE_TLS`. These can later be changed in the Settings UI.
 2. Install the Python packages:
 
 ```bash
