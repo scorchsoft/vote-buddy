@@ -262,6 +262,35 @@ class UnsubscribeToken(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class ApiToken(db.Model):
+    """Token for authenticating API requests."""
+
+    __tablename__ = "api_tokens"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    token_hash = db.Column(db.String(64), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @staticmethod
+    def _hash(token: str, salt: str) -> str:
+        return hashlib.sha256(f"{token}{salt}".encode()).hexdigest()
+
+    @classmethod
+    def create(cls, name: str, salt: str) -> tuple["ApiToken", str]:
+        """Create token, store hash and return plain value."""
+        plain = str(uuid7())
+        hashed = cls._hash(plain, salt)
+        obj = cls(name=name, token_hash=hashed)
+        db.session.add(obj)
+        return obj, plain
+
+    @classmethod
+    def verify(cls, token: str, salt: str) -> "ApiToken | None":
+        hashed = cls._hash(token, salt)
+        return cls.query.filter_by(token_hash=hashed).first()
+
+
 class Amendment(db.Model):
     __tablename__ = "amendments"
     id = db.Column(db.Integer, primary_key=True)

@@ -49,3 +49,8 @@ class SettingsForm(FlaskForm):
     manual_email_mode = BooleanField("Disable Automatic Emails")
     contact_url = StringField("Contact URL", validators=[Optional(), URL()])
     submit = SubmitField("Save")
+
+
+class ApiTokenForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    submit = SubmitField("Generate")
