@@ -178,3 +178,73 @@ def motion_results_summary(meeting: "Meeting") -> str:
         status = (motion.status or "?").capitalize()
         lines.append(f"* {motion.title}: {status}")
     return "\n".join(lines)
+
+
+def generate_results_pdf(meeting, stage1_results, stage2_results) -> bytes:
+    """Return PDF bytes summarising Stage 1 and Stage 2 results."""
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.platypus import (
+        SimpleDocTemplate,
+        Table,
+        TableStyle,
+        Paragraph,
+        Spacer,
+    )
+    import io
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4)
+    styles = getSampleStyleSheet()
+    story = [Paragraph(f"{meeting.title} - Final Results", styles["Title"]), Spacer(1, 12)]
+
+    # Stage 1 table
+    story.append(Paragraph("Stage 1 Amendments", styles["Heading2"]))
+    data = [["Amendment", "For", "Against", "Abstain"]]
+    for amend, counts in stage1_results:
+        data.append([
+            getattr(amend, "text_md", ""),
+            counts.get("for", 0),
+            counts.get("against", 0),
+            counts.get("abstain", 0),
+        ])
+    table = Table(data, repeatRows=1)
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+            ]
+        )
+    )
+    story.extend([table, Spacer(1, 24)])
+
+    # Stage 2 table
+    story.append(Paragraph("Stage 2 Motions", styles["Heading2"]))
+    data2 = [["Motion", "For", "Against", "Abstain", "Outcome"]]
+    for motion, counts in stage2_results:
+        data2.append([
+            getattr(motion, "title", ""),
+            counts.get("for", 0),
+            counts.get("against", 0),
+            counts.get("abstain", 0),
+            (getattr(motion, "status", "?") or "?").capitalize(),
+        ])
+    table2 = Table(data2, repeatRows=1)
+    table2.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+            ]
+        )
+    )
+    story.append(table2)
+
+    doc.build(story)
+    return buf.getvalue()
