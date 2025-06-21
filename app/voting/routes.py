@@ -109,16 +109,16 @@ def ballot_token(token: str):
     member = db.session.get(Member, vote_token.member_id)
     if member is None:
         abort(404)
+    acting_member = (
+        db.session.get(Member, vote_token.proxy_holder_id)
+        if vote_token.proxy_holder_id
+        else member
+    )
     meeting = db.session.get(Meeting, member.meeting_id)
     if meeting is None:
         abort(404)
 
-    proxy_member = None
-    if member.proxy_for:
-        try:
-            proxy_member = db.session.get(Member, int(member.proxy_for))
-        except (ValueError, TypeError):
-            proxy_member = None
+    proxy_for = member if vote_token.proxy_holder_id else None
 
     # verify current time falls within the configured window
     now = datetime.utcnow()
@@ -149,7 +149,12 @@ def ballot_token(token: str):
             400,
         )
 
-    if vote_token.used_at and not meeting.revoting_allowed:
+    used_any = (
+        VoteToken.query.filter_by(member_id=member.id, stage=vote_token.stage)
+        .filter(VoteToken.used_at.isnot(None))
+        .first()
+    )
+    if used_any and not meeting.revoting_allowed:
         return (
             render_template(
                 "voting/token_error.html",
@@ -158,7 +163,7 @@ def ballot_token(token: str):
             400,
         )
 
-    revote = bool(vote_token.used_at and meeting.revoting_allowed)
+    revote = bool(used_any and meeting.revoting_allowed)
 
     if meeting.ballot_mode == "combined":
         motions = (
@@ -177,12 +182,8 @@ def ballot_token(token: str):
             if revote:
                 for amend in amendments:
                     Vote.query.filter_by(member_id=member.id, amendment_id=amend.id).delete()
-                    if proxy_member:
-                        Vote.query.filter_by(member_id=proxy_member.id, amendment_id=amend.id).delete()
                 for motion in motions:
                     Vote.query.filter_by(member_id=member.id, motion_id=motion.id).delete()
-                    if proxy_member:
-                        Vote.query.filter_by(member_id=proxy_member.id, motion_id=motion.id).delete()
                 db.session.commit()
             for amend in amendments:
                 choice = form[f"amend_{amend.id}"].data
@@ -194,14 +195,6 @@ def ballot_token(token: str):
                     stage=vote_token.stage,
                 )
                 hashes.append(vote.hash)
-                if proxy_member:
-                    Vote.record(
-                        member_id=proxy_member.id,
-                        amendment_id=amend.id,
-                        choice=choice,
-                        salt=current_app.config["VOTE_SALT"],
-                        stage=vote_token.stage,
-                    )
             for motion in motions:
                 choice = form[f"motion_{motion.id}"].data
                 vote = Vote.record(
@@ -212,17 +205,10 @@ def ballot_token(token: str):
                     stage=vote_token.stage,
                 )
                 hashes.append(vote.hash)
-                if proxy_member:
-                    Vote.record(
-                        member_id=proxy_member.id,
-                        motion_id=motion.id,
-                        choice=choice,
-                        salt=current_app.config["VOTE_SALT"],
-                        stage=vote_token.stage,
-                    )
-            vote_token.used_at = datetime.utcnow()
+            now = datetime.utcnow()
+            VoteToken.query.filter_by(member_id=member.id, stage=vote_token.stage).update({"used_at": now})
             db.session.commit()
-            send_vote_receipt(member, meeting, hashes)
+            send_vote_receipt(acting_member, meeting, hashes)
             return render_template(
                 "voting/confirmation.html",
                 choice="recorded",
@@ -247,7 +233,7 @@ def ballot_token(token: str):
             form=form,
             motions=motions_grouped,
             meeting=meeting,
-            proxy_for=proxy_member,
+            proxy_for=proxy_for,
             token=token,
             motion_counts=motion_counts,
             amend_counts=amend_counts,
@@ -271,8 +257,6 @@ def ballot_token(token: str):
             if revote:
                 for amend in amendments:
                     Vote.query.filter_by(member_id=member.id, amendment_id=amend.id).delete()
-                    if proxy_member:
-                        Vote.query.filter_by(member_id=proxy_member.id, amendment_id=amend.id).delete()
                 db.session.commit()
             for amend in amendments:
                 choice = form[f"amend_{amend.id}"].data
@@ -284,17 +268,10 @@ def ballot_token(token: str):
                     stage=vote_token.stage,
                 )
                 hashes.append(vote.hash)
-                if proxy_member:
-                    Vote.record(
-                        member_id=proxy_member.id,
-                        amendment_id=amend.id,
-                        choice=choice,
-                        salt=current_app.config["VOTE_SALT"],
-                        stage=vote_token.stage,
-                    )
-            vote_token.used_at = datetime.utcnow()
+            now = datetime.utcnow()
+            VoteToken.query.filter_by(member_id=member.id, stage=vote_token.stage).update({"used_at": now})
             db.session.commit()
-            send_vote_receipt(member, meeting, hashes)
+            send_vote_receipt(acting_member, meeting, hashes)
             return render_template(
                 "voting/confirmation.html",
                 choice="recorded",
@@ -319,7 +296,7 @@ def ballot_token(token: str):
             form=form,
             motions=motions_grouped,
             meeting=meeting,
-            proxy_for=proxy_member,
+            proxy_for=proxy_for,
             token=token,
             motion_counts=motion_counts,
             amend_counts=amend_counts,
@@ -338,8 +315,6 @@ def ballot_token(token: str):
             if revote:
                 for motion in motions:
                     Vote.query.filter_by(member_id=member.id, motion_id=motion.id).delete()
-                    if proxy_member:
-                        Vote.query.filter_by(member_id=proxy_member.id, motion_id=motion.id).delete()
                 db.session.commit()
             for motion in motions:
                 choice = form[f"motion_{motion.id}"].data
@@ -351,17 +326,10 @@ def ballot_token(token: str):
                     stage=vote_token.stage,
                 )
                 hashes.append(vote.hash)
-                if proxy_member:
-                    Vote.record(
-                        member_id=proxy_member.id,
-                        motion_id=motion.id,
-                        choice=choice,
-                        salt=current_app.config["VOTE_SALT"],
-                        stage=vote_token.stage,
-                    )
-            vote_token.used_at = datetime.utcnow()
+            now = datetime.utcnow()
+            VoteToken.query.filter_by(member_id=member.id, stage=vote_token.stage).update({"used_at": now})
             db.session.commit()
-            send_vote_receipt(member, meeting, hashes)
+            send_vote_receipt(acting_member, meeting, hashes)
             return render_template(
                 "voting/confirmation.html",
                 choice="recorded",
@@ -383,7 +351,7 @@ def ballot_token(token: str):
             form=form,
             motions=compiled,
             meeting=meeting,
-            proxy_for=proxy_member,
+            proxy_for=proxy_for,
             token=token,
             motion_counts=motion_counts,
             revote=revote,
@@ -406,14 +374,19 @@ def runoff_ballot(token: str):
     if meeting is None:
         abort(404)
 
-    proxy_member = None
-    if member.proxy_for:
-        try:
-            proxy_member = db.session.get(Member, int(member.proxy_for))
-        except (ValueError, TypeError):
-            proxy_member = None
+    acting_member = (
+        db.session.get(Member, vote_token.proxy_holder_id)
+        if vote_token.proxy_holder_id
+        else member
+    )
+    proxy_for = member if vote_token.proxy_holder_id else None
 
-    if vote_token.used_at and not meeting.revoting_allowed:
+    used_any = (
+        VoteToken.query.filter_by(member_id=member.id, stage=vote_token.stage)
+        .filter(VoteToken.used_at.isnot(None))
+        .first()
+    )
+    if used_any and not meeting.revoting_allowed:
         return (
             render_template(
                 "voting/token_error.html",
@@ -464,26 +437,18 @@ def runoff_ballot(token: str):
                 v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="for", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
                 v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="against", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
                 hashes.extend([v1.hash, v2.hash])
-                if proxy_member:
-                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="for", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
-                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="against", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
             elif choice == "b":
                 v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="against", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
                 v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="for", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
                 hashes.extend([v1.hash, v2.hash])
-                if proxy_member:
-                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="against", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
-                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="for", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
             else:
                 v1 = Vote.record(member_id=member.id, amendment_id=a_id, choice="abstain", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
                 v2 = Vote.record(member_id=member.id, amendment_id=b_id, choice="abstain", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
                 hashes.extend([v1.hash, v2.hash])
-                if proxy_member:
-                    Vote.record(member_id=proxy_member.id, amendment_id=a_id, choice="abstain", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
-                    Vote.record(member_id=proxy_member.id, amendment_id=b_id, choice="abstain", salt=current_app.config["VOTE_SALT"], stage=vote_token.stage)
-        vote_token.used_at = datetime.utcnow()
+        now = datetime.utcnow()
+        VoteToken.query.filter_by(member_id=member.id, stage=vote_token.stage).update({"used_at": now})
         db.session.commit()
-        send_vote_receipt(member, meeting, hashes)
+        send_vote_receipt(acting_member, meeting, hashes)
         return render_template("voting/confirmation.html", choice="recorded")
 
     pairs = [
@@ -499,7 +464,7 @@ def runoff_ballot(token: str):
         form=form,
         runoffs=pairs,
         meeting=meeting,
-        proxy_for=proxy_member,
+        proxy_for=proxy_for,
         snippet=amendment_snippet,
     )
 

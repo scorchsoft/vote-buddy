@@ -15,7 +15,7 @@ By default a tied amendment vote is decided by the Chair's casting vote. If the 
 
 Each eligible member receives an email with a unique link. This link contains a secure token identifying you and the stage. Tokens can only be used once (unless revoting is enabled) and only during the advertised voting window. Do not share your link with others.
 
-If you have been appointed as a proxy, a token will be issued for the represented member as well. Casting your vote records it for both accounts.
+If you act as a proxy you will receive a separate token for the represented member. Either you or the original member may vote, but only the first ballot submitted is counted.
 
 For more details see Articles 107–115 in the governance documents.
 

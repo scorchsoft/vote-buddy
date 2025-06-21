@@ -517,7 +517,7 @@ def test_runoff_ballot_window_enforced():
             mock_dt.utcnow.return_value = now
             _, tokens = ro.close_stage1(meeting)
 
-        plain = tokens[0][1]
+        plain = tokens[0][2]
 
         token_obj = VoteToken.verify(plain, app.config['TOKEN_SALT'])
 

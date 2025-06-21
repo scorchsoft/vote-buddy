@@ -66,7 +66,7 @@ def close_stage1(meeting: Meeting) -> tuple[list[Runoff], list[tuple[Member, str
     db.session.commit()
 
     runoffs = _detect_runoffs(meeting)
-    tokens_to_send: list[tuple[Member, str]] = []
+    tokens_to_send: list[tuple[Member, Member | None, str]] = []
     if runoffs:
         extension = timedelta(
             minutes=config_or_setting('RUNOFF_EXTENSION_MINUTES', 2880, parser=int)
@@ -86,7 +86,21 @@ def close_stage1(meeting: Meeting) -> tuple[list[Runoff], list[tuple[Member, str
                 stage=1,
                 salt=current_app.config["TOKEN_SALT"],
             )
-            tokens_to_send.append((member, plain))
+            tokens_to_send.append((member, None, plain))
+        for proxy in members:
+            if proxy.proxy_for:
+                try:
+                    target = db.session.get(Member, int(proxy.proxy_for))
+                except (ValueError, TypeError):
+                    target = None
+                if target:
+                    _, plain = VoteToken.create(
+                        member_id=target.id,
+                        stage=1,
+                        salt=current_app.config["TOKEN_SALT"],
+                        proxy_holder_id=proxy.id,
+                    )
+                    tokens_to_send.append((proxy, target, plain))
         db.session.commit()
     return runoffs, tokens_to_send
 

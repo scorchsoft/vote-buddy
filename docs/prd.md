@@ -114,7 +114,7 @@
 
 ### 5.7 Proxy Voting Support (MVP Lite)
 * CSV may include `proxy_for` (member_id).
-* During vote cast, if member is proxy holder the UI shows extra banner and logs both votes.
+* Proxy holders receive a separate token for the represented member. Whoever votes first – the holder or original member – has their ballot recorded.
 
 ### 5.8 Permission Management
 * Admin page to create and edit individual permission records.
@@ -332,6 +332,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-15 – Voting route rejects ballots when a stage is locked.
 * 2025-06-15 – Run-off and reminder emails now link to `/vote/<token>`.
 * 2025-06-17 – Stage 1 closing now voids the vote when quorum is not met.
+* 2025-06-21 – Proxy tokens issued separately; first ballot from member or proxy counts.
 * 2025-06-16 – Run-off invite emails now use `/vote/runoff/<token>` links.
 * 2025-06-15 – Added `aria-describedby` error hints on admin and meeting forms.
 * 2025-06-15 – Dashboard shows countdown to next reminder using badge design.
