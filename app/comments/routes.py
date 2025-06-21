@@ -18,7 +18,7 @@ from ..models import (
     Comment,
     CommentRevision,
 )
-from ..extensions import db
+from ..extensions import db, limiter
 from ..utils import markdown_to_html
 from datetime import datetime
 
@@ -66,6 +66,7 @@ def motion_comments(token: str, motion_id: int):
 
 
 @bp.post("/<token>/motion/<int:motion_id>")
+@limiter.limit("5 per minute")
 def add_motion_comment(token: str, motion_id: int):
     member, meeting = _verify_token(token)
     motion = db.session.get(Motion, motion_id)
@@ -110,6 +111,7 @@ def amendment_comments(token: str, amendment_id: int):
 
 
 @bp.post("/<token>/amendment/<int:amendment_id>")
+@limiter.limit("5 per minute")
 def add_amendment_comment(token: str, amendment_id: int):
     member, meeting = _verify_token(token)
     amendment = db.session.get(Amendment, amendment_id)

@@ -4,7 +4,15 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app import create_app
 from app.extensions import db
-from app.models import Meeting, Member, Motion, VoteToken, Comment, CommentRevision
+from app.models import (
+    Meeting,
+    Member,
+    Motion,
+    Amendment,
+    VoteToken,
+    Comment,
+    CommentRevision,
+)
 from app.comments import routes as comments
 from datetime import datetime, timedelta
 
@@ -206,3 +214,75 @@ def test_edit_comment_denied_after_window():
                 assert e.code == 403
             else:
                 assert False, "expected 403"
+
+
+def test_motion_comment_rate_limit():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", comments_enabled=True)
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="A", email="a@example.com")
+        db.session.add(member)
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="t",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt="salty")
+        db.session.commit()
+        client = app.test_client()
+        for _ in range(5):
+            resp = client.post(f"/comments/{plain}/motion/{motion.id}", data={"text": "Hi"})
+            assert resp.status_code == 302
+        resp = client.post(f"/comments/{plain}/motion/{motion.id}", data={"text": "Hi"})
+        assert resp.status_code == 429
+
+
+def test_amendment_comment_rate_limit():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", comments_enabled=True)
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="A", email="a@example.com")
+        db.session.add(member)
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="t",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        amendment = Amendment(
+            meeting_id=meeting.id,
+            motion_id=motion.id,
+            text_md="amend",
+            proposer_id=member.id,
+            seconder_id=member.id,
+            order=1,
+        )
+        db.session.add(amendment)
+        db.session.commit()
+        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt="salty")
+        db.session.commit()
+        client = app.test_client()
+        for _ in range(5):
+            resp = client.post(
+                f"/comments/{plain}/amendment/{amendment.id}", data={"text": "Hi"}
+            )
+            assert resp.status_code == 302
+        resp = client.post(
+            f"/comments/{plain}/amendment/{amendment.id}", data={"text": "Hi"}
+        )
+        assert resp.status_code == 429
+
