@@ -3,7 +3,8 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from unittest.mock import patch
-from werkzeug.exceptions import Forbidden
+import pytest
+from werkzeug.exceptions import Forbidden, NotFound
 from flask import url_for
 
 from app import create_app
@@ -21,6 +22,7 @@ from app.models import (
 )
 import io
 from app.meetings import routes as meetings
+from docx import Document
 from app.meetings.forms import MeetingForm
 from types import SimpleNamespace
 from datetime import datetime, timedelta
@@ -452,7 +454,12 @@ def test_results_stage2_docx_returns_file():
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     with app.app_context():
         db.create_all()
-        meeting = Meeting(title="AGM")
+        meeting = Meeting(
+            title="AGM",
+            public_results=True,
+            results_doc_published=True,
+            results_doc_intro_md="Intro"
+        )
         db.session.add(meeting)
         db.session.flush()
         motion = Motion(
@@ -469,13 +476,35 @@ def test_results_stage2_docx_returns_file():
         db.session.flush()
         Vote.record(member_id=member.id, motion_id=motion.id, choice="for", salt="s")
 
-        user = _make_user(True)
         with app.test_request_context(f"/meetings/{meeting.id}/results-stage2.docx"):
-            with patch("flask_login.utils._get_user", return_value=user):
-                resp = meetings.results_stage2_docx(meeting.id)
-                assert resp.mimetype == (
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                )
+            resp = meetings.results_stage2_docx(meeting.id)
+            assert resp.mimetype == (
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
+            resp.direct_passthrough = False
+            doc = Document(io.BytesIO(resp.get_data()))
+            assert "draft summary" in doc.paragraphs[0].text
+            assert "Intro" in doc.paragraphs[1].text
+
+
+def test_results_stage2_docx_checks_flags():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", public_results=False, results_doc_published=True)
+        db.session.add(meeting)
+        db.session.commit()
+        with app.test_request_context(f"/meetings/{meeting.id}/results-stage2.docx"):
+            with pytest.raises(NotFound):
+                meetings.results_stage2_docx(meeting.id)
+
+        meeting.public_results = True
+        meeting.results_doc_published = False
+        db.session.commit()
+        with app.test_request_context(f"/meetings/{meeting.id}/results-stage2.docx"):
+            with pytest.raises(NotFound):
+                meetings.results_stage2_docx(meeting.id)
 
 
 def test_stage_ics_downloads_with_headers():

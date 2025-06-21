@@ -54,6 +54,8 @@ class MeetingForm(FlaskForm):
     )
     revoting_allowed = BooleanField("Revoting Allowed")
     public_results = BooleanField("Public Results")
+    results_doc_published = BooleanField("Publish Final Results Doc")
+    results_doc_intro_md = TextAreaField("Results Doc Intro")
     comments_enabled = BooleanField("Enable Comments")
     quorum = IntegerField("Quorum")
     status = StringField("Status")
