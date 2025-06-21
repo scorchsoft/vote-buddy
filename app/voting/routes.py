@@ -12,6 +12,7 @@ from ..models import (
     MotionOption,
     Runoff,
     Comment,
+    AppSetting,
 )
 from flask_wtf import FlaskForm
 from wtforms import RadioField, SubmitField, StringField
@@ -495,6 +496,13 @@ def verify_receipt():
             message = "Multiple votes share this hash. Check your email receipt or contact support."
         else:
             message = "No vote found for that hash."
+    contact_url = AppSetting.get(
+        "contact_url", "https://www.britishpowerlifting.org/contactus"
+    )
     return render_template(
-        "voting/verify_receipt.html", form=form, votes=votes, message=message
+        "voting/verify_receipt.html",
+        form=form,
+        votes=votes,
+        message=message,
+        contact_url=contact_url,
     )

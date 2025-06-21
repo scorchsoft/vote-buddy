@@ -859,6 +859,7 @@ def test_verify_receipt_not_found():
     resp = client.post("/vote/verify-receipt", data={"hash": "bad"})
     assert resp.status_code == 200
     assert b"No vote found" in resp.data
+    assert b"Contact support" in resp.data
 
 
 def test_verify_receipt_multiple_matches():
@@ -900,6 +901,7 @@ def test_verify_receipt_multiple_matches():
     resp = client.post("/vote/verify-receipt", data={"hash": vote_hash})
     assert resp.status_code == 200
     assert b"Multiple votes share this hash" in resp.data
+    assert b"Contact support" in resp.data
 
 
 def test_confirmation_shows_change_vote_link_when_revoting_enabled():
