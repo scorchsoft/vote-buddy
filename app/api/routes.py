@@ -67,7 +67,9 @@ def list_meetings():
 @token_required
 @limiter.limit("60 per minute", key_func=token_key_func)
 def meeting_results(meeting_id: int):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if not meeting:
+        abort(404)
     if not meeting.public_results:
         abort(404)
 
@@ -112,7 +114,9 @@ def meeting_results(meeting_id: int):
 @limiter.limit("60 per minute", key_func=token_key_func)
 def meeting_stage1_results(meeting_id: int):
     """Return amendment tallies if stage results are public."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if not meeting:
+        abort(404)
     if not (meeting.early_public_results or meeting.public_results):
         abort(404)
 

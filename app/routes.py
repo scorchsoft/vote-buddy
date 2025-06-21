@@ -284,7 +284,9 @@ def public_results(meeting_id: int):
 
 @bp.route('/results/<int:meeting_id>/charts')
 def public_results_charts(meeting_id: int):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if not meeting:
+        abort(404)
     if not meeting.public_results:
         abort(404)
     return render_template('results_chart.html', meeting=meeting)
@@ -293,7 +295,9 @@ def public_results_charts(meeting_id: int):
 @bp.route('/results/<int:meeting_id>/tallies.json')
 def public_results_json(meeting_id: int):
     """Return tallies for amendments and motions as JSON."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if not meeting:
+        abort(404)
     if not meeting.public_results:
         abort(404)
 
@@ -336,7 +340,9 @@ def public_results_json(meeting_id: int):
 @bp.route('/results/<int:meeting_id>/final.pdf')
 def public_results_pdf(meeting_id: int):
     """Download PDF summary of Stage 1 and Stage 2 results."""
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = db.session.get(Meeting, meeting_id)
+    if not meeting:
+        abort(404)
     if not meeting.public_results:
         abort(404)
 
