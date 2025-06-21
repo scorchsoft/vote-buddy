@@ -24,6 +24,8 @@ This guide directs AI and human contributors for all folders in this repository.
 | Run dev server | `FLASK_APP=app flask run --port 5555` |
 | Apply migrations | `FLASK_APP=app flask db upgrade` |
 
+If you run db upgrade and it fails, often this due to duplicate migration headers. if so find and fix before you push.
+
 ## Documentation Rules
 - When merging a feature PR, append a date + summary to `docs/prd.md` under **Changelog**.
 - Minor tweaks to `docs/ui-ux-design-guidance.md` may be committed with `[ci skip]` in the message.
