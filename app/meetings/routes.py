@@ -1079,8 +1079,29 @@ def results_summary(meeting_id: int):
     if meeting is None:
         abort(404)
     results = _amendment_results(meeting)
+    stage = 2 if meeting.status in {"Stage 2", "Pending Stage 2"} else 1
+    tokens = (
+        VoteToken.query
+        .filter_by(stage=stage, used_at=None, is_test=False)
+        .filter(VoteToken.proxy_holder_id.isnot(None))
+        .all()
+    )
+    unused_proxy_tokens = []
+    for t in tokens:
+        proxy = db.session.get(Member, t.proxy_holder_id)
+        principal = db.session.get(Member, t.member_id)
+        if (
+            proxy is not None
+            and principal is not None
+            and proxy.meeting_id == meeting.id
+            and principal.meeting_id == meeting.id
+        ):
+            unused_proxy_tokens.append((t, proxy, principal))
     return render_template(
-        "meetings/results_summary.html", meeting=meeting, results=results
+        "meetings/results_summary.html",
+        meeting=meeting,
+        results=results,
+        unused_proxy_tokens=unused_proxy_tokens,
     )
 
 
@@ -1613,4 +1634,58 @@ def resend_member_link(meeting_id: int, member_id: int):
             send_vote_invite(member, plain, meeting)
 
     flash("Voting link resent", "success")
+    return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+
+
+@bp.route("/<int:meeting_id>/proxy-tokens/<token>/resend", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def resend_proxy_token(meeting_id: int, token: str):
+    """Generate a new proxy token and email it."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    vt = db.session.get(VoteToken, token)
+    if vt is None or vt.proxy_holder_id is None:
+        abort(404)
+    proxy = Member.query.filter_by(id=vt.proxy_holder_id, meeting_id=meeting.id).first_or_404()
+    principal = Member.query.filter_by(id=vt.member_id, meeting_id=meeting.id).first_or_404()
+
+    new_token, plain = VoteToken.create(
+        member_id=principal.id,
+        stage=vt.stage,
+        salt=current_app.config["TOKEN_SALT"],
+        proxy_holder_id=proxy.id,
+    )
+    db.session.commit()
+
+    send_proxy_invite(proxy, principal, plain, meeting)
+    flash("Proxy voting link resent", "success")
+    return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+
+
+@bp.route("/<int:meeting_id>/proxy-tokens/<token>/invalidate", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def invalidate_proxy_token(meeting_id: int, token: str):
+    """Mark a proxy token as used to invalidate it."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    vt = db.session.get(VoteToken, token)
+    if vt is None or vt.proxy_holder_id is None:
+        abort(404)
+    proxy = db.session.get(Member, vt.proxy_holder_id)
+    principal = db.session.get(Member, vt.member_id)
+    if (
+        proxy is None
+        or principal is None
+        or proxy.meeting_id != meeting.id
+        or principal.meeting_id != meeting.id
+    ):
+        abort(404)
+
+    vt.used_at = datetime.utcnow()
+    db.session.commit()
+    flash("Proxy token invalidated", "success")
     return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))

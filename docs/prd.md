@@ -437,9 +437,9 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-08 – Added Stage 2 progress bars and calculation method.
 * 2025-06-21 – Added admin audit logging of key actions.
 * 2025-07-08 – Public meeting times now show timezone abbreviation.
+* 2025-07-09 – Results summary lists unused proxy tokens with resend and invalidate actions.
 * 2025-07-09 – Public meeting page displays live countdown timers for stage closings.
 * 2025-07-09 – API tokens documented with rate limits and Stage 1 results endpoint.
-
 
 
 ---
