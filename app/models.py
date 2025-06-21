@@ -434,6 +434,23 @@ class Comment(db.Model):
     text_md = db.Column(db.Text)
     hidden = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    edited_at = db.Column(db.DateTime)
+    revisions = db.relationship("CommentRevision", backref="comment")
+
+    def can_edit(self, meeting: "Meeting", minutes: int = 15) -> bool:
+        deadline = self.created_at + timedelta(minutes=minutes)
+        for closing in [meeting.closes_at_stage1, meeting.closes_at_stage2]:
+            if closing and closing < deadline:
+                deadline = closing
+        return datetime.utcnow() < deadline
+
+
+class CommentRevision(db.Model):
+    __tablename__ = "comment_revisions"
+    id = db.Column(db.Integer, primary_key=True)
+    comment_id = db.Column(db.Integer, db.ForeignKey("comments.id"))
+    text_md = db.Column(db.Text)
+    edited_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class EmailLog(db.Model):
@@ -444,4 +461,17 @@ class EmailLog(db.Model):
     type = db.Column(db.String(50))
     is_test = db.Column(db.Boolean, default=False)
     sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class AdminLog(db.Model):
+    """Record an administrative action performed by a user."""
+
+    __tablename__ = "admin_logs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user = db.relationship("User")
+    action = db.Column(db.String(50))
+    details = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
