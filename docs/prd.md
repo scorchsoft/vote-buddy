@@ -103,6 +103,7 @@
 * Background scheduler using APScheduler (Celery + Redis optional for heavier workloads)
 * Scheduler started in `create_app`; see `app/tasks.py`.
 * Hourly job `stage1_reminders` checks meetings closing within `REMINDER_HOURS_BEFORE_CLOSE` and emails outstanding voters once per `REMINDER_COOLDOWN_HOURS`.
+* Hourly job `stage2_reminders` checks meetings closing within `STAGE2_REMINDER_HOURS_BEFORE_CLOSE` and emails outstanding voters once per `STAGE2_REMINDER_COOLDOWN_HOURS`.
 * Configurable reminder template.
 
 ### 5.6 Results Publication
@@ -440,6 +441,10 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-09 – Results summary lists unused proxy tokens with resend and invalidate actions.
 * 2025-07-09 – Public meeting page displays live countdown timers for stage closings.
 * 2025-07-09 – API tokens documented with rate limits and Stage 1 results endpoint.
+* 2025-07-10 – Ballot token page shows scheduled voting times when accessed early.
+* 2025-07-10 – Added PDF export for final results on public results page.
+* 2025-07-10 – Added Stage 2 reminder job and email templates.
+* 2025-07-10 – Added password reset flow with email tokens.
 * 2025-06-21 – Rate limited comment posting to 5 per minute.
 * 2025-06-21 – Added public motion/amendment submission forms with email alerts.
 
