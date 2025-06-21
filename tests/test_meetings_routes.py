@@ -185,7 +185,7 @@ def test_close_stage1_runoff_triggers_emails_and_tokens():
         def _runoff_side_effect(mtg):
             token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt="s")
             db.session.commit()
-            return [runoff_obj], [(member, plain)]
+            return [runoff_obj], [(member, None, plain)]
 
         with app.test_request_context(
             f"/meetings/{meeting.id}/close-stage1", method="POST"
@@ -194,7 +194,7 @@ def test_close_stage1_runoff_triggers_emails_and_tokens():
             with patch("flask_login.utils._get_user", return_value=user):
                 from app.services import runoff
                 with patch.object(runoff, "close_stage1", side_effect=_runoff_side_effect):
-                    with patch("app.meetings.routes.send_runoff_invite") as mock_send:
+                    with patch("app.meetings.routes.send_proxy_invite") as mock_proxy, patch("app.meetings.routes.send_runoff_invite") as mock_send:
                         meetings.close_stage1(meeting.id)
                         mock_send.assert_called_once()
                     assert (

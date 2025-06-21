@@ -345,7 +345,7 @@ def test_stage2_token_window_enforcement():
                 assert resp[1] == 400
                 assert token_obj.used_at is None
 
-def test_proxy_vote_creates_two_records():
+def test_proxy_vote_records_for_principal_only_and_blocks_second():
     app = _setup_app()
     with app.app_context():
         db.create_all()
@@ -380,26 +380,24 @@ def test_proxy_vote_creates_two_records():
         )
         db.session.add(member)
         db.session.commit()
-        token_obj, plain = VoteToken.create(member_id=member.id, stage=1, salt=app.config["TOKEN_SALT"])
+        proxy_token, prox_plain = VoteToken.create(member_id=proxied.id, stage=1, salt=app.config["TOKEN_SALT"], proxy_holder_id=member.id)
+        self_token, self_plain = VoteToken.create(member_id=proxied.id, stage=1, salt=app.config["TOKEN_SALT"])
         db.session.commit()
 
         with app.test_request_context(
-            f"/vote/{plain}",
+            f"/vote/{prox_plain}",
             method="POST",
             data={f"amend_{amend.id}": "for"},
         ):
-            voting.ballot_token(plain)
+            voting.ballot_token(prox_plain)
 
-        votes = Vote.query.order_by(Vote.member_id).all()
-        assert len(votes) == 2
-        assert {v.member_id for v in votes} == {member.id, proxied.id}
-        expected_alice = hashlib.sha256(
-            f"{member.id}{amend.id}1for{app.config['VOTE_SALT']}".encode()
-        ).hexdigest()
-        expected_bob = hashlib.sha256(
-            f"{proxied.id}{amend.id}1for{app.config['VOTE_SALT']}".encode()
-        ).hexdigest()
-        assert {votes[0].hash, votes[1].hash} == {expected_alice, expected_bob}
+        votes = Vote.query.all()
+        assert len(votes) == 1
+        assert votes[0].member_id == proxied.id
+
+        with app.test_request_context(f"/vote/{self_plain}"):
+            resp = voting.ballot_token(self_plain)
+            assert resp[1] == 400
 
 
 def test_compile_motion_text_orders_carried_amendments():

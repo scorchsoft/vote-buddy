@@ -37,6 +37,7 @@ from ..services.email import (
     send_quorum_failure,
     send_final_results,
     send_objection_confirmation,
+    send_proxy_invite,
 )
 from ..services import runoff
 from ..permissions import permission_required
@@ -280,6 +281,7 @@ def import_members(meeting_id):
 
         seen_emails: set[str] = set()
         tokens_to_send: list[tuple[Member, str]] = []
+        proxy_tokens: list[tuple[Member, Member, str]] = []
         for idx, row in enumerate(reader, start=2):
             name = row["name"].strip()
             email = row["email"].strip().lower()
@@ -320,9 +322,29 @@ def import_members(meeting_id):
                 tokens_to_send.append((member, plain))
 
         db.session.commit()
+        # create proxy tokens after all members exist
+        members = Member.query.filter_by(meeting_id=meeting.id).all()
+        for proxy in members:
+            if proxy.proxy_for:
+                try:
+                    target = db.session.get(Member, int(proxy.proxy_for))
+                except (ValueError, TypeError):
+                    target = None
+                if target and meeting.ballot_mode != "in-person":
+                    token_obj, plain = VoteToken.create(
+                        member_id=target.id,
+                        stage=1,
+                        salt=current_app.config["TOKEN_SALT"],
+                        proxy_holder_id=proxy.id,
+                    )
+                    proxy_tokens.append((proxy, target, plain))
+        db.session.commit()
+
         if AppSetting.get("manual_email_mode") != "1":
             for m, t in tokens_to_send:
                 send_vote_invite(m, t, meeting)
+            for p, target, tok in proxy_tokens:
+                send_proxy_invite(p, target, tok, meeting)
         else:
             flash("Automatic emails disabled - use manual send", "warning")
         flash("Members imported successfully", "success")
@@ -960,8 +982,11 @@ def close_stage1(meeting_id: int):
 
     if runoffs:
         if AppSetting.get("manual_email_mode") != "1":
-            for member, token in tokens_to_send:
-                send_runoff_invite(member, token, meeting)
+            for recipient, target, token in tokens_to_send:
+                if target:
+                    send_proxy_invite(recipient, target, token, meeting)
+                else:
+                    send_runoff_invite(recipient, token, meeting)
         else:
             flash("Automatic emails disabled - use manual send", "warning")
         flash("Run-off ballot issued; Stage 2 start delayed", "success")
@@ -1292,6 +1317,7 @@ def prepare_stage2(meeting_id: int):
             motion.final_text_md = data
         members = Member.query.filter_by(meeting_id=meeting.id).all()
         tokens_to_send: list[tuple[Member, str]] = []
+        proxy_tokens: list[tuple[Member, Member, str]] = []
         for member in members:
             token_obj, plain = VoteToken.create(
                 member_id=member.id,
@@ -1299,11 +1325,27 @@ def prepare_stage2(meeting_id: int):
                 salt=current_app.config["TOKEN_SALT"],
             )
             tokens_to_send.append((member, plain))
+        for proxy in members:
+            if proxy.proxy_for:
+                try:
+                    target = db.session.get(Member, int(proxy.proxy_for))
+                except (ValueError, TypeError):
+                    target = None
+                if target:
+                    token_obj, plain = VoteToken.create(
+                        member_id=target.id,
+                        stage=2,
+                        salt=current_app.config["TOKEN_SALT"],
+                        proxy_holder_id=proxy.id,
+                    )
+                    proxy_tokens.append((proxy, target, plain))
         meeting.status = "Stage 2"
         db.session.commit()
         if AppSetting.get("manual_email_mode") != "1":
             for m, t in tokens_to_send:
                 send_stage2_invite(m, t, meeting)
+            for p, target, tok in proxy_tokens:
+                send_proxy_invite(p, target, tok, meeting)
         else:
             flash("Automatic emails disabled - use manual send", "warning")
         flash("Stage 2 voting links sent", "success")

@@ -81,6 +81,42 @@ def send_vote_invite(member: Member, token: str, meeting: Meeting, *, test_mode:
     _log_email(member, meeting, 'stage1_invite', test_mode)
 
 
+def send_proxy_invite(proxy: Member, principal: Member, token: str, meeting: Meeting, *, test_mode: bool = False) -> None:
+    """Email proxy voting link to the proxy holder."""
+    if proxy.email_opt_out:
+        return
+    link = url_for('voting.ballot_token', token=token, _external=True)
+    unsubscribe = _unsubscribe_url(proxy)
+    resubscribe = _resubscribe_url(proxy)
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + f"Proxy vote link for {meeting.title}",
+        recipients=[proxy.email],
+        sender=_sender(),
+    )
+    msg.body = render_template(
+        'email/proxy_invite.txt',
+        proxy=proxy,
+        principal=principal,
+        meeting=meeting,
+        link=link,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        test_mode=test_mode,
+    )
+    msg.html = render_template(
+        'email/proxy_invite.html',
+        proxy=proxy,
+        principal=principal,
+        meeting=meeting,
+        link=link,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        test_mode=test_mode,
+    )
+    mail.send(msg)
+    _log_email(proxy, meeting, 'proxy_invite', test_mode)
+
+
 def send_stage2_invite(member: Member, token: str, meeting: Meeting, *, test_mode: bool = False) -> None:
     """Email Stage 2 voting link to a member."""
     if member.email_opt_out:
