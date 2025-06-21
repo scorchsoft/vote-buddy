@@ -127,7 +127,16 @@ def close_runoff_stage(meeting: Meeting) -> None:
         elif b_for > a_for:
             winner, loser = b, a
         else:
-            winner, loser = (a, b) if a.order <= b.order else (b, a)
+            method = rof.tie_break_method
+            if method in ("chair", "board"):
+                if a.status == b.status:
+                    winner, loser = (a, b) if a.order <= b.order else (b, a)
+                else:
+                    winner = a if a.status == "carried" else b
+                    loser = b if winner == a else a
+            else:
+                winner, loser = (a, b) if a.order <= b.order else (b, a)
+                rof.tie_break_method = method or "order"
         winner.status = "carried"
         loser.status = "failed"
 

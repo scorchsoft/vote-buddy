@@ -19,7 +19,7 @@ from wtforms import SelectField, SubmitField
 from wtforms.validators import DataRequired
 
 from ..extensions import db
-from ..models import Meeting, Amendment, Motion, Vote, VoteToken, Member
+from ..models import Meeting, Amendment, Motion, Vote, VoteToken, Member, Runoff
 from ..permissions import permission_required
 
 bp = Blueprint('ro', __name__, url_prefix='/ro')
@@ -188,6 +188,25 @@ def _tie_break_form(amendments: list[Amendment]) -> FlaskForm:
     return type("TieBreakForm", (FlaskForm,), fields)()
 
 
+def _runoff_tie_break_form(runoffs: list[Runoff]) -> FlaskForm:
+    fields = {}
+    for r in runoffs:
+        a = db.session.get(Amendment, r.amendment_a_id)
+        b = db.session.get(Amendment, r.amendment_b_id)
+        fields[f"winner_{r.id}"] = SelectField(
+            "Winner",
+            choices=[(str(a.id), f"Amendment {a.order}"), (str(b.id), f"Amendment {b.order}")],
+            validators=[DataRequired()],
+        )
+        fields[f"method_{r.id}"] = SelectField(
+            "Method",
+            choices=[("chair", "Chair"), ("board", "Board"), ("order", "Order")],
+            validators=[DataRequired()],
+        )
+    fields["submit"] = SubmitField("Save")
+    return type("RunoffTieBreakForm", (FlaskForm,), fields)()
+
+
 @bp.route('/<int:meeting_id>/tie-breaks', methods=['GET', 'POST'])
 @login_required
 @permission_required('manage_meetings')
@@ -213,6 +232,48 @@ def tie_breaks(meeting_id: int):
         form[f"decision_{a.id}"].data = a.status or 'carried'
         form[f"method_{a.id}"].data = a.tie_break_method or 'chair'
     return render_template('ro/tie_break_form.html', meeting=meeting, amendments=amends, form=form)
+
+
+@bp.route('/<int:meeting_id>/tie-breaks-runoff', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
+def tie_breaks_runoff(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    runoffs = []
+    for r in Runoff.query.filter_by(meeting_id=meeting.id).all():
+        a = db.session.get(Amendment, r.amendment_a_id)
+        b = db.session.get(Amendment, r.amendment_b_id)
+        a_for = Vote.query.filter_by(amendment_id=a.id, choice='for').count()
+        b_for = Vote.query.filter_by(amendment_id=b.id, choice='for').count()
+        if a_for == b_for:
+            runoffs.append((r, a, b))
+    form = _runoff_tie_break_form([r[0] for r in runoffs])
+    if form.validate_on_submit():
+        for r, a, b in runoffs:
+            winner_id = int(form[f"winner_{r.id}"].data)
+            method = form[f"method_{r.id}"].data
+            r.tie_break_method = method
+            if winner_id == a.id:
+                winner, loser = a, b
+            else:
+                winner, loser = b, a
+            winner.status = 'carried'
+            loser.status = 'failed'
+        db.session.commit()
+        flash('Run-off tie break decisions saved', 'success')
+        return redirect(url_for('ro.dashboard'))
+    for r, a, b in runoffs:
+        field = form[f"winner_{r.id}"]
+        field.choices = [(str(a.id), f"Amendment {a.order}"), (str(b.id), f"Amendment {b.order}")]
+        if r.tie_break_method:
+            form[f"method_{r.id}"].data = r.tie_break_method
+            form[f"winner_{r.id}"].data = str(a.id if a.status == 'carried' else b.id)
+        else:
+            form[f"winner_{r.id}"].data = str(a.id)
+            form[f"method_{r.id}"].data = 'chair'
+    return render_template('ro/tie_break_runoff_form.html', meeting=meeting, runoffs=runoffs, form=form)
 
 
 @bp.route('/<int:meeting_id>/stage2_tallies.csv')

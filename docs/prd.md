@@ -412,6 +412,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-26 – Final results email dispatched with summary and DOCX attachment.
 * 2025-06-27 – Amendments store merge/rejection reason displayed on motion view.
 * 2025-06-26 – Added stage extension form and reason display on results page.
+* 2025-06-30 – Run-off tie breaks recorded with chair/board/order option and service respects setting.
 * 2025-06-28 – Objection submissions now require email confirmation via token link.
 
 
