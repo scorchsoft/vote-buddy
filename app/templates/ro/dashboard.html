@@ -74,7 +74,14 @@
                 </form>
               {% endif %}
             </div>
-            
+
+            {% if meeting.runoff_closes_at %}
+            <form action="{{ url_for('ro.close_runoffs', meeting_id=meeting.id) }}" method="post" class="inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <button type="submit" class="bp-btn-secondary text-xs">Close Run-offs</button>
+            </form>
+            {% endif %}
+
             <!-- Export Controls -->
             <div class="flex items-center gap-1 p-1 bg-bp-grey-50 rounded-lg">
               <a href="{{ url_for('ro.download_tallies', meeting_id=meeting.id) }}" class="bp-btn-icon p-2 bg-bp-blue hover:bg-bp-blue-light text-white rounded transition-colors" title="Download Stage 1 CSV">

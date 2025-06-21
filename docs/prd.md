@@ -406,6 +406,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-24 – Added run-off closing helper and route clearing tokens.
 * 2025-06-20 – Stage 1 is skipped when no amendments exist by the deadline; Stage 2 tokens are generated.
 * 2025-06-25 – Receipt checker warns when a hash matches multiple votes and footer now links to it.
+* 2025-06-21 – Run-off ballots now respect a dedicated time window and can be closed early by the RO.
 
 
 

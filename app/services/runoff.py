@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 import json
 from flask import current_app
 from ..utils import config_or_setting
@@ -71,8 +71,11 @@ def close_stage1(meeting: Meeting) -> tuple[list[Runoff], list[tuple[Member, str
         extension = timedelta(
             minutes=config_or_setting('RUNOFF_EXTENSION_MINUTES', 2880, parser=int)
         )
+        now = datetime.utcnow()
+        meeting.runoff_opens_at = now
+        meeting.runoff_closes_at = now + extension
         new_opens = (meeting.opens_at_stage2 or meeting.closes_at_stage1) + extension
-        new_closes = ((meeting.closes_at_stage2 or new_opens) + extension)
+        new_closes = (meeting.closes_at_stage2 or new_opens) + extension
         meeting.opens_at_stage2 = new_opens
         meeting.closes_at_stage2 = new_closes
         db.session.commit()
