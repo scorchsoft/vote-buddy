@@ -469,6 +469,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-16 – Expanded help docs with motion and amendment submission steps.
 * 2025-07-17 – Fake data generator now assigns member numbers, uses `.invalid` emails and marks demo records as test-only.
 * 2025-07-17 – Added .dockerignore to reduce Docker build context.
+* 2025-07-18 – Linked manual email sending page from results summary.
 
 
 
