@@ -35,6 +35,7 @@ from ..services.email import (
     send_stage2_invite,
     send_runoff_invite,
     send_quorum_failure,
+    send_final_results,
 )
 from ..services import runoff
 from ..permissions import permission_required
@@ -46,6 +47,7 @@ from .forms import (
     ConflictForm,
     ObjectionForm,
     ManualEmailForm,
+    ExtendStageForm,
 )
 from ..voting.routes import (
     compile_motion_text,
@@ -403,13 +405,18 @@ def add_amendment(motion_id):
     form.seconder_id.choices = [(0, "")] + choices
     if form.validate_on_submit():
         meeting = db.session.get(Meeting, motion.meeting_id)
+        deadline = None
         if meeting.opens_at_stage1:
             deadline = meeting.opens_at_stage1 - timedelta(days=21)
-            if datetime.utcnow() > deadline:
-                flash("Amendment deadline has passed.", "error")
-                return render_template(
-                    "meetings/amendment_form.html", form=form, motion=motion
-                )
+        elif meeting.notice_date:
+            notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 14)
+            deadline = meeting.notice_date + timedelta(days=notice_days)
+
+        if deadline and datetime.utcnow() > deadline:
+            flash("Amendment deadline has passed.", "error")
+            return render_template(
+                "meetings/amendment_form.html", form=form, motion=motion
+            )
 
         if not form.seconder_id.data and not form.board_seconded.data:
             flash("Select a seconder or confirm board approval.", "error")
@@ -569,6 +576,7 @@ def reject_amendment(amendment_id: int):
     if amendment is None:
         abort(404)
     amendment.status = "rejected"
+    amendment.reason = request.form.get("reason")
     db.session.commit()
     flash("Amendment marked as rejected", "success")
     return redirect(url_for("meetings.view_motion", motion_id=amendment.motion_id))
@@ -583,9 +591,24 @@ def mark_amendment_merged(amendment_id: int):
     if amendment is None:
         abort(404)
     amendment.status = "merged"
+    amendment.reason = request.form.get("reason")
     db.session.commit()
     flash("Amendment marked as merged", "success")
     return redirect(url_for("meetings.view_motion", motion_id=amendment.motion_id))
+
+
+@bp.route("/<int:meeting_id>/member-search")
+def member_search(meeting_id: int):
+    """Return member options filtered by query."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    q = request.args.get("q", "").strip()
+    query = Member.query.filter_by(meeting_id=meeting.id)
+    if q:
+        query = query.filter(Member.name.ilike(f"%{q}%"))
+    members = query.order_by(Member.name).limit(20).all()
+    return render_template("meetings/_member_options.html", members=members)
 
 
 @bp.route("/amendments/<int:amendment_id>/object", methods=["GET", "POST"])
@@ -598,11 +621,24 @@ def submit_objection(amendment_id: int):
     if meeting is None:
         abort(404)
     form = ObjectionForm()
-    members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
-    form.member_id.choices = [(m.id, m.name) for m in members]
     if form.validate_on_submit():
+        try:
+            member_id = int(form.member_id.data)
+        except (TypeError, ValueError):
+            flash("Invalid member", "error")
+            return render_template(
+                "meetings/objection_form.html", form=form, amendment=amendment
+            )
+
+        member = Member.query.filter_by(id=member_id, meeting_id=meeting.id).first()
+        if not member:
+            flash("Member not found", "error")
+            return render_template(
+                "meetings/objection_form.html", form=form, amendment=amendment
+            )
+
         obj = AmendmentObjection(
-            amendment_id=amendment.id, member_id=form.member_id.data
+            amendment_id=amendment.id, member_id=member.id
         )
         db.session.add(obj)
         db.session.commit()
@@ -878,6 +914,41 @@ def manual_send_emails(meeting_id: int):
         return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
 
     return render_template("meetings/manual_email.html", meeting=meeting, form=form)
+
+
+@bp.route("/<int:meeting_id>/extend/<int:stage>", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def extend_stage(meeting_id: int, stage: int):
+    """Allow admin to extend Stage 1 or 2 voting window."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None or stage not in (1, 2):
+        abort(404)
+    form = ExtendStageForm()
+    if request.method == "GET":
+        if stage == 1:
+            form.opens_at.data = meeting.opens_at_stage1
+            form.closes_at.data = meeting.closes_at_stage1
+        else:
+            form.opens_at.data = meeting.opens_at_stage2
+            form.closes_at.data = meeting.closes_at_stage2
+    if form.validate_on_submit():
+        if stage == 1:
+            meeting.opens_at_stage1 = form.opens_at.data
+            meeting.closes_at_stage1 = form.closes_at.data
+        else:
+            meeting.opens_at_stage2 = form.opens_at.data
+            meeting.closes_at_stage2 = form.closes_at.data
+        meeting.extension_reason = form.reason.data
+        db.session.commit()
+        flash("Stage dates updated", "success")
+        return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
+    return render_template(
+        "meetings/extend_stage.html",
+        form=form,
+        meeting=meeting,
+        stage=stage,
+    )
 
 
 @bp.route("/<int:meeting_id>/preview/<int:stage>", methods=["GET", "POST"])
@@ -1202,6 +1273,14 @@ def close_stage2(meeting_id: int):
 
     meeting.status = "Completed"
     db.session.commit()
+
+    members = Member.query.filter_by(meeting_id=meeting.id).all()
+    if AppSetting.get("manual_email_mode") != "1":
+        for member in members:
+            send_final_results(member, meeting)
+    else:
+        flash("Automatic emails disabled - use manual send", "warning")
+
     flash("Stage 2 closed and motions tallied", "success")
     return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
 

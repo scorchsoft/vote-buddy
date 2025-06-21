@@ -30,6 +30,9 @@
     {% endif %}
     {% if amend.status %}
     <p class="text-sm text-bp-grey-600">Status: {{ amend.status }}</p>
+    {% if amend.status in ['rejected', 'merged'] and amend.reason %}
+    <p class="text-sm text-bp-grey-600">Reason: {{ amend.reason }}</p>
+    {% endif %}
     {% endif %}
     <div class="mt-2 flex space-x-2">
       <a href="{{ url_for('meetings.edit_amendment', amendment_id=amend.id) }}" class="bp-btn-secondary">Edit</a>
@@ -38,12 +41,14 @@
       </form>
       {% if current_user.is_authenticated and current_user.has_permission('manage_meetings') %}
         {% if amend.status != 'rejected' %}
-        <form method="post" action="{{ url_for('meetings.reject_amendment', amendment_id=amend.id) }}">
+        <form method="post" action="{{ url_for('meetings.reject_amendment', amendment_id=amend.id) }}" class="flex space-x-2">
+          <input type="text" name="reason" placeholder="Reason" class="border p-2 rounded" />
           <button class="bp-btn-secondary">Reject</button>
         </form>
         {% endif %}
         {% if amend.status != 'merged' %}
-        <form method="post" action="{{ url_for('meetings.mark_amendment_merged', amendment_id=amend.id) }}">
+        <form method="post" action="{{ url_for('meetings.mark_amendment_merged', amendment_id=amend.id) }}" class="flex space-x-2">
+          <input type="text" name="reason" placeholder="Reason" class="border p-2 rounded" />
           <button class="bp-btn-secondary">Mark merged</button>
         </form>
         {% endif %}
