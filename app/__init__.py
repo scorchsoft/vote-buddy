@@ -137,6 +137,7 @@ def register_blueprints(app):
     from .notifications.routes import bp as notifications_bp
     from .comments import bp as comments_bp
     from .api import bp as api_bp
+    from .submissions import bp as submissions_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
@@ -148,6 +149,7 @@ def register_blueprints(app):
     app.register_blueprint(notifications_bp)
     app.register_blueprint(comments_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(submissions_bp)
 
 
 def register_error_handlers(app):

@@ -1,0 +1,6 @@
+New motion submitted for {{ meeting.title }}
+
+From: {{ submission.name }} <{{ submission.email }}>
+Title: {{ submission.title }}
+---
+{{ submission.text_md }}

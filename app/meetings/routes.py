@@ -38,6 +38,7 @@ from ..services.email import (
     send_final_results,
     send_objection_confirmation,
     send_proxy_invite,
+    send_submission_invite,
 )
 from ..services import runoff
 from ..permissions import permission_required
@@ -1154,6 +1155,8 @@ def manual_send_emails(meeting_id: int):
                 send_runoff_invite(member, plain, meeting, test_mode=form.test_mode.data)
             elif form.email_type.data == "stage2_invite":
                 send_stage2_invite(member, plain, meeting, test_mode=form.test_mode.data)
+            elif form.email_type.data == "submission_invite":
+                send_submission_invite(member, meeting, test_mode=form.test_mode.data)
 
         flash("Emails sent", "success")
         return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
