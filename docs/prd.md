@@ -468,3 +468,4 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-15 – Added meeting file uploads with public links.
 * 2025-07-16 – Expanded help docs with motion and amendment submission steps.
 * 2025-07-17 – Added .dockerignore to reduce Docker build context.
+* 2025-07-18 – Added GitHub Actions CI pipeline running pytest on Python 3.12.
