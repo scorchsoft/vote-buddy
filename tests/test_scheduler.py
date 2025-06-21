@@ -29,7 +29,7 @@ def _setup_app():
 def test_register_jobs_adds_interval_job():
     with patch.object(scheduler, 'add_job') as add_job:
         register_jobs()
-        assert add_job.call_count == 4
+        assert add_job.call_count == 5
 
 
 def test_send_stage1_reminders_sends_only_unvoted():
