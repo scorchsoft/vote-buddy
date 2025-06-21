@@ -271,12 +271,82 @@ def test_close_stage1_below_quorum_voids_vote():
                                     mock_runoff.assert_not_called()
                                     mock_qfail.assert_called_once()
                                 assert meeting.status == "Quorum not met"
-                                assert (
-                                    VoteToken.query.filter_by(
-                                        member_id=member.id, stage=2
-                                    ).count()
-                                    == 0
-                                )
+        assert (
+            VoteToken.query.filter_by(
+                member_id=member.id, stage=2
+            ).count()
+            == 0
+        )
+
+
+def test_close_stage1_warns_when_stage2_too_soon():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(title="Test", opens_at_stage2=now + timedelta(hours=12))
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="Bob")
+        db.session.add(member)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="x",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        db.session.add(amend)
+        db.session.commit()
+
+        with app.test_request_context(
+            f"/meetings/{meeting.id}/close-stage1", method="POST"
+        ):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.runoff.close_stage1", return_value=([], [])):
+                    with patch("app.meetings.routes.send_stage2_invite"):
+                        with patch("app.meetings.routes.flash") as fl:
+                            meetings.close_stage1(meeting.id)
+                            assert any(c.args[1] == "warning" for c in fl.call_args_list)
+
+
+def test_prepare_stage2_warns_when_too_soon():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title="Test",
+            stage1_closed_at=now,
+            opens_at_stage2=now + timedelta(hours=12),
+        )
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="x",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+
+        with app.test_request_context(f"/meetings/{meeting.id}/prepare-stage2"):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.flash") as fl:
+                    meetings.prepare_stage2(meeting.id)
+                    assert any(c.args[1] == "warning" for c in fl.call_args_list)
 
 
 def test_add_amendment_validations():

@@ -92,6 +92,7 @@ class Meeting(db.Model):
     chair_notes_md = db.Column(db.Text)
     quorum = db.Column(db.Integer, default=0)
     stage1_locked = db.Column(db.Boolean, default=False)
+    stage1_closed_at = db.Column(db.DateTime)
     stage2_locked = db.Column(db.Boolean, default=False)
     stage1_reminder_sent_at = db.Column(db.DateTime)
     public_results = db.Column(db.Boolean, default=False)
