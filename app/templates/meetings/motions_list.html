@@ -4,6 +4,7 @@
 <div class="mb-4 space-x-2">
   <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}" class="bp-btn-primary inline-block">Import Members</a>
   <a href="{{ url_for('meetings.download_sample_csv') }}" class="bp-link text-sm">Sample CSV</a>
+  <a href="{{ url_for('meetings.clone_meeting', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block">Clone Meeting</a>
 </div>
 <div class="space-y-4">
   {% for m in motions %}

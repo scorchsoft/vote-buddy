@@ -258,6 +258,69 @@ def edit_meeting(meeting_id):
     return render_template("meetings/meetings_form.html", form=form, meeting=meeting)
 
 
+@bp.route("/<int:meeting_id>/clone")
+@login_required
+@permission_required("manage_meetings")
+def clone_meeting(meeting_id: int):
+    """Duplicate a meeting along with its motions and amendments."""
+    src = db.session.get(Meeting, meeting_id)
+    if src is None:
+        abort(404)
+    new_meeting = Meeting()
+    for field in [
+        "title",
+        "type",
+        "ballot_mode",
+        "revoting_allowed",
+        "status",
+        "chair_notes_md",
+        "quorum",
+        "public_results",
+        "comments_enabled",
+        "extension_reason",
+        "results_doc_published",
+        "results_doc_intro_md",
+    ]:
+        setattr(new_meeting, field, getattr(src, field))
+    db.session.add(new_meeting)
+    db.session.flush()
+
+    motion_map: dict[int, int] = {}
+    for motion in Motion.query.filter_by(meeting_id=src.id).all():
+        new_motion = Motion(
+            meeting_id=new_meeting.id,
+            title=motion.title,
+            text_md=motion.text_md,
+            final_text_md=motion.final_text_md,
+            category=motion.category,
+            threshold=motion.threshold,
+            ordering=motion.ordering,
+            status=motion.status,
+            withdrawn=motion.withdrawn,
+        )
+        db.session.add(new_motion)
+        db.session.flush()
+        for opt in motion.options:
+            db.session.add(MotionOption(motion_id=new_motion.id, text=opt.text))
+        motion_map[motion.id] = new_motion.id
+
+    for amend in Amendment.query.filter_by(meeting_id=src.id).all():
+        new_amend = Amendment(
+            meeting_id=new_meeting.id,
+            motion_id=motion_map.get(amend.motion_id),
+            text_md=amend.text_md,
+            order=amend.order,
+            status=amend.status,
+            reason=amend.reason,
+            board_seconded=amend.board_seconded,
+            tie_break_method=amend.tie_break_method,
+        )
+        db.session.add(new_amend)
+
+    db.session.commit()
+    return redirect(url_for("meetings.edit_meeting", meeting_id=new_meeting.id))
+
+
 @bp.route("/<int:meeting_id>/import-members", methods=["GET", "POST"])
 @login_required
 @permission_required("manage_meetings")

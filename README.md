@@ -19,6 +19,7 @@ VoteBuddy aims to apply principles from UK Parliamentary Proceedure as well as "
 - Email reminders and token resends scheduled via APScheduler
 - iCalendar downloads for Stage 1 and Stage 2 voting windows
 - Results exports to CSV and DOCX plus audit logs
+- Clone meetings to duplicate motions and amendments
 - Optional unsubscribe tokens for members
 - Built in Python (Flask)
 
