@@ -9,6 +9,31 @@
     <h1 class="text-3xl font-bold text-bp-grey-900 mb-2">Admin Dashboard</h1>
     <p class="text-bp-grey-600 text-lg">Welcome to {{ setting('site_title', 'VoteBuddy') }} administration.</p>
   </div>
+
+  {% if objections %}
+  <div class="mb-12">
+    <h2 class="text-2xl font-bold text-bp-grey-900 mb-4 flex items-center gap-2">
+      <img src="{{ url_for('static', filename='icons/warning_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon text-bp-blue w-6 h-6">
+      Objections
+    </h2>
+    <div class="bp-card overflow-x-auto">
+      <table class="bp-table">
+        <thead class="bg-bp-grey-50">
+          <tr><th class="text-left p-2">Amendment</th><th class="text-left p-2">Confirmed</th><th class="text-left p-2">Time Remaining</th></tr>
+        </thead>
+        <tbody>
+        {% for amend, count, remain in objections %}
+          <tr class="border-t">
+            <td class="p-2">{{ amend.text_md[:40] }}...</td>
+            <td class="p-2">{{ count }}</td>
+            <td class="p-2">{{ remain }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
   
   <!-- Quick Actions -->
   <div class="flex flex-wrap gap-4 mb-12">

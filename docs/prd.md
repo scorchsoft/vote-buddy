@@ -432,6 +432,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-06 – AGM date field auto-completes stage times based on configured notice and duration settings.
 * 2025-07-07 – Added token-based public API with admin management and docs page.
 * 2025-07-07 – Added meeting cloning option to duplicate motions and amendments.
+* 2025-07-08 – Objection deadlines auto-send board notices and reinstatement emails.
 * 2025-07-08 – Optional public page showing Stage 1 results before Stage 2 opens.
 * 2025-07-08 – Added Stage 2 progress bars and calculation method.
 * 2025-06-21 – Added admin audit logging of key actions.

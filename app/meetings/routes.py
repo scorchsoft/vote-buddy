@@ -844,6 +844,7 @@ def confirm_objection(token: str):
     obj = AmendmentObjection.query.filter_by(token=token).first_or_404()
     if not obj.confirmed_at:
         obj.confirmed_at = datetime.utcnow()
+        obj.deadline_first = obj.created_at + timedelta(days=5)
         db.session.commit()
     return render_template("meetings/objection_confirmed.html", objection=obj)
 

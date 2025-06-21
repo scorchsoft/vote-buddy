@@ -49,3 +49,31 @@ def test_admin_dashboard_contains_create_link():
                 href = url_for('meetings.create_meeting')
                 assert href in html
                 assert 'bp-btn-primary' in html
+
+
+def test_dashboard_shows_objection_status():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    with app.app_context():
+        db.create_all()
+        perm = Permission(name='view_dashboard')
+        role = Role(permissions=[perm])
+        user = User(role=role, is_active=True)
+        user.email = 'admin@example.com'
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        # create amendment and objection
+        from app.models import Amendment, AmendmentObjection, Member
+        member = Member(meeting_id=meeting.id, name='A')
+        db.session.add(member)
+        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md='A', order=1, status='rejected')
+        db.session.add(amend)
+        db.session.flush()
+        obj = AmendmentObjection(amendment_id=amend.id, member_id=member.id, confirmed_at=datetime.utcnow(), deadline_first=datetime.utcnow()+timedelta(days=1))
+        db.session.add(obj)
+        db.session.commit()
+        with app.test_request_context('/admin/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = admin.dashboard()
+                assert 'Objections' in html

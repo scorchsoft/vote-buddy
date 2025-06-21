@@ -10,6 +10,7 @@ from flask import (
 )
 import json
 from flask_login import login_required
+from datetime import datetime
 from ..extensions import db
 from ..models import (
     Meeting,
@@ -42,7 +43,39 @@ bp = Blueprint("admin", __name__, url_prefix="/admin")
 @permission_required("view_dashboard")
 def dashboard():
     meetings = Meeting.query.all()
-    return render_template("admin/dashboard.html", meetings=meetings)
+    now = datetime.utcnow()
+    objection_amend_ids = (
+        db.session.query(AmendmentObjection.amendment_id)
+        .filter(AmendmentObjection.confirmed_at.isnot(None))
+        .group_by(AmendmentObjection.amendment_id)
+        .all()
+    )
+    objections = []
+    for (aid,) in objection_amend_ids:
+        amend = db.session.get(Amendment, aid)
+        count = (
+            AmendmentObjection.query.filter_by(amendment_id=aid)
+            .filter(AmendmentObjection.confirmed_at.isnot(None))
+            .count()
+        )
+        deadlines = [
+            o.deadline_final or o.deadline_first
+            for o in AmendmentObjection.query.filter_by(amendment_id=aid)
+            .filter(AmendmentObjection.confirmed_at.isnot(None))
+        ]
+        upcoming = [d for d in deadlines if d and d > now]
+        if upcoming:
+            deadline = min(upcoming)
+            diff = deadline - now
+            days = diff.days
+            hours = diff.seconds // 3600
+            remain = f"{days}d {hours}h"
+        else:
+            remain = "Closed"
+        objections.append((amend, count, remain))
+    return render_template(
+        "admin/dashboard.html", meetings=meetings, objections=objections
+    )
 
 
 @bp.route("/meetings/<int:meeting_id>/toggle-public", methods=["POST"])

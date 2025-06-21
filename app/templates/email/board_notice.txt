@@ -1,0 +1,6 @@
+An amendment has received at least 10 confirmed objections.
+
+Meeting: {{ meeting.title }}
+Amendment ID: {{ amendment.id }}
+
+Please review and respond within five days.

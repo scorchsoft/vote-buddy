@@ -427,6 +427,8 @@ class AmendmentObjection(db.Model):
     email = db.Column(db.String(255))
     token = db.Column(db.String(36))
     confirmed_at = db.Column(db.DateTime)
+    deadline_first = db.Column(db.DateTime)
+    deadline_final = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     @property

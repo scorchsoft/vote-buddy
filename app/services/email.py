@@ -11,6 +11,8 @@ from ..models import (
     EmailLog,
     Amendment,
     AmendmentObjection,
+    User,
+    Role,
 )
 from uuid6 import uuid7
 from sqlalchemy import func
@@ -462,5 +464,44 @@ def send_objection_confirmation(obj: AmendmentObjection, amendment: Amendment, m
     link = url_for('meetings.confirm_objection', token=obj.token, _external=True)
     msg.body = render_template('email/objection_confirm.txt', link=link)
     msg.html = render_template('email/objection_confirm.html', link=link)
+    mail.send(msg)
+
+
+def send_board_notice(amendment: Amendment, meeting: Meeting, *, test_mode: bool = False) -> None:
+    recipient = AppSetting.get("from_email", current_app.config.get("MAIL_DEFAULT_SENDER"))
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + "Objection threshold met",
+        recipients=[recipient],
+        sender=_sender(),
+    )
+    msg.body = render_template(
+        "email/board_notice.txt", amendment=amendment, meeting=meeting
+    )
+    msg.html = render_template(
+        "email/board_notice.html", amendment=amendment, meeting=meeting
+    )
+    mail.send(msg)
+
+
+def send_amendment_reinstated(amendment: Amendment, meeting: Meeting, *, test_mode: bool = False) -> None:
+    coords = (
+        User.query.join(Role, User.role_id == Role.id)
+        .filter(Role.name == "meeting_coordinator", User.is_active.is_(True))
+        .all()
+    )
+    recipients = [u.email for u in coords]
+    if not recipients:
+        return
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + "Amendment reinstated",
+        recipients=recipients,
+        sender=_sender(),
+    )
+    msg.body = render_template(
+        "email/amendment_reinstated.txt", amendment=amendment, meeting=meeting
+    )
+    msg.html = render_template(
+        "email/amendment_reinstated.html", amendment=amendment, meeting=meeting
+    )
     mail.send(msg)
 
