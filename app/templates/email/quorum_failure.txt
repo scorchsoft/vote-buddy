@@ -6,3 +6,4 @@ The Board will review the options and you will be notified when a new ballot is 
 
 If you did not expect this email you can ignore it.
 To stop these emails, visit {{ unsubscribe_url }}
+To start them again later, visit {{ resubscribe_url }}
