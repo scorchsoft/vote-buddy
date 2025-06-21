@@ -22,6 +22,12 @@ VoteBuddy aims to apply principles from UK Parliamentary Proceedure as well as "
 - Clone meetings to duplicate motions and amendments
 - Token-based forms for submitting motions and amendments with coordinator review
 - Optional unsubscribe tokens for members
+- Resubscribe links allow members to opt back in to emails
+- Manual tally entry for in-person meetings with PDF results export
+- Live countdown timers and progress bars on public pages
+- Early Stage 1 results page and token-based public API with rate limits
+- Password reset flow via emailed tokens
+- File uploads per meeting with optional public links
 - Built in Python (Flask)
 
 ## Screenshots
@@ -41,8 +47,9 @@ The following images show the main dashboard and help section in action.
    The defaults include options for email reminders and run-off timing such as
   `RUNOFF_EXTENSION_MINUTES`, `REMINDER_HOURS_BEFORE_CLOSE`,
   `REMINDER_COOLDOWN_HOURS`, `REMINDER_TEMPLATE`,
-  `STAGE2_REMINDER_HOURS_BEFORE_CLOSE`, `STAGE2_REMINDER_COOLDOWN_HOURS`,
-  `STAGE2_REMINDER_TEMPLATE`, `TIE_BREAK_DECISIONS` and `MAIL_USE_TLS`. These can later be changed in the Settings UI.
+ `STAGE2_REMINDER_HOURS_BEFORE_CLOSE`, `STAGE2_REMINDER_COOLDOWN_HOURS`,
+ `STAGE2_REMINDER_TEMPLATE`, `TIE_BREAK_DECISIONS` and `MAIL_USE_TLS`. These can later be changed in the Settings UI.
+   `SECRET_KEY`, `UPLOAD_FOLDER` and `API_TOKEN_SALT` are also defined here. `SECRET_KEY` secures sessions and **must** be set to a unique value in production. `UPLOAD_FOLDER` determines where uploaded files are stored and `API_TOKEN_SALT` signs API tokens.
 2. Install the Python packages:
 
 ```bash
@@ -190,3 +197,7 @@ Refer to these files for detail on features, design and governance context.
 ## Contributing
 
 Pull requests are welcome. Please include updates to migrations or documentation where relevant.
+
+## License
+
+This project is released under the [Apache 2.0](LICENCE.md) license.
