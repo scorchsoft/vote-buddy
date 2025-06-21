@@ -229,6 +229,7 @@ class Amendment(db.Model):
     text_md = db.Column(db.Text)
     order = db.Column(db.Integer)
     status = db.Column(db.String(50))
+    reason = db.Column(db.Text)
     proposer_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     board_seconded = db.Column(db.Boolean, default=False)

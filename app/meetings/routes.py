@@ -570,6 +570,7 @@ def reject_amendment(amendment_id: int):
     if amendment is None:
         abort(404)
     amendment.status = "rejected"
+    amendment.reason = request.form.get("reason")
     db.session.commit()
     flash("Amendment marked as rejected", "success")
     return redirect(url_for("meetings.view_motion", motion_id=amendment.motion_id))
@@ -584,6 +585,7 @@ def mark_amendment_merged(amendment_id: int):
     if amendment is None:
         abort(404)
     amendment.status = "merged"
+    amendment.reason = request.form.get("reason")
     db.session.commit()
     flash("Amendment marked as merged", "success")
     return redirect(url_for("meetings.view_motion", motion_id=amendment.motion_id))
