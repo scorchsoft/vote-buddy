@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block title %}Send Emails{% endblock %}
 {% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Send Emails', None)]) }}
 <h1 class="text-2xl mb-4">Send Emails</h1>
 <form method="post">
   {{ form.hidden_tag() }}

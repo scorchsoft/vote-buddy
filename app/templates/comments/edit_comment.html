@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
-{{ breadcrumbs([]) }}
+{% if target[0] == 'motion' %}
+{{ breadcrumbs([('Comments', url_for('comments.motion_comments', token=token, motion_id=target[1])), ('Edit Comment', None)]) }}
+{% else %}
+{{ breadcrumbs([('Comments', url_for('comments.amendment_comments', token=token, amendment_id=target[1])), ('Edit Comment', None)]) }}
+{% endif %}
 <h1 class="font-bold text-bp-blue mb-4">Edit Comment</h1>
 <form method="post" class="bp-form space-y-4 bp-card">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>

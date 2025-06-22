@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Home', url_for('main.index')), ('Admin Login', None)]) }}
 <div class="max-w-md mx-auto">
   <h2 class="text-2xl font-bold text-bp-blue mb-6">Admin Login</h2>
 
