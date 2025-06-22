@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
+{% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Members', None)]) }}
+<h1 class="font-bold text-bp-blue mb-4">{{ meeting.title }} – Members</h1>
+<div class="bp-card mb-4">
+  <form hx-get="{{ url_for('meetings.list_members', meeting_id=meeting.id) }}" hx-target="#member-table-body" hx-trigger="keyup changed delay:300ms" hx-push-url="true" class="space-y-4">
+    <div class="bp-form-group">
+      <input id="q" name="q" type="text" value="{{ q or '' }}" placeholder=" " class="bp-input">
+      <label for="q" class="bp-form-label">Search by name or email</label>
+    </div>
+    <div class="bp-form-group">
+      <label for="voted" class="bp-form-label">Voted</label>
+      <select id="voted" name="voted" class="bp-input">
+        <option value="any" {% if voted=='any' %}selected{% endif %}>Any</option>
+        <option value="yes" {% if voted=='yes' %}selected{% endif %}>Voted</option>
+        <option value="no" {% if voted=='no' %}selected{% endif %}>Not Voted</option>
+      </select>
+    </div>
+  </form>
+</div>
+<div class="bp-card p-0 overflow-hidden">
+  <table class="bp-table">
+    <thead>
+      <tr>
+        <th scope="col">
+          <a hx-get="{{ url_for('meetings.list_members', meeting_id=meeting.id, sort='name', direction='desc' if direction=='asc' and sort=='name' else 'asc', q=q, voted=voted) }}" hx-target="#member-table-body" hx-push-url="true" class="flex items-center gap-1 hover:text-bp-blue transition-colors">Name<svg class="bp-icon w-4 h-4" viewBox="0 0 24 24"><path d="M7 10l5-5 5 5M7 14l5 5 5-5" stroke="currentColor" fill="none"/></svg></a>
+        </th>
+        <th scope="col">
+          <a hx-get="{{ url_for('meetings.list_members', meeting_id=meeting.id, sort='email', direction='desc' if direction=='asc' and sort=='email' else 'asc', q=q, voted=voted) }}" hx-target="#member-table-body" hx-push-url="true" class="flex items-center gap-1 hover:text-bp-blue transition-colors">Email<svg class="bp-icon w-4 h-4" viewBox="0 0 24 24"><path d="M7 10l5-5 5 5M7 14l5 5 5-5" stroke="currentColor" fill="none"/></svg></a>
+        </th>
+        <th scope="col">Voted</th>
+        <th scope="col" class="text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="member-table-body">
+      {% include 'meetings/_member_rows.html' %}
+    </tbody>
+  </table>
+</div>
+<div class="mt-4 flex items-center gap-4">
+  <form method="post" action="{{ url_for('meetings.delete_all_members', meeting_id=meeting.id) }}" onsubmit="return confirm('Remove all members?');">
+    <button type="submit" class="bp-btn-secondary">Remove All</button>
+  </form>
+  <a href="{{ url_for('meetings.members_csv', meeting_id=meeting.id) }}" class="bp-btn-secondary" download="members.csv">Download CSV</a>
+</div>
+{% if pagination.pages > 1 %}
+<nav id="member-pagination" aria-label="Pagination" class="mt-6 flex justify-center">
+  <ul class="bp-pagination">
+    {% if pagination.has_prev %}
+    <li><a href="{{ url_for('meetings.list_members', meeting_id=meeting.id, page=pagination.prev_num, q=q, sort=sort, direction=direction, voted=voted) }}" class="hover:bg-bp-grey-100 transition-colors" aria-label="Previous"><svg class="bp-icon w-5 h-5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke="currentColor" fill="none"/></svg></a></li>
+    {% endif %}
+    <li class="px-3">Page {{ pagination.page }} of {{ pagination.pages }}</li>
+    {% if pagination.has_next %}
+    <li><a href="{{ url_for('meetings.list_members', meeting_id=meeting.id, page=pagination.next_num, q=q, sort=sort, direction=direction, voted=voted) }}" class="hover:bg-bp-grey-100 transition-colors" aria-label="Next"><svg class="bp-icon w-5 h-5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" fill="none"/></svg></a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

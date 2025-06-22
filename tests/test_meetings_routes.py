@@ -1277,3 +1277,54 @@ def test_view_motion_unpublished_permissions():
         with app.test_request_context(url):
             with pytest.raises(NotFound):
                 meetings.view_motion(motion.id)
+
+def test_list_members_requires_permission():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.commit()
+        with app.test_request_context(f"/meetings/{meeting.id}/members"):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                meetings.list_members(meeting.id)
+        with app.test_request_context(f"/meetings/{meeting.id}/members"):
+            user = _make_user(False)
+            with patch("flask_login.utils._get_user", return_value=user):
+                with pytest.raises(Forbidden):
+                    meetings.list_members(meeting.id)
+
+
+def test_import_members_rejects_duplicates():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="Test")
+        db.session.add(meeting)
+        db.session.commit()
+        csv_content = (
+            "member_id,name,email,proxy_for\n"
+            "1,Alice,alice@example.com,\n"
+            "1,Bob,alice@example.com,\n"
+        )
+        data = {"csv_file": (io.BytesIO(csv_content.encode()), "members.csv")}
+        with app.test_request_context(
+            f"/meetings/{meeting.id}/import-members", method="POST", data=data
+        ):
+            user = _make_user(True)
+            dummy_form = SimpleNamespace(
+                csv_file=SimpleNamespace(data=io.BytesIO(csv_content.encode()))
+            )
+            dummy_form.validate_on_submit = lambda: True
+            dummy_form.hidden_tag = lambda: ""
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.MemberImportForm", return_value=dummy_form):
+                    with patch("app.meetings.routes.flash") as mock_flash:
+                        with patch("app.meetings.routes.render_template", return_value=""):
+                            meetings.import_members(meeting.id)
+                        mock_flash.assert_any_call("Duplicate email: alice@example.com", "error")
+                        assert Member.query.count() == 1
+

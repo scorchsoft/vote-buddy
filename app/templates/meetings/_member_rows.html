@@ -1,0 +1,14 @@
+{% for m in members %}
+<tr class="border-t hover:bg-bp-grey-50 transition-colors">
+  <td class="p-2">{{ m.name }}</td>
+  <td class="p-2">{{ m.email }}</td>
+  <td class="p-2">{% if m.voted %}Yes{% else %}No{% endif %}</td>
+  <td class="p-2 text-right">
+    <form method="post" action="{{ url_for('meetings.delete_member', meeting_id=meeting.id, member_id=m.id) }}" class="inline" onsubmit="return confirm('Remove this member?');">
+      <button type="submit" class="bp-btn-secondary">Remove</button>
+    </form>
+  </td>
+</tr>
+{% else %}
+<tr><td colspan="4" class="p-2">No members found.</td></tr>
+{% endfor %}
