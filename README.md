@@ -1,3 +1,6 @@
+**THIS IS CURRENTLY AN IN-DEVELOPMENT REPOSITORY**
+Functionality may be incompete and contain errors
+
 # VoteBuddy (Free and Open source AGM and EGM software for membership organisations)
 
 VoteBuddy by [Scorchsoft](https://www.scorchsoft.com) is an Open Source web application that membership organisations can run online voting for two stage electronic ballots at AGMs and EGMs.
