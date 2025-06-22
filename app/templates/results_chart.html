@@ -4,7 +4,10 @@
 {{ breadcrumbs([('Results', url_for('main.results_index')), (meeting.title, url_for('main.public_results', meeting_id=meeting.id)), ('Charts', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">{{ meeting.title }} – Charts</h1>
 <p class="mb-4"><a href="{{ url_for('main.public_results', meeting_id=meeting.id) }}" class="text-bp-blue underline">Back to table view</a></p>
-<div id="charts" data-url="{{ url_for('main.public_results_json', meeting_id=meeting.id) }}">
+<div id="charts"
+     data-url="{{ url_for('main.public_results_json', meeting_id=meeting.id) }}"
+     data-motion-url="{{ url_for('main.public_motion_text', motion_id=0).rsplit('/', 1)[0] + '/' }}"
+     data-amend-url="{{ url_for('main.public_amendment_text', amendment_id=0).rsplit('/', 1)[0] + '/' }}">
   <h2 class="font-bold text-bp-blue mb-2">Stage 1 Amendments</h2>
   <div id="stage1-grid" class="mb-8"></div>
 

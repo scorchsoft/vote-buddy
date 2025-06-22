@@ -8,10 +8,14 @@ async function initCharts() {
   const stage1Grid = document.getElementById('stage1-grid');
   const stage2Grid = document.getElementById('stage2-grid');
 
-  function createSectionHeading(title, grid) {
+  function createSectionHeading(title, href, grid) {
     const heading = document.createElement('h3');
     heading.className = 'font-semibold text-lg text-bp-blue mb-4 mt-6 first:mt-0 border-b border-bp-grey-200 pb-2';
-    heading.textContent = title;
+    const link = document.createElement('a');
+    link.href = href;
+    link.className = 'hover:underline';
+    link.textContent = title;
+    heading.appendChild(link);
     grid.appendChild(heading);
   }
 
@@ -95,9 +99,11 @@ async function initCharts() {
 
   function renderRow(row, grid, prefix) {
     const short = row.text;
-    
+    const base = prefix === 'm' ? container.dataset.motionUrl : container.dataset.amendUrl;
+    const href = base + row.id;
+
     // Add section heading for this motion
-    createSectionHeading(short, grid);
+    createSectionHeading(short, href, grid);
     
     // Create a container div for the 3 charts
     const chartsContainer = document.createElement('div');
