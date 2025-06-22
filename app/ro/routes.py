@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from io import StringIO
+from io import StringIO, BytesIO
 import csv
 from datetime import datetime
 from flask import (
@@ -8,7 +8,7 @@ from flask import (
     render_template,
     redirect,
     url_for,
-    Response,
+    send_file,
     jsonify,
     flash,
     abort,
@@ -158,11 +158,15 @@ def download_tallies(meeting_id: int):
             Vote.query.filter_by(motion_id=motion.id, choice='against').count(),
             Vote.query.filter_by(motion_id=motion.id, choice='abstain').count(),
         ])
-    response = Response(output.getvalue(), mimetype='text/csv')
-    response.headers['Content-Disposition'] = (
-        f'attachment; filename=tallies_meeting_{meeting.id}.csv'
+    csv_bytes = output.getvalue().encode()
+    resp = send_file(
+        BytesIO(csv_bytes),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=f'tallies_meeting_{meeting.id}.csv',
     )
-    return response
+    resp.direct_passthrough = False
+    return resp
 
 
 @bp.route('/<int:meeting_id>/tallies.json')
@@ -331,11 +335,15 @@ def download_stage2_tallies(meeting_id: int):
             Vote.query.filter_by(motion_id=motion.id, choice='abstain').count(),
             (motion.status or '').capitalize(),
         ])
-    response = Response(output.getvalue(), mimetype='text/csv')
-    response.headers['Content-Disposition'] = (
-        f'attachment; filename=stage2_tallies_meeting_{meeting.id}.csv'
+    csv_bytes = output.getvalue().encode()
+    resp = send_file(
+        BytesIO(csv_bytes),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=f'stage2_tallies_meeting_{meeting.id}.csv',
     )
-    return response
+    resp.direct_passthrough = False
+    return resp
 
 
 @bp.route('/<int:meeting_id>/audit_log.csv')
@@ -356,8 +364,12 @@ def download_audit_log(meeting_id: int):
     )
     for v in votes:
         writer.writerow([v.member_id, v.amendment_id, v.motion_id, v.choice, v.hash])
-    response = Response(output.getvalue(), mimetype='text/csv')
-    response.headers['Content-Disposition'] = (
-        f'attachment; filename=audit_log_meeting_{meeting.id}.csv'
+    csv_bytes = output.getvalue().encode()
+    resp = send_file(
+        BytesIO(csv_bytes),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=f'audit_log_meeting_{meeting.id}.csv',
     )
-    return response
+    resp.direct_passthrough = False
+    return resp
