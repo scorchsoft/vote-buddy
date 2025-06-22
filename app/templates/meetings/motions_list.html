@@ -93,7 +93,43 @@
         </a>
         {% endif %}
       </div>
+
     </div>
+  </div>
+</div>
+
+{% if timeline_start and timeline_end %}
+<div class="bp-timeline">
+  <div class="bp-progress relative">
+    <div class="bp-progress-bar" style="width: {{ ((now - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) | round }}%"></div>
+    {% for label, dt in timeline_steps %}
+    {% if dt %}
+    {% set pct = ((dt - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) %}
+    <div class="bp-timeline-marker" style="left: {{ pct }}%">
+      <span class="bp-timeline-dot"></span>
+      <span class="bp-timeline-label">{{ label }}<br>{{ dt.strftime('%d %b') }}</span>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% if timeline_start <= now <= timeline_end %}
+    <div class="bp-timeline-now" style="left: {{ ((now - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) }}%"></div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  <div class="bp-stat-card">
+    <div class="bp-stat-value">{{ votes_cast }}</div>
+    <div class="bp-stat-label">Voters</div>
+  </div>
+  <div class="bp-stat-card">
+    <div class="bp-stat-value">{{ motions|length }}</div>
+    <div class="bp-stat-label">Motions</div>
+  </div>
+  <div class="bp-stat-card">
+    <div class="bp-stat-value">{{ amendments_count }}</div>
+    <div class="bp-stat-label">Amendments</div>
   </div>
 </div>
 

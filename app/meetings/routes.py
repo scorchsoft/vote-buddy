@@ -484,8 +484,30 @@ def list_motions(meeting_id):
     motions = (
         Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
     )
+    amendments_count = Amendment.query.filter_by(meeting_id=meeting.id).count()
+    votes_cast = meeting.stage1_votes_count()
+    from datetime import datetime
+    steps = [
+        ("Motions Open", meeting.motions_opens_at),
+        ("Notice", meeting.notice_date),
+        ("Stage 1 Opens", meeting.opens_at_stage1),
+        ("Stage 1 Closes", meeting.closes_at_stage1),
+        ("Stage 2 Opens", meeting.opens_at_stage2),
+        ("Stage 2 Closes", meeting.closes_at_stage2),
+    ]
+    dates = [d for _, d in steps if d]
+    timeline_start = min(dates) if dates else None
+    timeline_end = max(dates) if dates else None
     return render_template(
-        "meetings/motions_list.html", meeting=meeting, motions=motions
+        "meetings/motions_list.html",
+        meeting=meeting,
+        motions=motions,
+        amendments_count=amendments_count,
+        votes_cast=votes_cast,
+        timeline_steps=steps,
+        timeline_start=timeline_start,
+        timeline_end=timeline_end,
+        now=datetime.utcnow(),
     )
 
 
