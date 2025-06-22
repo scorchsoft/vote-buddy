@@ -1,30 +1,234 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import breadcrumbs %}
+
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Motions', None)]) }}
-<h1 class="font-bold text-bp-blue mb-4">{{ meeting.title }} - Motions</h1>
-<div class="mb-4 space-x-2">
-  <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}" class="bp-btn-primary inline-block">Import Members</a>
-  <a href="{{ url_for('meetings.download_sample_csv') }}" class="bp-link text-sm" download>Sample CSV</a>
-  <a href="{{ url_for('meetings.clone_meeting', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block">Clone Meeting</a>
-  <a href="{{ url_for('submissions.list_submissions', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block">Review Submissions</a>
-</div>
-<div class="space-y-4">
-  {% for m in motions %}
-    <div class="bp-card">
-      <h3 class="font-semibold mb-1">{{ m.title }}</h3>
-      <p class="mb-2">Category: {{ m.category }}</p>
-      <a href="{{ url_for('meetings.view_motion', motion_id=m.id) }}" class="bp-btn-secondary">View</a>
+
+<!-- Page Header -->
+<div class="mb-8">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h1 class="text-3xl font-bold text-bp-grey-900 mb-2">{{ meeting.title }}</h1>
+      <p class="text-bp-grey-600 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012-2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+        </svg>
+        {{ motions|length }} Motion{{ 's' if motions|length != 1 else '' }}
+      </p>
     </div>
-  {% else %}
-    <p>No motions yet.</p>
+    
+    <!-- Primary Action -->
+    <a href="{{ url_for('meetings.create_motion', meeting_id=meeting.id) }}" 
+       class="bp-btn-primary bp-btn-icon">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      <span>Add Motion</span>
+    </a>
+  </div>
+
+  <!-- Action Bar -->
+  <div class="bg-white rounded-lg border border-bp-grey-100 p-4 shadow-sm">
+    <div class="flex flex-wrap items-center gap-3">
+      <!-- Member Management -->
+      <div class="flex items-center gap-2">
+        <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}" 
+           class="bp-btn-secondary bp-btn-icon">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+          Import Members
+        </a>
+        <a href="{{ url_for('meetings.download_sample_csv') }}" 
+           class="text-sm text-bp-blue hover:text-bp-blue-light underline" download>
+          Sample CSV
+        </a>
+      </div>
+
+      <div class="h-6 w-px bg-bp-grey-200"></div>
+
+      <!-- Meeting Management -->
+      <div class="flex items-center gap-2">
+        <a href="{{ url_for('meetings.clone_meeting', meeting_id=meeting.id) }}" 
+           class="bp-btn-secondary bp-btn-icon">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+          </svg>
+          Clone Meeting
+        </a>
+        <a href="{{ url_for('submissions.list_submissions', meeting_id=meeting.id) }}" 
+           class="bp-btn-secondary bp-btn-icon">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Review Submissions
+        </a>
+      </div>
+
+      <div class="h-6 w-px bg-bp-grey-200"></div>
+
+      <!-- Preview Actions -->
+      <div class="flex items-center gap-2">
+        {% if meeting.ballot_mode == 'combined' %}
+        <a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}" 
+           class="bp-btn-secondary bp-btn-icon">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+          Preview Combined Ballot
+        </a>
+        {% else %}
+        <a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}" 
+           class="bp-btn-secondary bp-btn-icon">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+          Preview Stage 1
+        </a>
+        <a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=2) }}" 
+           class="bp-btn-secondary bp-btn-icon">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+          Preview Stage 2
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Motions List -->
+{% if motions %}
+<div class="grid gap-6">
+  {% for m in motions %}
+  <div class="bp-card hover:shadow-xl transition-all duration-200 border-l-4 
+              {% if m.status == 'passed' %}border-green-500
+              {% elif m.status == 'failed' %}border-red-500
+              {% elif m.withdrawn %}border-bp-grey-400
+              {% else %}border-bp-blue{% endif %}">
+    
+    <div class="flex items-start justify-between mb-4">
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-2">
+          <h3 class="text-xl font-semibold text-bp-grey-900 hover:text-bp-blue transition-colors">
+            {{ m.title }}
+          </h3>
+          
+          <!-- Status Badge -->
+          {% if m.status %}
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                       {% if m.status == 'passed' %}bg-green-100 text-green-800
+                       {% elif m.status == 'failed' %}bg-red-100 text-red-800
+                       {% else %}bg-bp-grey-100 text-bp-grey-800{% endif %}">
+            {{ m.status|title }}
+          </span>
+          {% endif %}
+          
+          {% if m.withdrawn %}
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-bp-grey-100 text-bp-grey-800">
+            Withdrawn
+          </span>
+          {% endif %}
+        </div>
+        
+        <div class="flex items-center gap-4 text-sm text-bp-grey-600 mb-3">
+          <span class="inline-flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+            {{ m.category|title }}
+          </span>
+          
+          {% if m.threshold %}
+          <span class="inline-flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            {{ m.threshold|title }} Threshold
+          </span>
+          {% endif %}
+          
+          {% if m.ordering %}
+          <span class="inline-flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+            </svg>
+            Order #{{ m.ordering }}
+          </span>
+          {% endif %}
+        </div>
+        
+        <!-- Motion Preview -->
+        {% if m.text_md %}
+        <div class="bg-bp-grey-50 rounded-md p-3 mb-3 border-l-2 border-bp-grey-200">
+          <p class="text-sm text-bp-grey-700 line-clamp-2">
+            {{ m.text_md[:150] }}{% if m.text_md|length > 150 %}...{% endif %}
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <div class="flex items-center justify-between pt-4 border-t border-bp-grey-100">
+      <div class="flex items-center gap-4 text-xs text-bp-grey-600">
+        {% if m.is_published %}
+        <span class="inline-flex items-center gap-1 text-green-600">
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          Published
+        </span>
+        {% else %}
+        <span class="inline-flex items-center gap-1 text-bp-grey-500">
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+          </svg>
+          Draft
+        </span>
+        {% endif %}
+        
+        {% if m.modified_at %}
+        <span>Modified {{ m.modified_at.strftime('%b %d, %Y') }}</span>
+        {% endif %}
+      </div>
+      
+      <a href="{{ url_for('meetings.view_motion', motion_id=m.id) }}" 
+         class="bp-btn-secondary bp-btn-compact bp-btn-icon">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        </svg>
+        View Details
+      </a>
+    </div>
+  </div>
   {% endfor %}
 </div>
-<a href="{{ url_for('meetings.create_motion', meeting_id=meeting.id) }}" class="bp-btn-primary mt-4 inline-block">Add Motion</a>
-{% if meeting.ballot_mode == 'combined' %}
-<a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}" class="bp-btn-secondary mt-4 inline-block ml-2">Preview Combined Ballot</a>
+
 {% else %}
-<a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}" class="bp-btn-secondary mt-4 inline-block ml-2">Preview Stage 1</a>
-<a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=2) }}" class="bp-btn-secondary mt-4 inline-block ml-2">Preview Stage 2</a>
+<!-- Empty State -->
+<div class="text-center py-12">
+  <div class="bg-bp-grey-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+    <svg class="w-12 h-12 text-bp-grey-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+    </svg>
+  </div>
+  <h3 class="text-lg font-semibold text-bp-grey-900 mb-2">No motions yet</h3>
+  <p class="text-bp-grey-600 mb-6 max-w-md mx-auto">
+    Get started by creating your first motion for this meeting. You can add the motion text, set categories, and manage amendments.
+  </p>
+  <a href="{{ url_for('meetings.create_motion', meeting_id=meeting.id) }}" 
+     class="bp-btn-primary bp-btn-icon">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+    </svg>
+    Create Your First Motion
+  </a>
+</div>
 {% endif %}
+
 {% endblock %}

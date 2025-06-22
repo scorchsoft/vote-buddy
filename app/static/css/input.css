@@ -978,4 +978,12 @@ html {
 .dark .bp-breadcrumb-current {
   color: var(--bp-grey-800);
   background: rgba(26, 74, 122, 0.1);
-} 
+}
+
+/* Text clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
