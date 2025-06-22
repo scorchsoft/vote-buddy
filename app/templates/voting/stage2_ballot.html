@@ -2,6 +2,9 @@
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
 {{ breadcrumbs([('Ballot', url_for('voting.ballot_home')), (meeting.title, None), ('Stage 2', None)]) }}
+{% if setting('site_logo') %}
+<img src="{{ url_for('static', filename=setting('site_logo')) }}" alt="{{ setting('site_title', 'VoteBuddy') }}" class="h-12 mx-auto mb-4">
+{% endif %}
 <h1 class="font-bold text-bp-blue mb-4">Stage 2 – Vote on Motion</h1>
 <p class="text-sm mb-4"><a href="{{ url_for('help.show_help') }}" class="bp-link">Need help?</a></p>
 {% set current_stage = 2 %}

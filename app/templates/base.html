@@ -255,7 +255,10 @@
       <div class="max-w-[1200px] mx-auto px-4 py-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div>
-            <h3 class="font-bold text-lg mb-3">VoteBuddy</h3>
+            {% if setting('site_logo') %}
+            <img src="{{ url_for('static', filename=setting('site_logo')) }}" alt="{{ setting('site_title', 'VoteBuddy') }}" class="h-10 mb-2">
+            {% endif %}
+            <h3 class="font-bold text-lg mb-3">{{ setting('site_title', 'VoteBuddy') }}</h3>
             <p class="text-sm opacity-90">Modern digital voting platform for membership organisations</p>
           </div>
           <div>
