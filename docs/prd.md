@@ -462,6 +462,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-22 – Site logo displayed on index page, footer, submission forms, ballot pages and emails.
 * 2025-06-22 – Added configurable final-stage volunteer message on confirmation screen.
 * 2025-06-22 – Fake data generator now creates multiple meetings with sample votes for UI demos.
+* 2025-06-22 – Removed quorum progress banner from header to reduce clutter.
 
 
 ---
