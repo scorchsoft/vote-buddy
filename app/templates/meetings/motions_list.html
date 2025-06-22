@@ -99,21 +99,64 @@
 </div>
 
 {% if timeline_start and timeline_end %}
-<div class="bp-timeline">
-  <div class="bp-progress relative">
-    <div class="bp-progress-bar" style="width: {{ ((now - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) | round }}%"></div>
-    {% for label, dt in timeline_steps %}
-    {% if dt %}
-    {% set pct = ((dt - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) %}
-    <div class="bp-timeline-marker" style="left: {{ pct }}%">
-      <span class="bp-timeline-dot"></span>
-      <span class="bp-timeline-label">{{ label }}<br>{{ dt.strftime('%d %b') }}</span>
+<!-- Meeting Timeline -->
+<div class="bp-card mb-8">
+  <h2 class="text-xl font-semibold text-bp-grey-900 mb-6 flex items-center gap-2">
+    <svg class="w-5 h-5 text-bp-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    Meeting Timeline
+  </h2>
+  
+  <div class="bp-timeline">
+    <div class="bp-timeline-wrapper">
+      <div class="bp-timeline-container">
+        <!-- Progress bar showing elapsed time -->
+        {% if now >= timeline_start %}
+          {% set progress = ((now - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) %}
+          {% if progress > 100 %}{% set progress = 100 %}{% endif %}
+          <div class="bp-timeline-progress" style="width: {{ progress|round }}%"></div>
+        {% endif %}
+        
+        <!-- Timeline markers for each milestone -->
+        {% for label, dt in timeline_steps %}
+          {% if dt %}
+            {% set pct = ((dt - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) %}
+            {% if pct >= 0 and pct <= 100 %}
+              <div class="bp-timeline-marker" style="left: {{ pct }}%">
+                <div class="bp-timeline-dot"></div>
+                <div class="bp-timeline-label">
+                  <div class="font-semibold">{{ label }}</div>
+                  <div class="text-xs opacity-75">{{ dt.strftime('%d %b') }}</div>
+                </div>
+              </div>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        
+        <!-- Current time indicator -->
+        {% if timeline_start <= now <= timeline_end %}
+          {% set now_pct = ((now - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) %}
+          <div class="bp-timeline-now" style="--now-position: {{ now_pct }}%"></div>
+        {% endif %}
+      </div>
     </div>
-    {% endif %}
-    {% endfor %}
-    {% if timeline_start <= now <= timeline_end %}
-    <div class="bp-timeline-now" style="left: {{ ((now - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) }}%"></div>
-    {% endif %}
+  </div>
+  
+  <!-- Timeline Legend -->
+  <div class="mt-6 flex flex-wrap items-center gap-4 text-sm text-bp-grey-600">
+    <div class="flex items-center gap-2">
+      <div class="w-3 h-3 bg-bp-blue rounded-full"></div>
+      <span>Milestone</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="w-3 h-3 bg-bp-red rounded-full animate-pulse"></div>
+      <span>Current Date</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-1 bg-gradient-to-r from-bp-blue to-bp-blue-light rounded"></div>
+      <span>Progress</span>
+    </div>
   </div>
 </div>
 {% endif %}
