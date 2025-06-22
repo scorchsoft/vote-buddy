@@ -196,6 +196,14 @@ class Meeting(db.Model):
         percent = max(0.0, min(100.0, (elapsed / total) * 100))
         return int(percent)
 
+    def motions_count(self) -> int:
+        """Return total motions for this meeting."""
+        return Motion.query.filter_by(meeting_id=self.id).count()
+
+    def amendments_count(self) -> int:
+        """Return total amendments across all motions."""
+        return Amendment.query.filter_by(meeting_id=self.id).count()
+
 
 class Member(db.Model):
     __tablename__ = "members"
