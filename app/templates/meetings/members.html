@@ -42,7 +42,7 @@
   <form method="post" action="{{ url_for('meetings.delete_all_members', meeting_id=meeting.id) }}" onsubmit="return confirm('Remove all members?');">
     <button type="submit" class="bp-btn-secondary">Remove All</button>
   </form>
-  <a href="{{ url_for('meetings.members_csv', meeting_id=meeting.id) }}" class="bp-btn-secondary" download="members.csv">Download CSV</a>
+  <a href="{{ url_for('meetings.members_csv', meeting_id=meeting.id) }}" class="bp-btn-secondary" download="members.csv" hx-boost="false">Download CSV</a>
   <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}" class="bp-btn-secondary">Import Members</a>
 </div>
 {% if pagination.pages > 1 %}
