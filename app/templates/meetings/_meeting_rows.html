@@ -105,14 +105,21 @@
 
         <!-- Member Management -->
         <div class="py-1" role="none">
-          <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}" 
+          <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}"
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
-            <img src="{{ url_for('static', filename='icons/group_add_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" 
+            <img src="{{ url_for('static', filename='icons/group_add_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}"
                  alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500 filter-to-grey">
             Import Members
           </a>
-          <a href="{{ url_for('meetings.manual_send_emails', meeting_id=meeting.id) }}" 
+          <a href="{{ url_for('meetings.list_members', meeting_id=meeting.id) }}"
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/group_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            View Members
+          </a>
+          <a href="{{ url_for('meetings.manual_send_emails', meeting_id=meeting.id) }}"
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
             <svg class="w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500" viewBox="0 0 20 20" fill="currentColor">

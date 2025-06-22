@@ -358,11 +358,13 @@ def import_members(meeting_id):
             )
 
         seen_emails: set[str] = set()
+        seen_numbers: set[str] = set()
         tokens_to_send: list[tuple[Member, str]] = []
         proxy_tokens: list[tuple[Member, Member, str]] = []
         for idx, row in enumerate(reader, start=2):
             name = row["name"].strip()
             email = row["email"].strip().lower()
+            number = (row.get("member_id") or "").strip()
 
             if not name:
                 flash(f"Row {idx}: name is required", "error")
@@ -379,12 +381,19 @@ def import_members(meeting_id):
                 return render_template(
                     "meetings/import_members.html", form=form, meeting=meeting
                 )
+            if number and (number in seen_numbers or Member.query.filter_by(meeting_id=meeting.id, member_number=number).first()):
+                flash(f"Duplicate member ID: {number}", "error")
+                return render_template(
+                    "meetings/import_members.html", form=form, meeting=meeting
+                )
             seen_emails.add(email)
+            if number:
+                seen_numbers.add(number)
 
 
             member = Member(
                 meeting_id=meeting.id,
-                member_number=row.get("member_id"),
+                member_number=number,
                 name=name,
                 email=email,
                 proxy_for=(row.get("proxy_for") or "").strip() or None,
@@ -438,6 +447,150 @@ def download_sample_csv():
     """Serve a template CSV for member uploads."""
     path = os.path.join(current_app.root_path, "static", "sample_members.csv")
     return send_file(path, mimetype="text/csv", as_attachment=True, download_name="sample_members.csv")
+
+
+@bp.route("/<int:meeting_id>/members")
+@login_required
+@permission_required("manage_meetings")
+def list_members(meeting_id: int):
+    """View members uploaded to a meeting."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+
+    q = request.args.get("q", "").strip()
+    voted = request.args.get("voted", "any")
+    sort = request.args.get("sort", "name")
+    direction = request.args.get("direction", "asc")
+
+    query = Member.query.filter_by(meeting_id=meeting.id)
+    if q:
+        search = f"%{q}%"
+        query = query.filter(
+            db.or_(Member.name.ilike(search), Member.email.ilike(search))
+        )
+
+    if voted in {"yes", "no"}:
+        voted_subq = db.session.query(VoteToken.id).filter(
+            VoteToken.member_id == Member.id,
+            VoteToken.used_at.isnot(None),
+        )
+        if voted == "yes":
+            query = query.filter(voted_subq.exists())
+        else:
+            query = query.filter(~voted_subq.exists())
+
+    order_attr = Member.email if sort == "email" else Member.name
+    query = query.order_by(
+        order_attr.asc() if direction == "asc" else order_attr.desc()
+    )
+
+    page = request.args.get("page", 1, type=int)
+    per_page = current_app.config.get("MEMBERS_PER_PAGE", 20)
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    members = []
+    for m in pagination.items:
+        voted_flag = (
+            VoteToken.query.filter_by(member_id=m.id)
+            .filter(VoteToken.used_at.isnot(None))
+            .count()
+            > 0
+        )
+        m.voted = voted_flag
+        members.append(m)
+
+    if request.headers.get("HX-Request") and request.headers.get("HX-Target") == "member-table-body":
+        template = "meetings/_member_rows.html"
+    else:
+        template = "meetings/members.html"
+
+    return render_template(
+        template,
+        meeting=meeting,
+        members=members,
+        pagination=pagination,
+        q=q,
+        voted=voted,
+        sort=sort,
+        direction=direction,
+    )
+
+
+@bp.route("/<int:meeting_id>/members/<int:member_id>/delete", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def delete_member(meeting_id: int, member_id: int):
+    """Remove a single member from a meeting."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    member = Member.query.filter_by(id=member_id, meeting_id=meeting.id).first_or_404()
+    Vote.query.filter_by(member_id=member.id).delete()
+    VoteToken.query.filter_by(member_id=member.id).delete()
+    db.session.delete(member)
+    db.session.commit()
+    flash("Member removed", "success")
+    return redirect(url_for("meetings.list_members", meeting_id=meeting.id))
+
+
+@bp.route("/<int:meeting_id>/members/delete-all", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def delete_all_members(meeting_id: int):
+    """Remove all members from a meeting."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    member_ids = [m.id for m in Member.query.filter_by(meeting_id=meeting.id).all()]
+    if member_ids:
+        Vote.query.filter(Vote.member_id.in_(member_ids)).delete(synchronize_session=False)
+        VoteToken.query.filter(VoteToken.member_id.in_(member_ids)).delete(synchronize_session=False)
+        Member.query.filter(Member.id.in_(member_ids)).delete(synchronize_session=False)
+        db.session.commit()
+    flash("All members removed", "success")
+    return redirect(url_for("meetings.list_members", meeting_id=meeting.id))
+
+
+@bp.route("/<int:meeting_id>/members.csv")
+@login_required
+@permission_required("manage_meetings")
+def members_csv(meeting_id: int):
+    """Download a CSV list of members and their amendment votes."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+
+    amendments = (
+        Amendment.query.filter_by(meeting_id=meeting.id)
+        .order_by(Amendment.order)
+        .all()
+    )
+
+    output = io.StringIO()
+    headers = ["member_id", "name", "email", "voted"] + [f"amend_{a.id}" for a in amendments]
+    writer = csv.writer(output)
+    writer.writerow(headers)
+
+    for m in Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all():
+        voted = (
+            VoteToken.query.filter_by(member_id=m.id)
+            .filter(VoteToken.used_at.isnot(None))
+            .count()
+            > 0
+        )
+        row = [m.member_number or "", m.name, m.email, "yes" if voted else "no"]
+        for a in amendments:
+            v = Vote.query.filter_by(member_id=m.id, amendment_id=a.id).first()
+            row.append(v.choice if v else "")
+        writer.writerow(row)
+
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode()),
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name="members.csv",
+    )
 
 
 @bp.route("/<int:meeting_id>/files", methods=["GET", "POST"])
