@@ -538,7 +538,8 @@ def view_motion(motion_id):
     if motion is None:
         abort(404)
     if not motion.is_published:
-        abort(404)
+        if not current_user.is_authenticated or not current_user.has_permission("manage_meetings"):
+            abort(404)
     amendments = (
         Amendment.query.filter_by(motion_id=motion.id).order_by(Amendment.order).all()
     )
