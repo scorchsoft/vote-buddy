@@ -1817,12 +1817,18 @@ h4 {
 }
 
 /* Enhanced Navigation */
+.bp-header {
+  position: relative;
+  z-index: 60;
+}
 
 .bp-header-nav {
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
   background: rgba(0, 45, 89, 0.95) !important;
   box-shadow: var(--shadow-md);
+  position: relative;
+  z-index: 50;
 }
 
 .bp-nav-link {
