@@ -471,6 +471,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-22 – Expanded charts view to display per-motion graphs for counts,
   percentages and effective percentages.
 * 2025-06-22 – Added clear logo button on settings page to remove the site logo.
+* 2025-06-22 – Underlined sample CSV download link on member import page for clarity.
 
 
 ---
