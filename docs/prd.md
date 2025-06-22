@@ -464,6 +464,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-22 – Added configurable final-stage volunteer message on confirmation screen.
 * 2025-06-22 – Fake data generator now creates multiple meetings with sample votes for UI demos.
 * 2025-06-22 – Removed quorum progress banner from header to reduce clutter.
+* 2025-06-22 – Fixed results download links to force file save instead of opening in browser.
 * 2025-06-22 – Fixed public results charts not rendering after page load.
 * 2025-06-22 – Results index displays meetings as individual cards with turnout info.
 
