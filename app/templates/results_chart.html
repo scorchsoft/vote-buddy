@@ -4,6 +4,13 @@
 {{ breadcrumbs([('Results', url_for('main.results_index')), (meeting.title, url_for('main.public_results', meeting_id=meeting.id)), ('Charts', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">{{ meeting.title }} – Charts</h1>
 <p class="mb-4"><a href="{{ url_for('main.public_results', meeting_id=meeting.id) }}" class="text-bp-blue underline">Back to table view</a></p>
+<p class="mb-4">
+  <label for="share-mode" class="font-semibold mr-2">Vote share:</label>
+  <select id="share-mode" class="bp-input w-auto">
+    <option value="absolute">Absolute</option>
+    <option value="effective">Effective</option>
+  </select>
+</p>
 <div id="charts" data-url="{{ url_for('main.public_results_json', meeting_id=meeting.id) }}">
   <div class="bp-card mb-8 overflow-x-auto">
     <h3 class="font-semibold mb-2">Stage 1 Amendments</h3>
