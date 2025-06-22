@@ -1453,14 +1453,14 @@ def results_docx(meeting_id: int):
     buf = io.BytesIO()
     doc.save(buf)
     buf.seek(0)
-    return send_file(
+    resp = send_file(
         buf,
-        mimetype=(
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        ),
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         as_attachment=True,
         download_name="results.docx",
     )
+    resp.headers["Content-Disposition"] = "attachment; filename=\"results.docx\""
+    return resp
 
 
 @bp.route("/<int:meeting_id>/prepare-stage2", methods=["GET", "POST"])
@@ -1591,12 +1591,16 @@ def results_stage2_docx(meeting_id: int):
     buf = io.BytesIO()
     doc.save(buf)
     buf.seek(0)
-    return send_file(
+    resp = send_file(
         buf,
         mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         as_attachment=True,
         download_name="final_results.docx",
     )
+    resp.headers["Content-Disposition"] = (
+        "attachment; filename=\"final_results.docx\""
+    )
+    return resp
 
 
 @bp.route("/<int:meeting_id>/stage1.ics")
