@@ -39,19 +39,46 @@ VoteBuddy also includes a [special resolution motion template](docs/template-mot
 
 The following images show the main dashboard and help section in action.
 
+The admin dashboard provides a central hub for managing meetings and monitoring voting progress
 ![Admin dashboard screenshot](assets/screenshots_v0_3/admin-dashboard.png)
+
+Comprehensive help documentation guides users through the voting process
 ![Help section screenshot](assets/screenshots_v0_3/help-section.png)
+
+The meeting list shows all upcoming and past meetings
 ![Meeting list screenshot](assets/screenshots_v0_3/home.png)
+
+View detailed meeting results including vote counts and charts
 ![Meeting details screenshot](assets/screenshots_v0_3/view-results.png)
+
+Configure meeting details like dates, motions and amendments
 ![Admin edit meeting screenshot](assets/screenshots_v0_3/admin-edit-meeting.png)
+
+Manage all meetings from a central admin interface
 ![Admin meeting list screenshot](assets/screenshots_v0_3/admin-meeting-list.png)
+
+Control user access and permissions
 ![Admin users screenshot](assets/screenshots_v0_3/admin-users.png)
+
+Customize system-wide settings and branding
 ![Application settings screenshot](assets/screenshots_v0_3/application-settings.png)
+
+Browse and export meeting results
 ![Results list screenshot](assets/screenshots_v0_3/results-list.png)
+
+Returning officers can monitor voting progress and manage the process
 ![Returning officer dashboard screenshot](assets/screenshots_v0_3/returning-officer-dashboard.png)
+
+Send email notifications and voting links to members
 ![Send emails screenshot](assets/screenshots_v0_3/send-emails.png)
+
+Members can easily cast their votes in a simple interface
 ![Stage vote example screenshot](assets/screenshots_v0_3/stage-vote-example.png)
+
+Members can verify their vote was counted correctly
 ![Verify vote receipt screenshot](assets/screenshots_v0_3/verify-vote-receipt.png)
+
+View detailed charts and visualizations of voting results
 ![View results charts screenshot](assets/screenshots_v0_3/view-results-charts.png)
 
 
