@@ -200,7 +200,7 @@ class Meeting(db.Model):
 class Member(db.Model):
     __tablename__ = "members"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"), index=True)
     member_number = db.Column(db.String(50))
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
@@ -214,7 +214,7 @@ class Member(db.Model):
 class Motion(db.Model):
     __tablename__ = "motions"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"), index=True)
     title = db.Column(db.String(255))
     text_md = db.Column(db.Text)
     final_text_md = db.Column(db.Text)
@@ -234,16 +234,16 @@ class Motion(db.Model):
 class MotionOption(db.Model):
     __tablename__ = "motion_options"
     id = db.Column(db.Integer, primary_key=True)
-    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"))
+    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"), index=True)
     text = db.Column(db.String(255))
 
 
 class VoteToken(db.Model):
     __tablename__ = "vote_tokens"
     token = db.Column(db.String(64), primary_key=True)
-    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"), index=True)
     proxy_holder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
-    stage = db.Column(db.Integer)
+    stage = db.Column(db.Integer, index=True)
     used_at = db.Column(db.DateTime)
     is_test = db.Column(db.Boolean, default=False)
 
@@ -284,8 +284,8 @@ class SubmissionToken(db.Model):
     __tablename__ = "submission_tokens"
 
     token = db.Column(db.String(64), primary_key=True)
-    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
-    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"), index=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"), index=True)
     used_at = db.Column(db.DateTime)
 
     @staticmethod
@@ -310,7 +310,7 @@ class SubmissionToken(db.Model):
 class UnsubscribeToken(db.Model):
     __tablename__ = "unsubscribe_tokens"
     token = db.Column(db.String(36), primary_key=True)
-    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"), index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -347,7 +347,7 @@ class PasswordResetToken(db.Model):
     __tablename__ = "password_reset_tokens"
 
     token = db.Column(db.String(36), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     used_at = db.Column(db.DateTime)
 
@@ -357,8 +357,8 @@ class PasswordResetToken(db.Model):
 class Amendment(db.Model):
     __tablename__ = "amendments"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
-    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"), index=True)
+    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"), index=True)
     text_md = db.Column(db.Text)
     order = db.Column(db.Integer)
     status = db.Column(db.String(50))
@@ -386,9 +386,9 @@ class Amendment(db.Model):
 class Vote(db.Model):
     __tablename__ = "votes"
     id = db.Column(db.Integer, primary_key=True)
-    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
-    amendment_id = db.Column(db.Integer, db.ForeignKey("amendments.id"), nullable=True)
-    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"), nullable=True)
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"), index=True)
+    amendment_id = db.Column(db.Integer, db.ForeignKey("amendments.id"), nullable=True, index=True)
+    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"), nullable=True, index=True)
     choice = db.Column(db.String(10))
     hash = db.Column(db.String(128))
     is_test = db.Column(db.Boolean, default=False)
@@ -447,7 +447,7 @@ class User(db.Model, UserMixin):
 class Runoff(db.Model):
     __tablename__ = "runoffs"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"), index=True)
     amendment_a_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
     amendment_b_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
     tie_break_method = db.Column(db.String(20), nullable=True)
@@ -456,7 +456,7 @@ class Runoff(db.Model):
 class AmendmentConflict(db.Model):
     __tablename__ = "amendment_conflicts"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"), index=True)
     amendment_a_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
     amendment_b_id = db.Column(db.Integer, db.ForeignKey("amendments.id"))
 
@@ -491,14 +491,14 @@ class AmendmentObjection(db.Model):
 class Comment(db.Model):
     __tablename__ = "comments"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
-    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"), nullable=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"), index=True)
+    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"), nullable=True, index=True)
     amendment_id = db.Column(
-        db.Integer, db.ForeignKey("amendments.id"), nullable=True
+        db.Integer, db.ForeignKey("amendments.id"), nullable=True, index=True
     )
-    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"), index=True)
     text_md = db.Column(db.Text)
-    hidden = db.Column(db.Boolean, default=False)
+    hidden = db.Column(db.Boolean, default=False, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     edited_at = db.Column(db.DateTime)
     revisions = db.relationship("CommentRevision", backref="comment")
@@ -522,8 +522,8 @@ class CommentRevision(db.Model):
 class EmailLog(db.Model):
     __tablename__ = "email_logs"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
-    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"), index=True)
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"), index=True)
     type = db.Column(db.String(50))
     is_test = db.Column(db.Boolean, default=False)
     sent_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -535,7 +535,7 @@ class AdminLog(db.Model):
     __tablename__ = "admin_logs"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), index=True)
     user = db.relationship("User")
     action = db.Column(db.String(50))
     details = db.Column(db.Text)
@@ -545,8 +545,8 @@ class AdminLog(db.Model):
 class MotionSubmission(db.Model):
     __tablename__ = "motion_submissions"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
-    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"), index=True)
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"), index=True)
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
     seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
@@ -557,8 +557,8 @@ class MotionSubmission(db.Model):
 class AmendmentSubmission(db.Model):
     __tablename__ = "amendment_submissions"
     id = db.Column(db.Integer, primary_key=True)
-    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"))
-    member_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"), index=True)
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"), index=True)
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
     seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
@@ -569,7 +569,7 @@ class AmendmentSubmission(db.Model):
 class MeetingFile(db.Model):
     __tablename__ = "meeting_files"
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"), index=True)
     filename = db.Column(db.String(255))
     title = db.Column(db.String(255))
     description = db.Column(db.Text)
