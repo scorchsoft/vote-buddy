@@ -831,6 +831,10 @@ select {
   position: fixed;
 }
 
+.absolute {
+  position: absolute;
+}
+
 .sticky {
   position: sticky;
 }
@@ -1030,6 +1034,10 @@ select {
 
 .w-8 {
   width: 2rem;
+}
+
+.w-auto {
+  width: auto;
 }
 
 .w-full {
@@ -1829,6 +1837,7 @@ h4 {
 }
 
 /* Enhanced Navigation */
+
 .bp-header {
   position: relative;
   z-index: 60;

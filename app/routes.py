@@ -9,6 +9,7 @@ from flask import (
     send_file,
     url_for,
     send_from_directory,
+    Response,
 )
 from .extensions import db, limiter
 from .models import (
@@ -364,12 +365,65 @@ def public_results_pdf(meeting_id: int):
     )
     stage2 = [(m, _vote_counts(Vote.motion_id == m.id)) for m in motions]
 
-    pdf_bytes = generate_results_pdf(meeting, stage1, stage2)
-    resp = send_file(
-        io.BytesIO(pdf_bytes),
-        mimetype="application/pdf",
-        as_attachment=True,
-        download_name="final_results.pdf",
+    try:
+        pdf_bytes = generate_results_pdf(meeting, stage1, stage2)
+        
+        # Create a safe filename
+        safe_filename = f"{meeting.title.replace(' ', '_').replace('/', '-')}_final_results.pdf"
+        
+        # Create response with PDF data
+        response = Response(
+            pdf_bytes,
+            mimetype='application/pdf',
+            headers={
+                'Content-Disposition': f'attachment; filename="{safe_filename}"',
+                'Content-Type': 'application/pdf',
+                'Content-Length': str(len(pdf_bytes)),
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        )
+        
+        return response
+        
+    except Exception as e:
+        # Log the error and return a simple error response
+        current_app.logger.error(f"Error generating PDF: {e}")
+        abort(500)
+
+
+@bp.route('/results/<int:meeting_id>/debug.pdf')
+def debug_pdf(meeting_id: int):
+    """Debug route to check PDF generation without access control."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if not meeting:
+        abort(404)
+
+    # Create a simple test PDF
+    from reportlab.lib.pagesizes import A4
+    from reportlab.platypus import SimpleDocTemplate, Paragraph
+    from reportlab.lib.styles import getSampleStyleSheet
+    import io
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    styles = getSampleStyleSheet()
+    story = [Paragraph(f"Test PDF for {meeting.title}", styles['Title'])]
+    doc.build(story)
+    pdf_data = buffer.getvalue()
+    buffer.close()
+    
+    current_app.logger.info(f"Generated PDF of {len(pdf_data)} bytes")
+    
+    response = Response(
+        pdf_data,
+        mimetype='application/pdf',
+        headers={
+            'Content-Disposition': 'attachment; filename="test.pdf"',
+            'Content-Type': 'application/pdf',
+            'Content-Length': str(len(pdf_data)),
+        }
     )
-    resp.headers["Content-Disposition"] = "attachment; filename=\"final_results.pdf\""
-    return resp
+    
+    return response
