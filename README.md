@@ -129,9 +129,9 @@ You can seed a fresh development database with example meetings and members usin
 python -m flask --app app generate-fake-data
 ```
 
-This creates demo coordinator and returning officer accounts and inserts a sample meeting with motions,
-amendments and 30 random members. **Run it only on a local database** as it may conflict with real
-data and could trigger emails if your mail settings are active.
+This creates demo coordinator and returning officer accounts and inserts several sample meetings with
+random members, motions, amendments and recorded votes. **Run it only on a local database** as it may
+conflict with real data and could trigger emails if your mail settings are active.
 
 ### Running tests
 

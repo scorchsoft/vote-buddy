@@ -60,107 +60,127 @@ def generate_fake_data() -> None:
 
     db.session.commit()
 
-    meeting = Meeting(
-        title=f"Demo Meeting {now.year}-{fake.random_int(min=100, max=999)}",
-        type='AGM',
-        notice_date=now - timedelta(days=7),
-        opens_at_stage1=now,
-        closes_at_stage1=now + timedelta(days=2),
-        opens_at_stage2=now + timedelta(days=3),
-        closes_at_stage2=now + timedelta(days=5),
-        ballot_mode='two-stage',
-        status='Upcoming',
-        quorum=15,
-        public_results=True,
-        comments_enabled=True,
-    )
-    db.session.add(meeting)
-    db.session.commit()
+    meetings = []
+    for idx in range(3):
+        fake.unique.clear()
+        status = "Stage 1" if idx == 0 else "Stage 2" if idx == 1 else "Completed"
+        meeting = Meeting(
+            title=f"Demo Meeting {idx + 1} {now.year}-{fake.random_int(min=100, max=999)}",
+            type="AGM",
+            notice_date=now - timedelta(days=14),
+            ballot_mode="two-stage",
+            quorum=15,
+            public_results=True,
+            comments_enabled=True,
+            status=status,
+        )
 
-    members = []
-    for i in range(30):
-        member = Member(
-            meeting_id=meeting.id,
-            name=fake.name(),
-            email=f"{fake.unique.user_name()}@example.invalid",
-            member_number=str(1000 + i),
-            is_test=True,
-        )
-        db.session.add(member)
-        db.session.flush()
-        t1, _ = VoteToken.create(
-            member_id=member.id,
-            stage=1,
-            salt=current_app.config["TOKEN_SALT"],
-        )
-        t2, _ = VoteToken.create(
-            member_id=member.id,
-            stage=2,
-            salt=current_app.config["TOKEN_SALT"],
-        )
-        t1.is_test = True
-        t2.is_test = True
-        members.append(member)
+        if idx == 0:
+            meeting.opens_at_stage1 = now - timedelta(days=1)
+            meeting.closes_at_stage1 = now + timedelta(days=1)
+            meeting.opens_at_stage2 = now + timedelta(days=2)
+            meeting.closes_at_stage2 = now + timedelta(days=5)
+        elif idx == 1:
+            meeting.opens_at_stage1 = now - timedelta(days=5)
+            meeting.closes_at_stage1 = now - timedelta(days=3)
+            meeting.opens_at_stage2 = now - timedelta(days=1)
+            meeting.closes_at_stage2 = now + timedelta(days=2)
+        else:
+            meeting.opens_at_stage1 = now - timedelta(days=15)
+            meeting.closes_at_stage1 = now - timedelta(days=13)
+            meeting.opens_at_stage2 = now - timedelta(days=10)
+            meeting.closes_at_stage2 = now - timedelta(days=8)
+            meeting.stage1_closed_at = meeting.closes_at_stage1
+            meeting.stage2_locked = True
 
-    motions = []
-    for i in range(3):
-        motion = Motion(
-            meeting_id=meeting.id,
-            title=fake.sentence(nb_words=6)[:-1],
-            text_md=fake.paragraph(nb_sentences=3),
-            category='motion',
-            threshold='normal',
-            ordering=i + 1,
-        )
-        db.session.add(motion)
-        motions.append(motion)
-    db.session.flush()
+        db.session.add(meeting)
+        db.session.commit()
+        meetings.append(meeting)
 
-    amendments = []
-    for motion in motions:
-        for j in range(2):
-            amend = Amendment(
+        members: list[Member] = []
+        for i in range(20):
+            member = Member(
                 meeting_id=meeting.id,
-                motion_id=motion.id,
-                text_md=fake.sentence(nb_words=10),
-                order=j + 1,
-                status='draft',
-                proposer_id=members[(j * 2) % len(members)].id,
-                seconder_id=members[(j * 2 + 1) % len(members)].id,
-                seconded_method='email',
-                seconded_at=now,
+                name=fake.name(),
+                email=f"{fake.unique.user_name()}@example.invalid",
+                member_number=str(1000 + i + idx * 100),
+                is_test=True,
             )
-            db.session.add(amend)
-            amendments.append(amend)
-
-    db.session.flush()
-
-    choices = ["for", "against", "abstain"]
-    for member in members:
-        for amend in amendments:
-            Vote.record(
+            db.session.add(member)
+            db.session.flush()
+            t1, _ = VoteToken.create(
                 member_id=member.id,
-                amendment_id=amend.id,
-                choice=random.choice(choices),
-                salt=current_app.config["VOTE_SALT"],
                 stage=1,
-                is_test=True,
+                salt=current_app.config["TOKEN_SALT"],
             )
-        for motion in motions:
-            Vote.record(
+            t2, _ = VoteToken.create(
                 member_id=member.id,
-                motion_id=motion.id,
-                choice=random.choice(choices),
-                salt=current_app.config["VOTE_SALT"],
                 stage=2,
-                is_test=True,
+                salt=current_app.config["TOKEN_SALT"],
             )
-        t1 = VoteToken.query.filter_by(member_id=member.id, stage=1).first()
-        t2 = VoteToken.query.filter_by(member_id=member.id, stage=2).first()
-        if t1:
-            t1.used_at = now
-        if t2:
-            t2.used_at = now
+            t1.is_test = True
+            t2.is_test = True
+            members.append(member)
+
+        motions: list[Motion] = []
+        for i in range(3):
+            motion = Motion(
+                meeting_id=meeting.id,
+                title=fake.sentence(nb_words=6)[:-1],
+                text_md=fake.paragraph(nb_sentences=3),
+                category="motion",
+                threshold="normal",
+                ordering=i + 1,
+            )
+            db.session.add(motion)
+            motions.append(motion)
+        db.session.flush()
+
+        amendments: list[Amendment] = []
+        for motion in motions:
+            for j in range(2):
+                amend = Amendment(
+                    meeting_id=meeting.id,
+                    motion_id=motion.id,
+                    text_md=fake.sentence(nb_words=10),
+                    order=j + 1,
+                    status="draft",
+                    proposer_id=members[(j * 2) % len(members)].id,
+                    seconder_id=members[(j * 2 + 1) % len(members)].id,
+                    seconded_method="email",
+                    seconded_at=now,
+                )
+                db.session.add(amend)
+                amendments.append(amend)
+
+        db.session.flush()
+
+        choices = ["for", "against", "abstain"]
+        for member in members:
+            for amend in amendments:
+                Vote.record(
+                    member_id=member.id,
+                    amendment_id=amend.id,
+                    choice=random.choice(choices),
+                    salt=current_app.config["VOTE_SALT"],
+                    stage=1,
+                    is_test=True,
+                )
+            for motion in motions:
+                Vote.record(
+                    member_id=member.id,
+                    motion_id=motion.id,
+                    choice=random.choice(choices),
+                    salt=current_app.config["VOTE_SALT"],
+                    stage=2,
+                    is_test=True,
+                )
+            t1 = VoteToken.query.filter_by(member_id=member.id, stage=1).first()
+            t2 = VoteToken.query.filter_by(member_id=member.id, stage=2).first()
+            if t1:
+                t1.used_at = now
+            if t2:
+                t2.used_at = now
 
     db.session.commit()
     click.echo('Fake data generated.')
