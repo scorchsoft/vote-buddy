@@ -5,6 +5,7 @@
   {% endif %}
 {% else %}
   <form hx-post="{{ url_for('main.resend_meeting_link_public', meeting_id=meeting.id) }}" class="bp-form space-y-4">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="bp-form-group">
       <input id="member_number" name="member_number" class="bp-input" required>
       <label for="member_number" class="bp-form-label">Member Number</label>

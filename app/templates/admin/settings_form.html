@@ -19,109 +19,109 @@
       {{ form.from_email.label(class='block mb-1') }}
       <div class="flex gap-2">
         {{ form.from_email(class='bp-input w-full') }}
-        <form action="{{ url_for('admin.reset_setting', key='from_email') }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="text-sm underline">Reset default</button>
-        </form>
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='from_email') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
       </div>
     </div>
     <div class="mb-4">
       {{ form.runoff_extension_minutes.label(class='block mb-1') }}
       <div class="flex gap-2">
         {{ form.runoff_extension_minutes(class='bp-input w-full') }}
-        <form action="{{ url_for('admin.reset_setting', key='runoff_extension_minutes') }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="text-sm underline">Reset default</button>
-        </form>
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='runoff_extension_minutes') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
       </div>
     </div>
     <div class="mb-4">
       {{ form.reminder_hours_before_close.label(class='block mb-1') }}
       <div class="flex gap-2">
         {{ form.reminder_hours_before_close(class='bp-input w-full') }}
-        <form action="{{ url_for('admin.reset_setting', key='reminder_hours_before_close') }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="text-sm underline">Reset default</button>
-        </form>
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='reminder_hours_before_close') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
       </div>
     </div>
     <div class="mb-4">
       {{ form.reminder_cooldown_hours.label(class='block mb-1') }}
       <div class="flex gap-2">
         {{ form.reminder_cooldown_hours(class='bp-input w-full') }}
-        <form action="{{ url_for('admin.reset_setting', key='reminder_cooldown_hours') }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="text-sm underline">Reset default</button>
-        </form>
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='reminder_cooldown_hours') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
       </div>
     </div>
     <div class="mb-4">
       {{ form.stage2_reminder_hours_before_close.label(class='block mb-1') }}
       <div class="flex gap-2">
         {{ form.stage2_reminder_hours_before_close(class='bp-input w-full') }}
-        <form action="{{ url_for('admin.reset_setting', key='stage2_reminder_hours_before_close') }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="text-sm underline">Reset default</button>
-        </form>
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='stage2_reminder_hours_before_close') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
       </div>
     </div>
     <div class="mb-4">
       {{ form.stage2_reminder_cooldown_hours.label(class='block mb-1') }}
       <div class="flex gap-2">
         {{ form.stage2_reminder_cooldown_hours(class='bp-input w-full') }}
-        <form action="{{ url_for('admin.reset_setting', key='stage2_reminder_cooldown_hours') }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="text-sm underline">Reset default</button>
-        </form>
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='stage2_reminder_cooldown_hours') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
       </div>
     </div>
     <div class="mb-4">
       {{ form.reminder_template.label(class='block mb-1') }}
       <div class="flex gap-2">
         {{ form.reminder_template(class='bp-input w-full') }}
-        <form action="{{ url_for('admin.reset_setting', key='reminder_template') }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="text-sm underline">Reset default</button>
-        </form>
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='reminder_template') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
       </div>
     </div>
     <div class="mb-4">
       {{ form.tie_break_decisions.label(class='block mb-1') }}
       <div class="flex gap-2">
         {{ form.tie_break_decisions(class='bp-input w-full h-32') }}
-        <form action="{{ url_for('admin.reset_setting', key='tie_break_decisions') }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="text-sm underline">Reset default</button>
-        </form>
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='tie_break_decisions') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
       </div>
     </div>
     <div class="mb-4">
       <div class="flex justify-between items-center mb-1">
         {{ form.clerical_text.label() }}
-        <form action="{{ url_for('admin.reset_setting', key='clerical_text') }}" method="post" class="inline">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="text-sm underline">Reset default</button>
-        </form>
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='clerical_text') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
       </div>
       {{ form.clerical_text(class='bp-input w-full h-32') }}
     </div>
     <div class="mb-4">
       <div class="flex justify-between items-center mb-1">
         {{ form.move_text.label() }}
-        <form action="{{ url_for('admin.reset_setting', key='move_text') }}" method="post" class="inline">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="text-sm underline">Reset default</button>
-        </form>
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='move_text') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
       </div>
       {{ form.move_text(class='bp-input w-full h-32') }}
     </div>
     <div class="mb-4">
       <div class="flex justify-between items-center mb-1">
         {{ form.final_message.label() }}
-        <form action="{{ url_for('admin.reset_setting', key='final_message') }}" method="post" class="inline">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="text-sm underline">Reset default</button>
-        </form>
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='final_message') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
       </div>
       {{ form.final_message(class='bp-input w-full h-32') }}
     </div>
