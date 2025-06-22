@@ -70,6 +70,8 @@ def test_public_results_pdf_route():
         with app.test_request_context(f"/results/{meeting.id}/final.pdf"):
             resp = main.public_results_pdf(meeting.id)
             assert resp.mimetype == "application/pdf"
+            cd = resp.headers["Content-Disposition"]
+            assert "final_results.pdf" in cd
             resp.direct_passthrough = False
             data = resp.get_data()
             assert data.startswith(b"%PDF")
