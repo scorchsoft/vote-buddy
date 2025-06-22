@@ -27,7 +27,7 @@
 <ul class="list-disc pl-5">
   {% for f in files %}
   <li class="mb-2">
-    <a href="{{ url_for('main.public_meeting_file', meeting_id=meeting.id, file_id=f.id) }}" class="font-semibold text-bp-blue hover:underline">{{ f.title }}</a>
+    <a href="{{ url_for('main.public_meeting_file', meeting_id=meeting.id, file_id=f.id) }}" class="font-semibold text-bp-blue hover:underline" download>{{ f.title }}</a>
     {% if f.description %}<p class="text-sm text-bp-grey-700">{{ f.description }}</p>{% endif %}
   </li>
   {% else %}
