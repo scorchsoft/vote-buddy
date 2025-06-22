@@ -15,11 +15,12 @@ depends_on = None
 
 def upgrade():
     with op.batch_alter_table('motions', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('withdrawn', sa.Boolean(), nullable=True, server_default=sa.text('0')))
+        batch_op.add_column(sa.Column('withdrawn', sa.Boolean(), nullable=True, server_default=sa.text('false')))
         batch_op.add_column(sa.Column('modified_at', sa.DateTime(), nullable=True))
         batch_op.add_column(sa.Column('withdrawal_requested_at', sa.DateTime(), nullable=True))
         batch_op.add_column(sa.Column('chair_approved_at', sa.DateTime(), nullable=True))
         batch_op.add_column(sa.Column('board_approved_at', sa.DateTime(), nullable=True))
+        batch_op.add_column(sa.Column('change_requested', sa.Boolean(), nullable=True, server_default=sa.text('false')))
 
 
 def downgrade():
@@ -29,3 +30,4 @@ def downgrade():
         batch_op.drop_column('withdrawal_requested_at')
         batch_op.drop_column('modified_at')
         batch_op.drop_column('withdrawn')
+        batch_op.drop_column('change_requested')
