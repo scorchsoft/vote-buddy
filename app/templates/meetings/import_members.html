@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
-{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Import Members', None)]) }}
+{{ breadcrumbs([
+  ('Dashboard', url_for('admin.dashboard')),
+  ('Meetings', url_for('meetings.list_meetings')),
+  (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)),
+  ('Members', url_for('meetings.list_members', meeting_id=meeting.id)),
+  ('Import Members', None)
+]) }}
 <h1 class="font-bold text-bp-blue mb-4">{{ meeting.title }} – Import Members</h1>
 <p class="mb-4">
   <a href="{{ url_for('meetings.download_sample_csv') }}" class="bp-btn-secondary inline-block" download>Download sample CSV</a>
