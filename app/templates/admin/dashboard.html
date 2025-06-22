@@ -58,6 +58,39 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for meeting in meetings %}
       <div class="bp-card hover:shadow-xl transition-all">
+        <!-- Meeting Header - Title (Clickable) -->
+        <div class="mb-4">
+          <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}" class="block">
+            <h3 class="text-xl font-bold text-bp-grey-900 hover:text-bp-blue-600 transition-colors mb-2">{{ meeting.title }}</h3>
+          </a>
+          
+          <!-- Status Badges -->
+          <div class="flex items-center gap-2 mb-3">
+            {% if meeting.status == 'Completed' %}
+            <span class="bp-badge bp-badge-success">
+              <svg class="bp-icon w-4 h-4 mr-1" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
+              </svg>
+              Completed
+            </span>
+            {% else %}
+            <span class="bp-badge">{{ meeting.status or 'Draft' }}</span>
+            {% if meeting.status != 'Completed' %}
+            <span class="bp-badge bp-badge-secondary">
+              <img src="{{ url_for('static', filename='icons/clock_loader_40_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-4 h-4 mr-1">
+              Next reminder in {{ meeting.hours_until_next_reminder() }}h
+            </span>
+            {% endif %}
+            {% endif %}
+          </div>
+          
+          <!-- Notice Date -->
+          <p class="text-bp-grey-600 mb-4">
+            <img src="{{ url_for('static', filename='icons/calendar_today_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon inline w-4 h-4 mr-1">
+            Notice given {{ meeting.notice_date.strftime('%B %d, %Y') if meeting.notice_date else 'N/A' }}
+          </p>
+        </div>
+        
         <!-- Quorum Alert -->
         {% if meeting.status != 'Completed' %}
         <div class="bp-alert bp-alert-warning mb-4">
@@ -71,7 +104,7 @@
         </div>
         {% endif %}
         
-        <!-- Progress Bar -->
+        <!-- Progress Bars -->
         {% if meeting.status != 'Completed' %}
         <div class="mb-4">
           <div class="bp-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ meeting.stage1_progress_percent() }}">
@@ -91,39 +124,8 @@
         {% endif %}
         {% endif %}
         
-        <!-- Meeting Info -->
-        <h3 class="text-xl font-bold text-bp-grey-900 mb-2">{{ meeting.title }}</h3>
-        <p class="text-bp-grey-600 mb-3">
-          <img src="{{ url_for('static', filename='icons/calendar_today_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon inline w-4 h-4 mr-1">
-          Notice given {{ meeting.notice_date.strftime('%B %d, %Y') if meeting.notice_date else 'N/A' }}
-        </p>
-        
-        <!-- Status Badge -->
-        <div class="flex items-center justify-between mb-4">
-          {% if meeting.status == 'Completed' %}
-          <span class="bp-badge bp-badge-success">
-            <svg class="bp-icon w-4 h-4 mr-1" viewBox="0 0 24 24">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
-            </svg>
-            Completed
-          </span>
-          {% else %}
-          <span class="bp-badge">{{ meeting.status or 'Draft' }}</span>
-          {% endif %}
-          
-          {% if meeting.status != 'Completed' %}
-          <span class="bp-badge bp-badge-secondary">
-            <img src="{{ url_for('static', filename='icons/clock_loader_40_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-4 h-4 mr-1">
-            Next reminder in {{ meeting.hours_until_next_reminder() }}h
-          </span>
-          {% endif %}
-        </div>
-        
         <!-- Actions -->
-        <div class="pt-4 border-t border-bp-grey-100 flex gap-2">
-          <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}" class="bp-btn-secondary text-sm flex-1">
-            View Details
-          </a>
+        <div class="pt-4 border-t border-bp-grey-100 flex gap-2 mt-auto">
           <form action="{{ url_for('admin.toggle_public_results', meeting_id=meeting.id) }}" method="post" class="flex-1">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="bp-btn-secondary text-sm w-full">
