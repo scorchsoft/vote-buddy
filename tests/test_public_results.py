@@ -87,4 +87,4 @@ def test_public_results_charts_has_toggle():
 
         with app.test_request_context(f'/results/{meeting.id}/charts'):
             html = main.public_results_charts(meeting.id)
-            assert 'id="share-mode"' in html
+            assert 'id="stage1-grid"' in html

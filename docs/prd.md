@@ -468,6 +468,8 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-22 – Fixed public results charts not rendering after page load.
 * 2025-06-22 – Results index displays meetings as individual cards with turnout info.
 * 2025-06-22 – Charts page shows vote share percentages with absolute/effective toggle.
+* 2025-06-22 – Expanded charts view to display per-motion graphs for counts,
+  percentages and effective percentages.
 
 
 ---
