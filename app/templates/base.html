@@ -10,7 +10,7 @@
   <body hx-boost="true" class="flex flex-col min-h-screen bg-gradient-to-b from-bp-grey-50 to-white font-sans" data-notice-days="{{ notice_days }}">
     <a href="#main" class="bp-skip-link sr-only focus:not-sr-only">Skip to main content</a>
     <header>
-      <nav class="bg-bp-blue text-white shadow-lg">
+      <nav class="bp-header-nav bg-bp-blue text-white shadow-lg">
         <div class="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-4">
           <a href="{{ url_for('main.index') }}" class="font-bold text-xl flex items-center gap-2">
             {% if setting('site_logo') %}
