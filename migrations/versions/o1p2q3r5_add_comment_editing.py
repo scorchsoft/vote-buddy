@@ -1,13 +1,13 @@
 """add comment editing fields"
 
-Revision ID: o1p2q3r4
+Revision ID: o1p2q3r5
 Revises: l2m3n4o5p6q7
 Create Date: 2025-07-02 00:00:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
 
-revision = 'o1p2q3r4'
+revision = 'o1p2q3r5'
 down_revision = 'l2m3n4o5p6q7'
 branch_labels = None
 depends_on = None

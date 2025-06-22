@@ -1,14 +1,14 @@
 """add submission tables
 
 Revision ID: p2q3r4s5
-Revises: p1q2r3s4
+Revises: p1q2r3t4
 Create Date: 2025-06-21 00:00:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
 
 revision = 'p2q3r4s5'
-down_revision = 'p1q2r3s4'
+down_revision = 'p1q2r3t4'
 branch_labels = None
 depends_on = None
 
