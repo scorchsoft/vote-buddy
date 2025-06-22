@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initMarkdownEditors() {
   // Check if required libraries are loaded
   if (typeof marked === 'undefined' || typeof DOMPurify === 'undefined') {
     console.error('Markdown editor: marked or DOMPurify library not loaded');
@@ -75,5 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
       toggle(true);
     });
   });
-});
+}
+
+if (document.readyState !== 'loading') {
+  initMarkdownEditors();
+} else {
+  document.addEventListener('DOMContentLoaded', initMarkdownEditors);
+}
 

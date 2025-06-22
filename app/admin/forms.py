@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import (
     StringField,
     PasswordField,
@@ -38,6 +39,10 @@ class PermissionForm(FlaskForm):
 class SettingsForm(FlaskForm):
     site_title = StringField("Site Title", validators=[DataRequired()])
     site_logo = StringField("Site Logo", validators=[Optional()])
+    logo_file = FileField(
+        "Upload Logo",
+        validators=[Optional(), FileAllowed(["jpg", "jpeg", "png", "svg"], "Images only!")],
+    )
     from_email = StringField("From Email", validators=[DataRequired(), Email()])
     runoff_extension_minutes = IntegerField("Run-off Extension Minutes")
     reminder_hours_before_close = IntegerField("Reminder Hours Before Close")
