@@ -8,6 +8,10 @@ from flask import (
     current_app,
     abort,
 )
+import os
+from uuid6 import uuid7
+from werkzeug.utils import secure_filename
+from PIL import Image
 import json
 from flask_login import login_required
 from datetime import datetime
@@ -389,7 +393,22 @@ def manage_settings():
         form.manual_email_mode.data = AppSetting.get("manual_email_mode", "0") == "1"
     if form.validate_on_submit():
         AppSetting.set("site_title", form.site_title.data)
-        AppSetting.set("site_logo", form.site_logo.data)
+        if form.logo_file.data:
+            file = form.logo_file.data
+            ext = os.path.splitext(file.filename)[1].lower()
+            filename = f"{uuid7()}{ext}"
+            upload_dir = os.path.join(current_app.static_folder, "uploads")
+            os.makedirs(upload_dir, exist_ok=True)
+            path = os.path.join(upload_dir, filename)
+            if ext == ".svg":
+                file.save(path)
+            else:
+                img = Image.open(file)
+                img.thumbnail((400, 400))
+                img.save(path)
+            AppSetting.set("site_logo", f"uploads/{filename}")
+        else:
+            AppSetting.set("site_logo", form.site_logo.data)
         AppSetting.set("from_email", form.from_email.data)
         AppSetting.set(
             "runoff_extension_minutes", str(form.runoff_extension_minutes.data)
