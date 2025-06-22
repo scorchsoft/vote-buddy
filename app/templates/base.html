@@ -97,7 +97,7 @@
               <div class="flex items-center gap-2 ml-4">
                 <span class="text-white/80 text-sm">{{ current_user.email.split('@')[0] }}</span>
                 <a href="{{ url_for('auth.logout') }}" class="bp-btn-secondary text-sm py-1 px-3">
-                  <img src="{{ url_for('static', filename='icons/logout_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-1 w-4 h-4">
+                  <img src="{{ url_for('static', filename='icons/logout_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-1 w-4 h-4">
                   Logout
                 </a>
               </div>
@@ -196,7 +196,7 @@
             <div class="text-white/60 text-sm mb-2">{{ current_user.role.name }}</div>
             {% endif %}
             <a href="{{ url_for('auth.logout') }}" class="bp-nav-link text-white">
-              <img src="{{ url_for('static', filename='icons/logout_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
+              <img src="{{ url_for('static', filename='icons/logout_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
               Logout
             </a>
           </li>
