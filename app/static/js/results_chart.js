@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', async () => {
+async function initCharts() {
   const container = document.getElementById('charts');
   if (!container) return;
   const url = container.dataset.url;
@@ -29,4 +29,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     data: makeData(stage2Rows),
     options: { responsive: true, scales: { y: { beginAtZero: true } } }
   });
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCharts);
+} else {
+  initCharts();
+}

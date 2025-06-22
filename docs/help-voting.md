@@ -2,14 +2,16 @@
 
 ## Overview of the stages
 
-British Powerlifting motions are decided in two parts:
+The voting process happens in four clear steps:
 
-1. **Stage 1 – amendments**: members vote on each proposed change to the motion. If no amendments qualify this stage may be skipped.
-2. **Stage 2 – motion**: members vote on the final motion text after any carried amendments have been applied. A 75% majority is required for special resolutions.
+1. **[Submit] Motions submitted** – members use the **Submit Motion** link to file new motions and propose amendments before the notice deadline.
+2. **[Review] Review window** – coordinators check each submission complies with the By‑Laws. During this period you can still open a motion and submit further amendments.
+3. **[Stage 1 votes] Amendments** – qualifying amendments are published and voted on first. Conflicting carried amendments may trigger a run‑off vote so the preferred wording can be chosen.
+4. **[Stage 2 votes] Motions** – members then vote on the final motion text with any carried amendments applied. A 75% majority is needed for special resolutions.
 
-Some ballots may combine these into one form but the sequence stays the same: know what has changed, then cast your vote on the motion.
+Some ballots combine amendment and motion questions in one form but the order remains the same: see the changes then vote on the motion.
 
-By default a tied amendment vote is decided by the Chair's casting vote. If the Chair is unable to act, the earlier-submitted amendment prevails.
+By default a tied amendment is decided by the Chair's casting vote. If the Chair cannot act, the earlier‑submitted amendment prevails.
 
 ## How voting links work
 
