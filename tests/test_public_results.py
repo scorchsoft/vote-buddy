@@ -71,3 +71,20 @@ def test_public_results_json_counts():
             m_row = next(r for r in data['tallies'] if r['type'] == 'motion')
             assert a_row['for'] == 1
             assert m_row['against'] == 1
+
+
+def test_public_results_charts_has_toggle():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM', public_results=True)
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='Bob')
+        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md='A1', order=1)
+        db.session.add_all([member, amend])
+        db.session.commit()
+
+        with app.test_request_context(f'/results/{meeting.id}/charts'):
+            html = main.public_results_charts(meeting.id)
+            assert 'id="share-mode"' in html

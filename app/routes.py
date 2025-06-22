@@ -208,13 +208,17 @@ def public_meeting_file(meeting_id: int, file_id: int):
         'UPLOAD_FOLDER', os.path.join(current_app.instance_path, 'files')
     )
     meeting_dir = os.path.join(root, str(meeting.id))
-    return send_from_directory(
+    resp = send_from_directory(
         meeting_dir,
         file_rec.filename,
-        mimetype='application/pdf',
+        mimetype="application/pdf",
         as_attachment=True,
         download_name=f"{file_rec.title or 'file'}.pdf",
     )
+    resp.headers["Content-Disposition"] = (
+        f"attachment; filename=\"{file_rec.title or 'file'}.pdf\""
+    )
+    return resp
 
 
 def _vote_counts(query):
@@ -361,9 +365,11 @@ def public_results_pdf(meeting_id: int):
     stage2 = [(m, _vote_counts(Vote.motion_id == m.id)) for m in motions]
 
     pdf_bytes = generate_results_pdf(meeting, stage1, stage2)
-    return send_file(
+    resp = send_file(
         io.BytesIO(pdf_bytes),
-        mimetype='application/pdf',
+        mimetype="application/pdf",
         as_attachment=True,
-        download_name='final_results.pdf',
+        download_name="final_results.pdf",
     )
+    resp.headers["Content-Disposition"] = "attachment; filename=\"final_results.pdf\""
+    return resp

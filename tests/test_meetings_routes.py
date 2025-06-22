@@ -553,6 +553,8 @@ def test_results_stage2_docx_returns_file():
             assert resp.mimetype == (
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             )
+            cd = resp.headers["Content-Disposition"]
+            assert "final_results.docx" in cd
             resp.direct_passthrough = False
             doc = Document(io.BytesIO(resp.get_data()))
             assert "draft summary" in doc.paragraphs[0].text
