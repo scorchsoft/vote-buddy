@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Results', url_for('main.results_index')), (meeting.title, None)]) }}
 <h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} – Results</h1>
 <p class="mb-4">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</p>
 {% if meeting.extension_reason %}

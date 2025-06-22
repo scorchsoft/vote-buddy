@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Home', url_for('main.index')), ('Ballot', None)]) }}
 <div class="bp-card text-center">
   <p class="text-bp-grey-700">Voting interface placeholder.</p>
   {% if token %}

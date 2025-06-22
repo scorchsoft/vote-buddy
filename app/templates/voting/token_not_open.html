@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Ballot', url_for('voting.ballot_home')), ('Token Not Open', None)]) }}
 {% if setting('site_logo') %}
 <img src="{{ url_for('static', filename=setting('site_logo')) }}" alt="{{ setting('site_title', 'VoteBuddy') }}" class="h-12 mx-auto mb-4">
 {% endif %}

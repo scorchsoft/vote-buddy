@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Admin Login', url_for('auth.login')), ('Reset Password', None)]) }}
 <div class="max-w-md mx-auto">
   <h2 class="text-2xl font-bold text-bp-blue mb-6">Reset Password</h2>
   <form method="post" class="bp-card space-y-6">

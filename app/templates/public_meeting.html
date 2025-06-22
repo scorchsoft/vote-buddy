@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
 {% block content %}
+{{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, None)]) }}
 <h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }}</h1>
 <p class="mb-4">Stage: {{ meeting.status or 'Draft' }} | Members: {{ member_count }}</p>
 {% if meeting.opens_at_stage1 and meeting.closes_at_stage1 %}
