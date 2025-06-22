@@ -16,6 +16,7 @@ See Stage 1 results: {{ results_link }}
 Use the link below to cast your ballot:
 
 {{ link }}
+Need help? {{ url_for('help.show_help', _external=True) }}
 
 If you already voted, you can ignore this email.
 To stop these reminders, visit {{ unsubscribe_url }}

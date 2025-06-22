@@ -4,6 +4,7 @@ Hello {{ member.name }},
 {% endif %}
 
 You are invited to vote in {{ meeting.title }}.
+This link is unique to you. For an overview see {{ url_for('help.show_help', _external=True) }}
 Use the link below to cast your ballot:
 
 {{ link }}
@@ -12,6 +13,7 @@ An iCalendar file with the voting window is attached for your diary.
 
 Submit an objection to a rejected amendment:
 {{ objection_link }}
+Need help? {{ url_for('help.show_help', _external=True) }}
 
 If you did not expect this email you can ignore it.
 To stop these emails, visit {{ unsubscribe_url }}
