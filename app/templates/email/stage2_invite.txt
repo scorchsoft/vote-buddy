@@ -18,6 +18,7 @@ Use the link below to cast your ballot:
 {{ link }}
 
 An iCalendar file with the Stage 2 voting window is attached for your diary.
+Need help? {{ url_for('help.show_help', _external=True) }}
 
 If you did not expect this email you can ignore it.
 To stop these emails, visit {{ unsubscribe_url }}

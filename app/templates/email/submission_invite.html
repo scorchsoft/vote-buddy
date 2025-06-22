@@ -6,3 +6,4 @@
 <p>Dear {{ member.name }},</p>
 <p>You may submit motions and amendments for {{ meeting.title }} online.</p>
 <p><a href="{{ link }}">Submit your proposal</a></p>
+<p>More about online voting: <a href="{{ url_for('help.show_help', _external=True) }}">Voting Help</a></p>

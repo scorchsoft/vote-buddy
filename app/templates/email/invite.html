@@ -4,6 +4,7 @@
     <td style="padding:24px;background-color:#FFFFFF;">
       <p>Hello {{ member.name }},</p>
       <p>You are invited to vote in <strong>{{ meeting.title }}</strong>.</p>
+      <p>This link is unique to you. For an overview of how online voting works, see <a href="{{ url_for('help.show_help', _external=True) }}">the voting help page</a>.</p>
       {% if test_mode %}
       <p style="color:#DC0714;"><strong>TEST MODE:</strong> votes cast using this link will be recorded as test data.</p>
       {% endif %}
@@ -19,6 +20,7 @@
   <tr>
     <td style="background-color:#F7F7F9;padding:12px 24px;font-size:14px;color:#3F4854;">
       <p style="margin:0;">Voting assistance: <a href="mailto:support@example.com">support@example.com</a></p>
+      <p style="margin:0;">Voting help: <a href="{{ url_for('help.show_help', _external=True) }}">Help page</a></p>
       <p style="margin:0;">Company No. 12345678 · <a href="{{ unsubscribe_url }}">Unsubscribe</a> · <a href="{{ resubscribe_url }}">Resubscribe</a></p>
     </td>
   </tr>

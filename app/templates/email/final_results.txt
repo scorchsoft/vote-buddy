@@ -9,8 +9,10 @@ Hello {{ member.name }},
 
 {% if results_link %}
 See the full results: {{ results_link }}
+Need help? {{ url_for('help.show_help', _external=True) }}
 {% else %}
 The certified results document is attached.
+Need help? {{ url_for('help.show_help', _external=True) }}
 {% endif %}
 
 If you did not expect this email you can ignore it.

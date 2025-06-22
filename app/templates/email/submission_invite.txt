@@ -4,3 +4,4 @@ You may submit motions and amendments for {{ meeting.title }} online.
 Use the link below to send your proposal:
 
 {{ link }}
+Need help? {{ url_for('help.show_help', _external=True) }}
