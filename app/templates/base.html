@@ -258,11 +258,11 @@
             {% if setting('site_logo') %}
             <img src="{{ url_for('static', filename=setting('site_logo')) }}" alt="{{ setting('site_title', 'VoteBuddy') }}" class="h-10 mb-2">
             {% endif %}
-            <h3 class="font-bold text-lg mb-3">{{ setting('site_title', 'VoteBuddy') }}</h3>
+            <h3 class="font-bold text-lg mb-3 text-white">{{ setting('site_title', 'VoteBuddy') }}</h3>
             <p class="text-sm opacity-90">Modern digital voting platform for membership organisations</p>
           </div>
           <div>
-            <h3 class="font-bold text-lg mb-3">Quick Links</h3>
+            <h3 class="font-bold text-lg mb-3 text-white">Quick Links</h3>
             <ul class="space-y-2 text-sm">
               <li><a href="{{ current_user.is_authenticated and current_user.has_permission('manage_meetings') and url_for('meetings.list_meetings') or url_for('main.public_meetings') }}" class="hover:underline opacity-90 hover:opacity-100">View Meetings</a></li>
               <li><a href="{{ url_for('help.show_help') }}" class="hover:underline opacity-90 hover:opacity-100">Help & Documentation</a></li>
@@ -275,7 +275,7 @@
               </ul>
             </div>
           <div>
-            <h3 class="font-bold text-lg mb-3">Built with ❤️</h3>
+            <h3 class="font-bold text-lg mb-3 text-white">Built with ❤️</h3>
             <p class="text-sm opacity-90">
               Developed by 
               <a href="https://www.scorchsoft.com" class="underline hover:no-underline" target="_blank" rel="noopener">
