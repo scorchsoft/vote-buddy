@@ -211,6 +211,8 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
   backdrop-filter: blur(10px);
   background: rgba(0, 45, 89, 0.95) !important;
   box-shadow: var(--shadow-md);
+  position: relative;
+  z-index: 50;
 }
 
 .bp-nav-link {
