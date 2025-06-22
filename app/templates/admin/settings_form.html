@@ -12,7 +12,13 @@
     </div>
     <div class="mb-4">
       {{ form.site_logo.label(class='block mb-1') }}
-      {{ form.site_logo(class='bp-input w-full') }}
+      <div class="flex gap-2">
+        {{ form.site_logo(class='bp-input w-full') }}
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='site_logo') }}"
+                formmethod="post"
+                class="text-sm underline">Clear</button>
+      </div>
       {{ form.logo_file(class='bp-input w-full mt-2') }}
     </div>
     <div class="mb-4">
