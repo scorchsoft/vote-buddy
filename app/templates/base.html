@@ -75,13 +75,13 @@
                   </a>
                   {% if current_user.has_permission('manage_meetings') %}
                   <a href="{{ url_for('ro.dashboard') }}" class="bp-dropdown-item">
-                    <img src="{{ url_for('static', filename='icons/leaderboard_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
+                    <img src="{{ url_for('static', filename='icons/dashboard_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     RO Dashboard
                   </a>
                   {% endif %}
                   {% if current_user.has_permission('manage_settings') %}
                   <a href="{{ url_for('admin.manage_settings') }}" class="bp-dropdown-item">
-                    <img src="{{ url_for('static', filename='icons/data_usage_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
+                    <img src="{{ url_for('static', filename='icons/settings_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     Site Settings
                   </a>
                   <a href="{{ url_for('admin.manage_api_tokens') }}" class="bp-dropdown-item">
@@ -175,13 +175,13 @@
             </a>
             {% if current_user.has_permission('manage_meetings') %}
             <a href="{{ url_for('ro.dashboard') }}" class="bp-nav-link text-white">
-              <img src="{{ url_for('static', filename='icons/leaderboard_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
+              <img src="{{ url_for('static', filename='icons/dashboard_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
               RO Dashboard
             </a>
             {% endif %}
             {% if current_user.has_permission('manage_settings') %}
             <a href="{{ url_for('admin.manage_settings') }}" class="bp-nav-link text-white">
-              <img src="{{ url_for('static', filename='icons/data_usage_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
+              <img src="{{ url_for('static', filename='icons/settings_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
               Site Settings
             </a>
             <a href="{{ url_for('admin.manage_api_tokens') }}" class="bp-nav-link text-white">
