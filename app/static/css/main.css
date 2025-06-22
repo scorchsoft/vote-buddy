@@ -2167,6 +2167,60 @@ h4 {
   box-shadow: var(--shadow);
 }
 
+/* Table with dropdown support - allows menus to overflow */
+
+.bp-table-with-dropdowns {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.bp-table-with-dropdowns th {
+  background: linear-gradient(to bottom, var(--bp-grey-50), var(--bp-grey-100));
+  padding: 1rem;
+  font-weight: 600;
+  text-align: left;
+  color: var(--bp-grey-700);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--bp-grey-200);
+}
+
+.bp-table-with-dropdowns td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--bp-grey-100);
+}
+
+.bp-table-with-dropdowns tbody tr {
+  transition: all var(--transition-fast);
+}
+
+.bp-table-with-dropdowns tbody tr:hover {
+  background: var(--bp-grey-50);
+}
+
+/* Rounded corners for table without overflow hidden */
+
+.bp-table-with-dropdowns thead tr:first-child th:first-child {
+  border-top-left-radius: var(--radius-lg);
+}
+
+.bp-table-with-dropdowns thead tr:first-child th:last-child {
+  border-top-right-radius: var(--radius-lg);
+}
+
+.bp-table-with-dropdowns tbody tr:last-child td:first-child {
+  border-bottom-left-radius: var(--radius-lg);
+}
+
+.bp-table-with-dropdowns tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--radius-lg);
+}
+
 .bp-table th {
   background: linear-gradient(to bottom, var(--bp-grey-50), var(--bp-grey-100));
   padding: 1rem;
