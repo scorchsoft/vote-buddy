@@ -21,7 +21,11 @@
     </p>
     {{ amend.text_md|markdown_to_html|safe }}
     {% if amend.combined_from %}
-    <p class="text-sm text-bp-grey-600 mt-2">Combined from: {{ ', '.join('A' ~ a.order for a in amend.combined_from) }}</p>
+    <p class="text-sm text-bp-grey-600 mt-2">Combined from:
+      {% for a in amend.combined_from %}
+        A{{ a.order }}{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </p>
     {% endif %}
     {% set conf_list = [] %}
     {% for c in conflicts %}

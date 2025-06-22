@@ -1241,3 +1241,37 @@ def test_clone_meeting_creates_copy():
         assert cloned.opens_at_stage1 is None
         assert Motion.query.filter_by(meeting_id=cloned.id).count() == 1
         assert Amendment.query.filter_by(meeting_id=cloned.id).count() == 1
+
+
+def test_view_motion_unpublished_permissions():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.flush()
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion text",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+        )
+        db.session.add(motion)
+        db.session.commit()
+
+        url = f"/meetings/motions/{motion.id}"
+
+        # manager can view unpublished motion
+        with app.test_request_context(url):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                html = meetings.view_motion(motion.id)
+                assert "Motion text" in html
+
+        # anonymous / non-manager gets 404
+        with app.test_request_context(url):
+            with pytest.raises(NotFound):
+                meetings.view_motion(motion.id)
