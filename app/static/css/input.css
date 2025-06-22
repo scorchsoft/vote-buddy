@@ -501,7 +501,7 @@ nav {
   visibility: hidden;
   transform: translateY(-10px);
   transition: all var(--transition-fast);
-  z-index: 50;
+  z-index: 200;
 }
 
 .bp-dropdown-label {
