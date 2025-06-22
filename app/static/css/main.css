@@ -2365,6 +2365,45 @@ h4 {
   }
 }
 
+/* Timeline */
+
+.bp-timeline {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.bp-timeline-marker {
+  position: absolute;
+  top: -0.75rem;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.bp-timeline-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: var(--bp-blue);
+  border-radius: 9999px;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px var(--bp-blue);
+}
+
+.bp-timeline-label {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--bp-grey-700);
+  white-space: nowrap;
+}
+
+.bp-timeline-now {
+  position: absolute;
+  top: -0.25rem;
+  bottom: -0.25rem;
+  width: 2px;
+  background: var(--bp-red);
+}
+
 /* Dropdown Menu */
 
 .bp-dropdown {
@@ -2955,11 +2994,6 @@ html {
 .hover\:text-bp-blue:hover {
   --tw-text-opacity: 1;
   color: rgb(0 45 89 / var(--tw-text-opacity, 1));
-}
-
-.hover\:text-bp-blue-light:hover {
-  --tw-text-opacity: 1;
-  color: rgb(26 74 122 / var(--tw-text-opacity, 1));
 }
 
 .hover\:text-bp-grey-600:hover {
