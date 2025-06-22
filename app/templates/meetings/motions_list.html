@@ -118,20 +118,23 @@
           <div class="bp-timeline-progress" style="width: {{ progress|round }}%"></div>
         {% endif %}
         
-        <!-- Timeline markers for each milestone -->
-        {% for label, dt in timeline_steps %}
-          {% if dt %}
-            {% set pct = ((dt - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) %}
-            {% if pct >= 0 and pct <= 100 %}
-              <div class="bp-timeline-marker" style="left: {{ pct }}%">
-                <div class="bp-timeline-dot"></div>
-                <div class="bp-timeline-label">
-                  <div class="font-semibold">{{ label }}</div>
-                  <div class="text-xs opacity-75">{{ dt.strftime('%d %b') }}</div>
-                </div>
-              </div>
-            {% endif %}
-          {% endif %}
+        <!-- Timeline markers with equal spacing -->
+        {% set valid_milestones = timeline_steps|selectattr('1')|list %}
+        {% for milestone in valid_milestones %}
+          {% set label, dt = milestone %}
+          {% set milestone_index = loop.index0 %}
+          {% set total_milestones = valid_milestones|length %}
+          {% set spacing = 95 / (total_milestones - 1) if total_milestones > 1 else 0 %}
+          {% set position = 2.5 + (milestone_index * spacing) %}
+          
+          <div class="bp-timeline-marker {{ 'bp-timeline-marker-alt' if loop.index0 % 2 == 1 else '' }}" 
+               style="left: {{ position }}%">
+            <div class="bp-timeline-dot"></div>
+            <div class="bp-timeline-label">
+              <div class="font-semibold">{{ label }}</div>
+              <div class="text-xs opacity-75">{{ dt.strftime('%d %b') }}</div>
+            </div>
+          </div>
         {% endfor %}
         
         <!-- Current time indicator -->

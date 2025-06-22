@@ -3220,6 +3220,47 @@ html {
   overflow: hidden;
 }
 
+/* Alternating timeline marker positions to prevent overlap */
+
+.bp-timeline-marker-alt .bp-timeline-label {
+  top: auto;
+  bottom: 1.5rem;
+}
+
+.bp-timeline-marker-alt:hover .bp-timeline-label {
+  transform: translateX(-50%) translateY(2px);
+}
+
+/* Responsive Timeline */
+
+@media (max-width: 768px) {
+  .bp-timeline {
+    padding: 0 1rem;
+    margin: 2rem 0;
+  }
+
+  .bp-timeline-label {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+    min-width: 60px;
+  }
+
+  .bp-timeline-marker:nth-child(even) .bp-timeline-label {
+    top: auto;
+    bottom: 1.5rem;
+  }
+
+  .bp-timeline-marker-alt .bp-timeline-label {
+    top: auto;
+    bottom: 1.5rem;
+  }
+
+  .bp-timeline-now::after {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
+
 .first\:mt-0:first-child {
   margin-top: 0px;
 }
