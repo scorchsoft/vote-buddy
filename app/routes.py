@@ -25,6 +25,7 @@ from .models import (
 )
 from .services.email import send_vote_invite, send_stage2_invite, send_runoff_invite
 from .utils import generate_stage_ics, generate_runoff_ics, generate_results_pdf
+from .voting.routes import compile_motion_text
 import io
 from sqlalchemy import func
 
@@ -391,6 +392,35 @@ def public_results_pdf(meeting_id: int):
         # Log the error and return a simple error response
         current_app.logger.error(f"Error generating PDF: {e}")
         abort(500)
+
+
+@bp.route('/results/motion/<int:motion_id>')
+def public_motion_text(motion_id: int):
+    """Display the final text for a motion once results are public."""
+    motion = db.session.get(Motion, motion_id)
+    if not motion or not motion.meeting.public_results:
+        abort(404)
+    text = motion.final_text_md or compile_motion_text(motion)
+    return render_template(
+        'public_motion.html',
+        motion=motion,
+        meeting=motion.meeting,
+        text=text,
+    )
+
+
+@bp.route('/results/amendment/<int:amendment_id>')
+def public_amendment_text(amendment_id: int):
+    """Display amendment text once results are public."""
+    amendment = db.session.get(Amendment, amendment_id)
+    if not amendment or not amendment.meeting.public_results:
+        abort(404)
+    meeting = db.session.get(Meeting, amendment.meeting_id)
+    return render_template(
+        'public_amendment.html',
+        amendment=amendment,
+        meeting=meeting,
+    )
 
 
 @bp.route('/results/<int:meeting_id>/debug.pdf')
