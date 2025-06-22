@@ -39,20 +39,20 @@ VoteBuddy also includes a [special resolution motion template](docs/template-mot
 
 The following images show the main dashboard and help section in action.
 
-![Admin dashboard screenshot](assets/screenshots/admin-dashboard.png)
-![Help section screenshot](assets/screenshots/help-section.png)
-![Meeting list screenshot](assets/screenshots/home.png)
-![Meeting details screenshot](assets/screenshots/view-results.png)
-![Admin edit meeting screenshot](assets/screenshots/admin-edit-meeting.png)
-![Admin meeting list screenshot](assets/screenshots/admin-meeting-list.png)
-![Admin users screenshot](assets/screenshots/admin-users.png)
-![Application settings screenshot](assets/screenshots/application-settings.png)
-![Results list screenshot](assets/screenshots/results-list.png)
-![Returning officer dashboard screenshot](assets/screenshots/returning-officer-dashboard.png)
-![Send emails screenshot](assets/screenshots/send-emails.png)
-![Stage vote example screenshot](assets/screenshots/stage-vote-example.png)
-![Verify vote receipt screenshot](assets/screenshots/verify-vote-receipt.png)
-![View results charts screenshot](assets/screenshots/view-results-charts.png)
+![Admin dashboard screenshot](assets/screenshots_v0_3/admin-dashboard.png)
+![Help section screenshot](assets/screenshots_v0_3/help-section.png)
+![Meeting list screenshot](assets/screenshots_v0_3/home.png)
+![Meeting details screenshot](assets/screenshots_v0_3/view-results.png)
+![Admin edit meeting screenshot](assets/screenshots_v0_3/admin-edit-meeting.png)
+![Admin meeting list screenshot](assets/screenshots_v0_3/admin-meeting-list.png)
+![Admin users screenshot](assets/screenshots_v0_3/admin-users.png)
+![Application settings screenshot](assets/screenshots_v0_3/application-settings.png)
+![Results list screenshot](assets/screenshots_v0_3/results-list.png)
+![Returning officer dashboard screenshot](assets/screenshots_v0_3/returning-officer-dashboard.png)
+![Send emails screenshot](assets/screenshots_v0_3/send-emails.png)
+![Stage vote example screenshot](assets/screenshots_v0_3/stage-vote-example.png)
+![Verify vote receipt screenshot](assets/screenshots_v0_3/verify-vote-receipt.png)
+![View results charts screenshot](assets/screenshots_v0_3/view-results-charts.png)
 
 
 
