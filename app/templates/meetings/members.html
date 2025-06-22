@@ -43,6 +43,7 @@
     <button type="submit" class="bp-btn-secondary">Remove All</button>
   </form>
   <a href="{{ url_for('meetings.members_csv', meeting_id=meeting.id) }}" class="bp-btn-secondary" download="members.csv">Download CSV</a>
+  <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}" class="bp-btn-secondary">Import Members</a>
 </div>
 {% if pagination.pages > 1 %}
 <nav id="member-pagination" aria-label="Pagination" class="mt-6 flex justify-center">
