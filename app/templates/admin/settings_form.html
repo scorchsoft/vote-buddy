@@ -95,34 +95,34 @@
       </div>
     </div>
     <div class="mb-4">
-      {{ form.clerical_text.label(class='block mb-1') }}
-      <div class="flex gap-2">
-        {{ form.clerical_text(class='bp-input w-full h-32') }}
-        <form action="{{ url_for('admin.reset_setting', key='clerical_text') }}" method="post">
+      <div class="flex justify-between items-center mb-1">
+        {{ form.clerical_text.label() }}
+        <form action="{{ url_for('admin.reset_setting', key='clerical_text') }}" method="post" class="inline">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button type="submit" class="text-sm underline">Reset default</button>
         </form>
       </div>
+      {{ form.clerical_text(class='bp-input w-full h-32') }}
     </div>
     <div class="mb-4">
-      {{ form.move_text.label(class='block mb-1') }}
-      <div class="flex gap-2">
-        {{ form.move_text(class='bp-input w-full h-32') }}
-        <form action="{{ url_for('admin.reset_setting', key='move_text') }}" method="post">
+      <div class="flex justify-between items-center mb-1">
+        {{ form.move_text.label() }}
+        <form action="{{ url_for('admin.reset_setting', key='move_text') }}" method="post" class="inline">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button type="submit" class="text-sm underline">Reset default</button>
         </form>
       </div>
+      {{ form.move_text(class='bp-input w-full h-32') }}
     </div>
     <div class="mb-4">
-      {{ form.final_message.label(class='block mb-1') }}
-      <div class="flex gap-2">
-        {{ form.final_message(class='bp-input w-full h-32') }}
-        <form action="{{ url_for('admin.reset_setting', key='final_message') }}" method="post">
+      <div class="flex justify-between items-center mb-1">
+        {{ form.final_message.label() }}
+        <form action="{{ url_for('admin.reset_setting', key='final_message') }}" method="post" class="inline">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button type="submit" class="text-sm underline">Reset default</button>
         </form>
       </div>
+      {{ form.final_message(class='bp-input w-full h-32') }}
     </div>
     <div class="mb-4">
       {{ form.contact_url.label(class='block mb-1') }}
