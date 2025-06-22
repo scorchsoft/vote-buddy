@@ -227,6 +227,8 @@ def ballot_token(token: str):
                 choice="recorded",
                 meeting=meeting,
                 token=token,
+                stage=vote_token.stage,
+                final_message_default=current_app.config.get("FINAL_STAGE_MESSAGE"),
             )
 
         motion_counts = {
@@ -293,6 +295,8 @@ def ballot_token(token: str):
                 choice="recorded",
                 meeting=meeting,
                 token=token,
+                stage=vote_token.stage,
+                final_message_default=current_app.config.get("FINAL_STAGE_MESSAGE"),
             )
 
         motion_counts = {
@@ -351,6 +355,8 @@ def ballot_token(token: str):
                 choice="recorded",
                 meeting=meeting,
                 token=token,
+                stage=vote_token.stage,
+                final_message_default=current_app.config.get("FINAL_STAGE_MESSAGE"),
             )
 
         compiled = [
@@ -465,7 +471,12 @@ def runoff_ballot(token: str):
         VoteToken.query.filter_by(member_id=member.id, stage=vote_token.stage).update({"used_at": now})
         db.session.commit()
         send_vote_receipt(acting_member, meeting, hashes)
-        return render_template("voting/confirmation.html", choice="recorded")
+        return render_template(
+            "voting/confirmation.html",
+            choice="recorded",
+            stage=vote_token.stage,
+            final_message_default=current_app.config.get("FINAL_STAGE_MESSAGE"),
+        )
 
     pairs = [
         (

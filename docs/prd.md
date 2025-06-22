@@ -298,6 +298,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-14 – Added secondary button, table, badge and card styles.
 * 2025-06-14 – Added dotenv loading with SQLite fallback when `DATABASE_URL` is unset.
 * 2025-06-14 – Added focus-visible outlines for buttons and links.
+* 2025-06-22 – Added indexes on frequently filtered columns for better performance.
 * 2025-06-15 – Implemented dark mode with optional theme toggle.
 * 2025-06-14 – Expanded UI/UX design guidance with extended design patterns.
 * 2025-06-14 – Implemented meetings list view with table layout.
@@ -459,6 +460,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-21 – Added per-member resend link on results summary.
 * 2025-06-21 – Default calendar timezone now Europe/London.
 * 2025-06-22 – Site logo displayed on index page, footer, submission forms, ballot pages and emails.
+* 2025-06-22 – Added configurable final-stage volunteer message on confirmation screen.
 
 
 ---

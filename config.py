@@ -38,6 +38,13 @@ class Config:
         "MOVE_TEXT",
         "The Board may place this change in the Articles or Bylaws as most appropriate.",
     )
+    FINAL_STAGE_MESSAGE = (
+        "**Thanks for voting!**\n\n"
+        "Getting involved is important to the sport. "
+        "If you don't already volunteer some time, maybe consider it—even a small commitment helps. "
+        "Volunteering isn't just about refereeing or coaching; it's also about helping in other ways that help grow the sport. "
+        "Let British Powerlifting know where you shine by [getting in touch](https://www.britishpowerlifting.org/contactus)."
+    )
     RATELIMIT_DEFAULT = os.getenv("RATELIMIT_DEFAULT", "1000 per day")
     RATELIMIT_STORAGE_URL = os.getenv("RATELIMIT_STORAGE_URL", "memory://")
     COMMENTS_PER_PAGE = int(os.getenv("COMMENTS_PER_PAGE", "10"))

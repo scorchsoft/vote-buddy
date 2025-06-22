@@ -1337,7 +1337,12 @@ def preview_voting(meeting_id: int, stage: int):
         form = _combined_form(motions, amendments)
         if form.validate_on_submit():
             flash("Preview submission complete – votes were not saved", "info")
-            return render_template("voting/confirmation.html", preview=True)
+            return render_template(
+                "voting/confirmation.html",
+                preview=True,
+                stage=stage,
+                final_message_default=current_app.config.get("FINAL_STAGE_MESSAGE"),
+            )
         motions_grouped = []
         for motion in motions:
             ams = [a for a in amendments if a.motion_id == motion.id]
@@ -1366,7 +1371,12 @@ def preview_voting(meeting_id: int, stage: int):
         form = _amendment_form(amendments)
         if form.validate_on_submit():
             flash("Preview submission complete – votes were not saved", "info")
-            return render_template("voting/confirmation.html", preview=True)
+            return render_template(
+                "voting/confirmation.html",
+                preview=True,
+                stage=stage,
+                final_message_default=current_app.config.get("FINAL_STAGE_MESSAGE"),
+            )
         motions_grouped = []
         for motion in motions:
             ams = [a for a in amendments if a.motion_id == motion.id]
@@ -1389,7 +1399,12 @@ def preview_voting(meeting_id: int, stage: int):
     form = _motion_form(motions)
     if form.validate_on_submit():
         flash("Preview submission complete – votes were not saved", "info")
-        return render_template("voting/confirmation.html", preview=True)
+        return render_template(
+            "voting/confirmation.html",
+            preview=True,
+            stage=stage,
+            final_message_default=current_app.config.get("FINAL_STAGE_MESSAGE"),
+        )
     compiled = [
         (m, m.final_text_md or compile_motion_text(m)) for m in motions
     ]
