@@ -1,16 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1 class="font-bold text-bp-blue mb-4">Results</h1>
-<div class="bp-card">
-  <ul class="space-y-2">
-    {% for meeting in meetings %}
-    <li>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {% for meeting in meetings %}
+  <div class="bp-card h-full flex flex-col">
+    <h2 class="bp-card-title mb-2">
       <a href="{{ url_for('main.public_results', meeting_id=meeting.id) }}" class="text-bp-blue hover:underline">{{ meeting.title }}</a>
-      <span class="ml-2 text-sm">({{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }})</span>
-    </li>
-    {% else %}
-    <li>No results available.</li>
-    {% endfor %}
-  </ul>
+    </h2>
+    <p class="text-bp-grey-700 mb-1">
+      <img src="{{ url_for('static', filename='icons/calendar_today_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon inline w-4 h-4 mr-1">
+      Notice: {{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}
+    </p>
+    <p class="text-bp-grey-700 mb-1">
+      <img src="{{ url_for('static', filename='icons/how_to_vote_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon inline w-4 h-4 mr-1">
+      {{ meeting.stage1_votes_count() }} votes ({{ '%.1f'|format(meeting.quorum_percentage()) }}% turnout)
+    </p>
+    <a href="{{ url_for('main.public_results', meeting_id=meeting.id) }}" class="bp-btn-secondary mt-auto self-start">View Results</a>
+  </div>
+  {% else %}
+  <p>No results available.</p>
+  {% endfor %}
 </div>
 {% endblock %}
