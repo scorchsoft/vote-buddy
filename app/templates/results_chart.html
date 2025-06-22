@@ -6,10 +6,10 @@
 <p class="mb-4"><a href="{{ url_for('main.public_results', meeting_id=meeting.id) }}" class="text-bp-blue underline">Back to table view</a></p>
 <div id="charts" data-url="{{ url_for('main.public_results_json', meeting_id=meeting.id) }}">
   <h2 class="font-bold text-bp-blue mb-2">Stage 1 Amendments</h2>
-  <div id="stage1-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></div>
+  <div id="stage1-grid" class="mb-8"></div>
 
   <h2 class="font-bold text-bp-blue mb-2">Stage 2 Motions</h2>
-  <div id="stage2-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+  <div id="stage2-grid"></div>
 </div>
 <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/results_chart.js') }}"></script>

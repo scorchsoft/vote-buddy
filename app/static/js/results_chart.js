@@ -8,17 +8,24 @@ async function initCharts() {
   const stage1Grid = document.getElementById('stage1-grid');
   const stage2Grid = document.getElementById('stage2-grid');
 
+  function createSectionHeading(title, grid) {
+    const heading = document.createElement('h3');
+    heading.className = 'font-semibold text-lg text-bp-blue mb-4 mt-6 first:mt-0 border-b border-bp-grey-200 pb-2';
+    heading.textContent = title;
+    grid.appendChild(heading);
+  }
+
   function createCard(title, id, grid) {
     const card = document.createElement('div');
     card.className = 'bp-card overflow-x-auto';
-    const h3 = document.createElement('h3');
-    h3.className = 'font-semibold mb-2';
-    h3.textContent = title;
+    const h4 = document.createElement('h4');
+    h4.className = 'font-medium mb-2 text-sm text-bp-grey-700';
+    h4.textContent = title;
     const canvas = document.createElement('canvas');
     canvas.id = id;
     canvas.height = 240;
     canvas.className = 'w-full';
-    card.appendChild(h3);
+    card.appendChild(h4);
     card.appendChild(canvas);
     grid.appendChild(card);
     return canvas;
@@ -74,25 +81,42 @@ async function initCharts() {
           title: { display: true, text: yLabel }
         }
       },
-      plugins: { title: { display: true, text: titleText } }
+      plugins: { 
+        title: { 
+          display: true, 
+          text: titleText,
+          font: {
+            size: 12
+          }
+        } 
+      }
     };
   }
 
   function renderRow(row, grid, prefix) {
     const short = row.text;
-    const countCanvas = createCard(short + ' – Count', `${prefix}${row.id}-c`, grid);
+    
+    // Add section heading for this motion
+    createSectionHeading(short, grid);
+    
+    // Create a container div for the 3 charts
+    const chartsContainer = document.createElement('div');
+    chartsContainer.className = 'grid grid-cols-1 md:grid-cols-3 gap-4 mb-8';
+    grid.appendChild(chartsContainer);
+    
+    const countCanvas = createCard('Vote Count', `${prefix}${row.id}-c`, chartsContainer);
     new Chart(countCanvas, {
       type: 'bar',
       data: countsData(row),
       options: opts('Votes', short + ' – Vote Count')
     });
-    const pctCanvas = createCard(short + ' – %', `${prefix}${row.id}-p`, grid);
+    const pctCanvas = createCard('Vote Share', `${prefix}${row.id}-p`, chartsContainer);
     new Chart(pctCanvas, {
       type: 'bar',
       data: percentData(row, false),
       options: opts('%', short + ' – Vote Share')
     });
-    const effCanvas = createCard(short + ' – Effective %', `${prefix}${row.id}-e`, grid);
+    const effCanvas = createCard('Effective Share', `${prefix}${row.id}-e`, chartsContainer);
     new Chart(effCanvas, {
       type: 'bar',
       data: percentData(row, true),
