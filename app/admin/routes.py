@@ -342,31 +342,31 @@ def manage_settings():
             AppSetting.get(
                 "runoff_extension_minutes",
                 current_app.config.get("RUNOFF_EXTENSION_MINUTES", 2880),
-            )
+            ) or current_app.config.get("RUNOFF_EXTENSION_MINUTES", 2880)
         )
         form.reminder_hours_before_close.data = int(
             AppSetting.get(
                 "reminder_hours_before_close",
                 current_app.config.get("REMINDER_HOURS_BEFORE_CLOSE", 6),
-            )
+            ) or current_app.config.get("REMINDER_HOURS_BEFORE_CLOSE", 6)
         )
         form.reminder_cooldown_hours.data = int(
             AppSetting.get(
                 "reminder_cooldown_hours",
                 current_app.config.get("REMINDER_COOLDOWN_HOURS", 24),
-            )
+            ) or current_app.config.get("REMINDER_COOLDOWN_HOURS", 24)
         )
         form.stage2_reminder_hours_before_close.data = int(
             AppSetting.get(
                 "stage2_reminder_hours_before_close",
                 current_app.config.get("STAGE2_REMINDER_HOURS_BEFORE_CLOSE", 6),
-            )
+            ) or current_app.config.get("STAGE2_REMINDER_HOURS_BEFORE_CLOSE", 6)
         )
         form.stage2_reminder_cooldown_hours.data = int(
             AppSetting.get(
                 "stage2_reminder_cooldown_hours",
                 current_app.config.get("STAGE2_REMINDER_COOLDOWN_HOURS", 24),
-            )
+            ) or current_app.config.get("STAGE2_REMINDER_COOLDOWN_HOURS", 24)
         )
         form.reminder_template.data = AppSetting.get(
             "reminder_template",

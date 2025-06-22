@@ -44,12 +44,12 @@ class SettingsForm(FlaskForm):
         validators=[Optional(), FileAllowed(["jpg", "jpeg", "png", "svg"], "Images only!")],
     )
     from_email = StringField("From Email", validators=[DataRequired(), Email()])
-    runoff_extension_minutes = IntegerField("Run-off Extension Minutes")
-    reminder_hours_before_close = IntegerField("Reminder Hours Before Close")
-    reminder_cooldown_hours = IntegerField("Reminder Cooldown Hours")
-    stage2_reminder_hours_before_close = IntegerField("Stage 2 Reminder Hours Before Close")
-    stage2_reminder_cooldown_hours = IntegerField("Stage 2 Reminder Cooldown Hours")
-    reminder_template = StringField("Reminder Template")
+    runoff_extension_minutes = IntegerField("Run-off Extension Minutes", validators=[Optional()])
+    reminder_hours_before_close = IntegerField("Reminder Hours Before Close", validators=[Optional()])
+    reminder_cooldown_hours = IntegerField("Reminder Cooldown Hours", validators=[Optional()])
+    stage2_reminder_hours_before_close = IntegerField("Stage 2 Reminder Hours Before Close", validators=[Optional()])
+    stage2_reminder_cooldown_hours = IntegerField("Stage 2 Reminder Cooldown Hours", validators=[Optional()])
+    reminder_template = StringField("Reminder Template", validators=[Optional()])
     tie_break_decisions = TextAreaField("Tie Break Decisions", validators=[Optional()])
     clerical_text = TextAreaField(
         "Clerical Amendment Text",

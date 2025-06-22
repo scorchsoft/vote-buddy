@@ -195,5 +195,5 @@ cython_debug/
 node_modules/
 
 # files dir
-instance/files/
-
+instance/files/*
+app/static/uploads/*
