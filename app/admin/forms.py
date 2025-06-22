@@ -48,6 +48,7 @@ class SettingsForm(FlaskForm):
     tie_break_decisions = TextAreaField("Tie Break Decisions", validators=[Optional()])
     clerical_text = TextAreaField("Clerical Amendment Text", validators=[Optional()])
     move_text = TextAreaField("Articles/Bylaws Placement Text", validators=[Optional()])
+    final_message = TextAreaField("Final Stage Message", validators=[Optional()])
     manual_email_mode = BooleanField("Disable Automatic Emails")
     contact_url = StringField("Contact URL", validators=[Optional(), URL()])
     submit = SubmitField("Save")

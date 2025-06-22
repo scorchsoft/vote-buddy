@@ -378,6 +378,10 @@ def manage_settings():
         form.move_text.data = AppSetting.get(
             "move_text", current_app.config.get("MOVE_TEXT")
         )
+        form.final_message.data = AppSetting.get(
+            "final_message",
+            current_app.config.get("FINAL_STAGE_MESSAGE"),
+        )
         form.contact_url.data = AppSetting.get(
             "contact_url",
             "https://www.britishpowerlifting.org/contactus",
@@ -408,6 +412,7 @@ def manage_settings():
         AppSetting.set("tie_break_decisions", form.tie_break_decisions.data)
         AppSetting.set("clerical_text", form.clerical_text.data)
         AppSetting.set("move_text", form.move_text.data)
+        AppSetting.set("final_message", form.final_message.data)
         if form.contact_url.data:
             AppSetting.set("contact_url", form.contact_url.data)
         else:

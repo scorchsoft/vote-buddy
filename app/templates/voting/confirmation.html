@@ -18,4 +18,7 @@
     {% endif %}
     <a href="{{ url_for('help.show_help') }}" class="bp-btn-secondary">Voting Help</a>
 </div>
+{% if stage == 2 and not preview %}
+<div class="bp-card mt-4">{{ setting('final_message', final_message_default)|markdown_to_html|safe }}</div>
+{% endif %}
 {% endblock %}
