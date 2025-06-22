@@ -8,7 +8,7 @@ VoteBuddy aims to apply principles from UK Parliamentary Proceedure as well as "
 
 VoteBuddy also includes a [special resolution motion template](docs/template-motion.md) to guide you through implementing the governance changes necessary for your organisation to follow this tool's recommended process.
 
-![Admin dashboard screenshot](assets/screenshots/admin-dashboard.png)
+![Admin dashboard screenshot](assets/screenshots_v0_3/admin-dashboard.png)
 
 
 ## Features
