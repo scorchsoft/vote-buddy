@@ -2,7 +2,7 @@
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Settings', url_for('admin.manage_settings'))]) }}
-<div class="bp-card max-w-lg space-y-4">
+<div class="bp-card max-w-4xl mx-auto space-y-4">
   <h1 class="font-bold text-bp-blue">Application Settings</h1>
   <form method="post">
     {{ form.hidden_tag() }}
@@ -97,7 +97,7 @@
     <div class="mb-4">
       {{ form.clerical_text.label(class='block mb-1') }}
       <div class="flex gap-2">
-        {{ form.clerical_text(class='bp-input w-full h-32', **{'data-markdown-editor': '1'}) }}
+        {{ form.clerical_text(class='bp-input w-full h-32') }}
         <form action="{{ url_for('admin.reset_setting', key='clerical_text') }}" method="post">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button type="submit" class="text-sm underline">Reset default</button>
@@ -107,7 +107,7 @@
     <div class="mb-4">
       {{ form.move_text.label(class='block mb-1') }}
       <div class="flex gap-2">
-        {{ form.move_text(class='bp-input w-full h-32', **{'data-markdown-editor': '1'}) }}
+        {{ form.move_text(class='bp-input w-full h-32') }}
         <form action="{{ url_for('admin.reset_setting', key='move_text') }}" method="post">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button type="submit" class="text-sm underline">Reset default</button>
@@ -117,7 +117,7 @@
     <div class="mb-4">
       {{ form.final_message.label(class='block mb-1') }}
       <div class="flex gap-2">
-        {{ form.final_message(class='bp-input w-full h-32', **{'data-markdown-editor': '1'}) }}
+        {{ form.final_message(class='bp-input w-full h-32') }}
         <form action="{{ url_for('admin.reset_setting', key='final_message') }}" method="post">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button type="submit" class="text-sm underline">Reset default</button>
