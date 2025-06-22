@@ -163,4 +163,113 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.remove('tooltip-visible');
         });
     });
+
+    // Meeting Action Dropdown Functionality
+    function toggleDropdown(dropdownId) {
+        const dropdown = document.getElementById(dropdownId);
+        if (!dropdown) return;
+        
+        const isHidden = dropdown.classList.contains('hidden');
+        
+        // Close all other dropdowns first
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            if (menu.id !== dropdownId) {
+                menu.classList.add('hidden');
+                menu.setAttribute('aria-hidden', 'true');
+            }
+        });
+        
+        // Toggle current dropdown
+        if (isHidden) {
+            dropdown.classList.remove('hidden');
+            dropdown.setAttribute('aria-hidden', 'false');
+            
+            // Position dropdown to stay within viewport
+            const rect = dropdown.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Adjust horizontal position if dropdown would go off-screen
+            if (rect.right > viewportWidth) {
+                dropdown.style.left = 'auto';
+                dropdown.style.right = '0';
+            }
+            
+            // Adjust vertical position if dropdown would go off-screen
+            if (rect.bottom > viewportHeight) {
+                dropdown.style.top = 'auto';
+                dropdown.style.bottom = '100%';
+                dropdown.style.marginBottom = '0.5rem';
+            }
+            
+            // Focus first menu item for accessibility
+            const firstMenuItem = dropdown.querySelector('[role="menuitem"]');
+            if (firstMenuItem) {
+                firstMenuItem.focus();
+            }
+        } else {
+            dropdown.classList.add('hidden');
+            dropdown.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    // Event delegation for dropdown triggers
+    document.addEventListener('click', function(e) {
+        const trigger = e.target.closest('.dropdown-trigger');
+        if (trigger) {
+            e.preventDefault();
+            e.stopPropagation();
+            const targetId = trigger.getAttribute('data-dropdown-target');
+            if (targetId) {
+                toggleDropdown(targetId);
+            }
+        }
+        // Close dropdowns when clicking outside
+        else if (!e.target.closest('.relative')) {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.add('hidden');
+                menu.setAttribute('aria-hidden', 'true');
+            });
+        }
+    });
+
+    // Close dropdowns on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.add('hidden');
+                menu.setAttribute('aria-hidden', 'true');
+            });
+        }
+    });
+
+    // Keyboard navigation for dropdowns
+    document.addEventListener('keydown', function(e) {
+        const activeDropdown = document.querySelector('.dropdown-menu:not(.hidden)');
+        if (!activeDropdown) return;
+        
+        const menuItems = activeDropdown.querySelectorAll('[role="menuitem"]');
+        const currentIndex = Array.from(menuItems).findIndex(item => item === document.activeElement);
+        
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                const nextIndex = currentIndex < menuItems.length - 1 ? currentIndex + 1 : 0;
+                menuItems[nextIndex].focus();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                const prevIndex = currentIndex > 0 ? currentIndex - 1 : menuItems.length - 1;
+                menuItems[prevIndex].focus();
+                break;
+            case 'Home':
+                e.preventDefault();
+                menuItems[0].focus();
+                break;
+            case 'End':
+                e.preventDefault();
+                menuItems[menuItems.length - 1].focus();
+                break;
+        }
+    });
 });
