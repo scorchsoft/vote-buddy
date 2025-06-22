@@ -459,6 +459,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-21 – Linked manual email sending page from results summary.
 * 2025-06-21 – Added per-member resend link on results summary.
 * 2025-06-21 – Default calendar timezone now Europe/London.
+* 2025-06-22 – Site logo displayed on index page, footer, submission forms, ballot pages and emails.
 * 2025-06-22 – Added configurable final-stage volunteer message on confirmation screen.
 
 

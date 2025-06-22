@@ -62,6 +62,16 @@ def _sender() -> str | None:
     return AppSetting.get('from_email', current_app.config.get('MAIL_DEFAULT_SENDER'))
 
 
+def _branding() -> dict[str, str | None]:
+    """Return site title and optional absolute logo URL."""
+    title = AppSetting.get("site_title", "VoteBuddy")
+    logo_file = AppSetting.get("site_logo")
+    logo_url = (
+        url_for("static", filename=logo_file, _external=True) if logo_file else None
+    )
+    return {"site_title": title, "logo": logo_url}
+
+
 def send_vote_invite(member: Member, token: str, meeting: Meeting, *, test_mode: bool = False) -> None:
     """Send voting link to a member using Flask-Mail."""
     if member.email_opt_out:
@@ -75,8 +85,29 @@ def send_vote_invite(member: Member, token: str, meeting: Meeting, *, test_mode:
         sender=_sender(),
     )
     objection_link = url_for('main.public_meeting_detail', meeting_id=meeting.id, _external=True)
-    msg.body = render_template('email/invite.txt', member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, resubscribe_url=resubscribe, test_mode=test_mode)
-    msg.html = render_template('email/invite.html', member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, resubscribe_url=resubscribe, test_mode=test_mode)
+    branding = _branding()
+    msg.body = render_template(
+        'email/invite.txt',
+        member=member,
+        meeting=meeting,
+        link=link,
+        objection_link=objection_link,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        test_mode=test_mode,
+        **branding,
+    )
+    msg.html = render_template(
+        'email/invite.html',
+        member=member,
+        meeting=meeting,
+        link=link,
+        objection_link=objection_link,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        test_mode=test_mode,
+        **branding,
+    )
     try:
         ics = generate_stage_ics(meeting, 1)
     except Exception:
@@ -99,6 +130,7 @@ def send_proxy_invite(proxy: Member, principal: Member, token: str, meeting: Mee
         recipients=[proxy.email],
         sender=_sender(),
     )
+    branding = _branding()
     msg.body = render_template(
         'email/proxy_invite.txt',
         proxy=proxy,
@@ -108,6 +140,7 @@ def send_proxy_invite(proxy: Member, principal: Member, token: str, meeting: Mee
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
         test_mode=test_mode,
+        **branding,
     )
     msg.html = render_template(
         'email/proxy_invite.html',
@@ -118,6 +151,7 @@ def send_proxy_invite(proxy: Member, principal: Member, token: str, meeting: Mee
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
         test_mode=test_mode,
+        **branding,
     )
     mail.send(msg)
     _log_email(proxy, meeting, 'proxy_invite', test_mode)
@@ -143,6 +177,7 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         recipients=[member.email],
         sender=_sender(),
     )
+    branding = _branding()
     msg.body = render_template(
         'email/stage2_invite.txt',
         member=member,
@@ -153,6 +188,7 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         summary=summary,
         results_link=results_link,
         test_mode=test_mode,
+        **branding,
     )
     msg.html = render_template(
         'email/stage2_invite.html',
@@ -164,6 +200,7 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         summary=summary,
         results_link=results_link,
         test_mode=test_mode,
+        **branding,
     )
     try:
         ics = generate_stage_ics(meeting, 2)
@@ -186,8 +223,27 @@ def send_runoff_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         recipients=[member.email],
         sender=_sender(),
     )
-    msg.body = render_template('email/runoff_invite.txt', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, resubscribe_url=resubscribe, test_mode=test_mode)
-    msg.html = render_template('email/runoff_invite.html', member=member, meeting=meeting, link=link, unsubscribe_url=unsubscribe, resubscribe_url=resubscribe, test_mode=test_mode)
+    branding = _branding()
+    msg.body = render_template(
+        'email/runoff_invite.txt',
+        member=member,
+        meeting=meeting,
+        link=link,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        test_mode=test_mode,
+        **branding,
+    )
+    msg.html = render_template(
+        'email/runoff_invite.html',
+        member=member,
+        meeting=meeting,
+        link=link,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        test_mode=test_mode,
+        **branding,
+    )
     try:
         tmp_meeting = type('M', (), {
             'title': meeting.title,
@@ -217,7 +273,18 @@ def send_stage1_reminder(member: Member, token: str, meeting: Meeting, *, test_m
         sender=_sender(),
     )
     objection_link = url_for('main.public_meeting_detail', meeting_id=meeting.id, _external=True)
-    msg.body = render_template(f"{template_base}.txt", member=member, meeting=meeting, link=link, objection_link=objection_link, unsubscribe_url=unsubscribe, resubscribe_url=resubscribe, test_mode=test_mode)
+    branding = _branding()
+    msg.body = render_template(
+        f"{template_base}.txt",
+        member=member,
+        meeting=meeting,
+        link=link,
+        objection_link=objection_link,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        test_mode=test_mode,
+        **branding,
+    )
     msg.html = render_template(
         f"{template_base}.html",
         member=member,
@@ -227,6 +294,7 @@ def send_stage1_reminder(member: Member, token: str, meeting: Meeting, *, test_m
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
         test_mode=test_mode,
+        **branding,
     )
     mail.send(msg)
     _log_email(member, meeting, 'stage1_reminder', test_mode)
@@ -253,6 +321,7 @@ def send_stage2_reminder(member: Member, token: str, meeting: Meeting, *, test_m
         recipients=[member.email],
         sender=_sender(),
     )
+    branding = _branding()
     msg.body = render_template(
         f"{template_base}.txt",
         member=member,
@@ -263,6 +332,7 @@ def send_stage2_reminder(member: Member, token: str, meeting: Meeting, *, test_m
         summary=summary,
         results_link=results_link,
         test_mode=test_mode,
+        **branding,
     )
     msg.html = render_template(
         f"{template_base}.html",
@@ -274,6 +344,7 @@ def send_stage2_reminder(member: Member, token: str, meeting: Meeting, *, test_m
         summary=summary,
         results_link=results_link,
         test_mode=test_mode,
+        **branding,
     )
     mail.send(msg)
     _log_email(member, meeting, 'stage2_reminder', test_mode)
@@ -288,6 +359,7 @@ def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str], *, te
         recipients=[member.email],
         sender=_sender(),
     )
+    branding = _branding()
     msg.body = render_template(
         "email/receipt.txt",
         member=member,
@@ -296,6 +368,7 @@ def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str], *, te
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
         test_mode=test_mode,
+        **branding,
     )
     msg.html = render_template(
         "email/receipt.html",
@@ -305,6 +378,7 @@ def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str], *, te
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
         test_mode=test_mode,
+        **branding,
     )
     mail.send(msg)
     _log_email(member, meeting, 'receipt', test_mode)
@@ -320,6 +394,7 @@ def send_quorum_failure(member: Member, meeting: Meeting, *, test_mode: bool = F
         recipients=[member.email],
         sender=_sender(),
     )
+    branding = _branding()
     msg.body = render_template(
         "email/quorum_failure.txt",
         member=member,
@@ -327,6 +402,7 @@ def send_quorum_failure(member: Member, meeting: Meeting, *, test_mode: bool = F
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
         test_mode=test_mode,
+        **branding,
     )
     msg.html = render_template(
         "email/quorum_failure.html",
@@ -335,6 +411,7 @@ def send_quorum_failure(member: Member, meeting: Meeting, *, test_mode: bool = F
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
         test_mode=test_mode,
+        **branding,
     )
     mail.send(msg)
     _log_email(member, meeting, 'quorum_failure', test_mode)
@@ -513,8 +590,9 @@ def send_objection_confirmation(obj: AmendmentObjection, amendment: Amendment, m
         sender=_sender(),
     )
     link = url_for('meetings.confirm_objection', token=obj.token, _external=True)
-    msg.body = render_template('email/objection_confirm.txt', link=link)
-    msg.html = render_template('email/objection_confirm.html', link=link)
+    branding = _branding()
+    msg.body = render_template('email/objection_confirm.txt', link=link, **branding)
+    msg.html = render_template('email/objection_confirm.html', link=link, **branding)
     mail.send(msg)
 
 
@@ -525,11 +603,12 @@ def send_board_notice(amendment: Amendment, meeting: Meeting, *, test_mode: bool
         recipients=[recipient],
         sender=_sender(),
     )
+    branding = _branding()
     msg.body = render_template(
-        "email/board_notice.txt", amendment=amendment, meeting=meeting
+        "email/board_notice.txt", amendment=amendment, meeting=meeting, **branding
     )
     msg.html = render_template(
-        "email/board_notice.html", amendment=amendment, meeting=meeting
+        "email/board_notice.html", amendment=amendment, meeting=meeting, **branding
     )
     mail.send(msg)
 
@@ -548,11 +627,18 @@ def send_amendment_reinstated(amendment: Amendment, meeting: Meeting, *, test_mo
         recipients=recipients,
         sender=_sender(),
     )
+    branding = _branding()
     msg.body = render_template(
-        "email/amendment_reinstated.txt", amendment=amendment, meeting=meeting
+        "email/amendment_reinstated.txt",
+        amendment=amendment,
+        meeting=meeting,
+        **branding,
     )
     msg.html = render_template(
-        "email/amendment_reinstated.html", amendment=amendment, meeting=meeting
+        "email/amendment_reinstated.html",
+        amendment=amendment,
+        meeting=meeting,
+        **branding,
     )
     mail.send(msg)
 
@@ -563,8 +649,19 @@ def send_motion_submission_alert(submission: MotionSubmission, meeting: Meeting,
         recipients=[recipient],
         sender=_sender(),
     )
-    msg.body = render_template('email/motion_submission.txt', submission=submission, meeting=meeting)
-    msg.html = render_template('email/motion_submission.html', submission=submission, meeting=meeting)
+    branding = _branding()
+    msg.body = render_template(
+        'email/motion_submission.txt',
+        submission=submission,
+        meeting=meeting,
+        **branding,
+    )
+    msg.html = render_template(
+        'email/motion_submission.html',
+        submission=submission,
+        meeting=meeting,
+        **branding,
+    )
     mail.send(msg)
 
 
@@ -575,8 +672,19 @@ def send_amendment_submission_alert(submission: AmendmentSubmission, motion: Mot
         recipients=[recipient],
         sender=_sender(),
     )
-    msg.body = render_template('email/amendment_submission.txt', submission=submission, motion=motion)
-    msg.html = render_template('email/amendment_submission.html', submission=submission, motion=motion)
+    branding = _branding()
+    msg.body = render_template(
+        'email/amendment_submission.txt',
+        submission=submission,
+        motion=motion,
+        **branding,
+    )
+    msg.html = render_template(
+        'email/amendment_submission.html',
+        submission=submission,
+        motion=motion,
+        **branding,
+    )
     mail.send(msg)
 
 
@@ -588,8 +696,17 @@ def notify_seconder_motion(seconder: Member, meeting: Meeting, *, test_mode: boo
         recipients=[seconder.email],
         sender=_sender(),
     )
-    msg.body = render_template("email/seconder_notice.txt", meeting=meeting)
-    msg.html = render_template("email/seconder_notice.html", meeting=meeting)
+    branding = _branding()
+    msg.body = render_template(
+        "email/seconder_notice.txt",
+        meeting=meeting,
+        **branding,
+    )
+    msg.html = render_template(
+        "email/seconder_notice.html",
+        meeting=meeting,
+        **branding,
+    )
     mail.send(msg)
 
 
@@ -601,8 +718,19 @@ def notify_seconder_amendment(seconder: Member, meeting: Meeting, motion: Motion
         recipients=[seconder.email],
         sender=_sender(),
     )
-    msg.body = render_template("email/seconder_notice.txt", meeting=meeting, motion=motion)
-    msg.html = render_template("email/seconder_notice.html", meeting=meeting, motion=motion)
+    branding = _branding()
+    msg.body = render_template(
+        "email/seconder_notice.txt",
+        meeting=meeting,
+        motion=motion,
+        **branding,
+    )
+    msg.html = render_template(
+        "email/seconder_notice.html",
+        meeting=meeting,
+        motion=motion,
+        **branding,
+    )
     mail.send(msg)
 
 
@@ -623,8 +751,21 @@ def send_submission_invite(member: Member, meeting: Meeting, *, test_mode: bool 
         recipients=[member.email],
         sender=_sender(),
     )
-    msg.body = render_template('email/submission_invite.txt', member=member, meeting=meeting, link=link)
-    msg.html = render_template('email/submission_invite.html', member=member, meeting=meeting, link=link)
+    branding = _branding()
+    msg.body = render_template(
+        'email/submission_invite.txt',
+        member=member,
+        meeting=meeting,
+        link=link,
+        **branding,
+    )
+    msg.html = render_template(
+        'email/submission_invite.html',
+        member=member,
+        meeting=meeting,
+        link=link,
+        **branding,
+    )
     mail.send(msg)
     _log_email(member, meeting, 'submission_invite', test_mode)
 
@@ -635,7 +776,18 @@ def send_password_reset(user: User, token: str, *, test_mode: bool = False) -> N
         sender=_sender(),
     )
     link = url_for("auth.reset_password", token=token, _external=True)
-    msg.body = render_template("email/password_reset.txt", user=user, link=link)
-    msg.html = render_template("email/password_reset.html", user=user, link=link)
+    branding = _branding()
+    msg.body = render_template(
+        "email/password_reset.txt",
+        user=user,
+        link=link,
+        **branding,
+    )
+    msg.html = render_template(
+        "email/password_reset.html",
+        user=user,
+        link=link,
+        **branding,
+    )
     mail.send(msg)
 

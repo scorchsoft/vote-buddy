@@ -1,3 +1,8 @@
+{% if logo %}
+<p><img src="{{ logo }}" alt="{{ site_title }}" style="height:40px;"></p>
+{% else %}
+<p><strong>{{ site_title }}</strong></p>
+{% endif %}
 <p>Dear {{ member.name }},</p>
 <p>You may submit motions and amendments for {{ meeting.title }} online.</p>
 <p><a href="{{ link }}">Submit your proposal</a></p>

@@ -2,6 +2,9 @@
 {% block content %}
 <!-- Hero Section -->
 <div class="bp-hero mb-8">
+  {% if setting('site_logo') %}
+  <img src="{{ url_for('static', filename=setting('site_logo')) }}" alt="{{ setting('site_title', 'VoteBuddy') }}" class="h-16 mx-auto mb-4">
+  {% endif %}
   <h1 class="bp-hero-title text-white">Welcome to {{ setting('site_title', 'VoteBuddy') }}</h1>
   <p class="bp-hero-subtitle text-white">The modern digital voting platform for British Powerlifting AGMs and EGMs</p>
   <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
