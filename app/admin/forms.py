@@ -46,9 +46,21 @@ class SettingsForm(FlaskForm):
     stage2_reminder_cooldown_hours = IntegerField("Stage 2 Reminder Cooldown Hours")
     reminder_template = StringField("Reminder Template")
     tie_break_decisions = TextAreaField("Tie Break Decisions", validators=[Optional()])
-    clerical_text = TextAreaField("Clerical Amendment Text", validators=[Optional()])
-    move_text = TextAreaField("Articles/Bylaws Placement Text", validators=[Optional()])
-    final_message = TextAreaField("Final Stage Message", validators=[Optional()])
+    clerical_text = TextAreaField(
+        "Clerical Amendment Text",
+        validators=[Optional()],
+        render_kw={"data-markdown-editor": "1"},
+    )
+    move_text = TextAreaField(
+        "Articles/Bylaws Placement Text",
+        validators=[Optional()],
+        render_kw={"data-markdown-editor": "1"},
+    )
+    final_message = TextAreaField(
+        "Final Stage Message",
+        validators=[Optional()],
+        render_kw={"data-markdown-editor": "1"},
+    )
     manual_email_mode = BooleanField("Disable Automatic Emails")
     contact_url = StringField("Contact URL", validators=[Optional(), URL()])
     submit = SubmitField("Save")
