@@ -17,6 +17,7 @@ class Config:
     VOTE_SALT = os.getenv("VOTE_SALT", "static-salt")
     TOKEN_SALT = os.getenv("TOKEN_SALT", "token-salt")
     API_TOKEN_SALT = os.getenv("API_TOKEN_SALT", "api-token-salt")
+    PASSWORD_RESET_EXPIRY_HOURS = int(os.getenv("PASSWORD_RESET_EXPIRY_HOURS", "24"))
     UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", "instance/files")
     RUNOFF_EXTENSION_MINUTES = int(os.getenv("RUNOFF_EXTENSION_MINUTES", "2880"))
     NOTICE_PERIOD_DAYS = int(os.getenv("NOTICE_PERIOD_DAYS", "14"))
