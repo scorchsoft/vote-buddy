@@ -128,6 +128,13 @@
             </svg>
             Send Emails
           </a>
+          <a href="{{ url_for('meetings.email_settings', meeting_id=meeting.id) }}"
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/settings_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Email Settings
+          </a>
         </div>
 
         <!-- Results & Reports -->

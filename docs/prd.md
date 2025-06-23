@@ -476,6 +476,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-18 – Added members list page with vote filtering and CSV export.
 * 2025-07-26 – Added Import Members button on members page and breadcrumb link.* 2025-07-27 – Added member actions menu with resend email options.
 * 2025-07-27 – Member management buttons moved above table for quicker access.
+* 2025-07-30 – Added Email Settings link in meeting menus and expanded meeting page actions.
 
 
 ---
