@@ -8,9 +8,9 @@
     <tr><th class="p-2">Email</th><th class="p-2">Scheduled</th><th class="p-2">Auto</th><th class="p-2">Last Sent</th></tr>
   </thead>
   <tbody id="email-rows">
-    {% for et, time in schedule.items() %}
-      {% set s = settings.get(et) %}
-      {% set l = logs.get(et) %}
+    {% for email_type, schedule_time in schedule.items() %}
+      {% set setting = settings.get(email_type) %}
+      {% set log = logs.get(email_type) %}
       {% include 'meetings/_email_row.html' with context %}
     {% endfor %}
   </tbody>
