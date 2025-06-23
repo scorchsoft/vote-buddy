@@ -1,5 +1,8 @@
 <tr>
   <td class="p-2">{{ email_type.replace('_', ' ').title() }}</td>
+  <td class="p-2">
+    <a href="{{ url_for('meetings.preview_email', meeting_id=meeting.id, email_type=email_type) }}" target="_blank" class="bp-link">Preview</a>
+  </td>
   <td class="p-2">{{ schedule_time or 'n/a' }}</td>
   <td class="p-2">
     <form hx-post="{{ url_for('meetings.toggle_email_setting', meeting_id=meeting.id, email_type=email_type) }}" hx-target="closest tr" hx-swap="outerHTML">

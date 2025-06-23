@@ -44,6 +44,7 @@ from ..services.email import (
     send_submission_invite,
     send_stage1_reminder,
     auto_send_enabled,
+    _branding,
 )
 from ..services import runoff
 from ..permissions import permission_required
@@ -67,7 +68,7 @@ from ..voting.routes import (
     _motion_form,
     _combined_form,
 )
-from ..utils import generate_stage_ics
+from ..utils import generate_stage_ics, markdown_to_html, carried_amendment_summary
 import csv
 import io
 from uuid6 import uuid7
@@ -748,6 +749,8 @@ def list_motions(meeting_id):
     dates = [d for _, d in steps if d]
     timeline_start = min(dates) if dates else None
     timeline_end = max(dates) if dates else None
+    schedule = _email_schedule(meeting)
+    settings = {s.email_type: s for s in meeting.email_settings}
     return render_template(
         "meetings/motions_list.html",
         meeting=meeting,
@@ -757,6 +760,8 @@ def list_motions(meeting_id):
         timeline_steps=steps,
         timeline_start=timeline_start,
         timeline_end=timeline_end,
+        schedule=schedule,
+        settings=settings,
         now=datetime.utcnow(),
     )
 
@@ -1469,6 +1474,113 @@ def email_settings(meeting_id: int):
         settings=settings,
         logs=logs,
     )
+
+
+@bp.route("/<int:meeting_id>/email-preview/<email_type>")
+@login_required
+@permission_required("manage_meetings")
+def preview_email(meeting_id: int, email_type: str):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    member = (
+        Member.query.filter_by(meeting_id=meeting.id).first()
+        or Member(name="Example Member", email="test@example.com")
+    )
+    branding = _branding()
+    unsubscribe = "#"
+    resubscribe = "#"
+    link = url_for("voting.ballot_token", token="preview", _external=True)
+    objection_link = url_for(
+        "main.public_meeting_detail", meeting_id=meeting.id, _external=True
+    )
+    if email_type == "stage1_invite":
+        notice_html = markdown_to_html(meeting.notice_md or "")
+        html = render_template(
+            "email/invite.html",
+            member=member,
+            meeting=meeting,
+            link=link,
+            notice_html=notice_html,
+            objection_link=objection_link,
+            unsubscribe_url=unsubscribe,
+            resubscribe_url=resubscribe,
+            test_mode=True,
+            **branding,
+        )
+    elif email_type == "stage1_reminder":
+        template_base = config_or_setting("REMINDER_TEMPLATE", "email/reminder")
+        html = render_template(
+            f"{template_base}.html",
+            member=member,
+            meeting=meeting,
+            link=link,
+            objection_link=objection_link,
+            unsubscribe_url=unsubscribe,
+            resubscribe_url=resubscribe,
+            test_mode=True,
+            **branding,
+        )
+    elif email_type == "stage2_invite":
+        summary = carried_amendment_summary(meeting)
+        if summary:
+            results_link = None
+        else:
+            if meeting.early_public_results:
+                results_link = url_for(
+                    "main.public_stage1_results",
+                    meeting_id=meeting.id,
+                    _external=True,
+                )
+            else:
+                results_link = url_for(
+                    "main.public_results", meeting_id=meeting.id, _external=True
+                )
+        html = render_template(
+            "email/stage2_invite.html",
+            member=member,
+            meeting=meeting,
+            link=link,
+            unsubscribe_url=unsubscribe,
+            resubscribe_url=resubscribe,
+            summary=summary,
+            results_link=results_link,
+            test_mode=True,
+            **branding,
+        )
+    elif email_type == "stage2_reminder":
+        template_base = config_or_setting(
+            "STAGE2_REMINDER_TEMPLATE", "email/stage2_reminder"
+        )
+        summary = carried_amendment_summary(meeting)
+        if summary:
+            results_link = None
+        else:
+            if meeting.early_public_results:
+                results_link = url_for(
+                    "main.public_stage1_results",
+                    meeting_id=meeting.id,
+                    _external=True,
+                )
+            else:
+                results_link = url_for(
+                    "main.public_results", meeting_id=meeting.id, _external=True
+                )
+        html = render_template(
+            f"{template_base}.html",
+            member=member,
+            meeting=meeting,
+            link=link,
+            unsubscribe_url=unsubscribe,
+            resubscribe_url=resubscribe,
+            summary=summary,
+            results_link=results_link,
+            test_mode=True,
+            **branding,
+        )
+    else:
+        abort(404)
+    return html
 
 
 @bp.post("/<int:meeting_id>/email-settings/<email_type>")
