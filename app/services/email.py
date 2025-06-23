@@ -365,6 +365,8 @@ def send_stage2_reminder(member: Member, token: str, meeting: Meeting, *, test_m
 
 def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str], *, test_mode: bool = False) -> None:
     """Email a receipt containing vote hashes."""
+    if member.email_opt_out:
+        return
     unsubscribe = _unsubscribe_url(member)
     resubscribe = _resubscribe_url(member)
     msg = Message(
