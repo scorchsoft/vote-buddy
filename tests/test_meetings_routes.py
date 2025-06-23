@@ -37,7 +37,7 @@ def _make_user(has_permission: bool):
     perm = Permission(name="manage_meetings") if has_permission else None
     role = Role(permissions=[perm] if perm else [])
     user = User(role=role)
-    user.email = 'admin@example.com'
+    user.email = "admin@example.com"
     user.is_active = True
     return user
 
@@ -87,10 +87,7 @@ def test_import_members_sends_invites_and_tokens():
         db.session.add(meeting)
         db.session.commit()
 
-        csv_content = (
-            "member_id,name,email,proxy_for\n"
-            "1,Alice,alice@example.com,\n"
-        )
+        csv_content = "member_id,name,email,proxy_for\n" "1,Alice,alice@example.com,\n"
         data = {"csv_file": (io.BytesIO(csv_content.encode()), "members.csv")}
         with app.test_request_context(
             f"/meetings/{meeting.id}/import-members", method="POST", data=data
@@ -132,7 +129,9 @@ def test_close_stage1_creates_stage2_tokens_and_emails():
         )
         db.session.add(motion)
         db.session.flush()
-        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        amend = Amendment(
+            meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1
+        )
         db.session.add(amend)
         db.session.commit()
 
@@ -178,7 +177,9 @@ def test_close_stage1_runoff_triggers_emails_and_tokens():
         )
         db.session.add(motion)
         db.session.flush()
-        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        amend = Amendment(
+            meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1
+        )
         db.session.add(amend)
         db.session.commit()
 
@@ -195,14 +196,19 @@ def test_close_stage1_runoff_triggers_emails_and_tokens():
             user = _make_user(True)
             with patch("flask_login.utils._get_user", return_value=user):
                 from app.services import runoff
-                with patch.object(runoff, "close_stage1", side_effect=_runoff_side_effect):
-                    with patch("app.meetings.routes.send_proxy_invite") as mock_proxy, patch("app.meetings.routes.send_runoff_invite") as mock_send:
+
+                with patch.object(
+                    runoff, "close_stage1", side_effect=_runoff_side_effect
+                ):
+                    with patch(
+                        "app.meetings.routes.send_proxy_invite"
+                    ) as mock_proxy, patch(
+                        "app.meetings.routes.send_runoff_invite"
+                    ) as mock_send:
                         meetings.close_stage1(meeting.id)
                         mock_send.assert_called_once()
                     assert (
-                        VoteToken.query.filter_by(
-                            member_id=member.id, stage=1
-                        ).count()
+                        VoteToken.query.filter_by(member_id=member.id, stage=1).count()
                         == 1
                     )
 
@@ -236,9 +242,7 @@ def test_close_stage1_skips_when_no_amendments():
                         send_mock.assert_not_called()
 
         assert meeting.status == "Pending Stage 2"
-        assert (
-            VoteToken.query.filter_by(member_id=member.id, stage=2).count() == 1
-        )
+        assert VoteToken.query.filter_by(member_id=member.id, stage=2).count() == 1
 
 
 def test_close_stage1_below_quorum_voids_vote():
@@ -275,12 +279,7 @@ def test_close_stage1_below_quorum_voids_vote():
                                     mock_runoff.assert_not_called()
                                     mock_qfail.assert_called_once()
                                 assert meeting.status == "Quorum not met"
-        assert (
-            VoteToken.query.filter_by(
-                member_id=member.id, stage=2
-            ).count()
-            == 0
-        )
+        assert VoteToken.query.filter_by(member_id=member.id, stage=2).count() == 0
 
 
 def test_close_stage1_warns_when_stage2_too_soon():
@@ -305,7 +304,9 @@ def test_close_stage1_warns_when_stage2_too_soon():
         )
         db.session.add(motion)
         db.session.flush()
-        amend = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1)
+        amend = Amendment(
+            meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1
+        )
         db.session.add(amend)
         db.session.commit()
 
@@ -314,11 +315,15 @@ def test_close_stage1_warns_when_stage2_too_soon():
         ):
             user = _make_user(True)
             with patch("flask_login.utils._get_user", return_value=user):
-                with patch("app.meetings.routes.runoff.close_stage1", return_value=([], [])):
+                with patch(
+                    "app.meetings.routes.runoff.close_stage1", return_value=([], [])
+                ):
                     with patch("app.meetings.routes.send_stage2_invite"):
                         with patch("app.meetings.routes.flash") as fl:
                             meetings.close_stage1(meeting.id)
-                            assert any(c.args[1] == "warning" for c in fl.call_args_list)
+                            assert any(
+                                c.args[1] == "warning" for c in fl.call_args_list
+                            )
 
 
 def test_prepare_stage2_warns_when_too_soon():
@@ -530,7 +535,7 @@ def test_results_stage2_docx_returns_file():
             title="AGM",
             public_results=True,
             results_doc_published=True,
-            results_doc_intro_md="Intro"
+            results_doc_intro_md="Intro",
         )
         db.session.add(meeting)
         db.session.flush()
@@ -728,14 +733,24 @@ def test_meeting_form_duration_validations():
         now = datetime.utcnow()
 
         # Stage 1 opens before notice period
-        data = MultiDict({
-            'title': 'AGM',
-            'notice_date': now.strftime('%Y-%m-%dT%H:%M'),
-            'opens_at_stage1': (now + timedelta(days=13)).strftime('%Y-%m-%dT%H:%M'),
-            'closes_at_stage1': (now + timedelta(days=20)).strftime('%Y-%m-%dT%H:%M'),
-            'opens_at_stage2': (now + timedelta(days=21)).strftime('%Y-%m-%dT%H:%M'),
-            'closes_at_stage2': (now + timedelta(days=27)).strftime('%Y-%m-%dT%H:%M'),
-        })
+        data = MultiDict(
+            {
+                "title": "AGM",
+                "notice_date": now.strftime("%Y-%m-%dT%H:%M"),
+                "opens_at_stage1": (now + timedelta(days=13)).strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
+                "closes_at_stage1": (now + timedelta(days=20)).strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
+                "opens_at_stage2": (now + timedelta(days=21)).strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
+                "closes_at_stage2": (now + timedelta(days=27)).strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
+            }
+        )
         form = MeetingForm(formdata=data)
         assert not form.validate()
         assert form.opens_at_stage1.errors
@@ -746,9 +761,13 @@ def test_meeting_form_duration_validations():
                 "title": "AGM",
                 "notice_date": now.strftime("%Y-%m-%dT%H:%M"),
                 "opens_at_stage1": now.strftime("%Y-%m-%dT%H:%M"),
-                "closes_at_stage1": (now + timedelta(days=6)).strftime("%Y-%m-%dT%H:%M"),
+                "closes_at_stage1": (now + timedelta(days=6)).strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
                 "opens_at_stage2": (now + timedelta(days=7)).strftime("%Y-%m-%dT%H:%M"),
-                "closes_at_stage2": (now + timedelta(days=12)).strftime("%Y-%m-%dT%H:%M"),
+                "closes_at_stage2": (now + timedelta(days=12)).strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
             }
         )
         form = MeetingForm(formdata=data)
@@ -934,6 +953,64 @@ def test_resend_member_token_stage2():
                     )
 
 
+def test_send_member_email_stage1_invite():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["TOKEN_SALT"] = "s"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM", opens_at_stage1=datetime.utcnow())
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="A", email="a@example.com")
+        db.session.add(member)
+        db.session.commit()
+
+        with app.test_request_context(
+            f"/meetings/{meeting.id}/members/{member.id}/email/stage1_invite",
+            method="POST",
+        ):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.send_vote_invite") as mock_send:
+                    meetings.send_member_email(meeting.id, member.id, "stage1_invite")
+                    mock_send.assert_called_once()
+                    assert (
+                        VoteToken.query.filter_by(member_id=member.id, stage=1).count()
+                        == 1
+                    )
+
+
+def test_send_member_email_stage2_invite():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["TOKEN_SALT"] = "s"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(
+            title="AGM", ballot_mode="two-stage", opens_at_stage2=datetime.utcnow()
+        )
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="B", email="b@example.com")
+        db.session.add(member)
+        db.session.commit()
+
+        with app.test_request_context(
+            f"/meetings/{meeting.id}/members/{member.id}/email/stage2_invite",
+            method="POST",
+        ):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.send_stage2_invite") as mock_send:
+                    meetings.send_member_email(meeting.id, member.id, "stage2_invite")
+                    mock_send.assert_called_once()
+                    assert (
+                        VoteToken.query.filter_by(member_id=member.id, stage=2).count()
+                        == 1
+                    )
+
+
 def test_results_summary_lists_unused_proxies():
     app = create_app()
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
@@ -960,7 +1037,11 @@ def test_results_summary_lists_unused_proxies():
             with patch("flask_login.utils._get_user", return_value=user):
                 html = meetings.results_summary(meeting.id)
                 assert "X" in html
-                url = url_for("meetings.resend_proxy_token", meeting_id=meeting.id, token=tok.token)
+                url = url_for(
+                    "meetings.resend_proxy_token",
+                    meeting_id=meeting.id,
+                    token=tok.token,
+                )
                 assert url in html
 
 
@@ -1019,7 +1100,9 @@ def test_resend_and_invalidate_proxy_token():
                 with patch("app.meetings.routes.send_proxy_invite") as mock_send:
                     meetings.resend_proxy_token(meeting.id, tok.token)
                     mock_send.assert_called_once()
-                    assert VoteToken.query.filter_by(proxy_holder_id=proxy.id).count() == 2
+                    assert (
+                        VoteToken.query.filter_by(proxy_holder_id=proxy.id).count() == 2
+                    )
 
         with app.test_request_context(
             f"/meetings/{meeting.id}/proxy-tokens/{tok.token}/invalidate", method="POST"
@@ -1089,14 +1172,15 @@ def test_edit_and_delete_amendment():
         assert Amendment.query.count() == 0
 
 
-        
 def test_request_motion_change_cutoff():
     app = create_app()
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
         db.create_all()
-        meeting = Meeting(title="T", opens_at_stage1=datetime.utcnow() + timedelta(days=5))
+        meeting = Meeting(
+            title="T", opens_at_stage1=datetime.utcnow() + timedelta(days=5)
+        )
         db.session.add(meeting)
         db.session.flush()
         motion = Motion(
@@ -1112,7 +1196,9 @@ def test_request_motion_change_cutoff():
 
         user = _make_user(True)
         with app.test_request_context(
-            f"/meetings/motions/{motion.id}/request-change", method="POST", data={"withdraw": "y"}
+            f"/meetings/motions/{motion.id}/request-change",
+            method="POST",
+            data={"withdraw": "y"},
         ):
             with patch("flask_login.utils._get_user", return_value=user):
                 with patch("app.meetings.routes.flash") as fl:
@@ -1128,7 +1214,9 @@ def test_approve_motion_change_marks_withdrawn():
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
         db.create_all()
-        meeting = Meeting(title="T", opens_at_stage1=datetime.utcnow() + timedelta(days=10))
+        meeting = Meeting(
+            title="T", opens_at_stage1=datetime.utcnow() + timedelta(days=10)
+        )
         db.session.add(meeting)
         db.session.flush()
         motion = Motion(
@@ -1144,7 +1232,9 @@ def test_approve_motion_change_marks_withdrawn():
 
         user = _make_user(True)
         with app.test_request_context(
-            f"/meetings/motions/{motion.id}/request-change", method="POST", data={"withdraw": "y"}
+            f"/meetings/motions/{motion.id}/request-change",
+            method="POST",
+            data={"withdraw": "y"},
         ):
             with patch("flask_login.utils._get_user", return_value=user):
                 meetings.request_motion_change(motion.id)
@@ -1163,26 +1253,23 @@ def test_approve_motion_change_marks_withdrawn():
         refreshed = db.session.get(Motion, motion.id)
         assert refreshed.withdrawn is True
 
+
 def test_default_stage_time_calculation():
     app = create_app()
     with app.app_context():
         agm = datetime.utcnow() + timedelta(days=60)
         defaults = meetings._calculate_default_times(agm)
-        assert (
-            defaults["opens_at_stage1"] - defaults["notice_date"]
-            >= timedelta(days=app.config["NOTICE_PERIOD_DAYS"])
+        assert defaults["opens_at_stage1"] - defaults["notice_date"] >= timedelta(
+            days=app.config["NOTICE_PERIOD_DAYS"]
         )
-        assert (
-            defaults["closes_at_stage1"] - defaults["opens_at_stage1"]
-            >= timedelta(days=app.config["STAGE1_LENGTH_DAYS"])
+        assert defaults["closes_at_stage1"] - defaults["opens_at_stage1"] >= timedelta(
+            days=app.config["STAGE1_LENGTH_DAYS"]
         )
-        assert (
-            defaults["closes_at_stage2"] - defaults["opens_at_stage2"]
-            >= timedelta(days=app.config["STAGE2_LENGTH_DAYS"])
+        assert defaults["closes_at_stage2"] - defaults["opens_at_stage2"] >= timedelta(
+            days=app.config["STAGE2_LENGTH_DAYS"]
         )
-        assert (
-            defaults["opens_at_stage2"] - defaults["closes_at_stage1"]
-            >= timedelta(days=app.config["STAGE_GAP_DAYS"])
+        assert defaults["opens_at_stage2"] - defaults["closes_at_stage1"] >= timedelta(
+            days=app.config["STAGE_GAP_DAYS"]
         )
 
 
@@ -1278,6 +1365,7 @@ def test_view_motion_unpublished_permissions():
             with pytest.raises(NotFound):
                 meetings.view_motion(motion.id)
 
+
 def test_list_members_requires_permission():
     app = create_app()
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
@@ -1321,10 +1409,15 @@ def test_import_members_rejects_duplicates():
             dummy_form.validate_on_submit = lambda: True
             dummy_form.hidden_tag = lambda: ""
             with patch("flask_login.utils._get_user", return_value=user):
-                with patch("app.meetings.routes.MemberImportForm", return_value=dummy_form):
+                with patch(
+                    "app.meetings.routes.MemberImportForm", return_value=dummy_form
+                ):
                     with patch("app.meetings.routes.flash") as mock_flash:
-                        with patch("app.meetings.routes.render_template", return_value=""):
+                        with patch(
+                            "app.meetings.routes.render_template", return_value=""
+                        ):
                             meetings.import_members(meeting.id)
-                        mock_flash.assert_any_call("Duplicate email: alice@example.com", "error")
+                        mock_flash.assert_any_call(
+                            "Duplicate email: alice@example.com", "error"
+                        )
                         assert Member.query.count() == 1
-

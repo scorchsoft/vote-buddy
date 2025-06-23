@@ -127,10 +127,16 @@ def _calculate_default_times(agm_date: datetime) -> dict:
     cfg = current_app.config
     opens_at_stage2 = agm_date - timedelta(days=cfg.get("STAGE2_LENGTH_DAYS", 5))
     closes_at_stage1 = opens_at_stage2 - timedelta(days=cfg.get("STAGE_GAP_DAYS", 1))
-    opens_at_stage1 = closes_at_stage1 - timedelta(days=cfg.get("STAGE1_LENGTH_DAYS", 7))
+    opens_at_stage1 = closes_at_stage1 - timedelta(
+        days=cfg.get("STAGE1_LENGTH_DAYS", 7)
+    )
     notice_date = opens_at_stage1 - timedelta(days=cfg.get("NOTICE_PERIOD_DAYS", 14))
-    motions_closes_at = notice_date - timedelta(days=cfg.get("MOTION_DEADLINE_GAP_DAYS", 7))
-    motions_opens_at = motions_closes_at - timedelta(days=cfg.get("MOTION_WINDOW_DAYS", 7))
+    motions_closes_at = notice_date - timedelta(
+        days=cfg.get("MOTION_DEADLINE_GAP_DAYS", 7)
+    )
+    motions_opens_at = motions_closes_at - timedelta(
+        days=cfg.get("MOTION_WINDOW_DAYS", 7)
+    )
     amendments_opens_at = notice_date
     amendments_closes_at = opens_at_stage1 - timedelta(days=21)
     return {
@@ -187,11 +193,14 @@ def list_meetings():
 
     # Only return partial template for specific HTMX requests (search/sort/pagination)
     # Not for general page navigation via hx-boost
-    if request.headers.get("HX-Request") and request.headers.get("HX-Target") == "meeting-table-body":
+    if (
+        request.headers.get("HX-Request")
+        and request.headers.get("HX-Target") == "meeting-table-body"
+    ):
         template = "meetings/_meeting_rows.html"
     else:
         template = "meetings_list.html"
-    
+
     return render_template(
         template,
         meetings=meetings,
@@ -199,6 +208,8 @@ def list_meetings():
         q=q,
         sort=sort,
         direction=direction,
+        now=now,
+        runoff_exists=runoff_exists,
     )
 
 
@@ -228,9 +239,7 @@ def create_meeting():
     form.notice_date.description = (
         f"Must be at least {notice_days} days before Stage 1 opens."
     )
-    form.opens_at_stage1.description = (
-        f"At least {notice_days} days after notice date."
-    )
+    form.opens_at_stage1.description = f"At least {notice_days} days after notice date."
     form.closes_at_stage1.description = "Must remain open for at least 7 days."
     form.opens_at_stage2.description = "At least 1 day after Stage 1 closes."
     form.closes_at_stage2.description = (
@@ -256,9 +265,7 @@ def edit_meeting(meeting_id):
     form.notice_date.description = (
         f"Must be at least {notice_days} days before Stage 1 opens."
     )
-    form.opens_at_stage1.description = (
-        f"At least {notice_days} days after notice date."
-    )
+    form.opens_at_stage1.description = f"At least {notice_days} days after notice date."
     form.closes_at_stage1.description = "Must remain open for at least 7 days."
     form.opens_at_stage2.description = "At least 1 day after Stage 1 closes."
     form.closes_at_stage2.description = (
@@ -376,12 +383,20 @@ def import_members(meeting_id):
                 return render_template(
                     "meetings/import_members.html", form=form, meeting=meeting
                 )
-            if email in seen_emails or Member.query.filter_by(meeting_id=meeting.id, email=email).first():
+            if (
+                email in seen_emails
+                or Member.query.filter_by(meeting_id=meeting.id, email=email).first()
+            ):
                 flash(f"Duplicate email: {email}", "error")
                 return render_template(
                     "meetings/import_members.html", form=form, meeting=meeting
                 )
-            if number and (number in seen_numbers or Member.query.filter_by(meeting_id=meeting.id, member_number=number).first()):
+            if number and (
+                number in seen_numbers
+                or Member.query.filter_by(
+                    meeting_id=meeting.id, member_number=number
+                ).first()
+            ):
                 flash(f"Duplicate member ID: {number}", "error")
                 return render_template(
                     "meetings/import_members.html", form=form, meeting=meeting
@@ -389,7 +404,6 @@ def import_members(meeting_id):
             seen_emails.add(email)
             if number:
                 seen_numbers.add(number)
-
 
             member = Member(
                 meeting_id=meeting.id,
@@ -446,7 +460,12 @@ def import_members(meeting_id):
 def download_sample_csv():
     """Serve a template CSV for member uploads."""
     path = os.path.join(current_app.root_path, "static", "sample_members.csv")
-    return send_file(path, mimetype="text/csv", as_attachment=True, download_name="sample_members.csv")
+    return send_file(
+        path,
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name="sample_members.csv",
+    )
 
 
 @bp.route("/<int:meeting_id>/members")
@@ -499,7 +518,37 @@ def list_members(meeting_id: int):
         m.voted = voted_flag
         members.append(m)
 
-    if request.headers.get("HX-Request") and request.headers.get("HX-Target") == "member-table-body":
+    now = datetime.utcnow()
+    runoff_exists = Runoff.query.filter_by(meeting_id=meeting.id).count() > 0
+    email_opts = {
+        "stage1_invite": meeting.opens_at_stage1
+        and now >= meeting.opens_at_stage1
+        and (meeting.opens_at_stage2 is None or now < meeting.opens_at_stage2),
+        "stage1_reminder": meeting.opens_at_stage1
+        and now >= meeting.opens_at_stage1
+        and (meeting.closes_at_stage1 is None or now <= meeting.closes_at_stage1),
+        "runoff_invite": runoff_exists
+        and meeting.stage1_closed_at
+        and meeting.opens_at_stage2
+        and meeting.stage1_closed_at <= now < meeting.opens_at_stage2,
+        "stage2_invite": meeting.ballot_mode == "two-stage"
+        and meeting.opens_at_stage2
+        and now >= meeting.opens_at_stage2
+        and (meeting.closes_at_stage2 is None or now <= meeting.closes_at_stage2),
+        "stage2_reminder": meeting.ballot_mode == "two-stage"
+        and meeting.opens_at_stage2
+        and now >= meeting.opens_at_stage2
+        and (meeting.closes_at_stage2 is None or now <= meeting.closes_at_stage2),
+        "submission_invite": meeting.motions_opens_at
+        and now >= meeting.motions_opens_at
+        and (meeting.motions_closes_at is None or now <= meeting.motions_closes_at),
+        "final_results": meeting.status == "Completed",
+    }
+
+    if (
+        request.headers.get("HX-Request")
+        and request.headers.get("HX-Target") == "member-table-body"
+    ):
         template = "meetings/_member_rows.html"
     else:
         template = "meetings/members.html"
@@ -513,6 +562,9 @@ def list_members(meeting_id: int):
         voted=voted,
         sort=sort,
         direction=direction,
+        now=now,
+        runoff_exists=runoff_exists,
+        email_opts=email_opts,
     )
 
 
@@ -543,8 +595,12 @@ def delete_all_members(meeting_id: int):
         abort(404)
     member_ids = [m.id for m in Member.query.filter_by(meeting_id=meeting.id).all()]
     if member_ids:
-        Vote.query.filter(Vote.member_id.in_(member_ids)).delete(synchronize_session=False)
-        VoteToken.query.filter(VoteToken.member_id.in_(member_ids)).delete(synchronize_session=False)
+        Vote.query.filter(Vote.member_id.in_(member_ids)).delete(
+            synchronize_session=False
+        )
+        VoteToken.query.filter(VoteToken.member_id.in_(member_ids)).delete(
+            synchronize_session=False
+        )
         Member.query.filter(Member.id.in_(member_ids)).delete(synchronize_session=False)
         db.session.commit()
     flash("All members removed", "success")
@@ -561,13 +617,13 @@ def members_csv(meeting_id: int):
         abort(404)
 
     amendments = (
-        Amendment.query.filter_by(meeting_id=meeting.id)
-        .order_by(Amendment.order)
-        .all()
+        Amendment.query.filter_by(meeting_id=meeting.id).order_by(Amendment.order).all()
     )
 
     output = io.StringIO()
-    headers = ["member_id", "name", "email", "voted"] + [f"amend_{a.id}" for a in amendments]
+    headers = ["member_id", "name", "email", "voted"] + [
+        f"amend_{a.id}" for a in amendments
+    ]
     writer = csv.writer(output)
     writer.writerow(headers)
 
@@ -640,6 +696,7 @@ def list_motions(meeting_id):
     amendments_count = Amendment.query.filter_by(meeting_id=meeting.id).count()
     votes_cast = meeting.stage1_votes_count()
     from datetime import datetime
+
     steps = [
         ("Motions Open", meeting.motions_opens_at),
         ("Notice", meeting.notice_date),
@@ -713,7 +770,9 @@ def view_motion(motion_id):
     if motion is None:
         abort(404)
     if not motion.is_published:
-        if not current_user.is_authenticated or not current_user.has_permission("manage_meetings"):
+        if not current_user.is_authenticated or not current_user.has_permission(
+            "manage_meetings"
+        ):
             abort(404)
     amendments = (
         Amendment.query.filter_by(motion_id=motion.id).order_by(Amendment.order).all()
@@ -749,8 +808,14 @@ def request_motion_change(motion_id: int):
     meeting = db.session.get(Meeting, motion.meeting_id)
     if meeting is None:
         abort(404)
-    if meeting.opens_at_stage1 and datetime.utcnow() > meeting.opens_at_stage1 - timedelta(days=7):
-        flash("Change requests must be made at least 7 days before Stage 1 opens.", "error")
+    if (
+        meeting.opens_at_stage1
+        and datetime.utcnow() > meeting.opens_at_stage1 - timedelta(days=7)
+    ):
+        flash(
+            "Change requests must be made at least 7 days before Stage 1 opens.",
+            "error",
+        )
         return redirect(url_for("meetings.view_motion", motion_id=motion.id))
     form = MotionChangeRequestForm()
     if request.method == "GET":
@@ -947,9 +1012,7 @@ def edit_amendment(amendment_id: int):
         )
         amendment.board_seconded = form.board_seconded.data
         amendment.seconded_method = form.seconded_method.data or None
-        amendment.seconded_at = (
-            datetime.utcnow() if form.seconded_method.data else None
-        )
+        amendment.seconded_at = datetime.utcnow() if form.seconded_method.data else None
         db.session.commit()
         flash("Amendment updated", "success")
         return redirect(url_for("meetings.view_motion", motion_id=motion.id))
@@ -1318,8 +1381,7 @@ def results_summary(meeting_id: int):
         .all()
     )
     tokens = (
-        VoteToken.query
-        .filter_by(stage=stage, used_at=None, is_test=False)
+        VoteToken.query.filter_by(stage=stage, used_at=None, is_test=False)
         .filter(VoteToken.proxy_holder_id.isnot(None))
         .all()
     )
@@ -1355,12 +1417,18 @@ def manual_send_emails(meeting_id: int):
     if meeting is None or meeting.ballot_mode == "in-person":
         abort(404)
     form = ManualEmailForm()
-    members = Member.query.filter_by(meeting_id=meeting.id, is_test=False).order_by(Member.name).all()
+    members = (
+        Member.query.filter_by(meeting_id=meeting.id, is_test=False)
+        .order_by(Member.name)
+        .all()
+    )
     form.member_ids.choices = [(m.id, m.name) for m in members]
     if form.validate_on_submit():
         recipients = []
         if form.test_mode.data:
-            current_user_member = Member.query.filter_by(meeting_id=meeting.id, email=current_user.email).first()
+            current_user_member = Member.query.filter_by(
+                meeting_id=meeting.id, email=current_user.email
+            ).first()
             if not current_user_member:
                 current_user_member = Member(
                     meeting_id=meeting.id,
@@ -1391,11 +1459,17 @@ def manual_send_emails(meeting_id: int):
             if form.email_type.data == "stage1_invite":
                 send_vote_invite(member, plain, meeting, test_mode=form.test_mode.data)
             elif form.email_type.data == "stage1_reminder":
-                send_stage1_reminder(member, plain, meeting, test_mode=form.test_mode.data)
+                send_stage1_reminder(
+                    member, plain, meeting, test_mode=form.test_mode.data
+                )
             elif form.email_type.data == "runoff_invite":
-                send_runoff_invite(member, plain, meeting, test_mode=form.test_mode.data)
+                send_runoff_invite(
+                    member, plain, meeting, test_mode=form.test_mode.data
+                )
             elif form.email_type.data == "stage2_invite":
-                send_stage2_invite(member, plain, meeting, test_mode=form.test_mode.data)
+                send_stage2_invite(
+                    member, plain, meeting, test_mode=form.test_mode.data
+                )
             elif form.email_type.data == "submission_invite":
                 send_submission_invite(member, meeting, test_mode=form.test_mode.data)
 
@@ -1568,9 +1642,7 @@ def preview_voting(meeting_id: int, stage: int):
         )
 
     motions = (
-        Motion.query.filter_by(meeting_id=meeting.id)
-        .order_by(Motion.ordering)
-        .all()
+        Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
     )
     form = _motion_form(motions)
     if form.validate_on_submit():
@@ -1581,9 +1653,7 @@ def preview_voting(meeting_id: int, stage: int):
             stage=stage,
             final_message_default=current_app.config.get("FINAL_STAGE_MESSAGE"),
         )
-    compiled = [
-        (m, m.final_text_md or compile_motion_text(m)) for m in motions
-    ]
+    compiled = [(m, m.final_text_md or compile_motion_text(m)) for m in motions]
     return render_template(
         "voting/stage2_ballot.html",
         form=form,
@@ -1634,7 +1704,7 @@ def results_docx(meeting_id: int):
         as_attachment=True,
         download_name="results.docx",
     )
-    resp.headers["Content-Disposition"] = "attachment; filename=\"results.docx\""
+    resp.headers["Content-Disposition"] = 'attachment; filename="results.docx"'
     return resp
 
 
@@ -1723,7 +1793,8 @@ def results_stage2_docx(meeting_id: int):
     include_logo = request.args.get("logo") == "1"
     doc = _styled_doc(f"{meeting.title} - Final Results", include_logo)
     para = doc.add_paragraph(
-        "This document is a draft summary. The organisation reserves the right to issue a final official version." )
+        "This document is a draft summary. The organisation reserves the right to issue a final official version."
+    )
     para.alignment = WD_ALIGN_PARAGRAPH.LEFT
     if meeting.results_doc_intro_md:
         doc.add_paragraph(meeting.results_doc_intro_md)
@@ -1772,9 +1843,7 @@ def results_stage2_docx(meeting_id: int):
         as_attachment=True,
         download_name="final_results.docx",
     )
-    resp.headers["Content-Disposition"] = (
-        "attachment; filename=\"final_results.docx\""
-    )
+    resp.headers["Content-Disposition"] = 'attachment; filename="final_results.docx"'
     return resp
 
 
@@ -1900,6 +1969,91 @@ def resend_member_link(meeting_id: int, member_id: int):
     return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
 
 
+@bp.route("/<int:meeting_id>/members/<int:member_id>/email/<kind>", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def send_member_email(meeting_id: int, member_id: int, kind: str):
+    """Send a specific meeting email to a member if allowed."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None or meeting.ballot_mode == "in-person":
+        abort(404)
+    member = Member.query.filter_by(id=member_id, meeting_id=meeting.id).first_or_404()
+
+    now = datetime.utcnow()
+
+    def within(start: datetime | None, end: datetime | None) -> bool:
+        return start is not None and start <= now and (end is None or now <= end)
+
+    if kind == "stage1_invite":
+        if not within(meeting.opens_at_stage1, meeting.opens_at_stage2):
+            abort(400)
+        token, plain = VoteToken.create(
+            member_id=member.id, stage=1, salt=current_app.config["TOKEN_SALT"]
+        )
+        db.session.commit()
+        send_vote_invite(member, plain, meeting)
+        flash("Stage 1 invite sent", "success")
+    elif kind == "stage1_reminder":
+        if not within(meeting.opens_at_stage1, meeting.closes_at_stage1):
+            abort(400)
+        token, plain = VoteToken.create(
+            member_id=member.id, stage=1, salt=current_app.config["TOKEN_SALT"]
+        )
+        db.session.commit()
+        send_stage1_reminder(member, plain, meeting)
+        flash("Stage 1 reminder sent", "success")
+    elif kind == "runoff_invite":
+        if (
+            Runoff.query.filter_by(meeting_id=meeting.id).count() == 0
+            or meeting.opens_at_stage2 is None
+            or not meeting.stage1_closed_at
+            or not (meeting.stage1_closed_at <= now < meeting.opens_at_stage2)
+        ):
+            abort(400)
+        token, plain = VoteToken.create(
+            member_id=member.id, stage=1, salt=current_app.config["TOKEN_SALT"]
+        )
+        db.session.commit()
+        send_runoff_invite(member, plain, meeting)
+        flash("Run-off invite sent", "success")
+    elif kind == "stage2_invite":
+        if meeting.ballot_mode != "two-stage" or not within(
+            meeting.opens_at_stage2, meeting.closes_at_stage2
+        ):
+            abort(400)
+        token, plain = VoteToken.create(
+            member_id=member.id, stage=2, salt=current_app.config["TOKEN_SALT"]
+        )
+        db.session.commit()
+        send_stage2_invite(member, plain, meeting)
+        flash("Stage 2 invite sent", "success")
+    elif kind == "stage2_reminder":
+        if meeting.ballot_mode != "two-stage" or not within(
+            meeting.opens_at_stage2, meeting.closes_at_stage2
+        ):
+            abort(400)
+        token, plain = VoteToken.create(
+            member_id=member.id, stage=2, salt=current_app.config["TOKEN_SALT"]
+        )
+        db.session.commit()
+        send_stage2_reminder(member, plain, meeting)
+        flash("Stage 2 reminder sent", "success")
+    elif kind == "submission_invite":
+        if not within(meeting.motions_opens_at, meeting.motions_closes_at):
+            abort(400)
+        send_submission_invite(member, meeting)
+        flash("Submission invite sent", "success")
+    elif kind == "final_results":
+        if meeting.status != "Completed":
+            abort(400)
+        send_final_results(member, meeting)
+        flash("Final results sent", "success")
+    else:
+        abort(404)
+
+    return redirect(url_for("meetings.list_members", meeting_id=meeting.id))
+
+
 @bp.route("/<int:meeting_id>/proxy-tokens/<token>/resend", methods=["POST"])
 @login_required
 @permission_required("manage_meetings")
@@ -1911,8 +2065,12 @@ def resend_proxy_token(meeting_id: int, token: str):
     vt = db.session.get(VoteToken, token)
     if vt is None or vt.proxy_holder_id is None:
         abort(404)
-    proxy = Member.query.filter_by(id=vt.proxy_holder_id, meeting_id=meeting.id).first_or_404()
-    principal = Member.query.filter_by(id=vt.member_id, meeting_id=meeting.id).first_or_404()
+    proxy = Member.query.filter_by(
+        id=vt.proxy_holder_id, meeting_id=meeting.id
+    ).first_or_404()
+    principal = Member.query.filter_by(
+        id=vt.member_id, meeting_id=meeting.id
+    ).first_or_404()
 
     new_token, plain = VoteToken.create(
         member_id=principal.id,
