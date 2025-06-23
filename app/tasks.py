@@ -18,6 +18,7 @@ from .services.email import (
     send_board_notice,
     send_amendment_reinstated,
     send_submission_invite,
+    auto_send_enabled,
 )
 
 
@@ -50,6 +51,8 @@ def send_stage1_reminders():
             hours=config_or_setting('REMINDER_COOLDOWN_HOURS', 24, parser=int)
         )
         if last and now - last < cooldown:
+            continue
+        if not auto_send_enabled(meeting, 'stage1_reminder'):
             continue
         members = (
             Member.query.join(
@@ -95,6 +98,8 @@ def send_stage2_reminders():
             hours=config_or_setting('STAGE2_REMINDER_COOLDOWN_HOURS', 24, parser=int)
         )
         if last and now - last < cooldown:
+            continue
+        if not auto_send_enabled(meeting, 'stage2_reminder'):
             continue
         members = (
             Member.query.join(

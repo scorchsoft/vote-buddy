@@ -30,6 +30,8 @@ from ..models import (
     Runoff,
     AppSetting,
     MeetingFile,
+    EmailSetting,
+    EmailLog,
 )
 from ..services.email import (
     send_vote_invite,
@@ -41,6 +43,7 @@ from ..services.email import (
     send_proxy_invite,
     send_submission_invite,
     send_stage1_reminder,
+    auto_send_enabled,
 )
 from ..services import runoff
 from ..permissions import permission_required
@@ -161,6 +164,16 @@ def _prefill_form_defaults(form: MeetingForm) -> None:
                 getattr(form, field).data = value
 
 
+def _email_schedule(meeting: Meeting) -> dict[str, datetime | None]:
+    """Return expected send times for key email types."""
+    return {
+        "stage1_invite": meeting.notice_date,
+        "stage1_reminder": meeting.closes_at_stage1 and meeting.closes_at_stage1 - timedelta(hours=config_or_setting('REMINDER_HOURS_BEFORE_CLOSE', 6, parser=int)),
+        "stage2_invite": meeting.opens_at_stage2,
+        "stage2_reminder": meeting.closes_at_stage2 and meeting.closes_at_stage2 - timedelta(hours=config_or_setting('STAGE2_REMINDER_HOURS_BEFORE_CLOSE', 6, parser=int)),
+    }
+
+
 @bp.route("/")
 @login_required
 @permission_required("manage_meetings")
@@ -208,8 +221,6 @@ def list_meetings():
         q=q,
         sort=sort,
         direction=direction,
-        now=now,
-        runoff_exists=runoff_exists,
     )
 
 
@@ -221,6 +232,10 @@ def _save_meeting(form: MeetingForm, meeting: Meeting | None = None) -> Meeting:
     form.populate_obj(meeting)
     db.session.add(meeting)
     db.session.commit()
+    if meeting.email_settings == []:
+        for et in ["stage1_invite", "stage1_reminder", "stage2_invite", "stage2_reminder"]:
+            db.session.add(EmailSetting(meeting_id=meeting.id, email_type=et, auto_send=True))
+        db.session.commit()
     if (
         not meeting.opens_at_stage1
         and Amendment.query.filter_by(meeting_id=meeting.id).count() == 0
@@ -441,7 +456,7 @@ def import_members(meeting_id):
                     proxy_tokens.append((proxy, target, plain))
         db.session.commit()
 
-        if AppSetting.get("manual_email_mode") != "1":
+        if auto_send_enabled(meeting, 'stage1_invite'):
             for m, t in tokens_to_send:
                 send_vote_invite(m, t, meeting)
             for p, target, tok in proxy_tokens:
@@ -1302,7 +1317,7 @@ def close_stage1(meeting_id: int):
                     "warning",
                 )
         members = Member.query.filter_by(meeting_id=meeting.id).all()
-        if AppSetting.get("manual_email_mode") != "1":
+        if auto_send_enabled(meeting, 'quorum_failure'):
             for member in members:
                 send_quorum_failure(member, meeting)
         else:
@@ -1341,7 +1356,7 @@ def close_stage1(meeting_id: int):
     runoffs, tokens_to_send = runoff.close_stage1(meeting)
 
     if runoffs:
-        if AppSetting.get("manual_email_mode") != "1":
+        if auto_send_enabled(meeting, 'runoff_invite'):
             for recipient, target, token in tokens_to_send:
                 if target:
                     send_proxy_invite(recipient, target, token, meeting)
@@ -1406,6 +1421,53 @@ def results_summary(meeting_id: int):
         members=members,
         unused_proxy_tokens=unused_proxy_tokens,
         manual_email_mode=manual_email_mode,
+    )
+
+
+@bp.route("/<int:meeting_id>/email-settings")
+@login_required
+@permission_required("manage_meetings")
+def email_settings(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    schedule = _email_schedule(meeting)
+    settings = {s.email_type: s for s in meeting.email_settings}
+    logs = {
+        t: EmailLog.query.filter_by(meeting_id=meeting.id, type=t).order_by(EmailLog.sent_at.desc()).first()
+        for t in schedule.keys()
+    }
+    return render_template(
+        "meetings/email_settings.html",
+        meeting=meeting,
+        schedule=schedule,
+        settings=settings,
+        logs=logs,
+    )
+
+
+@bp.post("/<int:meeting_id>/email-settings/<email_type>")
+@login_required
+@permission_required("manage_meetings")
+def toggle_email_setting(meeting_id: int, email_type: str):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    setting = EmailSetting.query.filter_by(meeting_id=meeting.id, email_type=email_type).first()
+    if not setting:
+        setting = EmailSetting(meeting_id=meeting.id, email_type=email_type)
+        db.session.add(setting)
+    setting.auto_send = not setting.auto_send
+    db.session.commit()
+    schedule = _email_schedule(meeting)
+    log = EmailLog.query.filter_by(meeting_id=meeting.id, type=email_type).order_by(EmailLog.sent_at.desc()).first()
+    return render_template(
+        "meetings/_email_row.html",
+        meeting=meeting,
+        email_type=email_type,
+        schedule_time=schedule.get(email_type),
+        setting=setting,
+        log=log,
     )
 
 
@@ -1756,7 +1818,7 @@ def prepare_stage2(meeting_id: int):
                     proxy_tokens.append((proxy, target, plain))
         meeting.status = "Stage 2"
         db.session.commit()
-        if AppSetting.get("manual_email_mode") != "1":
+        if auto_send_enabled(meeting, 'stage2_invite'):
             for m, t in tokens_to_send:
                 send_stage2_invite(m, t, meeting)
             for p, target, tok in proxy_tokens:
@@ -1930,7 +1992,7 @@ def close_stage2(meeting_id: int):
     db.session.commit()
 
     members = Member.query.filter_by(meeting_id=meeting.id).all()
-    if AppSetting.get("manual_email_mode") != "1":
+    if auto_send_enabled(meeting, 'final_results'):
         for member in members:
             send_final_results(member, meeting)
     else:

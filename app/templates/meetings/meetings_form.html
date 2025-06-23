@@ -115,6 +115,11 @@
     <p id="{{ form.chair_notes_md.id }}-error" class="bp-error-text">{{ form.chair_notes_md.errors[0] if form.chair_notes_md.errors else '' }}</p>
   </div>
   <div>
+    {{ form.notice_md.label(class_='block font-semibold') }}
+    {{ form.notice_md(class_='border p-3 rounded w-full', **{'aria-describedby': form.notice_md.id + '-error'}) }}
+    <p id="{{ form.notice_md.id }}-error" class="bp-error-text">{{ form.notice_md.errors[0] if form.notice_md.errors else '' }}</p>
+  </div>
+  <div>
     {{ form.results_doc_intro_md.label(class_='block font-semibold') }}
     {{ form.results_doc_intro_md(class_='border p-3 rounded w-full', **{'aria-describedby': form.results_doc_intro_md.id + '-error'}) }}
     <p id="{{ form.results_doc_intro_md.id }}-error" class="bp-error-text">{{ form.results_doc_intro_md.errors[0] if form.results_doc_intro_md.errors else '' }}</p>
@@ -124,6 +129,7 @@
   <div class="mt-4">
     <a href="{{ url_for('meetings.stage1_ics', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block" download hx-boost="false">Stage 1 Calendar</a>
     <a href="{{ url_for('meetings.stage2_ics', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block ml-2" download hx-boost="false">Stage 2 Calendar</a>
+    <a href="{{ url_for('meetings.email_settings', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block ml-2">Email Settings</a>
   </div>
   {% endif %}
 </form>

@@ -4,6 +4,10 @@ Hello {{ member.name }},
 {% endif %}
 
 You are invited to vote in {{ meeting.title }}.
+{% if notice_text %}
+Meeting Notice:
+{{ notice_text }}
+{% endif %}
 This link is unique to you. For an overview see {{ url_for('help.show_help', _external=True) }}
 Use the link below to cast your ballot:
 

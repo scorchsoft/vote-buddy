@@ -1,6 +1,7 @@
 from flask import render_template, url_for, current_app
 from flask_mail import Message
 from ..utils import config_or_setting, generate_stage_ics, carried_amendment_summary
+from ..utils import markdown_to_html
 
 from ..extensions import mail, db
 from ..models import (
@@ -9,6 +10,7 @@ from ..models import (
     UnsubscribeToken,
     AppSetting,
     EmailLog,
+    EmailSetting,
     Amendment,
     AmendmentObjection,
     User,
@@ -27,6 +29,14 @@ from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 import io
 import os
+
+
+def auto_send_enabled(meeting: Meeting, kind: str) -> bool:
+    """Return True if automatic emails of given type are enabled for meeting."""
+    if AppSetting.get("manual_email_mode") == "1":
+        return False
+    setting = EmailSetting.query.filter_by(meeting_id=meeting.id, email_type=kind).first()
+    return setting.auto_send if setting else True
 
 
 def _log_email(member: Member, meeting: Meeting, kind: str, test_mode: bool) -> None:
@@ -86,11 +96,13 @@ def send_vote_invite(member: Member, token: str, meeting: Meeting, *, test_mode:
     )
     objection_link = url_for('main.public_meeting_detail', meeting_id=meeting.id, _external=True)
     branding = _branding()
+    notice_html = markdown_to_html(meeting.notice_md or "")
     msg.body = render_template(
         'email/invite.txt',
         member=member,
         meeting=meeting,
         link=link,
+        notice_text=meeting.notice_md or "",
         objection_link=objection_link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
@@ -102,6 +114,7 @@ def send_vote_invite(member: Member, token: str, meeting: Meeting, *, test_mode:
         member=member,
         meeting=meeting,
         link=link,
+        notice_html=notice_html,
         objection_link=objection_link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,

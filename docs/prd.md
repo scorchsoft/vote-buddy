@@ -496,3 +496,4 @@ SES/SMTP  ─── Outbound mail
 
 
 
+* 2025-07-30 – Added per-meeting email settings with notice text and auto-send toggles.

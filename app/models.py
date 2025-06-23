@@ -106,6 +106,7 @@ class Meeting(db.Model):
     extension_reason = db.Column(db.Text)
     results_doc_published = db.Column(db.Boolean, default=False)
     results_doc_intro_md = db.Column(db.Text)
+    notice_md = db.Column(db.Text)
     stage1_manual_votes = db.Column(db.Integer, default=0)
     stage2_manual_for = db.Column(db.Integer, default=0)
     stage2_manual_against = db.Column(db.Integer, default=0)
@@ -114,6 +115,9 @@ class Meeting(db.Model):
 
     files = db.relationship(
         "MeetingFile", backref="meeting", cascade="all, delete-orphan"
+    )
+    email_settings = db.relationship(
+        "EmailSetting", backref="meeting", cascade="all, delete-orphan"
     )
 
     def stage1_votes_count(self) -> int:
@@ -535,6 +539,15 @@ class EmailLog(db.Model):
     type = db.Column(db.String(50))
     is_test = db.Column(db.Boolean, default=False)
     sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class EmailSetting(db.Model):
+    __tablename__ = "email_settings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"), index=True)
+    email_type = db.Column(db.String(50))
+    auto_send = db.Column(db.Boolean, default=True)
 
 
 class AdminLog(db.Model):

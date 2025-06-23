@@ -1,0 +1,11 @@
+<tr>
+  <td class="p-2">{{ email_type.replace('_', ' ').title() }}</td>
+  <td class="p-2">{{ schedule_time or 'n/a' }}</td>
+  <td class="p-2">
+    <form hx-post="{{ url_for('meetings.toggle_email_setting', meeting_id=meeting.id, email_type=email_type) }}" hx-target="closest tr" hx-swap="outerHTML">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <button type="submit" class="bp-btn-secondary">{{ 'On' if setting.auto_send else 'Off' }}</button>
+    </form>
+  </td>
+  <td class="p-2">{{ log.sent_at.strftime('%Y-%m-%d %H:%M') if log else 'Not sent' }}</td>
+</tr>

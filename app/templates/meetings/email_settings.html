@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
+{% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), ('Email Settings', None)]) }}
+<h1 class="font-bold text-bp-blue mb-4">Email Settings</h1>
+<table class="bp-table">
+  <thead>
+    <tr><th class="p-2">Email</th><th class="p-2">Scheduled</th><th class="p-2">Auto</th><th class="p-2">Last Sent</th></tr>
+  </thead>
+  <tbody id="email-rows">
+    {% for et, time in schedule.items() %}
+      {% set s = settings.get(et) %}
+      {% set l = logs.get(et) %}
+      {% include 'meetings/_email_row.html' with context %}
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
