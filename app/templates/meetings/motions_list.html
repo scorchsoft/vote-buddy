@@ -37,7 +37,7 @@
           <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}" class="bp-dropdown-item">Import Members</a>
           <a href="{{ url_for('meetings.list_members', meeting_id=meeting.id) }}" class="bp-dropdown-item">View Members</a>
           <a href="{{ url_for('meetings.manual_send_emails', meeting_id=meeting.id) }}" class="bp-dropdown-item">Send Emails</a>
-          <a href="{{ url_for('meetings.email_settings', meeting_id=meeting.id) }}" class="bp-dropdown-item">Email Settings</a>
+          <a href="{{ url_for('meetings.email_settings', meeting_id=meeting.id) }}" class="bp-dropdown-item">Auto Send Email Settings</a>
           <a href="{{ url_for('meetings.clone_meeting', meeting_id=meeting.id) }}" class="bp-dropdown-item">Clone Meeting</a>
           <a href="{{ url_for('submissions.list_submissions', meeting_id=meeting.id) }}" class="bp-dropdown-item">Review Submissions</a>
           {% if meeting.status == 'Completed' or meeting.public_results %}
@@ -171,6 +171,27 @@
     <div class="bp-stat-value">{{ amendments_count }}</div>
     <div class="bp-stat-label">Amendments</div>
   </div>
+</div>
+
+<div class="bp-card mb-8">
+  <h2 class="text-xl font-semibold text-bp-grey-900 mb-4">Auto Email Summary</h2>
+  <table class="bp-table w-full">
+    <tbody>
+    {% for t, _ in schedule.items() %}
+      {% set s = settings.get(t) %}
+      <tr>
+        <td class="p-2">{{ t.replace('_', ' ').title() }}</td>
+        <td class="p-2">
+          {% if s and not s.auto_send %}
+            <span class="bp-badge">Off</span>
+          {% else %}
+            <span class="bp-badge bp-badge-success">On</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 </div>
 
 <!-- Motions List -->
