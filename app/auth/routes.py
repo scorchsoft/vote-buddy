@@ -1,11 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, abort
 from flask_login import login_user, logout_user
 from ..extensions import limiter, db
 
 from ..models import User, PasswordResetToken
 from ..services.email import send_password_reset
-from datetime import datetime
-from uuid6 import uuid7
+from datetime import datetime, timedelta
 from .utils import is_safe_url
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -41,10 +40,11 @@ def request_reset():
         email = request.form.get('email', '').strip().lower()
         user = User.query.filter_by(email=email).first()
         if user and user.is_active:
-            token = PasswordResetToken(token=str(uuid7()), user_id=user.id)
-            db.session.add(token)
+            token_obj, plain = PasswordResetToken.create(
+                user_id=user.id, salt=current_app.config["TOKEN_SALT"]
+            )
             db.session.commit()
-            send_password_reset(user, token.token)
+            send_password_reset(user, plain)
         flash('If that email exists, you\'ll receive a reset link shortly.', 'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/request_reset.html')
@@ -52,10 +52,16 @@ def request_reset():
 
 @bp.route('/reset/<token>', methods=['GET', 'POST'])
 def reset_password(token: str):
-    prt = PasswordResetToken.query.filter_by(token=token).first_or_404()
+    prt = PasswordResetToken.verify(token, current_app.config["TOKEN_SALT"])
+    if prt is None:
+        abort(404)
     if prt.used_at:
         flash('Reset link already used', 'error')
         return redirect(url_for('auth.login'))
+    expiry_hours = current_app.config.get("PASSWORD_RESET_EXPIRY_HOURS", 24)
+    if datetime.utcnow() - prt.created_at > timedelta(hours=expiry_hours):
+        flash('Reset link expired', 'error')
+        return redirect(url_for('auth.request_reset'))
     if request.method == 'POST':
         password = request.form.get('password')
         if password:
