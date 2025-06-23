@@ -12,10 +12,20 @@ import hashlib
 
 
 def upgrade():
+    connection = op.get_bind()
+    if not connection.dialect.has_table(connection, 'password_reset_tokens'):
+        op.create_table(
+            'password_reset_tokens',
+            sa.Column('token', sa.String(length=64), primary_key=True),
+            sa.Column('user_id', sa.Integer(), sa.ForeignKey('users.id'), index=True),
+            sa.Column('created_at', sa.DateTime()),
+            sa.Column('used_at', sa.DateTime()),
+        )
+        return
+
     with op.batch_alter_table('password_reset_tokens', schema=None) as batch_op:
         batch_op.alter_column('token', type_=sa.String(length=64))
 
-    connection = op.get_bind()
     salt = os.getenv('TOKEN_SALT', 'token-salt')
     tokens = connection.execute(sa.text('SELECT token FROM password_reset_tokens')).fetchall()
     for (tok,) in tokens:
@@ -24,6 +34,8 @@ def upgrade():
 
 
 def downgrade():
-    with op.batch_alter_table('password_reset_tokens', schema=None) as batch_op:
-        batch_op.alter_column('token', type_=sa.String(length=36))
+    connection = op.get_bind()
+    if connection.dialect.has_table(connection, 'password_reset_tokens'):
+        with op.batch_alter_table('password_reset_tokens', schema=None) as batch_op:
+            batch_op.alter_column('token', type_=sa.String(length=36))
     # cannot reverse hashed data
