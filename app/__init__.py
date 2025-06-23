@@ -24,6 +24,14 @@ def create_app(config_object='config.DevelopmentConfig'):
         if not secret_key or secret_key == 'change-me':
             raise RuntimeError('SECRET_KEY must be set to a non-default value in production')
 
+        token_salt = app.config.get('TOKEN_SALT', '')
+        if not token_salt or token_salt == 'token-salt':
+            raise RuntimeError('TOKEN_SALT must be set to a non-default value in production')
+
+        api_token_salt = app.config.get('API_TOKEN_SALT', '')
+        if not api_token_salt or api_token_salt == 'api-token-salt':
+            raise RuntimeError('API_TOKEN_SALT must be set to a non-default value in production')
+
     register_extensions(app)
     register_blueprints(app)
     register_error_handlers(app)

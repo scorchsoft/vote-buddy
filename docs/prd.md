@@ -487,14 +487,3 @@ SES/SMTP  ─── Outbound mail
 * **Revoting** – Ability for members to change choice before stage close.
 * **RO** – Returning Officer (independent scrutineer).
 * **Token** – Unique UUIDv7 value included in email links; stored hashed with SHA-256 and a secret salt (see changelog entry 2025-06-15).
-
-
-
-
-
-
-
-
-
-* 2025-07-30 – Added per-meeting email settings with notice text and auto-send toggles.
-* 2025-07-31 – Added password reset token expiry and stored hashes only.

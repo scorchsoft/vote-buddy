@@ -99,7 +99,7 @@ View detailed charts and visualizations of voting results
   `REMINDER_COOLDOWN_HOURS`, `REMINDER_TEMPLATE`,
  `STAGE2_REMINDER_HOURS_BEFORE_CLOSE`, `STAGE2_REMINDER_COOLDOWN_HOURS`,
  `STAGE2_REMINDER_TEMPLATE`, `TIE_BREAK_DECISIONS` and `MAIL_USE_TLS`. These can later be changed in the Settings UI.
- `SECRET_KEY`, `UPLOAD_FOLDER` and `API_TOKEN_SALT` are also defined here. `SECRET_KEY` secures sessions and **must** be set to a unique value in production. `UPLOAD_FOLDER` determines where uploaded files are stored and `API_TOKEN_SALT` signs API tokens. The optional `TIMEZONE` variable sets the timezone for calendar downloads and defaults to `Europe/London`.
+ `SECRET_KEY`, `TOKEN_SALT`, `API_TOKEN_SALT` and `UPLOAD_FOLDER` are also defined here. `SECRET_KEY`, `TOKEN_SALT` and `API_TOKEN_SALT` must be set to unique values in production. `UPLOAD_FOLDER` determines where uploaded files are stored. The optional `TIMEZONE` variable sets the timezone for calendar downloads and defaults to `Europe/London`.
 2. Install the Python packages:
 
 ```bash
