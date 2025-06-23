@@ -149,6 +149,21 @@ def test_send_vote_receipt_includes_hash():
                 assert '/unsubscribe/' in sent_msg.body
 
 
+def test_vote_receipt_not_sent_when_opted_out():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        member = Member(name='Ed', email='ed@example.com', meeting_id=1, email_opt_out=True)
+        db.session.add(member)
+        db.session.commit()
+        with app.test_request_context('/'):
+            with patch.object(mail, 'send') as mock_send:
+                send_vote_receipt(member, meeting, ['abc123'], test_mode=False)
+                mock_send.assert_not_called()
+
+
 def test_send_quorum_failure_email():
     app = _setup_app()
     with app.app_context():
