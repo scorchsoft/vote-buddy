@@ -28,6 +28,8 @@ from .utils import generate_stage_ics, generate_runoff_ics, generate_results_pdf
 from .voting.routes import compile_motion_text
 import io
 from sqlalchemy import func
+from flask_login import login_required
+from .permissions import permission_required
 
 bp = Blueprint('main', __name__)
 
@@ -424,8 +426,10 @@ def public_amendment_text(amendment_id: int):
 
 
 @bp.route('/results/<int:meeting_id>/debug.pdf')
+@login_required
+@permission_required('manage_meetings')
 def debug_pdf(meeting_id: int):
-    """Debug route to check PDF generation without access control."""
+    """Debug route to check PDF generation."""
     meeting = db.session.get(Meeting, meeting_id)
     if not meeting:
         abort(404)
