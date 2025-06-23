@@ -63,18 +63,35 @@
       <div class="bp-timeline-container">
         <!-- Progress bar showing elapsed time -->
         {% if now >= timeline_start %}
-          {% set progress = ((now - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) %}
-          {% if progress > 100 %}{% set progress = 100 %}{% endif %}
-          <div class="bp-timeline-progress" style="width: {{ progress|round }}%"></div>
+          {# Calculate progress width to match the "Today" marker position #}
+          {% set progress_width = 50 %}  {# Default to middle if calculation fails #}
+          {% for i in range(valid_milestones|length - 1) %}
+            {% set curr_label, curr_dt = valid_milestones[i] %}
+            {% set next_label, next_dt = valid_milestones[i + 1] %}
+            {% if curr_dt and next_dt and curr_dt <= now <= next_dt %}
+              {# Calculate position between these two milestones #}
+              {% set curr_position = 2.5 + (i * spacing) %}
+              {% set next_position = 2.5 + ((i + 1) * spacing) %}
+              {% set time_ratio = ((now - curr_dt).total_seconds() / (next_dt - curr_dt).total_seconds()) %}
+              {% set progress_width = curr_position + (time_ratio * (next_position - curr_position)) %}
+            {% elif i == 0 and curr_dt and now < curr_dt %}
+              {# Before first milestone #}
+              {% set progress_width = 2.5 %}
+            {% elif i == valid_milestones|length - 2 and next_dt and now > next_dt %}
+              {# After last milestone #}
+              {% set progress_width = 2.5 + ((valid_milestones|length - 1) * spacing) %}
+            {% endif %}
+          {% endfor %}
+          <div class="bp-timeline-progress" style="width: {{ progress_width }}%"></div>
         {% endif %}
         
         <!-- Timeline markers with equal spacing -->
         {% set valid_milestones = timeline_steps|selectattr('1')|list %}
+        {% set total_milestones = valid_milestones|length %}
+        {% set spacing = 95 / (total_milestones - 1) if total_milestones > 1 else 0 %}
         {% for milestone in valid_milestones %}
           {% set label, dt = milestone %}
           {% set milestone_index = loop.index0 %}
-          {% set total_milestones = valid_milestones|length %}
-          {% set spacing = 95 / (total_milestones - 1) if total_milestones > 1 else 0 %}
           {% set position = 2.5 + (milestone_index * spacing) %}
           
           <div class="bp-timeline-marker {{ 'bp-timeline-marker-alt' if loop.index0 % 2 == 1 else '' }}" 
@@ -89,8 +106,26 @@
         
         <!-- Current time indicator -->
         {% if timeline_start <= now <= timeline_end %}
-          {% set now_pct = ((now - timeline_start).total_seconds() / (timeline_end - timeline_start).total_seconds() * 100) %}
-          <div class="bp-timeline-now" style="--now-position: {{ now_pct }}%"></div>
+          {# Find which two milestones the current time falls between #}
+          {% set now_position = 50 %}  {# Default to middle if calculation fails #}
+          {% for i in range(valid_milestones|length - 1) %}
+            {% set curr_label, curr_dt = valid_milestones[i] %}
+            {% set next_label, next_dt = valid_milestones[i + 1] %}
+            {% if curr_dt and next_dt and curr_dt <= now <= next_dt %}
+              {# Calculate position between these two milestones #}
+              {% set curr_position = 2.5 + (i * spacing) %}
+              {% set next_position = 2.5 + ((i + 1) * spacing) %}
+              {% set time_ratio = ((now - curr_dt).total_seconds() / (next_dt - curr_dt).total_seconds()) %}
+              {% set now_position = curr_position + (time_ratio * (next_position - curr_position)) %}
+            {% elif i == 0 and curr_dt and now < curr_dt %}
+              {# Before first milestone #}
+              {% set now_position = 2.5 %}
+            {% elif i == valid_milestones|length - 2 and next_dt and now > next_dt %}
+              {# After last milestone #}
+              {% set now_position = 2.5 + ((valid_milestones|length - 1) * spacing) %}
+            {% endif %}
+          {% endfor %}
+          <div class="bp-timeline-now" style="--now-position: {{ now_position }}%"></div>
         {% endif %}
       </div>
     </div>

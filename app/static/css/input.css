@@ -544,9 +544,9 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
 .bp-timeline {
   position: relative;
   width: 100%;
-  margin: 3rem 0;
-  padding: 2rem 3rem 4rem 3rem;
-  min-height: 6rem;
+  margin: 1.5rem 0;
+  padding: 1.5rem 3rem 3rem 3rem;
+  min-height: 5rem;
   overflow-x: hidden;
   overflow-y: visible;
 }
@@ -564,7 +564,7 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
   background: var(--bp-grey-200);
   border-radius: var(--radius-xl);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin: 2rem 40px;
+  margin: 1.5rem 40px;
 }
 
 .bp-timeline-progress {
@@ -699,7 +699,7 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
 .bp-timeline-now::after {
   content: 'Today';
   position: absolute;
-  bottom: -2rem;
+  top: -2rem;
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.65rem;
@@ -748,6 +748,7 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
   .bp-timeline-now::after {
     font-size: 0.6rem;
     padding: 0.2rem 0.4rem;
+    top: -1.5rem;
   }
 }
 
@@ -1277,14 +1278,14 @@ html {
   overflow: hidden;
 }
 
-/* Alternating timeline marker positions to prevent overlap */
+/* All timeline markers should be below the line consistently */
 .bp-timeline-marker-alt .bp-timeline-label {
-  top: auto;
-  bottom: 1.5rem;
+  top: 1.5rem;
+  bottom: auto;
 }
 
 .bp-timeline-marker-alt:hover .bp-timeline-label {
-  transform: translateX(-50%) translateY(2px);
+  transform: translateX(-50%) translateY(-2px);
 }
 
 /* Responsive Timeline */
@@ -1301,13 +1302,13 @@ html {
   }
   
   .bp-timeline-marker:nth-child(even) .bp-timeline-label {
-    top: auto;
-    bottom: 1.5rem;
+    top: 1.5rem;
+    bottom: auto;
   }
   
   .bp-timeline-marker-alt .bp-timeline-label {
-    top: auto;
-    bottom: 1.5rem;
+    top: 1.5rem;
+    bottom: auto;
   }
   
   .bp-timeline-now::after {
