@@ -11,6 +11,7 @@ from flask import (
     send_from_directory,
     Response,
 )
+from werkzeug.utils import secure_filename
 from .extensions import db, limiter
 from .models import (
     Meeting,
@@ -372,7 +373,7 @@ def public_results_pdf(meeting_id: int):
         pdf_bytes = generate_results_pdf(meeting, stage1, stage2)
         
         # Create a safe filename
-        safe_filename = f"{meeting.title.replace(' ', '_').replace('/', '-')}_final_results.pdf"
+        safe_filename = f"{secure_filename(meeting.title)}_final_results.pdf"
         
         # Create response with PDF data
         response = Response(
