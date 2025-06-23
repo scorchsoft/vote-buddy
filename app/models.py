@@ -116,6 +116,14 @@ class Meeting(db.Model):
         "MeetingFile", backref="meeting", cascade="all, delete-orphan"
     )
 
+    motions = db.relationship(
+        "Motion", backref="meeting", cascade="all, delete-orphan"
+    )
+
+    amendments = db.relationship(
+        "Amendment", backref="meeting", cascade="all, delete-orphan"
+    )
+
     def stage1_votes_count(self) -> int:
         """Return number of verified Stage-1 votes."""
         if self.ballot_mode == "in-person":

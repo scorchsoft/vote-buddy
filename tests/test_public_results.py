@@ -88,3 +88,27 @@ def test_public_results_charts_has_toggle():
         with app.test_request_context(f'/results/{meeting.id}/charts'):
             html = main.public_results_charts(meeting.id)
             assert 'id="stage1-grid"' in html
+
+
+def test_public_amendment_text_requires_public_results():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        db.session.flush()
+        amend = Amendment(meeting_id=meeting.id, motion_id=None, text_md='A1', order=1)
+        db.session.add(amend)
+        db.session.commit()
+
+        with app.test_request_context(f'/results/amendment/{amend.id}'):
+            with pytest.raises(NotFound):
+                main.public_amendment_text(amend.id)
+
+        meeting.public_results = True
+        db.session.add(meeting)
+        db.session.commit()
+
+        with app.test_request_context(f'/results/amendment/{amend.id}'):
+            html = main.public_amendment_text(amend.id)
+            assert 'Amendment A1' in html
