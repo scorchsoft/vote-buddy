@@ -2,6 +2,7 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from unittest.mock import patch
+from datetime import datetime, timedelta
 
 from app import create_app
 from app.extensions import db, mail
@@ -14,6 +15,8 @@ def _setup_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['WTF_CSRF_ENABLED'] = False
     app.config['MAIL_SUPPRESS_SEND'] = True
+    app.config['TOKEN_SALT'] = 's'
+    app.config['PASSWORD_RESET_EXPIRY_HOURS'] = 24
     return app
 
 
@@ -60,15 +63,35 @@ def test_reset_password_updates_user():
         db.session.add(user)
         db.session.flush()
         user_id = user.id
-        token = PasswordResetToken(token='tok', user_id=user_id)
-        db.session.add(token)
+        token_obj, plain = PasswordResetToken.create(
+            user_id=user_id, salt=app.config['TOKEN_SALT']
+        )
         db.session.commit()
 
     client = app.test_client()
-    resp = client.post('/auth/reset/tok', data={'password': 'newpass'}, follow_redirects=False)
+    resp = client.post(f'/auth/reset/{plain}', data={'password': 'newpass'}, follow_redirects=False)
     assert resp.status_code == 302
     with app.app_context():
         user_db = db.session.get(User, user_id)
-        token_db = PasswordResetToken.query.filter_by(token='tok').first()
+        token_db = PasswordResetToken.verify(plain, app.config['TOKEN_SALT'])
         assert user_db.check_password('newpass')
         assert token_db.used_at is not None
+
+
+def test_expired_token_is_rejected():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        user = User(email='expire@example.com', is_active=True)
+        user.set_password('old')
+        db.session.add(user)
+        db.session.flush()
+        token_obj, plain = PasswordResetToken.create(
+            user_id=user.id, salt=app.config['TOKEN_SALT']
+        )
+        token_obj.created_at = datetime.utcnow() - timedelta(hours=25)
+        db.session.commit()
+
+    client = app.test_client()
+    resp = client.get(f'/auth/reset/{plain}', follow_redirects=True)
+    assert b'Reset link expired' in resp.data

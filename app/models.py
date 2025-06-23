@@ -366,12 +366,29 @@ class ApiToken(db.Model):
 class PasswordResetToken(db.Model):
     __tablename__ = "password_reset_tokens"
 
-    token = db.Column(db.String(36), primary_key=True)
+    token = db.Column(db.String(64), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     used_at = db.Column(db.DateTime)
 
     user = db.relationship("User")
+
+    @staticmethod
+    def _hash(token: str, salt: str) -> str:
+        return hashlib.sha256(f"{token}{salt}".encode()).hexdigest()
+
+    @classmethod
+    def create(cls, user_id: int, salt: str) -> tuple["PasswordResetToken", str]:
+        plain = str(uuid7())
+        hashed = cls._hash(plain, salt)
+        obj = cls(token=hashed, user_id=user_id)
+        db.session.add(obj)
+        return obj, plain
+
+    @classmethod
+    def verify(cls, token: str, salt: str) -> "PasswordResetToken | None":
+        hashed = cls._hash(token, salt)
+        return cls.query.filter_by(token=hashed).first()
 
 
 class Amendment(db.Model):
