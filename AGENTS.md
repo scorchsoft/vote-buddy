@@ -15,6 +15,7 @@ This guide directs AI and human contributors for all folders in this repository.
 - HTML templates follow the naming examples from `docs/ui-ux-design-guidance.md`
 - Custom CSS classes should be prefixed `bp-`; avoid heavy JavaScript
 - htmx: ensure htmx is used where appropriate (if not overkill), such as for CRUDS.
+- htmx can intercept anchor clicks when `hx-boost` or `hx-get` is used; disable those attributes on links to files so downloads work normally.
 
 ## Toolchain Commands
 | Task | Command |
@@ -70,4 +71,5 @@ If `flask` still isn't found, invoke commands via `python -m flask --app app`.
 |------|--------|-------|
 | 2025-06-13 | Initial draft | Repository documentation for agents |
 | 2025-06-21 | Docs update | Added Flask troubleshooting and install step |
+| 2025-06-24 | Docs update | Added htmx caution for file links |
 
