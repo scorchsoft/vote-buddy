@@ -45,6 +45,9 @@ The following images show the main dashboard and help section in action.
 The admin dashboard provides a central hub for managing meetings and monitoring voting progress
 ![Admin dashboard screenshot](assets/screenshots_v0_3/admin-dashboard.png)
 
+See the status of the meeting and motions with a timeline
+![Admin dashboard screenshot](assets/screenshots_v0_3/meeting-motions.png)
+
 Comprehensive help documentation guides users through the voting process
 ![Help section screenshot](assets/screenshots_v0_3/help-section.png)
 

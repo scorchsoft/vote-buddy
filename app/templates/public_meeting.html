@@ -9,7 +9,7 @@
   Stage 1:
   {{ meeting.opens_at_stage1|format_dt }} –
   {{ meeting.closes_at_stage1|format_dt }}
-  <a href="{{ stage1_ics_url }}" class="text-bp-blue hover:underline ml-2" download>Add to calendar</a>
+  <a href="{{ stage1_ics_url }}" class="text-bp-blue hover:underline ml-2" download hx-boost="false">Add to calendar</a>
 </p>
 <div class="mb-4">
   <div id="stage1-progress" class="bp-progress" data-progress-open="{{ meeting.opens_at_stage1.isoformat() }}Z" data-progress-close="{{ meeting.closes_at_stage1.isoformat() }}Z" role="progressbar" aria-valuemin="0" aria-valuemax="100">
@@ -26,7 +26,7 @@
   Run-off:
   {{ meeting.runoff_opens_at|format_dt }} –
   {{ meeting.runoff_closes_at|format_dt }}
-  <a href="{{ runoff_ics_url }}" class="text-bp-blue hover:underline ml-2">Add to calendar</a>
+  <a href="{{ runoff_ics_url }}" class="text-bp-blue hover:underline ml-2" download hx-boost="false">Add to calendar</a>
 </p>
 {% endif %}
 {% if meeting.opens_at_stage2 and meeting.closes_at_stage2 %}
@@ -34,7 +34,7 @@
   Stage 2:
   {{ meeting.opens_at_stage2|format_dt }} –
   {{ meeting.closes_at_stage2|format_dt }}
-  <a href="{{ stage2_ics_url }}" class="text-bp-blue hover:underline ml-2">Add to calendar</a>
+  <a href="{{ stage2_ics_url }}" class="text-bp-blue hover:underline ml-2" download hx-boost="false">Add to calendar</a>
 </p>
 <div class="mb-6">
   <div id="stage2-progress" class="bp-progress" data-progress-open="{{ meeting.opens_at_stage2.isoformat() }}Z" data-progress-close="{{ meeting.closes_at_stage2.isoformat() }}Z" role="progressbar" aria-valuemin="0" aria-valuemax="100">
@@ -52,7 +52,7 @@
   <ul class="list-disc pl-5">
   {% for f in files %}
     <li class="mb-1">
-      <a href="{{ url_for('main.public_meeting_file', meeting_id=meeting.id, file_id=f.id) }}" class="text-bp-blue hover:underline" download>{{ f.title }}</a>
+      <a href="{{ url_for('main.public_meeting_file', meeting_id=meeting.id, file_id=f.id) }}" class="text-bp-blue hover:underline" download hx-boost="false">{{ f.title }}</a>
       {% if f.description %}<p class="text-sm text-bp-grey-700">{{ f.description }}</p>{% endif %}
     </li>
   {% endfor %}
