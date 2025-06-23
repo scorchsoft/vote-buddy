@@ -81,6 +81,11 @@ class MeetingForm(FlaskForm):
     quorum = IntegerField("Quorum")
     status = StringField("Status")
     chair_notes_md = TextAreaField("Chair Notes")
+    notice_md = TextAreaField(
+        "Meeting Notice",
+        validators=[Optional()],
+        render_kw={"data-markdown-editor": "1"},
+    )
     submit = SubmitField("Save")
 
     def validate(self, extra_validators=None):

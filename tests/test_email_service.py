@@ -229,3 +229,27 @@ def test_send_final_results_uses_results_link_when_public():
                 mock_send.assert_called_once()
                 sent_msg = mock_send.call_args[0][0]
                 assert '/results/' in sent_msg.body
+
+
+def test_invite_includes_notice_text():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['MAIL_SUPPRESS_SEND'] = True
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title='AGM',
+            opens_at_stage1=now,
+            closes_at_stage1=now + timedelta(hours=1),
+            notice_md='This is the **notice**'
+        )
+        db.session.add(meeting)
+        member = Member(name='Bob', email='b@example.com', meeting_id=1)
+        db.session.add(member)
+        db.session.commit()
+        with app.test_request_context('/'):
+            with patch.object(mail, 'send') as mock_send:
+                send_vote_invite(member, 'tok', meeting, test_mode=False)
+                sent = mock_send.call_args[0][0]
+                assert 'This is the **notice**' in sent.body

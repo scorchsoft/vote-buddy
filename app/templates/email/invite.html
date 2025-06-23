@@ -4,6 +4,9 @@
     <td style="padding:24px;background-color:#FFFFFF;">
       <p>Hello {{ member.name }},</p>
       <p>You are invited to vote in <strong>{{ meeting.title }}</strong>.</p>
+      {% if notice_html %}
+      <div>{{ notice_html|safe }}</div>
+      {% endif %}
       <p>This link is unique to you. For an overview of how online voting works, see <a href="{{ url_for('help.show_help', _external=True) }}">the voting help page</a>.</p>
       {% if test_mode %}
       <p style="color:#DC0714;"><strong>TEST MODE:</strong> votes cast using this link will be recorded as test data.</p>
