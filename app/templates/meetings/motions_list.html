@@ -33,9 +33,18 @@
           </svg>
         </button>
         <div class="bp-dropdown-menu w-56">
+          <a href="{{ url_for('meetings.edit_meeting', meeting_id=meeting.id) }}" class="bp-dropdown-item">Edit Meeting</a>
           <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}" class="bp-dropdown-item">Import Members</a>
+          <a href="{{ url_for('meetings.list_members', meeting_id=meeting.id) }}" class="bp-dropdown-item">View Members</a>
+          <a href="{{ url_for('meetings.manual_send_emails', meeting_id=meeting.id) }}" class="bp-dropdown-item">Send Emails</a>
+          <a href="{{ url_for('meetings.email_settings', meeting_id=meeting.id) }}" class="bp-dropdown-item">Email Settings</a>
           <a href="{{ url_for('meetings.clone_meeting', meeting_id=meeting.id) }}" class="bp-dropdown-item">Clone Meeting</a>
           <a href="{{ url_for('submissions.list_submissions', meeting_id=meeting.id) }}" class="bp-dropdown-item">Review Submissions</a>
+          {% if meeting.status == 'Completed' or meeting.public_results %}
+          <a href="{{ url_for('meetings.results_summary', meeting_id=meeting.id) }}" class="bp-dropdown-item">View Results</a>
+          <a href="{{ url_for('meetings.results_docx', meeting_id=meeting.id) }}" class="bp-dropdown-item">Export Results (Word)</a>
+          {% endif %}
+          <a href="{{ url_for('meetings.meeting_files', meeting_id=meeting.id) }}" class="bp-dropdown-item">Manage Files</a>
           {% if meeting.ballot_mode == 'combined' %}
           <a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}" class="bp-dropdown-item">Preview Combined Ballot</a>
           {% else %}
