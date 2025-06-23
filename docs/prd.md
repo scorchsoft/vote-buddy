@@ -497,3 +497,4 @@ SES/SMTP  ─── Outbound mail
 
 
 * 2025-07-30 – Added per-meeting email settings with notice text and auto-send toggles.
+* 2025-07-31 – `TOKEN_SALT` and `API_TOKEN_SALT` now required in production.
