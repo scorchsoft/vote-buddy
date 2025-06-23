@@ -468,11 +468,13 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-22 – Fixed public results charts not rendering after page load.
 * 2025-06-22 – Results index displays meetings as individual cards with turnout info.
 * 2025-06-22 – Charts page shows vote share percentages with absolute/effective toggle.
-* 2025-06-22 – Expanded charts view to display per-motion graphs for counts,
-  percentages and effective percentages.
+* 2025-06-22 – Expanded charts view to display per-motion graphs for counts,  percentages and effective percentages.
 * 2025-06-22 – Added clear logo button on settings page to remove the site logo.
 * 2025-06-22 – Results page links to full motion text from list and chart views.
 * 2025-07-04 – Meeting motions page shows voting stats and timeline overview.
+* 2025-07-18 – Added members list page with vote filtering and CSV export.
+* 2025-07-26 – Added Import Members button on members page and breadcrumb link.* 2025-07-27 – Added member actions menu with resend email options.
+* 2025-07-27 – Member management buttons moved above table for quicker access.
 
 
 ---
@@ -486,7 +488,6 @@ SES/SMTP  ─── Outbound mail
 * **RO** – Returning Officer (independent scrutineer).
 * **Token** – Unique UUIDv7 value included in email links; stored hashed with SHA-256 and a secret salt (see changelog entry 2025-06-15).
 
----
 
 
 
@@ -495,10 +496,3 @@ SES/SMTP  ─── Outbound mail
 
 
 
-
-
-
-
-* 2025-07-18 – Added members list page with vote filtering and CSV export.
-* 2025-07-26 – Added Import Members button on members page and breadcrumb link.
-* 2025-07-27 – Member management buttons moved above table for quicker access.
