@@ -68,8 +68,10 @@ def _resubscribe_url(member: Member) -> str:
     return url_for('notifications.resubscribe', token=token.token, _external=True)
 
 
-def _sender() -> str | None:
-    return AppSetting.get('from_email', current_app.config.get('MAIL_DEFAULT_SENDER'))
+def _sender() -> str:
+    """Return configured sender email or a safe default."""
+    sender = AppSetting.get("from_email") or current_app.config.get("MAIL_DEFAULT_SENDER")
+    return sender or "noreply@example.com"
 
 
 def _branding() -> dict[str, str | None]:
