@@ -34,11 +34,23 @@ def _setup_app():
     return app
 
 
-def test_public_results_pdf_route():
+import werkzeug.utils
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "AGM",
+        "O'Connor's AGM",
+        '"Quote" Meeting',
+        "Line\nBreak",
+    ],
+)
+def test_public_results_pdf_route(title):
     app = _setup_app()
     with app.app_context():
         db.create_all()
-        meeting = Meeting(title="AGM")
+        meeting = Meeting(title=title)
         db.session.add(meeting)
         db.session.commit()
 
@@ -71,7 +83,8 @@ def test_public_results_pdf_route():
             resp = main.public_results_pdf(meeting.id)
             assert resp.mimetype == "application/pdf"
             cd = resp.headers["Content-Disposition"]
-            assert "final_results.pdf" in cd
+            safe = werkzeug.utils.secure_filename(title)
+            assert f"{safe}_final_results.pdf" in cd
             resp.direct_passthrough = False
             data = resp.get_data()
             assert data.startswith(b"%PDF")
