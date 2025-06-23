@@ -259,6 +259,7 @@ SES/SMTP  ─── Outbound mail
 | High voter load causing DB locks | Lost ballots             | Use row‑level locking & short transactions; pre‑warm connection pool |
 | Email deliverability             | Members don’t get tokens | DKIM + SPF, SES dedicated IP pool                                    |
 | Run‑off ties unresolved          | Governance dispute       | Implement Article 109 tie‑break logic exactly; manual override UI    |
+| Personal data in logs            | Privacy breach           | Hash emails and member numbers before writing to logs |
 
 ---
 
@@ -497,3 +498,4 @@ SES/SMTP  ─── Outbound mail
 
 
 * 2025-07-30 – Added per-meeting email settings with notice text and auto-send toggles.
+* 2025-07-31 – Logs store hashed email and member numbers to protect privacy.

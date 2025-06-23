@@ -18,10 +18,20 @@ ALLOWED_TAGS = (
 )
 from flask import current_app
 from .models import AppSetting, Amendment
+import hashlib
 import json
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 from uuid import uuid4
+
+
+def hash_for_log(value: str) -> str:
+    """Return abbreviated SHA-256 hash of value for logging."""
+    if not value:
+        return ""
+    salt = current_app.config.get("TOKEN_SALT", "")
+    digest = hashlib.sha256(f"{value}{salt}".encode()).hexdigest()
+    return digest[:8]
 
 
 def config_or_setting(
