@@ -24,7 +24,12 @@ from .models import (
     MeetingFile,
 )
 from .services.email import send_vote_invite, send_stage2_invite, send_runoff_invite
-from .utils import generate_stage_ics, generate_runoff_ics, generate_results_pdf
+from .utils import (
+    generate_stage_ics,
+    generate_runoff_ics,
+    generate_results_pdf,
+    hash_for_log,
+)
 from .voting.routes import compile_motion_text
 import io
 from sqlalchemy import func
@@ -99,12 +104,14 @@ def resend_meeting_link_public(meeting_id: int):
         abort(404)
     email = request.form.get('email', '').strip().lower()
     member_number = request.form.get('member_number', '').strip()
+    email_hash = hash_for_log(email)
+    member_hash = hash_for_log(member_number)
 
     current_app.logger.info(
-        'Resend attempt for meeting=%s email=%s member=%s',
+        'Resend attempt for meeting=%s email_hash=%s member_hash=%s',
         meeting_id,
-        email,
-        member_number,
+        email_hash,
+        member_hash,
     )
 
     member = Member.query.filter_by(
@@ -124,11 +131,15 @@ def resend_meeting_link_public(meeting_id: int):
             else:
                 send_vote_invite(member, plain, meeting)
         current_app.logger.info(
-            'Resend email sent to %s for member %s', email, member_number
+            'Resend email sent (email_hash=%s member_hash=%s)',
+            email_hash,
+            member_hash,
         )
     else:
         current_app.logger.info(
-            'Resend attempted for unknown member: %s/%s', email, member_number
+            'Resend attempted for unknown member (email_hash=%s member_hash=%s)',
+            email_hash,
+            member_hash,
         )
 
     message = (

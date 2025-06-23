@@ -259,6 +259,7 @@ SES/SMTP  ─── Outbound mail
 | High voter load causing DB locks | Lost ballots             | Use row‑level locking & short transactions; pre‑warm connection pool |
 | Email deliverability             | Members don’t get tokens | DKIM + SPF, SES dedicated IP pool                                    |
 | Run‑off ties unresolved          | Governance dispute       | Implement Article 109 tie‑break logic exactly; manual override UI    |
+| Personal data in logs            | Privacy breach           | Hash emails and member numbers before writing to logs |
 
 ---
 
@@ -487,3 +488,13 @@ SES/SMTP  ─── Outbound mail
 * **Revoting** – Ability for members to change choice before stage close.
 * **RO** – Returning Officer (independent scrutineer).
 * **Token** – Unique UUIDv7 value included in email links; stored hashed with SHA-256 and a secret salt (see changelog entry 2025-06-15).
+
+
+
+
+
+
+
+
+
+
