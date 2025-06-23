@@ -22,18 +22,46 @@ def upgrade():
         sa.Column('used_at', sa.DateTime(), nullable=True),
     )
     with op.batch_alter_table('motion_submissions') as batch_op:
-        batch_op.add_column(sa.Column('member_id', sa.Integer(), sa.ForeignKey('members.id')))
-        batch_op.add_column(sa.Column('seconder_id', sa.Integer(), sa.ForeignKey('members.id')))
+        batch_op.add_column(sa.Column('member_id', sa.Integer(), nullable=True))
+        batch_op.add_column(sa.Column('seconder_id', sa.Integer(), nullable=True))
+        batch_op.create_foreign_key(
+            'fk_motion_submissions_member',
+            'members',
+            ['member_id'],
+            ['id'],
+        )
+        batch_op.create_foreign_key(
+            'fk_motion_submissions_seconder',
+            'members',
+            ['seconder_id'],
+            ['id'],
+        )
     with op.batch_alter_table('amendment_submissions') as batch_op:
-        batch_op.add_column(sa.Column('member_id', sa.Integer(), sa.ForeignKey('members.id')))
-        batch_op.add_column(sa.Column('seconder_id', sa.Integer(), sa.ForeignKey('members.id')))
+        batch_op.add_column(sa.Column('member_id', sa.Integer(), nullable=True))
+        batch_op.add_column(sa.Column('seconder_id', sa.Integer(), nullable=True))
+        batch_op.create_foreign_key(
+            'fk_amendment_submissions_member',
+            'members',
+            ['member_id'],
+            ['id'],
+        )
+        batch_op.create_foreign_key(
+            'fk_amendment_submissions_seconder',
+            'members',
+            ['seconder_id'],
+            ['id'],
+        )
 
 
 def downgrade():
     with op.batch_alter_table('amendment_submissions') as batch_op:
+        batch_op.drop_constraint('fk_amendment_submissions_seconder', type_='foreignkey')
+        batch_op.drop_constraint('fk_amendment_submissions_member', type_='foreignkey')
         batch_op.drop_column('seconder_id')
         batch_op.drop_column('member_id')
     with op.batch_alter_table('motion_submissions') as batch_op:
+        batch_op.drop_constraint('fk_motion_submissions_seconder', type_='foreignkey')
+        batch_op.drop_constraint('fk_motion_submissions_member', type_='foreignkey')
         batch_op.drop_column('seconder_id')
         batch_op.drop_column('member_id')
     op.drop_table('submission_tokens')
