@@ -165,13 +165,38 @@ def _prefill_form_defaults(form: MeetingForm) -> None:
 
 
 def _email_schedule(meeting: Meeting) -> dict[str, datetime | None]:
-    """Return expected send times for key email types."""
-    return {
+    """Return expected send times for key email types.
+
+    Only include emails relevant to the meeting's ballot mode.
+    """
+    schedule = {
         "stage1_invite": meeting.notice_date,
-        "stage1_reminder": meeting.closes_at_stage1 and meeting.closes_at_stage1 - timedelta(hours=config_or_setting('REMINDER_HOURS_BEFORE_CLOSE', 6, parser=int)),
-        "stage2_invite": meeting.opens_at_stage2,
-        "stage2_reminder": meeting.closes_at_stage2 and meeting.closes_at_stage2 - timedelta(hours=config_or_setting('STAGE2_REMINDER_HOURS_BEFORE_CLOSE', 6, parser=int)),
+        "stage1_reminder": (
+            meeting.closes_at_stage1
+            and meeting.closes_at_stage1
+            - timedelta(
+                hours=config_or_setting(
+                    "REMINDER_HOURS_BEFORE_CLOSE", 6, parser=int
+                )
+            )
+        ),
     }
+    if meeting.ballot_mode == "two-stage":
+        schedule.update(
+            {
+                "stage2_invite": meeting.opens_at_stage2,
+                "stage2_reminder": (
+                    meeting.closes_at_stage2
+                    and meeting.closes_at_stage2
+                    - timedelta(
+                        hours=config_or_setting(
+                            "STAGE2_REMINDER_HOURS_BEFORE_CLOSE", 6, parser=int
+                        )
+                    )
+                ),
+            }
+        )
+    return schedule
 
 
 @bp.route("/")

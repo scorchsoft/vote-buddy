@@ -220,6 +220,8 @@ def send_submission_invites() -> None:
         Meeting.submission_invites_sent_at.is_(None),
     ).all()
     for meeting in meetings:
+        if not auto_send_enabled(meeting, "submission_invite"):
+            continue
         members = Member.query.filter_by(meeting_id=meeting.id).all()
         for member in members:
             send_submission_invite(member, meeting)
