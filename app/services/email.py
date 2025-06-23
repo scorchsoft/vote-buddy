@@ -494,7 +494,8 @@ def _final_results_docx(meeting: Meeting) -> bytes:
 
     table_ca = doc.add_table(rows=1, cols=1)
     if carried:
-        for idx, amend in enumerate(carried, start=1):
+        table_ca.rows[0].cells[0].text = carried[0].text_md or ""
+        for idx, amend in enumerate(carried[1:], start=2):
             row = table_ca.add_row().cells
             row[0].text = amend.text_md or ""
             if idx % 2 == 0:
