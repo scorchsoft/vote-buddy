@@ -6,12 +6,13 @@ from datetime import datetime, timedelta
 
 from app import create_app
 from app.extensions import db, scheduler
-from app.models import Meeting, Member, VoteToken
+from app.models import Meeting, Member, VoteToken, EmailSetting
 from app.tasks import (
     register_jobs,
     send_stage1_reminders,
     send_stage2_reminders,
     cleanup_vote_tokens,
+    send_submission_invites,
 )
 
 
@@ -114,3 +115,47 @@ def test_cleanup_vote_tokens_removes_expired_and_used():
         remaining = VoteToken.query.all()
         assert len(remaining) == 1
         assert remaining[0].token == t_valid.token
+
+
+def test_send_submission_invites_respects_setting():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title='AGM', motions_opens_at=now - timedelta(minutes=5)
+        )
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='Ann', email='a@example.com')
+        db.session.add(member)
+        setting = EmailSetting(
+            meeting_id=meeting.id,
+            email_type='submission_invite',
+            auto_send=False,
+        )
+        db.session.add(setting)
+        db.session.commit()
+
+        with patch('app.tasks.send_submission_invite') as mock_send:
+            send_submission_invites()
+            assert mock_send.call_count == 0
+
+
+def test_send_submission_invites_sends_when_enabled():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title='AGM', motions_opens_at=now - timedelta(minutes=5)
+        )
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='Bob', email='b@example.com')
+        db.session.add(member)
+        db.session.commit()
+
+        with patch('app.tasks.send_submission_invite') as mock_send:
+            send_submission_invites()
+            mock_send.assert_called_once()
