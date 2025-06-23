@@ -32,6 +32,7 @@ To discuss a hosted instance or enterprise licence, please contact:
 ## Additional Notice
 
 This open-source licence applies **only** to the contents of this repository. It does **not** grant any rights, ownership, or licence to the Scorchsoft name, logo, trademarks, or any other proprietary materials, services, or intellectual property owned by Scorchsoft Ltd. Use of the Scorchsoft name or branding in any form without explicit written permission is strictly prohibited.
+The VoteBuddy name is a trademark of Scorchsoft Ltd and is not included as part of the open-source materials licensed here.
 
 ## Contributor Agreement
 
