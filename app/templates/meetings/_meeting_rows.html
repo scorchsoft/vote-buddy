@@ -100,13 +100,11 @@
                  alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
             Batch Edit Motions
           </a>
-          <a href="{{ url_for('meetings.clone_meeting', meeting_id=meeting.id) }}" 
+          <a href="{{ url_for('meetings.clone_meeting', meeting_id=meeting.id) }}"
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
-            <svg class="w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" />
-              <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z" />
-            </svg>
+            <img src="{{ url_for('static', filename='icons/content_copy_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
             Clone Meeting
           </a>
         </div>
@@ -116,8 +114,8 @@
           <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}"
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
-            <img src="{{ url_for('static', filename='icons/group_add_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}"
-                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500 filter-to-grey">
+            <img src="{{ url_for('static', filename='icons/cloud_upload_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
             Import Members
           </a>
           <a href="{{ url_for('meetings.list_members', meeting_id=meeting.id) }}"
@@ -130,10 +128,8 @@
           <a href="{{ url_for('meetings.manual_send_emails', meeting_id=meeting.id) }}"
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
-            <svg class="w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-            </svg>
+            <img src="{{ url_for('static', filename='icons/output_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
             Send Emails
           </a>
           <a href="{{ url_for('meetings.email_settings', meeting_id=meeting.id) }}"
@@ -151,16 +147,15 @@
           <a href="{{ url_for('meetings.results_summary', meeting_id=meeting.id) }}" 
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
-            <img src="{{ url_for('static', filename='icons/bar_chart_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" 
-                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500 filter-to-grey">
+            <img src="{{ url_for('static', filename='icons/grid_view_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
             View Results
           </a>
           <a href="{{ url_for('meetings.results_docx', meeting_id=meeting.id) }}" 
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
-            <svg class="w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-            </svg>
+            <img src="{{ url_for('static', filename='icons/file_export_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
             Export Results (Word)
           </a>
         </div>
@@ -179,20 +174,16 @@
           <a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}" 
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
-            <svg class="w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-              <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-            </svg>
+            <img src="{{ url_for('static', filename='icons/preview_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
             Preview Combined Ballot
           </a>
           {% else %}
           <a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}" 
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
-            <svg class="w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-              <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-            </svg>
+            <img src="{{ url_for('static', filename='icons/preview_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
             Preview Ballots
           </a>
           {% endif %}
