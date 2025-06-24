@@ -196,9 +196,12 @@
   </div>
 </div>
 
-<div class="bp-card mb-8">
-  <h2 class="text-xl font-semibold text-bp-grey-900 mb-4">Auto Email Summary</h2>
-  <table class="bp-table w-full">
+<div class="bp-card p-4 mb-6">
+  <div class="flex items-center justify-between mb-2">
+    <h2 class="text-xl font-semibold text-bp-grey-900">Auto Email Summary</h2>
+    <a href="{{ url_for('meetings.email_settings', meeting_id=meeting.id) }}" class="bp-link text-sm">Edit</a>
+  </div>
+  <table class="bp-table w-full text-sm">
     <tbody>
     {% for t, _ in schedule.items() %}
       {% set s = settings.get(t) %}
