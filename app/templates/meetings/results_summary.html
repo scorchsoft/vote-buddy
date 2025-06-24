@@ -1,24 +1,38 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
-{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Stage 1 Results', None)]) }}
-<h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} - Stage 1 Results</h1>
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Results', None)]) }}
+<h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} - Results</h1>
 <p class="mb-4">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') if meeting.notice_date else 'N/A' }}</p>
 {% if meeting.extension_reason %}
 <p class="bp-alert-info mb-4">Extension reason: {{ meeting.extension_reason }}</p>
 {% endif %}
-<table class="bp-table w-full">
-  <thead>
-    <tr>
-      <th scope="col">Amendment</th>
-      <th scope="col">For</th>
-      <th scope="col">Against</th>
-      <th scope="col">Abstain</th>
-      <th scope="col">Outcome</th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for amend, counts in results %}
+<p class="mb-4">
+  <a href="{{ url_for('main.public_results_charts', meeting_id=meeting.id) }}" class="text-bp-blue underline" hx-boost="false" target="_blank">View charts</a>
+</p>
+{% if meeting.results_doc_published %}
+<p class="mb-4">
+  <a href="{{ url_for('meetings.results_stage2_docx', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block" download="final_results.docx" hx-boost="false">Download Certified Results</a>
+</p>
+{% endif %}
+<p class="mb-4">
+  <a href="{{ url_for('main.public_results_pdf', meeting_id=meeting.id) }}" class="bp-btn-secondary inline-block" download="final_results.pdf" hx-boost="false">Download PDF Summary</a>
+</p>
+<div class="space-y-8">
+  <div class="bp-card">
+    <h3 class="font-semibold mb-2">Stage 1 Amendments</h3>
+    <table class="bp-table w-full">
+      <thead>
+        <tr>
+          <th scope="col">Amendment</th>
+          <th scope="col">For</th>
+          <th scope="col">Against</th>
+          <th scope="col">Abstain</th>
+          <th scope="col">Outcome</th>
+        </tr>
+      </thead>
+      <tbody>
+  {% for amend, counts in stage1_results %}
     <tr class="border-t">
       <td class="p-2">{{ amend.text_md|markdown_to_html|safe }}</td>
       <td class="p-2 text-center">{{ counts.for }}</td>
@@ -39,7 +53,32 @@
     <tr><td colspan="5" class="p-2">No amendments.</td></tr>
   {% endfor %}
   </tbody>
-</table>
+    </table>
+  </div>
+  {% if stage2_results %}
+  <div class="bp-card">
+    <h3 class="font-semibold mb-2">Stage 2 Motions</h3>
+    <table class="bp-table w-full">
+      <thead>
+        <tr><th scope="col">Motion</th><th scope="col">For</th><th scope="col">Against</th><th scope="col">Abstain</th><th scope="col">Outcome</th></tr>
+      </thead>
+      <tbody>
+        {% for motion, counts in stage2_results %}
+        <tr class="border-t">
+          <td class="p-2">{{ motion.title }}</td>
+          <td class="p-2 text-center">{{ counts.for }}</td>
+          <td class="p-2 text-center">{{ counts.against }}</td>
+          <td class="p-2 text-center">{{ counts.abstain }}</td>
+          <td class="p-2 text-center">{{ motion.status|capitalize }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="p-2">No motions.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
 <h2 class="font-bold text-bp-blue mt-6">Members</h2>
 <table class="bp-table w-full mt-2">
   <thead>
