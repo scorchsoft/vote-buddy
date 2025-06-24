@@ -248,6 +248,12 @@ class Motion(db.Model):
     withdrawal_requested_at = db.Column(db.DateTime)
     chair_approved_at = db.Column(db.DateTime)
     board_approved_at = db.Column(db.DateTime)
+    proposer_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
+    board_proposed = db.Column(db.Boolean, default=False)
+    board_seconded = db.Column(db.Boolean, default=False)
+    proposer = db.relationship("Member", foreign_keys=[proposer_id])
+    seconder = db.relationship("Member", foreign_keys=[seconder_id])
     options = db.relationship("MotionOption", backref="motion")
 
 
@@ -404,6 +410,7 @@ class Amendment(db.Model):
     proposer_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     board_seconded = db.Column(db.Boolean, default=False)
+    board_proposed = db.Column(db.Boolean, default=False)
     tie_break_method = db.Column(db.String(20))
     seconded_at = db.Column(db.DateTime)
     seconded_method = db.Column(db.String(50))
@@ -609,6 +616,34 @@ class AmendmentSubmission(db.Model):
     email = db.Column(db.String(255))
     seconder_id = db.Column(db.Integer, db.ForeignKey("members.id"))
     text_md = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class MotionVersion(db.Model):
+    __tablename__ = "motion_versions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    motion_id = db.Column(db.Integer, db.ForeignKey("motions.id"), index=True)
+    title = db.Column(db.String(255))
+    text_md = db.Column(db.Text)
+    final_text_md = db.Column(db.Text)
+    proposer_id = db.Column(db.Integer)
+    seconder_id = db.Column(db.Integer)
+    board_proposed = db.Column(db.Boolean)
+    board_seconded = db.Column(db.Boolean)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class AmendmentVersion(db.Model):
+    __tablename__ = "amendment_versions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    amendment_id = db.Column(db.Integer, db.ForeignKey("amendments.id"), index=True)
+    text_md = db.Column(db.Text)
+    proposer_id = db.Column(db.Integer)
+    seconder_id = db.Column(db.Integer)
+    board_proposed = db.Column(db.Boolean)
+    board_seconded = db.Column(db.Boolean)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 

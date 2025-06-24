@@ -31,7 +31,9 @@ from ..models import (
     AppSetting,
     MeetingFile,
     EmailSetting,
-    EmailLog,
+    EmailLog,    
+    MotionVersion,
+    AmendmentVersion,
     MotionSubmission,
     AmendmentSubmission,
 )
@@ -49,6 +51,7 @@ from ..services.email import (
     _branding,
 )
 from ..services import runoff
+from ..services.audit import record_action
 from ..permissions import permission_required
 from .forms import (
     MeetingForm,
@@ -799,6 +802,100 @@ def list_motions(meeting_id: int):
         "meetings/motions_list.html",
         meeting=meeting,
         motions=motions,
+    )
+
+
+@bp.route("/<int:meeting_id>/motions/batch-edit", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def batch_edit_motions(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    motions = Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
+    amendments = Amendment.query.filter_by(meeting_id=meeting.id).order_by(Amendment.order).all()
+    members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
+    if request.method == "POST":
+        for motion in motions:
+            prefix = f"motion-{motion.id}-"
+            if request.form.get(prefix + "title") is not None:
+                db.session.add(
+                    MotionVersion(
+                        motion_id=motion.id,
+                        title=motion.title,
+                        text_md=motion.text_md,
+                        final_text_md=motion.final_text_md,
+                        proposer_id=motion.proposer_id,
+                        seconder_id=motion.seconder_id,
+                        board_proposed=motion.board_proposed,
+                        board_seconded=motion.board_seconded,
+                    )
+                )
+                motion.title = request.form.get(prefix + "title")
+                motion.text_md = request.form.get(prefix + "text_md")
+                motion.final_text_md = request.form.get(prefix + "final_text_md")
+                motion.proposer_id = request.form.get(prefix + "proposer_id") or None
+                motion.seconder_id = request.form.get(prefix + "seconder_id") or None
+                motion.board_proposed = bool(request.form.get(prefix + "board_proposed"))
+                motion.board_seconded = bool(request.form.get(prefix + "board_seconded"))
+        for amend in amendments:
+            prefix = f"amend-{amend.id}-"
+            if request.form.get(prefix + "text_md") is not None:
+                db.session.add(
+                    AmendmentVersion(
+                        amendment_id=amend.id,
+                        text_md=amend.text_md,
+                        proposer_id=amend.proposer_id,
+                        seconder_id=amend.seconder_id,
+                        board_proposed=amend.board_proposed,
+                        board_seconded=amend.board_seconded,
+                    )
+                )
+                amend.text_md = request.form.get(prefix + "text_md")
+                amend.proposer_id = request.form.get(prefix + "proposer_id") or None
+                amend.seconder_id = request.form.get(prefix + "seconder_id") or None
+                amend.board_proposed = bool(request.form.get(prefix + "board_proposed"))
+                amend.board_seconded = bool(request.form.get(prefix + "board_seconded"))
+        if request.form.get("new_motion_title"):
+            ordering = len(motions) + 1
+            m = Motion(
+                meeting_id=meeting.id,
+                title=request.form.get("new_motion_title"),
+                text_md=request.form.get("new_motion_text_md"),
+                final_text_md=request.form.get("new_motion_final_text_md") or None,
+                category=request.form.get("new_motion_category", "motion"),
+                threshold=request.form.get("new_motion_threshold", "normal"),
+                ordering=ordering,
+                proposer_id=request.form.get("new_motion_proposer_id") or None,
+                seconder_id=request.form.get("new_motion_seconder_id") or None,
+                board_proposed=bool(request.form.get("new_motion_board_proposed")),
+                board_seconded=bool(request.form.get("new_motion_board_seconded")),
+            )
+            db.session.add(m)
+        if request.form.get("new_amend_text_md"):
+            m_id = int(request.form.get("new_amend_motion_id"))
+            order = Amendment.query.filter_by(motion_id=m_id).count() + 1
+            a = Amendment(
+                meeting_id=meeting.id,
+                motion_id=m_id,
+                text_md=request.form.get("new_amend_text_md"),
+                order=order,
+                proposer_id=request.form.get("new_amend_proposer_id") or None,
+                seconder_id=request.form.get("new_amend_seconder_id") or None,
+                board_proposed=bool(request.form.get("new_amend_board_proposed")),
+                board_seconded=bool(request.form.get("new_amend_board_seconded")),
+            )
+            db.session.add(a)
+        db.session.commit()
+        record_action("batch_edit_motions", f"meeting_id={meeting.id}")
+        flash("Changes saved", "success")
+        return redirect(url_for("meetings.batch_edit_motions", meeting_id=meeting.id))
+    return render_template(
+        "meetings/batch_edit_motions.html",
+        meeting=meeting,
+        motions=motions,
+        amendments=amendments,
+        members=members,
     )
 
 

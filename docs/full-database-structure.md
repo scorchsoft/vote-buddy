@@ -87,6 +87,10 @@ This document summarises all tables and columns created by the Alembic migration
 | withdrawal_requested_at | DateTime | |
 | chair_approved_at | DateTime | |
 | board_approved_at | DateTime | |
+| proposer_id | Integer | FK `members.id` |
+| seconder_id | Integer | FK `members.id` |
+| board_proposed | Boolean | |
+| board_seconded | Boolean | |
 
 ### motion_options
 | Column | Type | Notes |
@@ -108,6 +112,7 @@ This document summarises all tables and columns created by the Alembic migration
 | proposer_id | Integer | FK `members.id` |
 | seconder_id | Integer | FK `members.id` |
 | board_seconded | Boolean | |
+| board_proposed | Boolean | |
 | tie_break_method | String(20) | |
 | seconded_at | DateTime | |
 | seconded_method | String(50) | |
@@ -204,3 +209,29 @@ This document summarises all tables and columns created by the Alembic migration
 | title | String(255) | |
 | description | Text | |
 | uploaded_at | DateTime | |
+
+### motion_versions
+| Column | Type | Notes |
+|-------|------|-------|
+| id | Integer | Primary key |
+| motion_id | Integer | FK `motions.id` |
+| title | String(255) | |
+| text_md | Text | |
+| final_text_md | Text | |
+| proposer_id | Integer | |
+| seconder_id | Integer | |
+| board_proposed | Boolean | |
+| board_seconded | Boolean | |
+| created_at | DateTime | |
+
+### amendment_versions
+| Column | Type | Notes |
+|-------|------|-------|
+| id | Integer | Primary key |
+| amendment_id | Integer | FK `amendments.id` |
+| text_md | Text | |
+| proposer_id | Integer | |
+| seconder_id | Integer | |
+| board_proposed | Boolean | |
+| board_seconded | Boolean | |
+| created_at | DateTime | |

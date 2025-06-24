@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
+{% block content %}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.list_motions', meeting_id=meeting.id)), ('Batch Edit', None)]) }}
+<h1 class="font-bold text-bp-blue mb-4">Batch Edit Motions & Amendments</h1>
+<form method="post" class="space-y-6">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+  {% for motion in motions %}
+  <div class="bp-card p-4 space-y-2">
+    <h2 class="font-semibold">Motion {{ loop.index }}</h2>
+    <input type="text" name="motion-{{ motion.id }}-title" value="{{ motion.title }}" class="border p-2 rounded w-full">
+    <textarea name="motion-{{ motion.id }}-text_md" class="border p-2 rounded w-full" rows="3">{{ motion.text_md }}</textarea>
+    <textarea name="motion-{{ motion.id }}-final_text_md" class="border p-2 rounded w-full" rows="3">{{ motion.final_text_md }}</textarea>
+    <div class="grid grid-cols-2 gap-2">
+      <select name="motion-{{ motion.id }}-proposer_id" class="border p-2 rounded">
+        <option value=""></option>
+        {% for mem in members %}
+        <option value="{{ mem.id }}" {% if motion.proposer_id==mem.id %}selected{% endif %}>{{ mem.name }}</option>
+        {% endfor %}
+      </select>
+      <select name="motion-{{ motion.id }}-seconder_id" class="border p-2 rounded">
+        <option value=""></option>
+        {% for mem in members %}
+        <option value="{{ mem.id }}" {% if motion.seconder_id==mem.id %}selected{% endif %}>{{ mem.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex items-center gap-4">
+      <label><input type="checkbox" name="motion-{{ motion.id }}-board_proposed" {% if motion.board_proposed %}checked{% endif %}> Board Added</label>
+      <label><input type="checkbox" name="motion-{{ motion.id }}-board_seconded" {% if motion.board_seconded %}checked{% endif %}> Board Seconded</label>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="bp-card p-4 space-y-2">
+    <h2 class="font-semibold">Add Motion</h2>
+    <input type="text" name="new_motion_title" placeholder="Title" class="border p-2 rounded w-full">
+    <textarea name="new_motion_text_md" class="border p-2 rounded w-full" rows="3" placeholder="Motion text"></textarea>
+    <textarea name="new_motion_final_text_md" class="border p-2 rounded w-full" rows="3" placeholder="Final text (optional)"></textarea>
+    <div class="grid grid-cols-2 gap-2">
+      <select name="new_motion_proposer_id" class="border p-2 rounded">
+        <option value=""></option>
+        {% for mem in members %}
+        <option value="{{ mem.id }}">{{ mem.name }}</option>
+        {% endfor %}
+      </select>
+      <select name="new_motion_seconder_id" class="border p-2 rounded">
+        <option value=""></option>
+        {% for mem in members %}
+        <option value="{{ mem.id }}">{{ mem.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex items-center gap-4">
+      <label><input type="checkbox" name="new_motion_board_proposed"> Board Added</label>
+      <label><input type="checkbox" name="new_motion_board_seconded"> Board Seconded</label>
+    </div>
+  </div>
+  {% for amend in amendments %}
+  <div class="bp-card p-4 space-y-2">
+    <h3 class="font-semibold">Amendment {{ amend.order }} (Motion {{ amend.motion.ordering }})</h3>
+    <textarea name="amend-{{ amend.id }}-text_md" class="border p-2 rounded w-full" rows="3">{{ amend.text_md }}</textarea>
+    <div class="grid grid-cols-2 gap-2">
+      <select name="amend-{{ amend.id }}-proposer_id" class="border p-2 rounded">
+        <option value=""></option>
+        {% for mem in members %}
+        <option value="{{ mem.id }}" {% if amend.proposer_id==mem.id %}selected{% endif %}>{{ mem.name }}</option>
+        {% endfor %}
+      </select>
+      <select name="amend-{{ amend.id }}-seconder_id" class="border p-2 rounded">
+        <option value=""></option>
+        {% for mem in members %}
+        <option value="{{ mem.id }}" {% if amend.seconder_id==mem.id %}selected{% endif %}>{{ mem.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex items-center gap-4">
+      <label><input type="checkbox" name="amend-{{ amend.id }}-board_proposed" {% if amend.board_proposed %}checked{% endif %}> Board Added</label>
+      <label><input type="checkbox" name="amend-{{ amend.id }}-board_seconded" {% if amend.board_seconded %}checked{% endif %}> Board Seconded</label>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="bp-card p-4 space-y-2">
+    <h3 class="font-semibold">Add Amendment</h3>
+    <select name="new_amend_motion_id" class="border p-2 rounded w-full">
+      {% for motion in motions %}
+      <option value="{{ motion.id }}">Motion {{ motion.ordering }}</option>
+      {% endfor %}
+    </select>
+    <textarea name="new_amend_text_md" class="border p-2 rounded w-full" rows="3" placeholder="Amendment text"></textarea>
+    <div class="grid grid-cols-2 gap-2">
+      <select name="new_amend_proposer_id" class="border p-2 rounded">
+        <option value=""></option>
+        {% for mem in members %}
+        <option value="{{ mem.id }}">{{ mem.name }}</option>
+        {% endfor %}
+      </select>
+      <select name="new_amend_seconder_id" class="border p-2 rounded">
+        <option value=""></option>
+        {% for mem in members %}
+        <option value="{{ mem.id }}">{{ mem.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex items-center gap-4">
+      <label><input type="checkbox" name="new_amend_board_proposed"> Board Added</label>
+      <label><input type="checkbox" name="new_amend_board_seconded"> Board Seconded</label>
+    </div>
+  </div>
+  <button type="submit" class="bp-btn-primary">Save Changes</button>
+</form>
+{% endblock %}
