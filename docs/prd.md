@@ -482,6 +482,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-10 – Fixed auto email toggle mismatch and compacted overview card.
 * 2025-06-24 – Results summary page now mirrors public view with charts and PDF link.
 * 2025-08-21 – Fixed amendment form ignoring selected motion on batch edit page.
+* 2025-08-22 – Fixed dark mode toggle when navigating via htmx.
 
 
 ---

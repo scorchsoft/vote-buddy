@@ -1,5 +1,5 @@
 // Modern Navigation JavaScript
-document.addEventListener('DOMContentLoaded', function() {
+function initNav() {
     // Mobile Navigation Toggle
     const navToggle = document.getElementById('nav-toggle');
     const navDrawerMobile = document.getElementById('nav-drawer-mobile');
@@ -272,4 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
     });
-});
+}
+
+document.addEventListener('DOMContentLoaded', initNav);
+document.body.addEventListener('htmx:load', initNav);
