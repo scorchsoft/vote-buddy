@@ -872,7 +872,13 @@ def batch_edit_motions(meeting_id: int):
             )
             db.session.add(m)
         if request.form.get("new_amend_text_md"):
-            m_id = int(request.form.get("new_amend_motion_id"))
+            motion_id_raw = request.form.get("new_amend_motion_id", "").strip()
+            if not motion_id_raw.isdigit():
+                flash("Select the motion this amendment applies to.", "error")
+                return redirect(
+                    url_for("meetings.batch_edit_motions", meeting_id=meeting.id)
+                )
+            m_id = int(motion_id_raw)
             order = Amendment.query.filter_by(motion_id=m_id).count() + 1
             a = Amendment(
                 meeting_id=meeting.id,

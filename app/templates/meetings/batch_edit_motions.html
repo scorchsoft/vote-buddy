@@ -7,7 +7,7 @@
 <div class="max-w-7xl mx-auto">
   <h1 class="font-bold text-bp-blue mb-6 text-2xl">Batch Edit Motions & Amendments</h1>
   
-  <form method="post" class="space-y-8">
+  <form method="post" class="space-y-8" hx-boost="false">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     
     <!-- Existing Motions Section -->
