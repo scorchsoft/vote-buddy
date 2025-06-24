@@ -1,9 +1,13 @@
 <tr>
-  <td style="background-color:#002D59;padding:12px 24px;color:white;text-align:center;">
-    {% if logo %}
-    <img src="{{ logo }}" alt="{{ site_title }}" style="height:40px;">
-    {% else %}
-    <strong>{{ site_title }}</strong>
-    {% endif %}
+  <td style="background: linear-gradient(135deg, #002D59 0%, #1a4480 100%); padding: 20px 24px; color: white; text-align: center; position: relative;">
+    <div style="position: relative; z-index: 2;">
+      {% if logo %}
+      <img src="{{ logo }}" alt="{{ site_title }}" style="height: 45px; vertical-align: middle;">
+      {% else %}
+      <h1 style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ site_title }}</h1>
+      {% endif %}
+    </div>
+    <!-- Decorative elements for email clients that support them -->
+    <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100%; background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%); pointer-events: none;"></div>
   </td>
 </tr>
