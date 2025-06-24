@@ -1421,3 +1421,25 @@ def test_import_members_rejects_duplicates():
                             "Duplicate email: alice@example.com", "error"
                         )
                         assert Member.query.count() == 1
+
+
+def test_batch_edit_requires_permission():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="Batch")
+        db.session.add(meeting)
+        db.session.commit()
+
+        with app.test_request_context(f"/meetings/{meeting.id}/motions/batch-edit"):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                meetings.batch_edit_motions(meeting.id)
+
+        with app.test_request_context(f"/meetings/{meeting.id}/motions/batch-edit"):
+            user = _make_user(False)
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.flash"):
+                    with pytest.raises(Forbidden):
+                        meetings.batch_edit_motions(meeting.id)

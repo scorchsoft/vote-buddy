@@ -85,12 +85,19 @@
                  alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
             Edit Meeting
           </a>
-          <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}" 
+          <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}"
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
-            <img src="{{ url_for('static', filename='icons/how_to_vote_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" 
+            <img src="{{ url_for('static', filename='icons/how_to_vote_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
                  alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
             View Motions
+          </a>
+          <a href="{{ url_for('meetings.batch_edit_motions', meeting_id=meeting.id) }}"
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/settings_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Batch Edit Motions
           </a>
           <a href="{{ url_for('meetings.clone_meeting', meeting_id=meeting.id) }}" 
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
