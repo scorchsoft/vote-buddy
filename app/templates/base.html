@@ -259,7 +259,7 @@
                 <li><a href="{{ url_for('main.results_index') }}" class="hover:underline opacity-90 hover:opacity-100">Results Archive</a></li>
                 <li><a href="{{ url_for('api.api_docs') }}" class="hover:underline opacity-90 hover:opacity-100">API Docs</a></li>
                 {% if not current_user.is_authenticated %}
-                <li><a href="{{ url_for('auth.login') }}" class="hover:underline opacity-90 hover:opacity-100">Admin Login</a></li>
+                <li><a href="{{ url_for('auth.login') }}" class="bp-btn-secondary inline-block">Admin Login</a></li>
                 {% endif %}
               </ul>
             </div>
