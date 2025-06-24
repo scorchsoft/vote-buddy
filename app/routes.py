@@ -41,7 +41,8 @@ bp = Blueprint('main', __name__)
 
 @bp.route('/')
 def index():
-    return render_template('index.html')
+    has_results = Meeting.query.filter_by(public_results=True).first() is not None
+    return render_template('index.html', has_results=has_results)
 
 
 @bp.route('/results')
