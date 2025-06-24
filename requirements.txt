@@ -19,3 +19,4 @@ Faker==37.4.0
 PyYAML==6.0
 reportlab==4.4.2
 Pillow==11.2.1
+matplotlib==3.10.3
