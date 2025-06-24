@@ -201,7 +201,12 @@ def generate_results_pdf(meeting, stage1_results, stage2_results) -> bytes:
         TableStyle,
         Paragraph,
         Spacer,
+        Image,
+        PageBreak,
     )
+    from reportlab.lib.units import inch
+    from matplotlib import pyplot as plt
+    from .voting.routes import compile_motion_text
     import io
 
     buf = io.BytesIO()
@@ -255,6 +260,63 @@ def generate_results_pdf(meeting, stage1_results, stage2_results) -> bytes:
         )
     )
     story.append(table2)
+
+    # Charts section
+    def make_chart(title: str, counts: dict[str, int]):
+        fig, axes = plt.subplots(1, 3, figsize=(6, 2))
+        for label, ax in zip(["Count", "Share", "Effective"], axes):
+            values = [counts.get("for", 0), counts.get("against", 0), counts.get("abstain", 0)]
+            labels = ["For", "Against", "Abstain"]
+            colors_ = ["#00b894", "#d63031", "#fdcb6e"]
+            if label == "Share" or label == "Effective":
+                total = sum(values)
+                if label == "Effective":
+                    total -= values[2]
+                total = total or 1
+                values = [v / total * 100 for v in values]
+                ax.set_ylim(0, 100)
+            ax.bar(labels[: len(values)], values[: len(labels)], color=colors_[: len(values)])
+            ax.set_title(label)
+        fig.suptitle(title, fontsize=10)
+        buf_img = io.BytesIO()
+        fig.tight_layout()
+        fig.savefig(buf_img, format="png")
+        plt.close(fig)
+        buf_img.seek(0)
+        return buf_img
+
+    story.append(PageBreak())
+    story.append(Paragraph("Charts", styles["Heading2"]))
+    story.append(Paragraph("Stage 1 Amendments", styles["Heading3"]))
+    for amend, counts in stage1_results:
+        title = (getattr(amend, "text_md", "") or "").splitlines()[0][:40]
+        img_buf = make_chart(title, counts)
+        story.append(Image(img_buf, width=6 * inch, height=2 * inch))
+        story.append(Spacer(1, 12))
+
+    story.append(Paragraph("Stage 2 Motions", styles["Heading3"]))
+    for motion, counts in stage2_results:
+        title = getattr(motion, "title", "")
+        img_buf = make_chart(title, counts)
+        story.append(Image(img_buf, width=6 * inch, height=2 * inch))
+        story.append(Spacer(1, 12))
+
+    # Appendices with final motion text
+    story.append(PageBreak())
+    story.append(Paragraph("Appendix: Final Motions", styles["Heading2"]))
+    for motion, _ in stage2_results:
+        story.append(Paragraph(motion.title, styles["Heading3"]))
+        text = getattr(motion, "final_text_md", None)
+        if text is None and hasattr(motion, "id"):
+            try:
+                text = compile_motion_text(motion)
+            except Exception:
+                text = getattr(motion, "text_md", "")
+        elif text is None:
+            text = getattr(motion, "text_md", "")
+        html = str(markdown_to_html(text or ""))
+        story.append(Paragraph(html, styles["Normal"]))
+        story.append(Spacer(1, 12))
 
     doc.build(story)
     return buf.getvalue()
