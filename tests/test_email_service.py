@@ -11,6 +11,7 @@ from app.services.email import (
     send_runoff_invite,
     send_stage1_reminder,
     send_stage2_invite,
+    send_review_invite,
     send_vote_receipt,
     send_quorum_failure,
     send_final_results,
@@ -268,3 +269,24 @@ def test_invite_includes_notice_text():
                 send_vote_invite(member, 'tok', meeting, test_mode=False)
                 sent = mock_send.call_args[0][0]
                 assert 'This is the **notice**' in sent.body
+
+
+def test_send_review_invite_links():
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['MAIL_SUPPRESS_SEND'] = True
+    app.config['TOKEN_SALT'] = 's'
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='AGM')
+        db.session.add(meeting)
+        member = Member(name='Zoe', email='z@example.com', meeting_id=1)
+        db.session.add(member)
+        db.session.commit()
+        with app.test_request_context('/'):
+            with patch.object(mail, 'send') as mock_send:
+                send_review_invite(member, meeting, test_mode=False)
+                mock_send.assert_called_once()
+                sent = mock_send.call_args[0][0]
+                assert '/public/meetings/1' in sent.body
+                assert '/submit/' in sent.body

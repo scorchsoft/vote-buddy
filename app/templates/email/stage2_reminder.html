@@ -1,31 +1,120 @@
-<table width="600" style="font-family:Gotham,Arial,Helvetica Neue,sans-serif;font-size:16px;line-height:1.4;color:#3F4854;margin:0 auto;">
+<table width="600" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #2d3748; margin: 0 auto; background-color: #f7fafc; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
   {% include 'email/_brand_header.html' %}
+  
+  <!-- Main Content -->
   <tr>
-    <td style="padding:24px;background-color:#FFFFFF;">
-      <p>Hello {{ member.name }},</p>
-      <p>This is a reminder to vote in <strong>{{ meeting.title }}</strong>.</p>
+    <td style="padding: 0; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);">
+      <!-- Stage 2 Reminder Header -->
+      <div style="padding: 24px 32px 0 32px; text-align: center;">
+        <div style="background: linear-gradient(135deg, #fbb6ce 0%, #f687b3 100%); display: inline-block; padding: 8px 20px; border-radius: 20px; margin-bottom: 16px;">
+          <span style="font-size: 14px; font-weight: 600; color: #744210;">⏰ STAGE 2 REMINDER</span>
+        </div>
+      </div>
+
+      <!-- Welcome Section -->
+      <div style="padding: 16px 32px 24px 32px; text-align: center;">
+        <h2 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 600; color: #1a202c;">Hello {{ member.name }}!</h2>
+        <p style="margin: 0 0 20px 0; font-size: 18px; color: #4a5568; line-height: 1.5;">Don't miss your chance to vote in Stage 2 of <strong style="color: #2d3748;">{{ meeting.title }}</strong></p>
+      </div>
+
       {% if summary %}
-      <div style="border:1px solid #F7F7F9;border-radius:16px;padding:12px;margin:16px 0;">
-        {{ summary|markdown_to_html|safe }}
+      <!-- Stage 1 Results Summary -->
+      <div style="margin: 0 32px 24px 32px; padding: 24px; background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%); border-left: 4px solid #38b2ac; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #234e52;">📋 Stage 1 Results Recap</h3>
+        <div style="color: #2d3748; line-height: 1.6; background: #ffffff; padding: 16px; border-radius: 6px; border: 1px solid rgba(56, 178, 172, 0.2);">
+          {{ summary|markdown_to_html|safe }}
+        </div>
       </div>
       {% elif results_link %}
-      <p>See Stage&nbsp;1 results: <a href="{{ results_link }}">{{ results_link }}</a></p>
+      <!-- Stage 1 Results Link -->
+      <div style="margin: 0 32px 24px 32px; padding: 20px; background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%); border-left: 4px solid #38b2ac; border-radius: 8px; text-align: center;">
+        <p style="margin: 0 0 12px 0; color: #234e52; font-weight: 600;">📊 Review Stage 1 Results</p>
+        <a href="{{ results_link }}" style="display: inline-block; background: linear-gradient(135deg, #38b2ac 0%, #319795 100%); color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 14px;">View Results</a>
+      </div>
       {% endif %}
+
+      <!-- Urgency Indicator -->
+      <div style="margin: 0 32px 24px 32px; padding: 20px; background: linear-gradient(135deg, #fed7d7 0%, #fbb6ce 100%); border-left: 4px solid #e53e3e; border-radius: 8px; text-align: center;">
+        <p style="margin: 0; color: #742a2a; font-weight: 600; font-size: 16px;">
+          ⚡ <strong>Stage 2 Closing Soon:</strong> Your vote is crucial for the final outcome!
+        </p>
+      </div>
+
       {% if test_mode %}
-      <p style="color:#DC0714;"><strong>TEST MODE:</strong> votes cast using this link will be recorded as test data.</p>
+      <!-- Test Mode Warning -->
+      <div style="margin: 0 32px 24px 32px; padding: 16px; background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%); border-left: 4px solid #e53e3e; border-radius: 8px;">
+        <p style="margin: 0; color: #742a2a; font-weight: 600; font-size: 14px;">
+          ⚠️ <strong>TEST MODE:</strong> Votes cast using this link will be recorded as test data only.
+        </p>
+      </div>
       {% endif %}
-      <p style="text-align:center;margin:32px 0;">
-        <a href="{{ link }}" style="background-color:#DC0714;color:#FFFFFF;padding:12px 24px;text-decoration:none;border-radius:4px;display:inline-block;">Cast your vote</a>
-      </p>
-      <p>If the button does not work, copy this link into your browser:</p>
-      <p>{{ link }}</p>
+
+      <!-- Stage 2 Context -->
+      <div style="padding: 0 32px 24px 32px;">
+        <div style="background: linear-gradient(135deg, #ebf8ff 0%, #dbeafe 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #3182ce;">
+          <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600; color: #2a4365;">🎯 Why Stage 2 Matters</h3>
+          <p style="margin: 0; color: #2d3748; line-height: 1.5; font-size: 14px;">
+            Stage 2 builds on Stage 1 results to make final decisions. Your participation ensures the best outcomes for our community.
+          </p>
+        </div>
+      </div>
+
+      <!-- Call to Action Section -->
+      <div style="padding: 32px; text-align: center;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2px; border-radius: 50px; display: inline-block; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+          <a href="{{ link }}" style="display: inline-block; background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%); color: #ffffff; padding: 18px 45px; text-decoration: none; border-radius: 48px; font-weight: 700; font-size: 18px; letter-spacing: 0.5px; transition: all 0.3s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+            🗳️ Cast Stage 2 Vote Now
+          </a>
+        </div>
+        <p style="margin: 20px 0 0 0; color: #718096; font-size: 14px;">Final Stage • Time-Sensitive • Important</p>
+      </div>
+
+      <!-- Alternative Access Section -->
+      <div style="padding: 0 32px 24px 32px;">
+        <div style="background: #edf2f7; padding: 20px; border-radius: 8px; text-align: center;">
+          <p style="margin: 0 0 12px 0; color: #4a5568; font-size: 14px; font-weight: 500;">Button not working? Copy this link:</p>
+          <div style="background: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e0; word-break: break-all; font-family: 'Monaco', 'Menlo', monospace; font-size: 12px; color: #2d3748;">
+            {{ link }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Already Voted Section -->
+      <div style="padding: 0 32px 32px 32px;">
+        <div style="background: #f0fff4; padding: 20px; border-radius: 8px; border-left: 3px solid #38a169; text-align: center;">
+          <p style="margin: 0; color: #276749; font-size: 14px;">
+            <strong>✅ Already Voted in Stage 2?</strong><br>
+            Excellent! You can safely ignore this reminder. Thank you for your continued participation.
+          </p>
+        </div>
+      </div>
     </td>
   </tr>
+  
+  <!-- Footer -->
   <tr>
-    <td style="background-color:#F7F7F9;padding:12px 24px;font-size:14px;color:#3F4854;">
-      <p style="margin:0;">Voting assistance: <a href="mailto:support@example.com">support@example.com</a></p>
-      <p style="margin:0;">Voting help: <a href="{{ url_for('help.show_help', _external=True) }}">Help page</a></p>
-      <p style="margin:0;">Company No. 12345678 · <a href="{{ unsubscribe_url }}">Unsubscribe</a> · <a href="{{ resubscribe_url }}">Resubscribe</a></p>
+    <td style="background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%); padding: 24px 32px; color: #e2e8f0;">
+      <div style="text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.2); padding-bottom: 16px; margin-bottom: 16px;">
+        <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #ffffff;">Need Help?</h3>
+      </div>
+      <div style="display: table; width: 100%; font-size: 14px;">
+        <div style="display: table-cell; width: 33.33%; text-align: center; padding: 0 8px;">
+          <strong style="color: #cbd5e0;">📧 Email Support</strong><br>
+          <a href="mailto:support@example.com" style="color: #90cdf4; text-decoration: none;">support@example.com</a>
+        </div>
+        <div style="display: table-cell; width: 33.33%; text-align: center; padding: 0 8px; border-left: 1px solid rgba(226, 232, 240, 0.2); border-right: 1px solid rgba(226, 232, 240, 0.2);">
+          <strong style="color: #cbd5e0;">❓ Help Center</strong><br>
+          <a href="{{ url_for('help.show_help', _external=True) }}" style="color: #90cdf4; text-decoration: none;">Voting Guide</a>
+        </div>
+        <div style="display: table-cell; width: 33.33%; text-align: center; padding: 0 8px;">
+          <strong style="color: #cbd5e0;">⚖️ Company Info</strong><br>
+          <span style="color: #a0aec0;">No. 12345678</span>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(226, 232, 240, 0.2); font-size: 12px; color: #a0aec0;">
+        <a href="{{ unsubscribe_url }}" style="color: #90cdf4; text-decoration: none; margin: 0 8px;">Unsubscribe</a> • 
+        <a href="{{ resubscribe_url }}" style="color: #90cdf4; text-decoration: none; margin: 0 8px;">Resubscribe</a>
+      </div>
     </td>
   </tr>
 </table>

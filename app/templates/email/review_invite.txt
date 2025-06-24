@@ -1,0 +1,11 @@
+Dear {{ member.name }},
+
+The draft motions for {{ meeting.title }} are now online for review. You may comment on them and submit amendments if appropriate.
+
+View motions: {{ review_url }}
+Submit amendment: {{ link }}
+
+Need help? {{ url_for('help.show_help', _external=True) }}
+
+To stop these emails, visit {{ unsubscribe_url }}
+To start them again later, visit {{ resubscribe_url }}

@@ -1,30 +1,109 @@
-<table width="600" style="font-family:Gotham,Arial,Helvetica Neue,sans-serif;font-size:16px;line-height:1.4;color:#3F4854;margin:0 auto;">
+<table width="600" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #2d3748; margin: 0 auto; background-color: #f7fafc; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
   {% include 'email/_brand_header.html' %}
+  
+  <!-- Main Content -->
   <tr>
-    <td style="padding:24px;background-color:#FFFFFF;">
-      <p>Hello {{ member.name }},</p>
-      <p>You are invited to vote in <strong>{{ meeting.title }}</strong>.</p>
+    <td style="padding: 0; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);">
+      <!-- Welcome Section -->
+      <div style="padding: 32px 32px 24px 32px;">
+        <h2 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 600; color: #1a202c;">Hello {{ member.name }}! 👋</h2>
+        <p style="margin: 0 0 20px 0; font-size: 18px; color: #4a5568; line-height: 1.5;">You're invited to participate in <strong style="color: #2d3748;">{{ meeting.title }}</strong></p>
+      </div>
+
       {% if notice_html %}
-      <div>{{ notice_html|safe }}</div>
+      <!-- Meeting Notice Section -->
+      <div style="margin: 0 32px 24px 32px; padding: 20px; background: linear-gradient(135deg, #ebf8ff 0%, #e6fffa 100%); border-left: 4px solid #3182ce; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="color: #2d3748; line-height: 1.6;">{{ notice_html|safe }}</div>
+      </div>
       {% endif %}
-      <p>This link is unique to you. For an overview of how online voting works, see <a href="{{ url_for('help.show_help', _external=True) }}">the voting help page</a>.</p>
+
+      <!-- Information Section -->
+      <div style="padding: 0 32px 24px 32px;">
+        <div style="background: #f7fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <p style="margin: 0 0 12px 0; color: #4a5568; line-height: 1.5;">
+            <strong style="color: #2d3748;">🔐 Your Personal Voting Link</strong><br>
+            This secure link is unique to you. For guidance on online voting, visit our <a href="{{ url_for('help.show_help', _external=True) }}" style="color: #3182ce; text-decoration: none; font-weight: 500;">voting help page</a>.
+          </p>
+        </div>
+      </div>
+
       {% if test_mode %}
-      <p style="color:#DC0714;"><strong>TEST MODE:</strong> votes cast using this link will be recorded as test data.</p>
+      <!-- Test Mode Warning -->
+      <div style="margin: 0 32px 24px 32px; padding: 16px; background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%); border-left: 4px solid #e53e3e; border-radius: 8px;">
+        <p style="margin: 0; color: #742a2a; font-weight: 600; font-size: 14px;">
+          ⚠️ <strong>TEST MODE:</strong> Votes cast using this link will be recorded as test data only.
+        </p>
+      </div>
       {% endif %}
-      <p style="text-align:center;margin:32px 0;">
-        <a href="{{ link }}" style="background-color:#DC0714;color:#FFFFFF;padding:12px 24px;text-decoration:none;border-radius:4px;display:inline-block;">Cast your vote</a>
-      </p>
-      <p>If the button does not work, copy this link into your browser:</p>
-      <p>{{ link }}</p>
-      <p>A calendar file showing the voting window is attached.</p>
-      <p>To object to a rejected amendment, visit <a href="{{ objection_link }}">this page</a>.</p>
+
+      <!-- Call to Action Section -->
+      <div style="padding: 32px; text-align: center;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2px; border-radius: 50px; display: inline-block; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+          <a href="{{ link }}" style="display: inline-block; background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 48px; font-weight: 600; font-size: 18px; letter-spacing: 0.5px; transition: all 0.3s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+            🗳️ Cast Your Vote
+          </a>
+        </div>
+        <p style="margin: 20px 0 0 0; color: #718096; font-size: 14px;">Secure • Confidential • Easy</p>
+      </div>
+
+      <!-- Alternative Access Section -->
+      <div style="padding: 0 32px 24px 32px;">
+        <div style="background: #edf2f7; padding: 20px; border-radius: 8px; text-align: center;">
+          <p style="margin: 0 0 12px 0; color: #4a5568; font-size: 14px; font-weight: 500;">Button not working? Copy this link:</p>
+          <div style="background: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e0; word-break: break-all; font-family: 'Monaco', 'Menlo', monospace; font-size: 12px; color: #2d3748;">
+            {{ link }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Information -->
+      <div style="padding: 0 32px 32px 32px;">
+        <div style="display: table; width: 100%;">
+          <div style="display: table-cell; width: 50%; padding-right: 16px; vertical-align: top;">
+            <div style="background: #f0fff4; padding: 16px; border-radius: 8px; border-left: 3px solid #38a169;">
+              <p style="margin: 0; color: #276749; font-size: 14px;">
+                <strong>📅 Calendar Reminder</strong><br>
+                A calendar file is attached to help you remember the voting window.
+              </p>
+            </div>
+          </div>
+          <div style="display: table-cell; width: 50%; padding-left: 16px; vertical-align: top;">
+            <div style="background: #fffaf0; padding: 16px; border-radius: 8px; border-left: 3px solid #ed8936;">
+              <p style="margin: 0; color: #744210; font-size: 14px;">
+                <strong>📝 Amendment Objections</strong><br>
+                <a href="{{ objection_link }}" style="color: #c05621; text-decoration: none; font-weight: 500;">Submit objections here</a> if needed.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </td>
   </tr>
+  
+  <!-- Footer -->
   <tr>
-    <td style="background-color:#F7F7F9;padding:12px 24px;font-size:14px;color:#3F4854;">
-      <p style="margin:0;">Voting assistance: <a href="mailto:support@example.com">support@example.com</a></p>
-      <p style="margin:0;">Voting help: <a href="{{ url_for('help.show_help', _external=True) }}">Help page</a></p>
-      <p style="margin:0;">Company No. 12345678 · <a href="{{ unsubscribe_url }}">Unsubscribe</a> · <a href="{{ resubscribe_url }}">Resubscribe</a></p>
+    <td style="background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%); padding: 24px 32px; color: #e2e8f0;">
+      <div style="text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.2); padding-bottom: 16px; margin-bottom: 16px;">
+        <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #ffffff;">Need Help?</h3>
+      </div>
+      <div style="display: table; width: 100%; font-size: 14px;">
+        <div style="display: table-cell; width: 33.33%; text-align: center; padding: 0 8px;">
+          <strong style="color: #cbd5e0;">📧 Email Support</strong><br>
+          <a href="mailto:support@example.com" style="color: #90cdf4; text-decoration: none;">support@example.com</a>
+        </div>
+        <div style="display: table-cell; width: 33.33%; text-align: center; padding: 0 8px; border-left: 1px solid rgba(226, 232, 240, 0.2); border-right: 1px solid rgba(226, 232, 240, 0.2);">
+          <strong style="color: #cbd5e0;">❓ Help Center</strong><br>
+          <a href="{{ url_for('help.show_help', _external=True) }}" style="color: #90cdf4; text-decoration: none;">Voting Guide</a>
+        </div>
+        <div style="display: table-cell; width: 33.33%; text-align: center; padding: 0 8px;">
+          <strong style="color: #cbd5e0;">⚖️ Company Info</strong><br>
+          <span style="color: #a0aec0;">No. 12345678</span>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(226, 232, 240, 0.2); font-size: 12px; color: #a0aec0;">
+        <a href="{{ unsubscribe_url }}" style="color: #90cdf4; text-decoration: none; margin: 0 8px;">Unsubscribe</a> • 
+        <a href="{{ resubscribe_url }}" style="color: #90cdf4; text-decoration: none; margin: 0 8px;">Resubscribe</a>
+      </div>
     </td>
   </tr>
 </table>
