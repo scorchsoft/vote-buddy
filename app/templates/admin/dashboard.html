@@ -60,7 +60,7 @@
       <div class="bp-card hover:shadow-xl transition-all">
         <!-- Meeting Header - Title (Clickable) -->
         <div class="mb-4">
-          <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}" class="block">
+          <a href="{{ url_for('meetings.meeting_overview', meeting_id=meeting.id) }}" class="block">
             <h3 class="text-xl font-bold text-bp-grey-900 hover:text-bp-blue-600 transition-colors mb-2">{{ meeting.title }}</h3>
           </a>
           
