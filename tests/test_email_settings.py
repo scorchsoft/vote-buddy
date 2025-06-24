@@ -48,6 +48,8 @@ def test_email_schedule_two_stage_includes_stage2():
         )
         schedule = meetings_routes._email_schedule(meeting)
         assert set(schedule.keys()) == {
+            'submission_invite',
+            'review_invite',
             'stage1_invite',
             'stage1_reminder',
             'stage2_invite',
@@ -68,4 +70,9 @@ def test_email_schedule_combined_excludes_stage2():
             closes_at_stage1=now + timedelta(days=1),
         )
         schedule = meetings_routes._email_schedule(meeting)
-        assert set(schedule.keys()) == {'stage1_invite', 'stage1_reminder'}
+        assert set(schedule.keys()) == {
+            'submission_invite',
+            'review_invite',
+            'stage1_invite',
+            'stage1_reminder',
+        }

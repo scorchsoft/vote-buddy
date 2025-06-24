@@ -46,6 +46,7 @@ from ..services.email import (
     send_objection_confirmation,
     send_proxy_invite,
     send_submission_invite,
+    send_review_invite,
     send_stage1_reminder,
     auto_send_enabled,
     _branding,
@@ -176,6 +177,8 @@ def _email_schedule(meeting: Meeting) -> dict[str, datetime | None]:
     Only include emails relevant to the meeting's ballot mode.
     """
     schedule = {
+        "submission_invite": meeting.motions_opens_at,
+        "review_invite": meeting.amendments_opens_at,
         "stage1_invite": meeting.notice_date,
         "stage1_reminder": (
             meeting.closes_at_stage1
@@ -588,6 +591,9 @@ def list_members(meeting_id: int):
         "submission_invite": meeting.motions_opens_at
         and now >= meeting.motions_opens_at
         and (meeting.motions_closes_at is None or now <= meeting.motions_closes_at),
+        "review_invite": meeting.amendments_opens_at
+        and now >= meeting.amendments_opens_at
+        and (meeting.amendments_closes_at is None or now <= meeting.amendments_closes_at),
         "final_results": meeting.status == "Completed",
     }
 
@@ -1716,6 +1722,29 @@ def preview_email(meeting_id: int, email_type: str):
             test_mode=True,
             **branding,
         )
+    elif email_type == "submission_invite":
+        html = render_template(
+            "email/submission_invite.html",
+            member=member,
+            meeting=meeting,
+            link=url_for('submissions.submit_motion', token='preview', meeting_id=meeting.id, _external=True),
+            unsubscribe_url=unsubscribe,
+            resubscribe_url=resubscribe,
+            test_mode=True,
+            **branding,
+        )
+    elif email_type == "review_invite":
+        html = render_template(
+            "email/review_invite.html",
+            member=member,
+            meeting=meeting,
+            review_url=url_for('main.public_meeting_detail', meeting_id=meeting.id, _external=True),
+            link=url_for('submissions.submit_motion', token='preview', meeting_id=meeting.id, _external=True),
+            unsubscribe_url=unsubscribe,
+            resubscribe_url=resubscribe,
+            test_mode=True,
+            **branding,
+        )
     else:
         abort(404)
     return html
@@ -1809,6 +1838,8 @@ def manual_send_emails(meeting_id: int):
                 )
             elif form.email_type.data == "submission_invite":
                 send_submission_invite(member, meeting, test_mode=form.test_mode.data)
+            elif form.email_type.data == "review_invite":
+                send_review_invite(member, meeting, test_mode=form.test_mode.data)
 
         flash("Emails sent", "success")
         return redirect(url_for("meetings.results_summary", meeting_id=meeting.id))
@@ -2380,6 +2411,11 @@ def send_member_email(meeting_id: int, member_id: int, kind: str):
             abort(400)
         send_submission_invite(member, meeting)
         flash("Submission invite sent", "success")
+    elif kind == "review_invite":
+        if not within(meeting.amendments_opens_at, meeting.amendments_closes_at):
+            abort(400)
+        send_review_invite(member, meeting)
+        flash("Review invite sent", "success")
     elif kind == "final_results":
         if meeting.status != "Completed":
             abort(400)

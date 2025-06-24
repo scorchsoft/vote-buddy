@@ -787,6 +787,52 @@ def send_submission_invite(member: Member, meeting: Meeting, *, test_mode: bool 
     mail.send(msg)
     _log_email(member, meeting, 'submission_invite', test_mode)
 
+
+def send_review_invite(member: Member, meeting: Meeting, *, test_mode: bool = False) -> None:
+    """Invite members to review motions and submit amendments."""
+    if member.email_opt_out:
+        return
+    token_obj, plain = SubmissionToken.create(
+        member_id=member.id,
+        meeting_id=meeting.id,
+        salt=current_app.config["TOKEN_SALT"],
+    )
+    db.session.commit()
+    review_url = url_for('main.public_meeting_detail', meeting_id=meeting.id, _external=True)
+    link = url_for('submissions.submit_motion', token=plain, meeting_id=meeting.id, _external=True)
+    unsubscribe = _unsubscribe_url(member)
+    resubscribe = _resubscribe_url(member)
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + f"Review motions for {meeting.title}",
+        recipients=[member.email],
+        sender=_sender(),
+    )
+    branding = _branding()
+    msg.body = render_template(
+        'email/review_invite.txt',
+        member=member,
+        meeting=meeting,
+        review_url=review_url,
+        link=link,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        test_mode=test_mode,
+        **branding,
+    )
+    msg.html = render_template(
+        'email/review_invite.html',
+        member=member,
+        meeting=meeting,
+        review_url=review_url,
+        link=link,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        test_mode=test_mode,
+        **branding,
+    )
+    mail.send(msg)
+    _log_email(member, meeting, 'review_invite', test_mode)
+
 def send_password_reset(user: User, token: str, *, test_mode: bool = False) -> None:
     msg = Message(
         subject=("[TEST] " if test_mode else "") + "Reset your password",
