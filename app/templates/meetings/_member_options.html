@@ -1,3 +1,6 @@
 {% for m in members %}
-<option data-id="{{ m.id }}" value="{{ m.name }}"></option>
+<option
+  data-id="{{ m.id }}"
+  value="{{ m.name }}{% if m.member_number %} (#{{ m.member_number }}){% endif %} - {{ m.email }}"
+></option>
 {% endfor %}

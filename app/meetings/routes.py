@@ -814,7 +814,6 @@ def batch_edit_motions(meeting_id: int):
         abort(404)
     motions = Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
     amendments = Amendment.query.filter_by(meeting_id=meeting.id).order_by(Amendment.order).all()
-    members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
     if request.method == "POST":
         for motion in motions:
             prefix = f"motion-{motion.id}-"
@@ -895,7 +894,6 @@ def batch_edit_motions(meeting_id: int):
         meeting=meeting,
         motions=motions,
         amendments=amendments,
-        members=members,
     )
 
 
@@ -1265,7 +1263,14 @@ def member_search(meeting_id: int):
     q = request.args.get("q", "").strip()
     query = Member.query.filter_by(meeting_id=meeting.id)
     if q:
-        query = query.filter(Member.name.ilike(f"%{q}%"))
+        search = f"%{q}%"
+        query = query.filter(
+            db.or_(
+                Member.name.ilike(search),
+                Member.email.ilike(search),
+                Member.member_number.ilike(search),
+            )
+        )
     members = query.order_by(Member.name).limit(20).all()
     return render_template("meetings/_member_options.html", members=members)
 
