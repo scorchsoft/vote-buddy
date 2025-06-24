@@ -807,6 +807,12 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
   color: var(--bp-grey-600);
   border-bottom: 1px solid var(--bp-grey-100);
   cursor: default;
+  font-weight: 500;
+}
+
+.bp-dropdown-label:last-of-type {
+  border-bottom: 1px solid var(--bp-grey-200);
+  margin-bottom: 0.25rem;
 }
 
 .bp-dropdown:hover .bp-dropdown-menu,
@@ -822,6 +828,7 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
   color: var(--bp-grey-700);
   transition: all var(--transition-fast);
   border-bottom: 1px solid var(--bp-grey-100);
+  font-weight: 500;
 }
 
 .bp-dropdown-item:last-child {
@@ -832,6 +839,20 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
   background: var(--bp-grey-50);
   color: var(--bp-blue);
   padding-left: 1.25rem;
+}
+
+/* User dropdown specific styling */
+.bp-dropdown .bp-nav-link {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.bp-dropdown .bp-nav-link span {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Icon Library */

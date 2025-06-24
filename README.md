@@ -161,10 +161,17 @@ To run the development server directly on your machine, first install the requir
 ```bash
 FLASK_APP=app flask run --port 5555
 ```
+
 If the `flask` command is unavailable, use:
 
 ```bash
 python -m flask --app app run --port 5555
+```
+
+Or more simply if running locally where there may not be port conflicts:
+
+```bash
+python -m flask --app app run
 ```
 
 ### Generating demo data
