@@ -1,7 +1,13 @@
-Dear {{ member.name }},
+Hello {{ member.name }}!
 
-You may submit motions and amendments for {{ meeting.title }} online.
-Use the link below to send your proposal:
+You can now submit motions and amendments for {{ meeting.title }}.
 
-{{ link }}
-Need help? {{ url_for('help.show_help', _external=True) }}
+📝 SUBMIT YOUR PROPOSALS
+Use the secure link below to submit motions and amendments for consideration. Make sure your proposals are clear and concise - you can save drafts and return to edit them before the submission deadline.
+
+Submit your proposal: {{ link }}
+
+💡 Need help with the submission process?
+Visit our help guide: {{ url_for('help.show_help', _external=True) }}
+
+This secure link is unique to you. Please keep it confidential.

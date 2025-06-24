@@ -1,11 +1,15 @@
-Dear {{ member.name }},
+Hello {{ member.name }}!
 
-The draft motions for {{ meeting.title }} are now online for review. You may comment on them and submit amendments if appropriate.
+The draft motions for {{ meeting.title }} are now available for review.
 
-View motions: {{ review_url }}
-Submit amendment: {{ link }}
+📋 REVIEW & COMMENT
+Review the proposed motions and leave comments or propose amendments as needed. Take your time to carefully review all motions - you can return to add comments or propose amendments throughout the review period.
 
-Need help? {{ url_for('help.show_help', _external=True) }}
+👀 View motions: {{ review_url }}
+📝 Submit amendment: {{ link }}
 
-To stop these emails, visit {{ unsubscribe_url }}
-To start them again later, visit {{ resubscribe_url }}
+❓ Need help with the review process?
+Visit our help guide: {{ url_for('help.show_help', _external=True) }}
+
+To stop these emails, visit: {{ unsubscribe_url }}
+To start them again later, visit: {{ resubscribe_url }}
