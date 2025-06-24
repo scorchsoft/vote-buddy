@@ -7,7 +7,7 @@
   <td class="p-2">
     <form hx-post="{{ url_for('meetings.toggle_email_setting', meeting_id=meeting.id, email_type=email_type) }}" hx-target="closest tr" hx-swap="outerHTML">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-      <button type="submit" class="bp-btn-secondary">
+      <button type="submit" class="bp-btn-secondary {{ 'bg-green-500 text-white border-green-500' if (not setting) or setting.auto_send else 'bg-red-500 text-white border-red-500' }}">
         {{ 'On' if (not setting) or setting.auto_send else 'Off' }}
       </button>
     </form>
