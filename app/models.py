@@ -417,6 +417,7 @@ class Amendment(db.Model):
 
     proposer = db.relationship("Member", foreign_keys=[proposer_id])
     seconder = db.relationship("Member", foreign_keys=[seconder_id])
+    motion = db.relationship("Motion", backref="amendments")
 
     combined_from = db.relationship(
         "Amendment",
