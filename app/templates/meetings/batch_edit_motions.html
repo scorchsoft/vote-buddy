@@ -1,111 +1,423 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import breadcrumbs %}
+
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.list_motions', meeting_id=meeting.id)), ('Batch Edit', None)]) }}
-<h1 class="font-bold text-bp-blue mb-4">Batch Edit Motions & Amendments</h1>
-<form method="post" class="space-y-6">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-  {% for motion in motions %}
-  <div class="bp-card p-4 space-y-2">
-    <h2 class="font-semibold">Motion {{ loop.index }}</h2>
-    <input type="text" name="motion-{{ motion.id }}-title" value="{{ motion.title }}" class="border p-2 rounded w-full">
-    <textarea name="motion-{{ motion.id }}-text_md" class="border p-2 rounded w-full" rows="3">{{ motion.text_md }}</textarea>
-    <textarea name="motion-{{ motion.id }}-final_text_md" class="border p-2 rounded w-full" rows="3">{{ motion.final_text_md }}</textarea>
-    <div class="grid grid-cols-2 gap-2">
-      <select name="motion-{{ motion.id }}-proposer_id" class="border p-2 rounded">
-        <option value=""></option>
-        {% for mem in members %}
-        <option value="{{ mem.id }}" {% if motion.proposer_id==mem.id %}selected{% endif %}>{{ mem.name }}</option>
-        {% endfor %}
-      </select>
-      <select name="motion-{{ motion.id }}-seconder_id" class="border p-2 rounded">
-        <option value=""></option>
-        {% for mem in members %}
-        <option value="{{ mem.id }}" {% if motion.seconder_id==mem.id %}selected{% endif %}>{{ mem.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="flex items-center gap-4">
-      <label><input type="checkbox" name="motion-{{ motion.id }}-board_proposed" {% if motion.board_proposed %}checked{% endif %}> Board Added</label>
-      <label><input type="checkbox" name="motion-{{ motion.id }}-board_seconded" {% if motion.board_seconded %}checked{% endif %}> Board Seconded</label>
-    </div>
-  </div>
-  {% endfor %}
-  <div class="bp-card p-4 space-y-2">
-    <h2 class="font-semibold">Add Motion</h2>
-    <input type="text" name="new_motion_title" placeholder="Title" class="border p-2 rounded w-full">
-    <textarea name="new_motion_text_md" class="border p-2 rounded w-full" rows="3" placeholder="Motion text"></textarea>
-    <textarea name="new_motion_final_text_md" class="border p-2 rounded w-full" rows="3" placeholder="Final text (optional)"></textarea>
-    <div class="grid grid-cols-2 gap-2">
-      <select name="new_motion_proposer_id" class="border p-2 rounded">
-        <option value=""></option>
-        {% for mem in members %}
-        <option value="{{ mem.id }}">{{ mem.name }}</option>
-        {% endfor %}
-      </select>
-      <select name="new_motion_seconder_id" class="border p-2 rounded">
-        <option value=""></option>
-        {% for mem in members %}
-        <option value="{{ mem.id }}">{{ mem.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="flex items-center gap-4">
-      <label><input type="checkbox" name="new_motion_board_proposed"> Board Added</label>
-      <label><input type="checkbox" name="new_motion_board_seconded"> Board Seconded</label>
-    </div>
-  </div>
-  {% for amend in amendments %}
-  <div class="bp-card p-4 space-y-2">
-    <h3 class="font-semibold">Amendment {{ amend.order }} (Motion {{ amend.motion.ordering }})</h3>
-    <textarea name="amend-{{ amend.id }}-text_md" class="border p-2 rounded w-full" rows="3">{{ amend.text_md }}</textarea>
-    <div class="grid grid-cols-2 gap-2">
-      <select name="amend-{{ amend.id }}-proposer_id" class="border p-2 rounded">
-        <option value=""></option>
-        {% for mem in members %}
-        <option value="{{ mem.id }}" {% if amend.proposer_id==mem.id %}selected{% endif %}>{{ mem.name }}</option>
-        {% endfor %}
-      </select>
-      <select name="amend-{{ amend.id }}-seconder_id" class="border p-2 rounded">
-        <option value=""></option>
-        {% for mem in members %}
-        <option value="{{ mem.id }}" {% if amend.seconder_id==mem.id %}selected{% endif %}>{{ mem.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="flex items-center gap-4">
-      <label><input type="checkbox" name="amend-{{ amend.id }}-board_proposed" {% if amend.board_proposed %}checked{% endif %}> Board Added</label>
-      <label><input type="checkbox" name="amend-{{ amend.id }}-board_seconded" {% if amend.board_seconded %}checked{% endif %}> Board Seconded</label>
-    </div>
-  </div>
-  {% endfor %}
-  <div class="bp-card p-4 space-y-2">
-    <h3 class="font-semibold">Add Amendment</h3>
-    <select name="new_amend_motion_id" class="border p-2 rounded w-full">
+
+<div class="max-w-7xl mx-auto">
+  <h1 class="font-bold text-bp-blue mb-6 text-2xl">Batch Edit Motions & Amendments</h1>
+  
+  <form method="post" class="space-y-8">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    
+    <!-- Existing Motions Section -->
+    <div class="space-y-6">
       {% for motion in motions %}
-      <option value="{{ motion.id }}">Motion {{ motion.ordering }}</option>
+      {% set motion_amendments = amendments | selectattr('motion_id', 'equalto', motion.id) | list %}
+      
+      <div class="bp-card border-2 border-gray-200 dark:border-gray-700 overflow-hidden">
+        <!-- Motion Header -->
+        <div class="bg-gray-50 dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-3">
+              <span class="bg-bp-blue text-white px-3 py-1 rounded-full text-sm font-bold">Motion {{ loop.index }}</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ motion.title[:50] }}{% if motion.title|length > 50 %}...{% endif %}</span>
+            </h2>
+            <button type="button" 
+                    onclick="toggleSection('motion-{{ motion.id }}')" 
+                    class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+              <svg class="w-6 h-6 transform transition-transform" id="motion-{{ motion.id }}-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Motion Content -->
+        <div id="motion-{{ motion.id }}" class="p-6 space-y-6">
+          <!-- Motion Fields -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Motion Title
+              </label>
+              <input type="text" 
+                     name="motion-{{ motion.id }}-title" 
+                     value="{{ motion.title }}" 
+                     class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors"
+                     placeholder="Enter motion title">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Motion Text
+              </label>
+              <textarea name="motion-{{ motion.id }}-text_md" 
+                        class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors" 
+                        rows="4"
+                        placeholder="Enter motion text in markdown format">{{ motion.text_md }}</textarea>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Final Text (if amended)
+              </label>
+              <textarea name="motion-{{ motion.id }}-final_text_md" 
+                        class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors" 
+                        rows="4"
+                        placeholder="Enter final text after amendments (optional)">{{ motion.final_text_md }}</textarea>
+            </div>
+            
+            <!-- Proposer/Seconder Section -->
+            <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg space-y-4">
+              <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Proposer & Seconder</h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Proposer
+                  </label>
+                  <select name="motion-{{ motion.id }}-proposer_id" 
+                          class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors">
+                    <option value="">-- Select Proposer --</option>
+                    {% for mem in members %}
+                    <option value="{{ mem.id }}" {% if motion.proposer_id==mem.id %}selected{% endif %}>
+                      {{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Seconder
+                  </label>
+                  <select name="motion-{{ motion.id }}-seconder_id" 
+                          class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors">
+                    <option value="">-- Select Seconder --</option>
+                    {% for mem in members %}
+                    <option value="{{ mem.id }}" {% if motion.seconder_id==mem.id %}selected{% endif %}>
+                      {{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              
+              <div class="flex flex-wrap gap-4 pt-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" 
+                         name="motion-{{ motion.id }}-board_proposed" 
+                         {% if motion.board_proposed %}checked{% endif %}
+                         class="w-4 h-4 text-bp-blue rounded focus:ring-bp-blue">
+                  <span class="text-sm text-gray-700 dark:text-gray-300">Board Proposed</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" 
+                         name="motion-{{ motion.id }}-board_seconded" 
+                         {% if motion.board_seconded %}checked{% endif %}
+                         class="w-4 h-4 text-bp-blue rounded focus:ring-bp-blue">
+                  <span class="text-sm text-gray-700 dark:text-gray-300">Board Seconded</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Amendments for this Motion -->
+          {% if motion_amendments %}
+          <div class="mt-6 space-y-4">
+            <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              Amendments to this Motion
+            </h3>
+            
+            {% for amend in motion_amendments %}
+            <div class="ml-6 border-l-4 border-yellow-400 pl-6 space-y-3">
+              <div class="flex items-center gap-2">
+                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-semibold">Amendment {{ amend.order }}</span>
+                {% if amend.status %}
+                <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs">{{ amend.status }}</span>
+                {% endif %}
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Amendment Text
+                </label>
+                <textarea name="amend-{{ amend.id }}-text_md" 
+                          class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors" 
+                          rows="3"
+                          placeholder="Enter amendment text">{{ amend.text_md }}</textarea>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Amendment Proposer
+                  </label>
+                  <select name="amend-{{ amend.id }}-proposer_id" 
+                          class="border p-2 rounded-lg w-full text-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors">
+                    <option value="">-- Select Proposer --</option>
+                    {% for mem in members %}
+                    <option value="{{ mem.id }}" {% if amend.proposer_id==mem.id %}selected{% endif %}>
+                      {{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Amendment Seconder
+                  </label>
+                  <select name="amend-{{ amend.id }}-seconder_id" 
+                          class="border p-2 rounded-lg w-full text-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors">
+                    <option value="">-- Select Seconder --</option>
+                    {% for mem in members %}
+                    <option value="{{ mem.id }}" {% if amend.seconder_id==mem.id %}selected{% endif %}>
+                      {{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              
+              <div class="flex flex-wrap gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" 
+                         name="amend-{{ amend.id }}-board_proposed" 
+                         {% if amend.board_proposed %}checked{% endif %}
+                         class="w-4 h-4 text-yellow-400 rounded focus:ring-yellow-400">
+                  <span class="text-sm text-gray-700 dark:text-gray-300">Board Proposed</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" 
+                         name="amend-{{ amend.id }}-board_seconded" 
+                         {% if amend.board_seconded %}checked{% endif %}
+                         class="w-4 h-4 text-yellow-400 rounded focus:ring-yellow-400">
+                  <span class="text-sm text-gray-700 dark:text-gray-300">Board Seconded</span>
+                </label>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
       {% endfor %}
-    </select>
-    <textarea name="new_amend_text_md" class="border p-2 rounded w-full" rows="3" placeholder="Amendment text"></textarea>
-    <div class="grid grid-cols-2 gap-2">
-      <select name="new_amend_proposer_id" class="border p-2 rounded">
-        <option value=""></option>
-        {% for mem in members %}
-        <option value="{{ mem.id }}">{{ mem.name }}</option>
-        {% endfor %}
-      </select>
-      <select name="new_amend_seconder_id" class="border p-2 rounded">
-        <option value=""></option>
-        {% for mem in members %}
-        <option value="{{ mem.id }}">{{ mem.name }}</option>
-        {% endfor %}
-      </select>
     </div>
-    <div class="flex items-center gap-4">
-      <label><input type="checkbox" name="new_amend_board_proposed"> Board Added</label>
-      <label><input type="checkbox" name="new_amend_board_seconded"> Board Seconded</label>
+    
+    <!-- Add New Items Section -->
+    <div class="border-t-4 border-gray-300 dark:border-gray-600 pt-8 space-y-6">
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Add New Items
+      </h2>
+      
+      <!-- Add New Motion -->
+      <div class="bp-card border-2 border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20">
+        <div class="p-6 space-y-4">
+          <h3 class="font-semibold text-green-800 dark:text-green-300 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add New Motion
+          </h3>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Motion Title
+            </label>
+            <input type="text" 
+                   name="new_motion_title" 
+                   placeholder="Enter new motion title" 
+                   class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Motion Text
+            </label>
+            <textarea name="new_motion_text_md" 
+                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                      rows="3" 
+                      placeholder="Enter motion text in markdown format"></textarea>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Final Text (optional)
+            </label>
+            <textarea name="new_motion_final_text_md" 
+                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                      rows="3" 
+                      placeholder="Enter final text if different from original (optional)"></textarea>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Proposer
+              </label>
+              <select name="new_motion_proposer_id" 
+                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                <option value="">-- Select Proposer --</option>
+                {% for mem in members %}
+                <option value="{{ mem.id }}">{{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}</option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Seconder
+              </label>
+              <select name="new_motion_seconder_id" 
+                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                <option value="">-- Select Seconder --</option>
+                {% for mem in members %}
+                <option value="{{ mem.id }}">{{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          
+          <div class="flex flex-wrap gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" 
+                     name="new_motion_board_proposed"
+                     class="w-4 h-4 text-green-500 rounded focus:ring-green-500">
+              <span class="text-sm text-gray-700 dark:text-gray-300">Board Proposed</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" 
+                     name="new_motion_board_seconded"
+                     class="w-4 h-4 text-green-500 rounded focus:ring-green-500">
+              <span class="text-sm text-gray-700 dark:text-gray-300">Board Seconded</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Add New Amendment -->
+      <div class="bp-card border-2 border-yellow-200 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20">
+        <div class="p-6 space-y-4">
+          <h3 class="font-semibold text-yellow-800 dark:text-yellow-300 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add New Amendment
+          </h3>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Select Motion to Amend
+            </label>
+            <select name="new_amend_motion_id" 
+                    class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors">
+              <option value="">-- Select a Motion --</option>
+              {% for motion in motions %}
+              <option value="{{ motion.id }}">Motion {{ motion.ordering }}: {{ motion.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Amendment Text
+            </label>
+            <textarea name="new_amend_text_md" 
+                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors" 
+                      rows="3" 
+                      placeholder="Enter amendment text"></textarea>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Amendment Proposer
+              </label>
+              <select name="new_amend_proposer_id" 
+                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors">
+                <option value="">-- Select Proposer --</option>
+                {% for mem in members %}
+                <option value="{{ mem.id }}">{{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}</option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Amendment Seconder
+              </label>
+              <select name="new_amend_seconder_id" 
+                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors">
+                <option value="">-- Select Seconder --</option>
+                {% for mem in members %}
+                <option value="{{ mem.id }}">{{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          
+          <div class="flex flex-wrap gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" 
+                     name="new_amend_board_proposed"
+                     class="w-4 h-4 text-yellow-400 rounded focus:ring-yellow-400">
+              <span class="text-sm text-gray-700 dark:text-gray-300">Board Proposed</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" 
+                     name="new_amend_board_seconded"
+                     class="w-4 h-4 text-yellow-400 rounded focus:ring-yellow-400">
+              <span class="text-sm text-gray-700 dark:text-gray-300">Board Seconded</span>
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <button type="submit" class="bp-btn-primary">Save Changes</button>
-</form>
+    
+    <!-- Submit Button -->
+    <div class="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}" 
+         class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+        Cancel
+      </a>
+      <button type="submit" 
+              class="bp-btn-primary px-6 py-3 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        Save All Changes
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+function toggleSection(sectionId) {
+  const section = document.getElementById(sectionId);
+  const icon = document.getElementById(sectionId + '-icon');
+  
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+    icon.style.transform = 'rotate(0deg)';
+  } else {
+    section.style.display = 'none';
+    icon.style.transform = 'rotate(-90deg)';
+  }
+}
+
+// Initialize all sections as expanded
+document.addEventListener('DOMContentLoaded', function() {
+  {% for motion in motions %}
+  document.getElementById('motion-{{ motion.id }}').style.display = 'block';
+  {% endfor %}
+});
+</script>
 {% endblock %}
