@@ -31,9 +31,11 @@ from ..models import (
     AppSetting,
     MeetingFile,
     EmailSetting,
-    EmailLog,
+    EmailLog,    
     MotionVersion,
     AmendmentVersion,
+    MotionSubmission,
+    AmendmentSubmission,
 )
 from ..services.email import (
     send_vote_invite,
@@ -727,15 +729,17 @@ def meeting_files(meeting_id: int):
     )
 
 
-@bp.route("/<int:meeting_id>/motions")
+@bp.route("/<int:meeting_id>/meeting-overview")
 @login_required
 @permission_required("manage_meetings")
-def list_motions(meeting_id):
+def meeting_overview(meeting_id):
     meeting = db.session.get(Meeting, meeting_id)
     if meeting is None:
         abort(404)
     motions = (
-        Motion.query.filter_by(meeting_id=meeting.id).order_by(Motion.ordering).all()
+        Motion.query.filter_by(meeting_id=meeting.id)
+        .order_by(Motion.ordering)
+        .all()
     )
     amendments_count = Amendment.query.filter_by(meeting_id=meeting.id).count()
     votes_cast = meeting.stage1_votes_count()
@@ -754,8 +758,17 @@ def list_motions(meeting_id):
     timeline_end = max(dates) if dates else None
     schedule = _email_schedule(meeting)
     settings = {s.email_type: s for s in meeting.email_settings}
+    members_count = Member.query.filter_by(meeting_id=meeting.id).count()
+    pending_motions = MotionSubmission.query.filter_by(meeting_id=meeting.id).count()
+    pending_amendments = (
+        AmendmentSubmission.query.join(Motion, AmendmentSubmission.motion_id == Motion.id)
+        .filter(Motion.meeting_id == meeting.id)
+        .count()
+    )
+    files_count = MeetingFile.query.filter_by(meeting_id=meeting.id).count()
+
     return render_template(
-        "meetings/motions_list.html",
+        "meetings/meeting_overview.html",
         meeting=meeting,
         motions=motions,
         amendments_count=amendments_count,
@@ -766,6 +779,29 @@ def list_motions(meeting_id):
         schedule=schedule,
         settings=settings,
         now=datetime.utcnow(),
+        members_count=members_count,
+        pending_motions=pending_motions,
+        pending_amendments=pending_amendments,
+        files_count=files_count,
+    )
+
+
+@bp.route("/<int:meeting_id>/motions")
+@login_required
+@permission_required("manage_meetings")
+def list_motions(meeting_id: int):
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    motions = (
+        Motion.query.filter_by(meeting_id=meeting.id)
+        .order_by(Motion.ordering)
+        .all()
+    )
+    return render_template(
+        "meetings/motions_list.html",
+        meeting=meeting,
+        motions=motions,
     )
 
 

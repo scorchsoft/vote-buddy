@@ -12,7 +12,7 @@
         {% endif %}
       </div>
       <div>
-        <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}" 
+        <a href="{{ url_for('meetings.meeting_overview', meeting_id=meeting.id) }}"
            class="bp-link font-semibold text-lg hover:text-bp-blue-600 transition-colors">
           {{ meeting.title }}
         </a>
@@ -86,6 +86,7 @@
             Edit Meeting
           </a>
           <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}"
+          <a href="{{ url_for('meetings.meeting_overview', meeting_id=meeting.id) }}"
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
             <img src="{{ url_for('static', filename='icons/how_to_vote_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
