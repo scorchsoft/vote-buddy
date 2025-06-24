@@ -77,30 +77,36 @@
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Proposer
                   </label>
-                  <select name="motion-{{ motion.id }}-proposer_id" 
-                          class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors">
-                    <option value="">-- Select Proposer --</option>
-                    {% for mem in members %}
-                    <option value="{{ mem.id }}" {% if motion.proposer_id==mem.id %}selected{% endif %}>
-                      {{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}
-                    </option>
-                    {% endfor %}
-                  </select>
+                  <input type="text"
+                         id="motion-{{ motion.id }}-proposer-search"
+                         data-member-target="motion-{{ motion.id }}-proposer_id"
+                         value="{% if motion.proposer %}{{ motion.proposer.name }}{% if motion.proposer.member_number %} (#{{ motion.proposer.member_number }}){% endif %} - {{ motion.proposer.email }}{% endif %}"
+                         class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors"
+                         autocomplete="off"
+                         list="motion-{{ motion.id }}-proposer-options"
+                         hx-get="{{ url_for('meetings.member_search', meeting_id=meeting.id) }}"
+                         hx-target="#motion-{{ motion.id }}-proposer-options"
+                         hx-trigger="keyup changed delay:300ms">
+                  <datalist id="motion-{{ motion.id }}-proposer-options"></datalist>
+                  <input type="hidden" name="motion-{{ motion.id }}-proposer_id" id="motion-{{ motion.id }}-proposer_id" value="{{ motion.proposer_id or '' }}">
                 </div>
                 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Seconder
                   </label>
-                  <select name="motion-{{ motion.id }}-seconder_id" 
-                          class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors">
-                    <option value="">-- Select Seconder --</option>
-                    {% for mem in members %}
-                    <option value="{{ mem.id }}" {% if motion.seconder_id==mem.id %}selected{% endif %}>
-                      {{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}
-                    </option>
-                    {% endfor %}
-                  </select>
+                  <input type="text"
+                         id="motion-{{ motion.id }}-seconder-search"
+                         data-member-target="motion-{{ motion.id }}-seconder_id"
+                         value="{% if motion.seconder %}{{ motion.seconder.name }}{% if motion.seconder.member_number %} (#{{ motion.seconder.member_number }}){% endif %} - {{ motion.seconder.email }}{% endif %}"
+                         class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors"
+                         autocomplete="off"
+                         list="motion-{{ motion.id }}-seconder-options"
+                         hx-get="{{ url_for('meetings.member_search', meeting_id=meeting.id) }}"
+                         hx-target="#motion-{{ motion.id }}-seconder-options"
+                         hx-trigger="keyup changed delay:300ms">
+                  <datalist id="motion-{{ motion.id }}-seconder-options"></datalist>
+                  <input type="hidden" name="motion-{{ motion.id }}-seconder_id" id="motion-{{ motion.id }}-seconder_id" value="{{ motion.seconder_id or '' }}">
                 </div>
               </div>
               
@@ -157,30 +163,36 @@
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Amendment Proposer
                   </label>
-                  <select name="amend-{{ amend.id }}-proposer_id" 
-                          class="border p-2 rounded-lg w-full text-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors">
-                    <option value="">-- Select Proposer --</option>
-                    {% for mem in members %}
-                    <option value="{{ mem.id }}" {% if amend.proposer_id==mem.id %}selected{% endif %}>
-                      {{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}
-                    </option>
-                    {% endfor %}
-                  </select>
+                  <input type="text"
+                         id="amend-{{ amend.id }}-proposer-search"
+                         data-member-target="amend-{{ amend.id }}-proposer_id"
+                         value="{% if amend.proposer %}{{ amend.proposer.name }}{% if amend.proposer.member_number %} (#{{ amend.proposer.member_number }}){% endif %} - {{ amend.proposer.email }}{% endif %}"
+                         class="border p-2 rounded-lg w-full text-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors"
+                         autocomplete="off"
+                         list="amend-{{ amend.id }}-proposer-options"
+                         hx-get="{{ url_for('meetings.member_search', meeting_id=meeting.id) }}"
+                         hx-target="#amend-{{ amend.id }}-proposer-options"
+                         hx-trigger="keyup changed delay:300ms">
+                  <datalist id="amend-{{ amend.id }}-proposer-options"></datalist>
+                  <input type="hidden" name="amend-{{ amend.id }}-proposer_id" id="amend-{{ amend.id }}-proposer_id" value="{{ amend.proposer_id or '' }}">
                 </div>
                 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Amendment Seconder
                   </label>
-                  <select name="amend-{{ amend.id }}-seconder_id" 
-                          class="border p-2 rounded-lg w-full text-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors">
-                    <option value="">-- Select Seconder --</option>
-                    {% for mem in members %}
-                    <option value="{{ mem.id }}" {% if amend.seconder_id==mem.id %}selected{% endif %}>
-                      {{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}
-                    </option>
-                    {% endfor %}
-                  </select>
+                  <input type="text"
+                         id="amend-{{ amend.id }}-seconder-search"
+                         data-member-target="amend-{{ amend.id }}-seconder_id"
+                         value="{% if amend.seconder %}{{ amend.seconder.name }}{% if amend.seconder.member_number %} (#{{ amend.seconder.member_number }}){% endif %} - {{ amend.seconder.email }}{% endif %}"
+                         class="border p-2 rounded-lg w-full text-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors"
+                         autocomplete="off"
+                         list="amend-{{ amend.id }}-seconder-options"
+                         hx-get="{{ url_for('meetings.member_search', meeting_id=meeting.id) }}"
+                         hx-target="#amend-{{ amend.id }}-seconder-options"
+                         hx-trigger="keyup changed delay:300ms">
+                  <datalist id="amend-{{ amend.id }}-seconder-options"></datalist>
+                  <input type="hidden" name="amend-{{ amend.id }}-seconder_id" id="amend-{{ amend.id }}-seconder_id" value="{{ amend.seconder_id or '' }}">
                 </div>
               </div>
               
@@ -263,26 +275,34 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Proposer
               </label>
-              <select name="new_motion_proposer_id" 
-                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
-                <option value="">-- Select Proposer --</option>
-                {% for mem in members %}
-                <option value="{{ mem.id }}">{{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}</option>
-                {% endfor %}
-              </select>
+              <input type="text"
+                     id="new-motion-proposer-search"
+                     data-member-target="new_motion_proposer_id"
+                     class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                     autocomplete="off"
+                     list="new-motion-proposer-options"
+                     hx-get="{{ url_for('meetings.member_search', meeting_id=meeting.id) }}"
+                     hx-target="#new-motion-proposer-options"
+                     hx-trigger="keyup changed delay:300ms">
+              <datalist id="new-motion-proposer-options"></datalist>
+              <input type="hidden" name="new_motion_proposer_id" id="new_motion_proposer_id">
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Seconder
               </label>
-              <select name="new_motion_seconder_id" 
-                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
-                <option value="">-- Select Seconder --</option>
-                {% for mem in members %}
-                <option value="{{ mem.id }}">{{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}</option>
-                {% endfor %}
-              </select>
+              <input type="text"
+                     id="new-motion-seconder-search"
+                     data-member-target="new_motion_seconder_id"
+                     class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                     autocomplete="off"
+                     list="new-motion-seconder-options"
+                     hx-get="{{ url_for('meetings.member_search', meeting_id=meeting.id) }}"
+                     hx-target="#new-motion-seconder-options"
+                     hx-trigger="keyup changed delay:300ms">
+              <datalist id="new-motion-seconder-options"></datalist>
+              <input type="hidden" name="new_motion_seconder_id" id="new_motion_seconder_id">
             </div>
           </div>
           
@@ -341,26 +361,34 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Amendment Proposer
               </label>
-              <select name="new_amend_proposer_id" 
-                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors">
-                <option value="">-- Select Proposer --</option>
-                {% for mem in members %}
-                <option value="{{ mem.id }}">{{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}</option>
-                {% endfor %}
-              </select>
+              <input type="text"
+                     id="new-amend-proposer-search"
+                     data-member-target="new_amend_proposer_id"
+                     class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors"
+                     autocomplete="off"
+                     list="new-amend-proposer-options"
+                     hx-get="{{ url_for('meetings.member_search', meeting_id=meeting.id) }}"
+                     hx-target="#new-amend-proposer-options"
+                     hx-trigger="keyup changed delay:300ms">
+              <datalist id="new-amend-proposer-options"></datalist>
+              <input type="hidden" name="new_amend_proposer_id" id="new_amend_proposer_id">
             </div>
             
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Amendment Seconder
               </label>
-              <select name="new_amend_seconder_id" 
-                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors">
-                <option value="">-- Select Seconder --</option>
-                {% for mem in members %}
-                <option value="{{ mem.id }}">{{ mem.name }}{% if mem.member_number %} (#{{ mem.member_number }}){% endif %}</option>
-                {% endfor %}
-              </select>
+              <input type="text"
+                     id="new-amend-seconder-search"
+                     data-member-target="new_amend_seconder_id"
+                     class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors"
+                     autocomplete="off"
+                     list="new-amend-seconder-options"
+                     hx-get="{{ url_for('meetings.member_search', meeting_id=meeting.id) }}"
+                     hx-target="#new-amend-seconder-options"
+                     hx-trigger="keyup changed delay:300ms">
+              <datalist id="new-amend-seconder-options"></datalist>
+              <input type="hidden" name="new_amend_seconder_id" id="new_amend_seconder_id">
             </div>
           </div>
           
@@ -420,4 +448,5 @@ document.addEventListener('DOMContentLoaded', function() {
   {% endfor %}
 });
 </script>
+<script src="{{ url_for('static', filename='js/member_search.js') }}"></script>
 {% endblock %}
