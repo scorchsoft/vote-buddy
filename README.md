@@ -134,7 +134,7 @@ DATABASE_URL=postgresql+psycopg2://vote_buddy:<password>@localhost:5432/vote_bud
 3. Apply the migrations locally:
 
 ```bash
-flask db upgrade
+python -m flask --app app db upgrade
 ```
 
 From here you can continue with the remaining steps such as building the CSS and creating an admin account.
