@@ -1568,7 +1568,11 @@ def results_summary(meeting_id: int):
     meeting = db.session.get(Meeting, meeting_id)
     if meeting is None:
         abort(404)
-    results = _amendment_results(meeting)
+    stage1_results = _amendment_results(meeting)
+    stage2_results: list[tuple[Motion, dict]] = []
+    if meeting.status == "Completed":
+        stage2_results = _motion_results(meeting)
+
     stage = 2 if meeting.status in {"Stage 2", "Pending Stage 2"} else 1
     members = (
         Member.query.filter_by(meeting_id=meeting.id, is_test=False)
@@ -1597,7 +1601,8 @@ def results_summary(meeting_id: int):
     return render_template(
         "meetings/results_summary.html",
         meeting=meeting,
-        results=results,
+        stage1_results=stage1_results,
+        stage2_results=stage2_results,
         members=members,
         unused_proxy_tokens=unused_proxy_tokens,
         manual_email_mode=manual_email_mode,
