@@ -141,6 +141,14 @@
               {{ 'Unpublish Doc' if meeting.results_doc_published else 'Publish Doc' }}
             </button>
           </form>
+          {% if meeting.status == 'Completed' %}
+          <form action="{{ url_for('meetings.send_final_results_all', meeting_id=meeting.id) }}" method="post" class="flex-1">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="bp-btn-primary text-sm w-full" onclick="return confirm('Send final results to all members?');">
+              Email Final Results
+            </button>
+          </form>
+          {% endif %}
         </div>
       </div>
       {% endfor %}

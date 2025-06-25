@@ -2438,6 +2438,23 @@ def send_member_email(meeting_id: int, member_id: int, kind: str):
     return redirect(url_for("meetings.list_members", meeting_id=meeting.id))
 
 
+@bp.route("/<int:meeting_id>/send-final-results", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def send_final_results_all(meeting_id: int):
+    """Email certified results to all meeting members."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None or meeting.status != "Completed":
+        abort(404)
+
+    members = Member.query.filter_by(meeting_id=meeting.id).all()
+    for member in members:
+        send_final_results(member, meeting)
+
+    flash("Final results emailed", "success")
+    return redirect(url_for("meetings.meeting_overview", meeting_id=meeting.id))
+
+
 @bp.route("/<int:meeting_id>/proxy-tokens/<token>/resend", methods=["POST"])
 @login_required
 @permission_required("manage_meetings")
