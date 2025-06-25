@@ -6,6 +6,10 @@
     <title>{{ setting('site_title', 'VoteBuddy') }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ cache_bust }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dark.css') }}?v={{ cache_bust }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}?v={{ cache_bust }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}?v={{ cache_bust }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}?v={{ cache_bust }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}?v={{ cache_bust }}">
     <style>
       /* Light mode default */
       body {
