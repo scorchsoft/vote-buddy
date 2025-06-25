@@ -90,3 +90,18 @@ def test_nav_includes_ro_dashboard_when_authorized():
             with patch('flask_login.utils._get_user', return_value=user):
                 html = render_template('base.html')
                 assert 'RO Dashboard' in html
+
+
+def test_nav_includes_audit_log_for_root():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        perm = Permission(name='manage_users')
+        role = Role(name='Root', permissions=[perm])
+        db.session.add_all([perm, role])
+        db.session.commit()
+        user = User(email='root@example.com', role=role, is_active=True)
+        with app.test_request_context('/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = render_template('base.html')
+                assert 'Audit Log' in html
