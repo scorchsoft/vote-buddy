@@ -1,0 +1,132 @@
+    <div class="bp-dropdown relative inline-block text-left">
+      <button type="button" 
+              class="dropdown-trigger inline-flex items-center justify-center w-8 h-8 rounded-full text-bp-grey-400 hover:text-bp-grey-600 hover:bg-bp-grey-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bp-blue-500 transition-colors"
+              data-dropdown-target="meeting-{{ meeting.id }}"
+              aria-expanded="false" 
+              aria-haspopup="true">
+        <span class="sr-only">Open options menu for {{ meeting.title }}</span>
+        <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+        </svg>
+      </button>
+
+      <div id="meeting-{{ meeting.id }}" 
+           class="bp-dropdown-menu origin-top-right absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-bp-grey-100 focus:outline-none z-50"
+           role="menu" 
+           aria-orientation="vertical"
+           aria-hidden="true">
+        
+        <!-- Primary Actions -->
+        <div class="py-1" role="none">
+          <a href="{{ url_for('meetings.edit_meeting', meeting_id=meeting.id) }}" 
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/settings_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" 
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Edit Meeting
+          </a>
+          <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}"
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/how_to_vote_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            View Motions
+          </a>
+          <a href="{{ url_for('meetings.batch_edit_motions', meeting_id=meeting.id) }}"
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/settings_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Batch Edit Motions
+          </a>
+          <a href="{{ url_for('meetings.clone_meeting', meeting_id=meeting.id) }}"
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/content_copy_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Clone Meeting
+          </a>
+        </div>
+
+        <!-- Member Management -->
+        <div class="py-1" role="none">
+          <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}"
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/cloud_upload_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Import Members
+          </a>
+          <a href="{{ url_for('meetings.list_members', meeting_id=meeting.id) }}"
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/group_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            View Members
+          </a>
+          <a href="{{ url_for('meetings.manual_send_emails', meeting_id=meeting.id) }}"
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/output_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Send Emails
+          </a>
+          <a href="{{ url_for('meetings.email_settings', meeting_id=meeting.id) }}"
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/settings_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Auto Send Email Settings
+          </a>
+        </div>
+
+        <!-- Results & Reports -->
+        {% if meeting.status == 'Completed' or meeting.public_results %}
+        <div class="py-1" role="none">
+          <a href="{{ url_for('meetings.results_summary', meeting_id=meeting.id) }}" 
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/grid_view_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            View Results
+          </a>
+          <a href="{{ url_for('meetings.results_docx', meeting_id=meeting.id) }}" 
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/file_export_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Export Results (Word)
+          </a>
+        </div>
+        {% endif %}
+
+        <!-- Advanced Actions -->
+        <div class="py-1" role="none">
+          <a href="{{ url_for('meetings.meeting_files', meeting_id=meeting.id) }}" 
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/folder_managed_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" 
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Manage Files
+          </a>
+          {% if meeting.ballot_mode == 'combined' %}
+          <a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}" 
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/preview_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Preview Combined Ballot
+          </a>
+          {% else %}
+          <a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}" 
+             class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+             role="menuitem">
+            <img src="{{ url_for('static', filename='icons/preview_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+                 alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+            Preview Ballots
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
