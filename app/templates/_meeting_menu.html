@@ -1,0 +1,132 @@
+<div class="relative inline-block text-left">
+  <button type="button"
+          class="dropdown-trigger inline-flex items-center justify-center w-8 h-8 rounded-full text-bp-grey-400 hover:text-bp-grey-600 hover:bg-bp-grey-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bp-blue-500 transition-colors"
+          data-dropdown-target="meeting-{{ meeting.id }}"
+          aria-expanded="false"
+          aria-haspopup="true">
+    <span class="sr-only">Open options menu for {{ meeting.title }}</span>
+    <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+    </svg>
+  </button>
+
+  <div id="meeting-{{ meeting.id }}"
+       class="dropdown-menu origin-top-right absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-bp-grey-100 focus:outline-none z-50 hidden"
+       role="menu"
+       aria-orientation="vertical">
+
+    <!-- Primary Actions -->
+    <div class="py-1" role="none">
+      <a href="{{ url_for('meetings.edit_meeting', meeting_id=meeting.id) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <img src="{{ url_for('static', filename='icons/settings_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+             alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+        Edit Meeting
+      </a>
+      <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <img src="{{ url_for('static', filename='icons/how_to_vote_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+             alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+        View Motions
+      </a>
+      <a href="{{ url_for('meetings.clone_meeting', meeting_id=meeting.id) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <svg class="w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" />
+          <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z" />
+        </svg>
+        Clone Meeting
+      </a>
+    </div>
+
+    <!-- Member Management -->
+    <div class="py-1" role="none">
+      <a href="{{ url_for('meetings.import_members', meeting_id=meeting.id) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <img src="{{ url_for('static', filename='icons/group_add_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}"
+             alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500 filter-to-grey">
+        Import Members
+      </a>
+      <a href="{{ url_for('meetings.list_members', meeting_id=meeting.id) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <img src="{{ url_for('static', filename='icons/group_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+             alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+        View Members
+      </a>
+      <a href="{{ url_for('meetings.manual_send_emails', meeting_id=meeting.id) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <svg class="w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+        </svg>
+        Send Emails
+      </a>
+      <a href="{{ url_for('meetings.email_settings', meeting_id=meeting.id) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <img src="{{ url_for('static', filename='icons/settings_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+             alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+        Auto Send Email Settings
+      </a>
+    </div>
+
+    <!-- Results & Reports -->
+    {% if meeting.status == 'Completed' or meeting.public_results %}
+    <div class="py-1" role="none">
+      <a href="{{ url_for('meetings.results_summary', meeting_id=meeting.id) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <img src="{{ url_for('static', filename='icons/bar_chart_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}"
+             alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500 filter-to-grey">
+        View Results
+      </a>
+      <a href="{{ url_for('meetings.results_docx', meeting_id=meeting.id) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <svg class="w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+        </svg>
+        Export Results (Word)
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- Advanced Actions -->
+    <div class="py-1" role="none">
+      <a href="{{ url_for('meetings.meeting_files', meeting_id=meeting.id) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <img src="{{ url_for('static', filename='icons/folder_managed_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
+             alt="" class="bp-icon w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500">
+        Manage Files
+      </a>
+      {% if meeting.ballot_mode == 'combined' %}
+      <a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <svg class="w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+          <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+        </svg>
+        Preview Combined Ballot
+      </a>
+      {% else %}
+      <a href="{{ url_for('meetings.preview_voting', meeting_id=meeting.id, stage=1) }}"
+         class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
+         role="menuitem">
+        <svg class="w-4 h-4 mr-3 text-bp-grey-400 group-hover:text-bp-grey-500" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+          <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+        </svg>
+        Preview Ballots
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>

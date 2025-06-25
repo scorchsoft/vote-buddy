@@ -57,7 +57,10 @@
     {% if meetings %}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for meeting in meetings %}
-      <div class="bp-card hover:shadow-xl transition-all">
+      <div class="bp-card hover:shadow-xl transition-all relative">
+        <div class="absolute top-2 right-2">
+          {% include '_meeting_menu.html' %}
+        </div>
         <!-- Meeting Header - Title (Clickable) -->
         <div class="mb-4">
           <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}" class="block">
