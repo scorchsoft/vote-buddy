@@ -308,6 +308,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-02 – Enabled voters to edit their comments for 15 minutes with audit history.
 * 2025-07-03 – Added confirmation prompt before publishing results document from admin dashboard.
 * 2025-06-20 – Added comment count badges and modal viewer on ballots; improved thank-you screen.
+* 2025-06-25 – Added favicon assets and linked them in the base template.
 * 2025-06-30 – Added motion withdrawal/edit request workflow with chair and board approvals.
 * 2025-06-14 – Added meeting create/edit form with CSRF protection.
 * 2025-06-14 – Added member CSV import with token generation.
