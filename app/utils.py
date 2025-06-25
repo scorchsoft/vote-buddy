@@ -213,8 +213,9 @@ def generate_results_pdf(meeting, stage1_results, stage2_results) -> bytes:
     story.append(Paragraph("Stage 1 Amendments", styles["Heading2"]))
     data = [["Amendment", "For", "Against", "Abstain"]]
     for amend, counts in stage1_results:
+        text = getattr(amend, "text_md", "") or ""
         data.append([
-            getattr(amend, "text_md", ""),
+            text,
             counts.get("for", 0),
             counts.get("against", 0),
             counts.get("abstain", 0),
@@ -236,8 +237,9 @@ def generate_results_pdf(meeting, stage1_results, stage2_results) -> bytes:
     story.append(Paragraph("Stage 2 Motions", styles["Heading2"]))
     data2 = [["Motion", "For", "Against", "Abstain", "Outcome"]]
     for motion, counts in stage2_results:
+        title = getattr(motion, "title", "") or ""
         data2.append([
-            getattr(motion, "title", ""),
+            title,
             counts.get("for", 0),
             counts.get("against", 0),
             counts.get("abstain", 0),
