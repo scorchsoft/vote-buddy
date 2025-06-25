@@ -106,6 +106,7 @@ class Meeting(db.Model):
     extension_reason = db.Column(db.Text)
     results_doc_published = db.Column(db.Boolean, default=False)
     results_doc_intro_md = db.Column(db.Text)
+    summary_md = db.Column(db.Text)
     notice_md = db.Column(db.Text)
     stage1_manual_votes = db.Column(db.Integer, default=0)
     stage2_manual_for = db.Column(db.Integer, default=0)

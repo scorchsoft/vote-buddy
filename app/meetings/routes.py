@@ -351,6 +351,7 @@ def clone_meeting(meeting_id: int):
         "extension_reason",
         "results_doc_published",
         "results_doc_intro_md",
+        "summary_md",
     ]:
         setattr(new_meeting, field, getattr(src, field))
     db.session.add(new_meeting)

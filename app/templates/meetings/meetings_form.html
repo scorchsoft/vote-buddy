@@ -11,6 +11,12 @@
     <p id="{{ form.title.id }}-error" class="bp-error-text">{{ form.title.errors[0] if form.title.errors else '' }}</p>
   </div>
   <div>
+    {{ form.summary_md.label(class_='block font-semibold') }}
+    {{ form.summary_md(class_='border p-3 rounded w-full', **{'aria-describedby': form.summary_md.id + '-error'}) }}
+    <p class="text-xs text-bp-grey-700 mt-1">{{ form.summary_md.description }}</p>
+    <p id="{{ form.summary_md.id }}-error" class="bp-error-text">{{ form.summary_md.errors[0] if form.summary_md.errors else '' }}</p>
+  </div>
+  <div>
     {{ form.type.label(class_='block font-semibold') }}
     {{ form.type(class_='border p-3 rounded w-full', **{'aria-describedby': form.type.id + '-error'}) }}
     <p id="{{ form.type.id }}-error" class="bp-error-text">{{ form.type.errors[0] if form.type.errors else '' }}</p>
@@ -112,16 +118,19 @@
   <div>
     {{ form.chair_notes_md.label(class_='block font-semibold') }}
     {{ form.chair_notes_md(class_='border p-3 rounded w-full', **{'aria-describedby': form.chair_notes_md.id + '-error'}) }}
+    <p class="text-xs text-bp-grey-700 mt-1">{{ form.chair_notes_md.description }}</p>
     <p id="{{ form.chair_notes_md.id }}-error" class="bp-error-text">{{ form.chair_notes_md.errors[0] if form.chair_notes_md.errors else '' }}</p>
   </div>
   <div>
     {{ form.notice_md.label(class_='block font-semibold') }}
     {{ form.notice_md(class_='border p-3 rounded w-full', **{'aria-describedby': form.notice_md.id + '-error'}) }}
+    <p class="text-xs text-bp-grey-700 mt-1">{{ form.notice_md.description }}</p>
     <p id="{{ form.notice_md.id }}-error" class="bp-error-text">{{ form.notice_md.errors[0] if form.notice_md.errors else '' }}</p>
   </div>
   <div>
     {{ form.results_doc_intro_md.label(class_='block font-semibold') }}
     {{ form.results_doc_intro_md(class_='border p-3 rounded w-full', **{'aria-describedby': form.results_doc_intro_md.id + '-error'}) }}
+    <p class="text-xs text-bp-grey-700 mt-1">{{ form.results_doc_intro_md.description }}</p>
     <p id="{{ form.results_doc_intro_md.id }}-error" class="bp-error-text">{{ form.results_doc_intro_md.errors[0] if form.results_doc_intro_md.errors else '' }}</p>
   </div>
   <button type="submit" class="bp-btn-primary">Save</button>
