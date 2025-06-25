@@ -485,9 +485,17 @@ def revoke_api_token(token_id: int):
 @permission_required("manage_users")
 def view_audit():
     page = request.args.get("page", 1, type=int)
-    pagination = get_logs(page=page, per_page=20)
+    q = request.args.get("q", "").strip()
+    start = request.args.get("start")
+    end = request.args.get("end")
+    start_dt = datetime.fromisoformat(start) if start else None
+    end_dt = datetime.fromisoformat(end) if end else None
+    pagination = get_logs(page=page, per_page=20, q=q or None, start=start_dt, end=end_dt)
     return render_template(
         "admin/audit.html",
         logs=pagination.items,
         pagination=pagination,
+        q=q,
+        start=start,
+        end=end,
     )
