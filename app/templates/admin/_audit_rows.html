@@ -1,0 +1,10 @@
+{% for log in logs %}
+<tr class="border-t">
+  <td class="p-2">{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+  <td class="p-2">{{ log.user.email if log.user else 'System' }}</td>
+  <td class="p-2">{{ log.action }}</td>
+  <td class="p-2">{{ log.details }}</td>
+</tr>
+{% else %}
+<tr><td colspan="4" class="p-2">No entries.</td></tr>
+{% endfor %}
