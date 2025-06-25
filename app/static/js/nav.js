@@ -1,5 +1,12 @@
 // Modern Navigation JavaScript
 document.addEventListener('DOMContentLoaded', function() {
+    if (!window.navDropdownSetup) {
+        window.navDropdownSetup = true;
+
+        document.addEventListener('click', handleDropdownClick);
+        document.addEventListener('keydown', handleDropdownEscape);
+        document.addEventListener('keydown', handleDropdownNavigation);
+    }
     // Mobile Navigation Toggle
     const navToggle = document.getElementById('nav-toggle');
     const navDrawerMobile = document.getElementById('nav-drawer-mobile');
@@ -214,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Event delegation for dropdown triggers
-    document.addEventListener('click', function(e) {
+    function handleDropdownClick(e) {
         const trigger = e.target.closest('.dropdown-trigger');
         if (trigger) {
             e.preventDefault();
@@ -223,34 +230,30 @@ document.addEventListener('DOMContentLoaded', function() {
             if (targetId) {
                 toggleDropdown(targetId);
             }
-        }
-        // Close dropdowns when clicking outside
-        else if (!e.target.closest('.relative')) {
+        } else if (!e.target.closest('.relative')) {
             document.querySelectorAll('.dropdown-menu').forEach(menu => {
                 menu.classList.add('hidden');
                 menu.setAttribute('aria-hidden', 'true');
             });
         }
-    });
+    }
 
-    // Close dropdowns on escape key
-    document.addEventListener('keydown', function(e) {
+    function handleDropdownEscape(e) {
         if (e.key === 'Escape') {
             document.querySelectorAll('.dropdown-menu').forEach(menu => {
                 menu.classList.add('hidden');
                 menu.setAttribute('aria-hidden', 'true');
             });
         }
-    });
+    }
 
-    // Keyboard navigation for dropdowns
-    document.addEventListener('keydown', function(e) {
+    function handleDropdownNavigation(e) {
         const activeDropdown = document.querySelector('.dropdown-menu:not(.hidden)');
         if (!activeDropdown) return;
-        
+
         const menuItems = activeDropdown.querySelectorAll('[role="menuitem"]');
         const currentIndex = Array.from(menuItems).findIndex(item => item === document.activeElement);
-        
+
         switch (e.key) {
             case 'ArrowDown':
                 e.preventDefault();
@@ -271,5 +274,5 @@ document.addEventListener('DOMContentLoaded', function() {
                 menuItems[menuItems.length - 1].focus();
                 break;
         }
-    });
+    }
 });
