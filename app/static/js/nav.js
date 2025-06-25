@@ -6,11 +6,15 @@ function initNav() {
     const body = document.body;
     
     if (navToggle && navDrawerMobile) {
+        // Remove any existing click listeners to prevent duplicates
+        const newNavToggle = navToggle.cloneNode(true);
+        navToggle.parentNode.replaceChild(newNavToggle, navToggle);
+        
         // Toggle mobile menu
-        navToggle.addEventListener('click', function() {
-            const isOpen = navToggle.getAttribute('aria-expanded') === 'true';
+        newNavToggle.addEventListener('click', function() {
+            const isOpen = newNavToggle.getAttribute('aria-expanded') === 'true';
             
-            navToggle.setAttribute('aria-expanded', !isOpen);
+            newNavToggle.setAttribute('aria-expanded', !isOpen);
             navDrawerMobile.hidden = isOpen;
             
             if (!isOpen) {
@@ -20,7 +24,7 @@ function initNav() {
                 overlay.className = 'nav-overlay';
                 overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 30; transition: opacity 0.3s;';
                 overlay.style.opacity = '0';
-                overlay.onclick = () => navToggle.click();
+                overlay.onclick = () => newNavToggle.click();
                 body.appendChild(overlay);
                 
                 // Animate overlay
@@ -42,49 +46,61 @@ function initNav() {
                 body.style.overflow = '';
             }
         });
-        
-        // Close on escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && navToggle.getAttribute('aria-expanded') === 'true') {
-                navToggle.click();
-            }
-        });
     }
     
-    // Theme Toggle
+    // Theme Toggle - Always restore theme state
+    const html = document.documentElement;
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    
+    // Always apply the theme state
+    if (currentTheme === 'dark') {
+        html.classList.add('dark');
+        html.setAttribute('data-theme', 'dark');
+    } else {
+        html.classList.remove('dark');
+        html.setAttribute('data-theme', 'light');
+    }
+    
+    // Set up theme toggle button
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
-    const html = document.documentElement;
-    
-    // Check for saved theme preference
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    html.classList.toggle('dark', currentTheme === 'dark');
-    // Also set data attribute for broader CSS support
-    html.setAttribute('data-theme', currentTheme);
     
     if (themeToggle && themeIcon) {
+        // Remove any existing click listeners to prevent duplicates
+        const newThemeToggle = themeToggle.cloneNode(true);
+        const newThemeIcon = newThemeToggle.querySelector('img');
+        themeToggle.parentNode.replaceChild(newThemeToggle, themeToggle);
+        
         // Update icon based on theme
         const updateThemeIcon = (isDark) => {
-            themeIcon.src = isDark ? themeIcon.dataset.sun : themeIcon.dataset.moon;
-            themeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+            newThemeIcon.src = isDark ? newThemeIcon.dataset.sun : newThemeIcon.dataset.moon;
+            newThemeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
             // Remove invert class when in dark mode since sun should be white
             if (isDark) {
-                themeIcon.classList.remove('invert');
+                newThemeIcon.classList.remove('invert');
             } else {
-                themeIcon.classList.add('invert');
+                newThemeIcon.classList.add('invert');
             }
         };
         
         updateThemeIcon(currentTheme === 'dark');
         
         // Theme toggle click handler
-        themeToggle.addEventListener('click', function(e) {
+        newThemeToggle.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            const isDark = html.classList.toggle('dark');
-            const newTheme = isDark ? 'dark' : 'light';
-            localStorage.setItem('theme', newTheme);
-            html.setAttribute('data-theme', newTheme);
+            const isDark = !html.classList.contains('dark');
+            
+            if (isDark) {
+                html.classList.add('dark');
+                html.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.classList.remove('dark');
+                html.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+            
             updateThemeIcon(isDark);
             
             // Add transition effect
@@ -314,5 +330,35 @@ function initNav() {
     });
 }
 
+// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', initNav);
+
+// Re-initialize after HTMX navigation
 document.body.addEventListener('htmx:load', initNav);
+
+// Preserve dark mode class on HTMX requests
+document.body.addEventListener('htmx:beforeSwap', function(evt) {
+    // Store current dark mode state
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    // After swap, restore dark mode state
+    setTimeout(() => {
+        if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    }, 0);
+});
+
+// Global escape key handler
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const navToggle = document.getElementById('nav-toggle');
+        if (navToggle && navToggle.getAttribute('aria-expanded') === 'true') {
+            navToggle.click();
+        }
+    }
+});

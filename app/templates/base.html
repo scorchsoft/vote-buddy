@@ -6,8 +6,49 @@
     <title>{{ setting('site_title', 'VoteBuddy') }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ cache_bust }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dark.css') }}?v={{ cache_bust }}">
+    <style>
+      /* Light mode default */
+      body {
+        background: linear-gradient(to bottom, #F8FAFC, #ffffff);
+      }
+      
+      /* Dark mode styles */
+      html.dark body {
+        background: #1a1a1a !important;
+        color: #ffffff !important;
+      }
+      html.dark .bg-white {
+        background: #2a2a2a !important;
+      }
+      html.dark .text-gray-600 {
+        color: #cccccc !important;
+      }
+      html.dark .bp-card {
+        background: #2a2a2a !important;
+        color: #ffffff !important;
+      }
+      html.dark .bp-feature-card {
+        background: #2a2a2a !important;
+        color: #ffffff !important;
+      }
+      html.dark .bp-stat-card {
+        background: #2a2a2a !important;
+        color: #ffffff !important;
+      }
+      html.dark .bp-hero {
+        background: linear-gradient(135deg, #001a33, #002244) !important;
+      }
+      html.dark .text-gray-600 {
+        color: #cccccc !important;
+      }
+      html.dark .bp-text-gradient {
+        background: linear-gradient(135deg, #4a7c9e, #6a9cc4) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+      }
+    </style>
   </head>
-  <body hx-boost="true" class="flex flex-col min-h-screen bg-gradient-to-b from-bp-grey-50 to-white font-sans" data-notice-days="{{ notice_days }}">
+  <body hx-boost="true" class="flex flex-col min-h-screen font-sans" data-notice-days="{{ notice_days }}">
     <a href="#main" class="bp-skip-link sr-only focus:not-sr-only">Skip to main content</a>
     <header class="bp-header">
       <nav class="bp-header-nav bg-bp-blue text-white shadow-lg">
