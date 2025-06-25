@@ -169,47 +169,62 @@ function initNav() {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
         
-        const isHidden = dropdown.classList.contains('hidden');
+        const dropdownContainer = dropdown.closest('.bp-dropdown');
+        if (!dropdownContainer) return;
+        
+        const isActive = dropdownContainer.classList.contains('dropdown-active');
         
         // Close all other dropdowns first
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-            if (menu.id !== dropdownId) {
-                menu.classList.add('hidden');
-                menu.setAttribute('aria-hidden', 'true');
+        document.querySelectorAll('.bp-dropdown.dropdown-active').forEach(container => {
+            if (container !== dropdownContainer) {
+                container.classList.remove('dropdown-active');
+                const menu = container.querySelector('.bp-dropdown-menu');
+                if (menu) {
+                    menu.setAttribute('aria-hidden', 'true');
+                }
+                // Update trigger button state
+                const trigger = container.querySelector('.dropdown-trigger');
+                if (trigger) {
+                    trigger.setAttribute('aria-expanded', 'false');
+                }
             }
         });
         
         // Toggle current dropdown
-        if (isHidden) {
-            dropdown.classList.remove('hidden');
-            dropdown.setAttribute('aria-hidden', 'false');
+        const trigger = dropdownContainer.querySelector('.dropdown-trigger');
+        if (!isActive) {
+            dropdownContainer.classList.add('dropdown-active');
+            dropdown.removeAttribute('aria-hidden');
+            if (trigger) {
+                trigger.setAttribute('aria-expanded', 'true');
+            }
             
             // Position dropdown to stay within viewport
-            const rect = dropdown.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            
-            // Adjust horizontal position if dropdown would go off-screen
-            if (rect.right > viewportWidth) {
-                dropdown.style.left = 'auto';
-                dropdown.style.right = '0';
-            }
-            
-            // Adjust vertical position if dropdown would go off-screen
-            if (rect.bottom > viewportHeight) {
-                dropdown.style.top = 'auto';
-                dropdown.style.bottom = '100%';
-                dropdown.style.marginBottom = '0.5rem';
-            }
-            
-            // Focus first menu item for accessibility
-            const firstMenuItem = dropdown.querySelector('[role="menuitem"]');
-            if (firstMenuItem) {
-                firstMenuItem.focus();
-            }
+            setTimeout(() => {
+                const rect = dropdown.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                // Adjust horizontal position if dropdown would go off-screen
+                if (rect.right > viewportWidth) {
+                    dropdown.style.left = 'auto';
+                    dropdown.style.right = '0';
+                }
+                
+                // Adjust vertical position if dropdown would go off-screen
+                if (rect.bottom > viewportHeight) {
+                    dropdown.style.top = 'auto';
+                    dropdown.style.bottom = '100%';
+                    dropdown.style.marginBottom = '0.5rem';
+                }
+            }, 0);
         } else {
-            dropdown.classList.add('hidden');
+            dropdownContainer.classList.remove('dropdown-active');
             dropdown.setAttribute('aria-hidden', 'true');
+            if (trigger) {
+                trigger.setAttribute('aria-expanded', 'false');
+                trigger.focus(); // Return focus to trigger
+            }
         }
     }
 
@@ -225,10 +240,18 @@ function initNav() {
             }
         }
         // Close dropdowns when clicking outside
-        else if (!e.target.closest('.relative')) {
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                menu.classList.add('hidden');
-                menu.setAttribute('aria-hidden', 'true');
+        else if (!e.target.closest('.bp-dropdown')) {
+            document.querySelectorAll('.bp-dropdown.dropdown-active').forEach(container => {
+                container.classList.remove('dropdown-active');
+                const menu = container.querySelector('.bp-dropdown-menu');
+                if (menu) {
+                    menu.setAttribute('aria-hidden', 'true');
+                }
+                // Update trigger button state
+                const trigger = container.querySelector('.dropdown-trigger');
+                if (trigger) {
+                    trigger.setAttribute('aria-expanded', 'false');
+                }
             });
         }
     });
@@ -236,16 +259,27 @@ function initNav() {
     // Close dropdowns on escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                menu.classList.add('hidden');
-                menu.setAttribute('aria-hidden', 'true');
+            document.querySelectorAll('.bp-dropdown.dropdown-active').forEach(container => {
+                container.classList.remove('dropdown-active');
+                const menu = container.querySelector('.bp-dropdown-menu');
+                if (menu) {
+                    menu.setAttribute('aria-hidden', 'true');
+                }
+                // Update trigger button state and return focus
+                const trigger = container.querySelector('.dropdown-trigger');
+                if (trigger) {
+                    trigger.setAttribute('aria-expanded', 'false');
+                    trigger.focus();
+                }
             });
         }
     });
 
     // Keyboard navigation for dropdowns
     document.addEventListener('keydown', function(e) {
-        const activeDropdown = document.querySelector('.dropdown-menu:not(.hidden)');
+        const activeContainer = document.querySelector('.bp-dropdown.dropdown-active');
+        if (!activeContainer) return;
+        const activeDropdown = activeContainer.querySelector('.bp-dropdown-menu');
         if (!activeDropdown) return;
         
         const menuItems = activeDropdown.querySelectorAll('[role="menuitem"]');

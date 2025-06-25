@@ -59,7 +59,7 @@
     {% endif %}
   </td>
   <td class="p-4 text-right">
-    <div class="relative inline-block text-left">
+    <div class="bp-dropdown relative inline-block text-left">
       <button type="button" 
               class="dropdown-trigger inline-flex items-center justify-center w-8 h-8 rounded-full text-bp-grey-400 hover:text-bp-grey-600 hover:bg-bp-grey-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bp-blue-500 transition-colors"
               data-dropdown-target="meeting-{{ meeting.id }}"
@@ -72,9 +72,10 @@
       </button>
 
       <div id="meeting-{{ meeting.id }}" 
-           class="dropdown-menu origin-top-right absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-bp-grey-100 focus:outline-none z-50 hidden"
+           class="bp-dropdown-menu origin-top-right absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-bp-grey-100 focus:outline-none z-50"
            role="menu" 
-           aria-orientation="vertical">
+           aria-orientation="vertical"
+           aria-hidden="true">
         
         <!-- Primary Actions -->
         <div class="py-1" role="none">
@@ -86,7 +87,6 @@
             Edit Meeting
           </a>
           <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}"
-          <a href="{{ url_for('meetings.meeting_overview', meeting_id=meeting.id) }}"
              class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors"
              role="menuitem">
             <img src="{{ url_for('static', filename='icons/how_to_vote_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}"
