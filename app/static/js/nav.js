@@ -59,6 +59,8 @@ function initNav() {
     // Check for saved theme preference
     const currentTheme = localStorage.getItem('theme') || 'light';
     html.classList.toggle('dark', currentTheme === 'dark');
+    // Also set data attribute for broader CSS support
+    html.setAttribute('data-theme', currentTheme);
     
     if (themeToggle && themeIcon) {
         // Update icon based on theme
@@ -76,9 +78,13 @@ function initNav() {
         updateThemeIcon(currentTheme === 'dark');
         
         // Theme toggle click handler
-        themeToggle.addEventListener('click', function() {
+        themeToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             const isDark = html.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            const newTheme = isDark ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            html.setAttribute('data-theme', newTheme);
             updateThemeIcon(isDark);
             
             // Add transition effect

@@ -42,7 +42,22 @@ bp = Blueprint('main', __name__)
 @bp.route('/')
 def index():
     has_results = Meeting.query.filter_by(public_results=True).first() is not None
-    return render_template('index.html', has_results=has_results)
+    
+    # Get statistics for the home page
+    active_meetings_count = Meeting.query.filter(
+        Meeting.status.in_(['Stage 1', 'Stage 2', 'Pending Stage 2'])
+    ).count()
+    
+    total_members_count = Member.query.count()
+    votes_cast_count = Vote.query.count()
+    
+    return render_template(
+        'index.html', 
+        has_results=has_results,
+        active_meetings_count=active_meetings_count,
+        total_members_count=total_members_count,
+        votes_cast_count=votes_cast_count
+    )
 
 
 @bp.route('/results')

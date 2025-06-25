@@ -7,7 +7,7 @@
   {% endif %}
   <h1 class="bp-hero-title text-white">Welcome to {{ setting('site_title', 'VoteBuddy') }}</h1>
   <p class="bp-hero-subtitle text-white">The modern digital voting platform for British Powerlifting AGMs and EGMs</p>
-  <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+  <div class="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10">
     <a href="{{ url_for('main.public_meetings') }}" class="bp-btn-secondary bp-btn-icon" hx-boost="false">
       <img src="{{ url_for('static', filename='icons/calendar_today_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
       <span>View Meetings</span>
@@ -72,4 +72,6 @@
     Learn More About VoteBuddy
   </a>
 </div>
+
+
 {% endblock %}

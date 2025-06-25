@@ -855,6 +855,10 @@ select {
   right: 2rem;
 }
 
+.z-10 {
+  z-index: 10;
+}
+
 .z-50 {
   z-index: 50;
 }
@@ -2589,6 +2593,8 @@ h4 {
   height: 200%;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
   animation: pulse 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 
 @keyframes pulse {

@@ -365,3 +365,34 @@
     background: rgba(0, 0, 0, 0.7) !important;
   }
 }
+
+/* Override common Tailwind classes for dark mode */
+.dark .bg-white {
+  background-color: var(--bp-grey-100) !important;
+}
+
+.dark .bg-bp-grey-50,
+.dark .from-bp-grey-50 {
+  background-color: var(--bp-grey-100) !important;
+}
+
+.dark .to-white {
+  background-color: var(--bp-grey-100) !important;
+}
+
+.dark .text-gray-600 {
+  color: var(--bp-grey-600) !important;
+}
+
+.dark .text-gray-700 {
+  color: var(--bp-grey-700) !important;
+}
+
+.dark .text-white {
+  color: white !important;
+}
+
+/* Fix gradient backgrounds */
+.dark .bg-gradient-to-b {
+  background: linear-gradient(to bottom, var(--bp-grey-100), var(--bp-grey-50)) !important;
+}
