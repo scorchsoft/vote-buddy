@@ -26,6 +26,7 @@ from ..models import (
     Member,
     AmendmentObjection,
     ApiToken,
+    AdminLog,
 )
 from .forms import (
     UserForm,
@@ -484,10 +485,39 @@ def revoke_api_token(token_id: int):
 @login_required
 @permission_required("manage_users")
 def view_audit():
+    q = request.args.get("q", "").strip()
+    action_filter = request.args.get("action", "").strip()
     page = request.args.get("page", 1, type=int)
-    pagination = get_logs(page=page, per_page=20)
+
+    query = AdminLog.query.outerjoin(User)
+    if q:
+        search = f"%{q}%"
+        query = query.filter(
+            db.or_(
+                User.email.ilike(search),
+                AdminLog.action.ilike(search),
+                AdminLog.details.ilike(search),
+            )
+        )
+    if action_filter:
+        query = query.filter(AdminLog.action == action_filter)
+
+    query = query.order_by(AdminLog.created_at.desc())
+    pagination = query.paginate(page=page, per_page=20, error_out=False)
+
+    actions = (
+        db.session.query(AdminLog.action).distinct().order_by(AdminLog.action).all()
+    )
+    template = (
+        "admin/_audit_rows.html"
+        if request.headers.get("HX-Request") and request.headers.get("HX-Target") == "audit-table-body"
+        else "admin/audit.html"
+    )
     return render_template(
-        "admin/audit.html",
+        template,
         logs=pagination.items,
         pagination=pagination,
+        q=q,
+        action=action_filter,
+        actions=[a[0] for a in actions],
     )

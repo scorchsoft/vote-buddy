@@ -81,3 +81,25 @@ def test_update_settings_logged():
         log = AdminLog.query.filter_by(action='update_settings').first()
         assert log is not None
 
+
+def test_view_audit_filters_by_action():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        perm = Permission(name='manage_users')
+        role = Role(name='Root', permissions=[perm])
+        user = User(email='root@example.com', role=role, is_active=True)
+        db.session.add_all([perm, role, user])
+        db.session.commit()
+        db.session.add_all([
+            AdminLog(user_id=user.id, action='create_user'),
+            AdminLog(user_id=user.id, action='edit_user'),
+        ])
+        db.session.commit()
+
+        with app.test_request_context('/admin/audit?action=create_user'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = admin.view_audit()
+                assert '<td class="p-2">create_user</td>' in html
+                assert '<td class="p-2">edit_user</td>' not in html
+

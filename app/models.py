@@ -583,9 +583,9 @@ class AdminLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), index=True)
     user = db.relationship("User")
-    action = db.Column(db.String(50))
+    action = db.Column(db.String(50), index=True)
     details = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
 
 class MotionSubmission(db.Model):

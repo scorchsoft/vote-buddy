@@ -3,6 +3,18 @@
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Audit Log', url_for('admin.view_audit'))]) }}
 <h1 class="font-bold text-bp-blue mb-4">Audit Log</h1>
+<form class="mb-4 bp-card bp-form" hx-get="{{ url_for('admin.view_audit') }}" hx-target="#audit-table-body" hx-trigger="keyup changed delay:300ms" hx-push-url="true">
+  <label for="q" class="sr-only">Search logs</label>
+  <input id="q" type="text" name="q" value="{{ q or '' }}" placeholder="Search logs..." class="border p-3 rounded w-full mb-2">
+  <label for="action" class="sr-only">Filter by action</label>
+  <select id="action" name="action" class="border p-3 rounded w-full">
+    <option value="">All actions</option>
+    {% for a in actions %}
+    <option value="{{ a }}" {% if a == action %}selected{% endif %}>{{ a }}</option>
+    {% endfor %}
+  </select>
+</form>
+
 <div class="bp-card">
 <table class="bp-table">
   <thead class="bg-bp-grey-50">
@@ -13,17 +25,8 @@
       <th scope="col" class="text-left p-2">Details</th>
     </tr>
   </thead>
-  <tbody>
-  {% for log in logs %}
-    <tr class="border-t">
-      <td class="p-2">{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-      <td class="p-2">{{ log.user.email if log.user else 'System' }}</td>
-      <td class="p-2">{{ log.action }}</td>
-      <td class="p-2">{{ log.details }}</td>
-    </tr>
-  {% else %}
-    <tr><td colspan="4" class="p-2">No entries.</td></tr>
-  {% endfor %}
+  <tbody id="audit-table-body">
+    {% include 'admin/_audit_rows.html' %}
   </tbody>
 </table>
 </div>
