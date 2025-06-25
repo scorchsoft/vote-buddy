@@ -12,7 +12,7 @@
       <img src="{{ url_for('static', filename='icons/key_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
       <span>Admin Login</span>
     </a>
-    <a href="{{ current_user.is_authenticated and current_user.has_permission('manage_meetings') and url_for('meetings.list_meetings') or url_for('main.public_meetings') }}" class="bp-btn-secondary bp-btn-icon">
+    <a href="{{ current_user.is_authenticated and current_user.has_permission('manage_meetings') and url_for('meetings.list_meetings') or url_for('main.public_meetings') }}" class="bp-btn-secondary bp-btn-icon" hx-boost="false">
       <img src="{{ url_for('static', filename='icons/calendar_today_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
       <span>View Meetings</span>
     </a>

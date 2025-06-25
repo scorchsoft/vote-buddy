@@ -29,6 +29,7 @@
                   href="{{ current_user.is_authenticated and current_user.has_permission('manage_meetings') and url_for('meetings.list_meetings') or url_for('main.public_meetings') }}"
                   class="bp-nav-link{% if request.path == url_for('meetings.list_meetings') or request.path == url_for('main.public_meetings') %} active{% endif %}"
                   {% if request.path == url_for('meetings.list_meetings') or request.path == url_for('main.public_meetings') %}aria-current="page"{% endif %}
+                  hx-boost="false"
                 >
                   <img src="{{ url_for('static', filename='icons/calendar_today_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                   Meetings
@@ -39,6 +40,7 @@
                   href="{{ url_for('main.results_index') }}"
                   class="bp-nav-link{% if request.path == url_for('main.results_index') %} active{% endif %}"
                   {% if request.path == url_for('main.results_index') %}aria-current="page"{% endif %}
+                  hx-boost="false"
                 >
                   <img src="{{ url_for('static', filename='icons/bar_chart_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                   Results
@@ -137,6 +139,7 @@
               href="{{ current_user.is_authenticated and current_user.has_permission('manage_meetings') and url_for('meetings.list_meetings') or url_for('main.public_meetings') }}"
               class="bp-nav-link text-white{% if request.path == url_for('meetings.list_meetings') or request.path == url_for('main.public_meetings') %} active{% endif %}"
               {% if request.path == url_for('meetings.list_meetings') or request.path == url_for('main.public_meetings') %}aria-current="page"{% endif %}
+              hx-boost="false"
             >
               <img src="{{ url_for('static', filename='icons/calendar_today_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
               Meetings
@@ -147,6 +150,7 @@
               href="{{ url_for('main.results_index') }}"
               class="bp-nav-link text-white{% if request.path == url_for('main.results_index') %} active{% endif %}"
               {% if request.path == url_for('main.results_index') %}aria-current="page"{% endif %}
+              hx-boost="false"
             >
               <img src="{{ url_for('static', filename='icons/bar_chart_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
               Results
@@ -244,10 +248,10 @@
           <div>
             <h3 class="font-bold text-lg mb-3 text-white">Quick Links</h3>
             <ul class="space-y-2 text-sm">
-              <li><a href="{{ current_user.is_authenticated and current_user.has_permission('manage_meetings') and url_for('meetings.list_meetings') or url_for('main.public_meetings') }}" class="hover:underline opacity-90 hover:opacity-100">View Meetings</a></li>
+              <li><a href="{{ current_user.is_authenticated and current_user.has_permission('manage_meetings') and url_for('meetings.list_meetings') or url_for('main.public_meetings') }}" class="hover:underline opacity-90 hover:opacity-100" hx-boost="false">View Meetings</a></li>
               <li><a href="{{ url_for('help.show_help') }}" class="hover:underline opacity-90 hover:opacity-100">Help & Documentation</a></li>
               <li><a href="{{ url_for('voting.verify_receipt') }}" class="hover:underline opacity-90 hover:opacity-100">Verify Receipt</a></li>
-                <li><a href="{{ url_for('main.results_index') }}" class="hover:underline opacity-90 hover:opacity-100">Results Archive</a></li>
+                <li><a href="{{ url_for('main.results_index') }}" class="hover:underline opacity-90 hover:opacity-100" hx-boost="false">Results Archive</a></li>
                 <li><a href="{{ url_for('api.api_docs') }}" class="hover:underline opacity-90 hover:opacity-100">API Docs</a></li>
                 {% if not current_user.is_authenticated %}
                 <li><a href="{{ url_for('auth.login') }}" class="hover:underline opacity-90 hover:opacity-100">Admin Login</a></li>
