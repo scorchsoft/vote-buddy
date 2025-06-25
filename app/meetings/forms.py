@@ -76,15 +76,26 @@ class MeetingForm(FlaskForm):
     public_results = BooleanField("Public Results")
     early_public_results = BooleanField("Early Public Results")
     results_doc_published = BooleanField("Publish Final Results Doc")
-    results_doc_intro_md = TextAreaField("Results Doc Intro")
+    results_doc_intro_md = TextAreaField(
+        "Results Doc Intro",
+        description="Intro paragraph added to the certified results document.",
+    )
     comments_enabled = BooleanField("Enable Comments")
     quorum = IntegerField("Quorum")
     status = StringField("Status")
-    chair_notes_md = TextAreaField("Chair Notes")
+    chair_notes_md = TextAreaField(
+        "Chair Notes",
+        description="Private notes for meeting admins; not shown to members.",
+    )
+    summary_md = TextAreaField(
+        "Summary Paragraph",
+        description="Shown on public motion pages as an overview of the meeting.",
+    )
     notice_md = TextAreaField(
         "Meeting Notice",
         validators=[Optional()],
         render_kw={"data-markdown-editor": "1"},
+        description="Markdown included in Stage 1 invite emails.",
     )
     submit = SubmitField("Save")
 
