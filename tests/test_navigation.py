@@ -90,3 +90,21 @@ def test_nav_includes_ro_dashboard_when_authorized():
             with patch('flask_login.utils._get_user', return_value=user):
                 html = render_template('base.html')
                 assert 'RO Dashboard' in html
+
+
+def test_nav_includes_roles_and_permissions_when_authorized():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        perm_users = Permission(name='manage_users')
+        perm_perms = Permission(name='manage_permissions')
+        role = Role(name='Admin', permissions=[perm_users, perm_perms])
+        db.session.add_all([perm_users, perm_perms, role])
+        db.session.commit()
+        user = User(email='role@example.com', role=role)
+        user.is_active = True
+        with app.test_request_context('/'):
+            with patch('flask_login.utils._get_user', return_value=user):
+                html = render_template('base.html')
+                assert 'Roles' in html
+                assert 'Permissions' in html

@@ -483,6 +483,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-24 – Results summary page now mirrors public view with charts and PDF link.
 * 2025-08-21 – Fixed amendment form ignoring selected motion on batch edit page.
 * 2025-08-22 – Fixed dark mode toggle when navigating via htmx.
+* 2025-08-23 – Added admin Roles and Permissions links with new 'manage_permissions' right granted to root admins.
 * 2025-07-04 – Added summary paragraph field for meetings displayed on public pages.
 
 

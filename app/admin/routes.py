@@ -295,7 +295,7 @@ def _save_permission(form: PermissionForm, perm: Permission | None = None) -> Pe
 
 @bp.route("/permissions")
 @login_required
-@permission_required("manage_users")
+@permission_required("manage_permissions")
 def list_permissions():
     permissions = Permission.query.order_by(Permission.name).all()
     return render_template("admin/permissions.html", permissions=permissions)
@@ -303,7 +303,7 @@ def list_permissions():
 
 @bp.route("/permissions/create", methods=["GET", "POST"])
 @login_required
-@permission_required("manage_users")
+@permission_required("manage_permissions")
 def create_permission():
     form = PermissionForm()
     if form.validate_on_submit():
@@ -314,7 +314,7 @@ def create_permission():
 
 @bp.route("/permissions/<int:permission_id>/edit", methods=["GET", "POST"])
 @login_required
-@permission_required("manage_users")
+@permission_required("manage_permissions")
 def edit_permission(permission_id):
     perm = db.session.get(Permission, permission_id)
     if perm is None:

@@ -26,7 +26,7 @@ def test_save_permission_creates_record():
 
 
 def _make_user(has_permission: bool):
-    perm = Permission(name='manage_users') if has_permission else None
+    perm = Permission(name='manage_permissions') if has_permission else None
     role = Role(permissions=[perm] if perm else [])
     user = User(role=role)
     user.email = 'admin@example.com'
@@ -59,7 +59,7 @@ def test_list_permissions_contains_create_and_edit_links():
         perm = Permission(name='view_dashboard')
         db.session.add(perm)
         db.session.commit()
-        admin_perm = Permission(name='manage_users')
+        admin_perm = Permission(name='manage_permissions')
         role = Role(name='Admin', permissions=[admin_perm])
         db.session.add_all([admin_perm, role])
         db.session.commit()
