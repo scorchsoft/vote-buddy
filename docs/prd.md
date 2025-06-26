@@ -484,6 +484,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-08-21 – Fixed amendment form ignoring selected motion on batch edit page.
 * 2025-08-22 – Fixed dark mode toggle when navigating via htmx.
 * 2025-07-04 – Added summary paragraph field for meetings displayed on public pages.
+* 2025-07-05 – Added Audit Log menu with permission and preview comments for coordinators.
 
 
 ---
