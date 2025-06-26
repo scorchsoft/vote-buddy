@@ -36,6 +36,7 @@ from ..models import (
     AmendmentVersion,
     MotionSubmission,
     AmendmentSubmission,
+    Comment,
 )
 from ..services.email import (
     send_vote_invite,
@@ -1996,6 +1997,14 @@ def preview_voting(meeting_id: int, stage: int):
         for motion in motions:
             ams = [a for a in amendments if a.motion_id == motion.id]
             motions_grouped.append((motion, ams))
+        motion_counts = {
+            m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
+            for m in motions
+        }
+        amend_counts = {
+            a.id: Comment.query.filter_by(amendment_id=a.id, hidden=False).count()
+            for a in amendments
+        }
         return render_template(
             "voting/combined_ballot.html",
             form=form,
@@ -2004,6 +2013,8 @@ def preview_voting(meeting_id: int, stage: int):
             proxy_for=None,
             token="preview",
             preview=True,
+            motion_counts=motion_counts,
+            amend_counts=amend_counts,
         )
 
     if stage == 1:
@@ -2030,6 +2041,14 @@ def preview_voting(meeting_id: int, stage: int):
         for motion in motions:
             ams = [a for a in amendments if a.motion_id == motion.id]
             motions_grouped.append((motion, ams))
+        motion_counts = {
+            m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
+            for m in motions
+        }
+        amend_counts = {
+            a.id: Comment.query.filter_by(amendment_id=a.id, hidden=False).count()
+            for a in amendments
+        }
         return render_template(
             "voting/stage1_ballot.html",
             form=form,
@@ -2038,6 +2057,8 @@ def preview_voting(meeting_id: int, stage: int):
             proxy_for=None,
             token="preview",
             preview=True,
+            motion_counts=motion_counts,
+            amend_counts=amend_counts,
         )
 
     motions = (
@@ -2053,6 +2074,10 @@ def preview_voting(meeting_id: int, stage: int):
             final_message_default=current_app.config.get("FINAL_STAGE_MESSAGE"),
         )
     compiled = [(m, m.final_text_md or compile_motion_text(m)) for m in motions]
+    motion_counts = {
+        m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
+        for m in motions
+    }
     return render_template(
         "voting/stage2_ballot.html",
         form=form,
@@ -2061,6 +2086,7 @@ def preview_voting(meeting_id: int, stage: int):
         proxy_for=None,
         token="preview",
         preview=True,
+        motion_counts=motion_counts,
     )
 
 

@@ -69,7 +69,7 @@
               {{ motion.text_md|markdown_to_html|safe }}
             </div>
           </div>
-          {% if not preview %}
+          {% if not preview or (current_user.is_authenticated and current_user.has_permission('manage_meetings')) %}
           <button type="button" class="ml-4 bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm flex items-center space-x-1 transition-colors"
                   data-modal-target="comments-modal"
                   hx-get="{{ url_for('comments.motion_comments', token=token, motion_id=motion.id) }}"
@@ -124,7 +124,7 @@
                     {% endfor %}
                   </div>
                   
-                  {% if not preview %}
+                  {% if not preview or (current_user.is_authenticated and current_user.has_permission('manage_meetings')) %}
                   <button type="button" class="text-sm text-gray-500 hover:text-gray-700 flex items-center space-x-1"
                           data-modal-target="comments-modal"
                           hx-get="{{ url_for('comments.amendment_comments', token=token, amendment_id=amend.id) }}"

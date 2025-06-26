@@ -263,6 +263,12 @@
               API Tokens
             </a>
             {% endif %}
+            {% if current_user.has_permission('view_audit_log') %}
+            <a href="{{ url_for('admin.view_audit') }}" class="bp-nav-link text-white">
+              <img src="{{ url_for('static', filename='icons/visibility_lock_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
+              Audit Log
+            </a>
+            {% endif %}
           </li>
           <li class="mt-4 pt-4 border-t border-white/20">
             <div class="text-white/80 text-sm mb-4">
