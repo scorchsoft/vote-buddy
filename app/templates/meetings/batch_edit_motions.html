@@ -52,8 +52,9 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Motion Text
               </label>
-              <textarea name="motion-{{ motion.id }}-text_md" 
-                        class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors" 
+              <textarea name="motion-{{ motion.id }}-text_md"
+                        data-markdown-editor
+                        class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors"
                         rows="4"
                         placeholder="Enter motion text in markdown format">{{ motion.text_md }}</textarea>
             </div>
@@ -62,8 +63,9 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Final Text (if amended)
               </label>
-              <textarea name="motion-{{ motion.id }}-final_text_md" 
-                        class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors" 
+              <textarea name="motion-{{ motion.id }}-final_text_md"
+                        data-markdown-editor
+                        class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-bp-blue focus:border-bp-blue transition-colors"
                         rows="4"
                         placeholder="Enter final text after amendments (optional)">{{ motion.final_text_md }}</textarea>
             </div>
@@ -152,8 +154,9 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Amendment Text
                 </label>
-                <textarea name="amend-{{ amend.id }}-text_md" 
-                          class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors" 
+                <textarea name="amend-{{ amend.id }}-text_md"
+                          data-markdown-editor
+                          class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors"
                           rows="3"
                           placeholder="Enter amendment text">{{ amend.text_md }}</textarea>
               </div>
@@ -254,9 +257,10 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Motion Text
             </label>
-            <textarea name="new_motion_text_md" 
-                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
-                      rows="3" 
+            <textarea name="new_motion_text_md"
+                      data-markdown-editor
+                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                      rows="3"
                       placeholder="Enter motion text in markdown format"></textarea>
           </div>
           
@@ -264,9 +268,10 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Final Text (optional)
             </label>
-            <textarea name="new_motion_final_text_md" 
-                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
-                      rows="3" 
+            <textarea name="new_motion_final_text_md"
+                      data-markdown-editor
+                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                      rows="3"
                       placeholder="Enter final text if different from original (optional)"></textarea>
           </div>
           
@@ -350,9 +355,10 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Amendment Text
             </label>
-            <textarea name="new_amend_text_md" 
-                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors" 
-                      rows="3" 
+            <textarea name="new_amend_text_md"
+                      data-markdown-editor
+                      class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-colors"
+                      rows="3"
                       placeholder="Enter amendment text"></textarea>
           </div>
           
@@ -448,5 +454,8 @@ document.addEventListener('DOMContentLoaded', function() {
   {% endfor %}
 });
 </script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/easymde.min.css') }}">
+<script src="{{ url_for('static', filename='js/easymde.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/markdown_editor.js') }}"></script>
 <script src="{{ url_for('static', filename='js/member_search.js') }}"></script>
 {% endblock %}

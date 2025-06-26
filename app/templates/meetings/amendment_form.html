@@ -8,7 +8,7 @@
   {{ form.hidden_tag() }}
   <div>
     {{ form.text_md.label(class_='block font-semibold') }}
-    {{ form.text_md(class_='border p-3 rounded w-full') }}
+    {{ form.text_md(class_='border p-3 rounded w-full', **{'data-markdown-editor': '1'}) }}
   </div>
   <div>
     {{ form.proposer_id.label(class_='block font-semibold') }}
@@ -28,4 +28,7 @@
   </div>
   <button type="submit" class="bp-btn-primary">Save</button>
 </form>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/easymde.min.css') }}">
+<script src="{{ url_for('static', filename='js/easymde.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/markdown_editor.js') }}"></script>
 {% endblock %}
