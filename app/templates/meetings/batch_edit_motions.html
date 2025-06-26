@@ -433,29 +433,10 @@
   </form>
 </div>
 
-<script>
-function toggleSection(sectionId) {
-  const section = document.getElementById(sectionId);
-  const icon = document.getElementById(sectionId + '-icon');
-  
-  if (section.style.display === 'none') {
-    section.style.display = 'block';
-    icon.style.transform = 'rotate(0deg)';
-  } else {
-    section.style.display = 'none';
-    icon.style.transform = 'rotate(-90deg)';
-  }
-}
 
-// Initialize all sections as expanded
-document.addEventListener('DOMContentLoaded', function() {
-  {% for motion in motions %}
-  document.getElementById('motion-{{ motion.id }}').style.display = 'block';
-  {% endfor %}
-});
-</script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/easymde.min.css') }}">
 <script src="{{ url_for('static', filename='js/easymde.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/markdown_editor.js') }}"></script>
 <script src="{{ url_for('static', filename='js/member_search.js') }}"></script>
+<script src="{{ url_for('static', filename='js/batch_edit.js') }}"></script>
 {% endblock %}

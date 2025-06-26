@@ -60,6 +60,12 @@ def index():
     )
 
 
+@bp.route('/csp-test')
+def csp_test():
+    """Test page to verify CSP policy is working correctly."""
+    return render_template('csp_test.html')
+
+
 @bp.route('/results')
 def results_index():
     """List meetings with public results."""

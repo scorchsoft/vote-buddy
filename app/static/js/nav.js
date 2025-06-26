@@ -217,6 +217,7 @@ function initNav() {
         if (!isActive) {
             dropdownContainer.classList.add('dropdown-active');
             dropdown.removeAttribute('aria-hidden');
+            dropdown.setAttribute('aria-hidden', 'false');
             if (trigger) {
                 trigger.setAttribute('aria-expanded', 'true');
             }

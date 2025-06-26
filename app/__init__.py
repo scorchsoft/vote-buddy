@@ -1,7 +1,8 @@
 import os
 from datetime import datetime
-from flask import Flask, render_template
+from flask import Flask, render_template, g
 from .utils import markdown_to_html, format_dt
+import secrets
 
 from .extensions import (
     db,
@@ -37,6 +38,11 @@ def create_app(config_object='config.DevelopmentConfig'):
     register_error_handlers(app)
     register_cli_commands(app)
 
+    @app.before_request
+    def generate_nonce():
+        """Generate a unique nonce for each request to allow inline scripts."""
+        g.csp_nonce = secrets.token_urlsafe(16)
+
     @app.after_request
     def set_frame_options(response):
         """Deny framing to mitigate clickjacking."""
@@ -46,10 +52,14 @@ def create_app(config_object='config.DevelopmentConfig'):
     @app.after_request
     def set_content_security_policy(response):
         """Restrict script and style sources to self and htmx CDN."""
+        nonce = getattr(g, 'csp_nonce', '')
         csp = (
             "default-src 'self'; "
-            "script-src 'self' https://unpkg.com; "
-            "style-src 'self' https://unpkg.com 'unsafe-inline'"
+            f"script-src 'self' https://unpkg.com 'nonce-{nonce}'; "
+            "style-src 'self' https://unpkg.com 'unsafe-inline'; "
+            "font-src 'self' https://unpkg.com; "
+            "img-src 'self' data:; "
+            "connect-src 'self'"
         )
         response.headers['Content-Security-Policy'] = csp
         return response
@@ -61,6 +71,8 @@ def create_app(config_object='config.DevelopmentConfig'):
             response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
             response.headers['Pragma'] = 'no-cache'
             response.headers['Expires'] = '0'
+            # Force CSP to be re-evaluated
+            response.headers['Vary'] = 'Content-Security-Policy'
         return response
 
     return app
@@ -112,6 +124,13 @@ def register_extensions(app):
         """Add cache busting timestamp for development."""
         return {
             'cache_bust': int(datetime.now().timestamp()) if app.debug else '1'
+        }
+
+    @app.context_processor
+    def inject_csp_nonce():
+        """Add CSP nonce to template context."""
+        return {
+            'csp_nonce': getattr(g, 'csp_nonce', '')
         }
 
     @app.context_processor

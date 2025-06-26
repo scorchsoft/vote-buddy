@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSP Test</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <h1>CSP Test Page</h1>
+    
+    <h2>SVG Data URL Test</h2>
+    <p>This should show a dropdown arrow if CSP allows data: URLs:</p>
+    <img src="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e" alt="Dropdown arrow" style="width: 20px; height: 20px;">
+    
+    <h2>Current CSP Header</h2>
+    <p>Check browser dev tools Network tab for the CSP header on this page.</p>
+    
+    <h2>Console Test</h2>
+    <p>Check browser console for any CSP violations.</p>
+    
+    {% if csp_nonce %}
+    <script nonce="{{ csp_nonce }}">
+        console.log('CSP nonce is working:', '{{ csp_nonce }}');
+        console.log('If you see this message, inline scripts with nonce are allowed');
+    </script>
+    {% endif %}
+</body>
+</html> 

@@ -6,6 +6,7 @@
     <title>{{ setting('site_title', 'VoteBuddy') }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ cache_bust }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dark.css') }}?v={{ cache_bust }}">
+    <link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}?v={{ cache_bust }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}?v={{ cache_bust }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}?v={{ cache_bust }}">
@@ -101,42 +102,45 @@
               </li>
               {% if current_user.is_authenticated %}
               <li class="bp-dropdown">
-                <button class="bp-nav-link flex items-center space-x-1">
+                <button class="bp-nav-link flex items-center space-x-1 dropdown-trigger" 
+                        data-dropdown-target="admin-dropdown"
+                        aria-expanded="false" 
+                        aria-haspopup="true">
                   <img src="{{ url_for('static', filename='icons/data_usage_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                   <span>Admin</span>
                   <img src="{{ url_for('static', filename='icons/keyboard_arrow_down_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-4 h-4">
                 </button>
-                <div class="bp-dropdown-menu">
-                  <a href="{{ url_for('admin.dashboard') }}" class="bp-dropdown-item">
+                <div id="admin-dropdown" class="bp-dropdown-menu" role="menu" aria-orientation="vertical" aria-hidden="true">
+                  <a href="{{ url_for('admin.dashboard') }}" class="bp-dropdown-item" role="menuitem">
                     <img src="{{ url_for('static', filename='icons/house_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     Dashboard
                   </a>
-                  <a href="{{ url_for('admin.list_users') }}" class="bp-dropdown-item">
+                  <a href="{{ url_for('admin.list_users') }}" class="bp-dropdown-item" role="menuitem">
                     <img src="{{ url_for('static', filename='icons/group_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     Users
                   </a>
                   {% if current_user.has_permission('manage_users') %}
-                  <a href="{{ url_for('admin.list_roles') }}" class="bp-dropdown-item">
+                  <a href="{{ url_for('admin.list_roles') }}" class="bp-dropdown-item" role="menuitem">
                     <img src="{{ url_for('static', filename='icons/group_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     Roles
                   </a>
-                  <a href="{{ url_for('admin.list_permissions') }}" class="bp-dropdown-item">
+                  <a href="{{ url_for('admin.list_permissions') }}" class="bp-dropdown-item" role="menuitem">
                     <img src="{{ url_for('static', filename='icons/key_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     Permissions
                   </a>
                   {% endif %}
                   {% if current_user.has_permission('manage_meetings') %}
-                  <a href="{{ url_for('ro.dashboard') }}" class="bp-dropdown-item">
+                  <a href="{{ url_for('ro.dashboard') }}" class="bp-dropdown-item" role="menuitem">
                     <img src="{{ url_for('static', filename='icons/dashboard_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     RO Dashboard
                   </a>
                   {% endif %}
                   {% if current_user.has_permission('manage_settings') %}
-                  <a href="{{ url_for('admin.manage_settings') }}" class="bp-dropdown-item">
+                  <a href="{{ url_for('admin.manage_settings') }}" class="bp-dropdown-item" role="menuitem">
                     <img src="{{ url_for('static', filename='icons/settings_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     Site Settings
                   </a>
-                  <a href="{{ url_for('admin.manage_api_tokens') }}" class="bp-dropdown-item">
+                  <a href="{{ url_for('admin.manage_api_tokens') }}" class="bp-dropdown-item" role="menuitem">
                     <img src="{{ url_for('static', filename='icons/key_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     API Tokens
                   </a>
@@ -144,17 +148,20 @@
                 </div>
               </li>
               <li class="bp-dropdown">
-                <button class="bp-nav-link flex items-center space-x-1">
+                <button class="bp-nav-link flex items-center space-x-1 dropdown-trigger"
+                        data-dropdown-target="user-dropdown"
+                        aria-expanded="false" 
+                        aria-haspopup="true">
                   <img src="{{ url_for('static', filename='icons/account_circle_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                   <span class="text-sm">{{ current_user.email.split('@')[0] }}</span>
                   <img src="{{ url_for('static', filename='icons/keyboard_arrow_down_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-4 h-4">
                 </button>
-                <div class="bp-dropdown-menu">
+                <div id="user-dropdown" class="bp-dropdown-menu" role="menu" aria-orientation="vertical" aria-hidden="true">
                   <div class="bp-dropdown-label">{{ current_user.email }}</div>
                   {% if current_user.role %}
                   <div class="bp-dropdown-label">{{ current_user.role.name }}</div>
                   {% endif %}
-                  <a href="{{ url_for('auth.logout') }}" class="bp-dropdown-item">
+                  <a href="{{ url_for('auth.logout') }}" class="bp-dropdown-item" role="menuitem">
                     <img src="{{ url_for('static', filename='icons/logout_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     Logout
                   </a>
@@ -351,5 +358,15 @@
     <script src="{{ url_for('static', filename='js/htmx.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
     <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+    {% if csp_nonce %}
+    <script nonce="{{ csp_nonce }}">
+      // Initialize navigation on page load
+      if (document.readyState !== 'loading') {
+        initNav();
+      } else {
+        document.addEventListener('DOMContentLoaded', initNav);
+      }
+    </script>
+    {% endif %}
   </body>
 </html>
