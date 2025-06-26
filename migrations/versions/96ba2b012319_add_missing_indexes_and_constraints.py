@@ -37,7 +37,7 @@ def upgrade():
         batch_op.alter_column('created_at',
                existing_type=postgresql.TIMESTAMP(),
                nullable=True)
-        batch_op.create_unique_constraint(None, ['token_hash'])
+        batch_op.create_unique_constraint('uq_api_tokens_token_hash', ['token_hash'])
 
     with op.batch_alter_table('email_settings', schema=None) as batch_op:
         batch_op.alter_column('auto_send',
@@ -59,8 +59,8 @@ def upgrade():
                existing_type=sa.BOOLEAN(),
                nullable=True,
                existing_server_default=sa.text('false'))
-        batch_op.create_foreign_key(None, 'members', ['proposer_id'], ['id'])
-        batch_op.create_foreign_key(None, 'members', ['seconder_id'], ['id'])
+        batch_op.create_foreign_key('fk_motions_proposer_id_members', 'members', ['proposer_id'], ['id'])
+        batch_op.create_foreign_key('fk_motions_seconder_id_members', 'members', ['seconder_id'], ['id'])
         batch_op.drop_column('change_requested')
 
     with op.batch_alter_table('runoffs', schema=None) as batch_op:
@@ -76,8 +76,8 @@ def downgrade():
 
     with op.batch_alter_table('motions', schema=None) as batch_op:
         batch_op.add_column(sa.Column('change_requested', sa.BOOLEAN(), server_default=sa.text('false'), autoincrement=False, nullable=True))
-        batch_op.drop_constraint(None, type_='foreignkey')
-        batch_op.drop_constraint(None, type_='foreignkey')
+        batch_op.drop_constraint('fk_motions_proposer_id_members', type_='foreignkey')
+        batch_op.drop_constraint('fk_motions_seconder_id_members', type_='foreignkey')
         batch_op.alter_column('is_published',
                existing_type=sa.BOOLEAN(),
                nullable=False,
@@ -99,7 +99,7 @@ def downgrade():
                existing_server_default=sa.text('true'))
 
     with op.batch_alter_table('api_tokens', schema=None) as batch_op:
-        batch_op.drop_constraint(None, type_='unique')
+        batch_op.drop_constraint('uq_api_tokens_token_hash', type_='unique')
         batch_op.alter_column('created_at',
                existing_type=postgresql.TIMESTAMP(),
                nullable=False)
