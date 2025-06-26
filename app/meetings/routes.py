@@ -53,6 +53,7 @@ from ..services.email import (
 )
 from ..services import runoff
 from ..services.audit import record_action
+from ..comments import routes as comments
 from ..permissions import permission_required
 from .forms import (
     MeetingForm,
@@ -1942,6 +1943,24 @@ def stage2_tally(meeting_id: int):
         form=form,
         meeting=meeting,
     )
+
+
+@bp.route("/<int:meeting_id>/preview/comments/motion/<int:motion_id>", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def preview_motion_comments(meeting_id: int, motion_id: int):
+    if request.method == "POST":
+        return comments.add_motion_comment("preview", motion_id)
+    return comments.motion_comments("preview", motion_id)
+
+
+@bp.route("/<int:meeting_id>/preview/comments/amendment/<int:amendment_id>", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_meetings")
+def preview_amendment_comments(meeting_id: int, amendment_id: int):
+    if request.method == "POST":
+        return comments.add_amendment_comment("preview", amendment_id)
+    return comments.amendment_comments("preview", amendment_id)
 
 
 @bp.route("/<int:meeting_id>/preview/<int:stage>", methods=["GET", "POST"])
