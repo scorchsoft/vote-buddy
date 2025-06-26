@@ -21,9 +21,35 @@ from ..models import (
 from ..extensions import db, limiter
 from ..utils import markdown_to_html
 from datetime import datetime
+from flask_login import current_user
 
 
 def _verify_token(token: str) -> tuple[Member, Meeting]:
+    if token == "preview":
+        if not current_user.is_authenticated or not current_user.has_permission("manage_meetings"):
+            abort(403)
+        meeting_id = request.view_args.get("meeting_id")
+        motion_id = request.view_args.get("motion_id")
+        amendment_id = request.view_args.get("amendment_id")
+        if not meeting_id:
+            if motion_id:
+                motion = db.session.get(Motion, motion_id)
+                if not motion:
+                    abort(404)
+                meeting_id = motion.meeting_id
+            elif amendment_id:
+                amendment = db.session.get(Amendment, amendment_id)
+                if not amendment:
+                    abort(404)
+                meeting_id = amendment.meeting_id
+        meeting = db.session.get(Meeting, meeting_id) if meeting_id else None
+        if not meeting or not meeting.comments_enabled:
+            abort(404)
+        member = Member.query.filter_by(meeting_id=meeting.id).first()
+        if not member:
+            member = Member(meeting_id=meeting.id)
+        g.member_id = member.id
+        return member, meeting
     vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
     if not vote_token:
         abort(404)
@@ -74,6 +100,9 @@ def add_motion_comment(token: str, motion_id: int):
         abort(404)
     text = request.form.get("text", "").strip()
     if text:
+        if token == "preview":
+            flash("Preview comment posted", "success")
+            return redirect(url_for("comments.motion_comments", token=token, motion_id=motion.id))
         comment = Comment(
             meeting_id=meeting.id,
             motion_id=motion.id,
@@ -119,6 +148,11 @@ def add_amendment_comment(token: str, amendment_id: int):
         abort(404)
     text = request.form.get("text", "").strip()
     if text:
+        if token == "preview":
+            flash("Preview comment posted", "success")
+            return redirect(
+                url_for("comments.amendment_comments", token=token, amendment_id=amendment.id)
+            )
         comment = Comment(
             meeting_id=meeting.id,
             amendment_id=amendment.id,
