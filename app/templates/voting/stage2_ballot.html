@@ -32,7 +32,7 @@
   {{ form.hidden_tag() }}
   {% for motion, compiled in motions %}
     <blockquote class="bp-card bp-glow mb-4 whitespace-pre-line">{{ compiled|markdown_to_html|safe }}
-      {% if not preview %}
+      {% if not preview or (current_user.is_authenticated and current_user.has_permission('manage_meetings')) %}
       <a href="#" class="bp-link ml-2 text-sm" data-modal-target="comments-modal"
          hx-get="{{ url_for('comments.motion_comments', token=token, motion_id=motion.id) }}"
          hx-target="#comments-body" hx-trigger="click" hx-swap="innerHTML">Comments ({{ motion_counts[motion.id] }})</a>
