@@ -488,7 +488,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-08-30 – Added root-admin audit log page with search and filters.
 * 2025-08-31 – Added admin preview routes for comment pages with non-persistent submissions.
 * 2025-08-01 – Added Roles and Permissions links in admin menu and migration granting root admins 'manage_users'.
-
+* 2025-07-05 – Added Audit Log menu with permission and preview comments for coordinators.
 
 ---
 

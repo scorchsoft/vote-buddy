@@ -12,6 +12,7 @@ from .models import (
     VoteToken,
     Motion,
     Amendment,
+    Comment,
     Vote,
 )
 from faker import Faker
@@ -154,6 +155,27 @@ def generate_fake_data() -> None:
                 amendments.append(amend)
 
         db.session.flush()
+
+        for motion in motions:
+            for _ in range(2):
+                comment = Comment(
+                    meeting_id=meeting.id,
+                    motion_id=motion.id,
+                    member_id=random.choice(members).id,
+                    text_md=fake.sentence(nb_words=8),
+                    created_at=now,
+                )
+                db.session.add(comment)
+        for amend in amendments:
+            for _ in range(2):
+                comment = Comment(
+                    meeting_id=meeting.id,
+                    amendment_id=amend.id,
+                    member_id=random.choice(members).id,
+                    text_md=fake.sentence(nb_words=8),
+                    created_at=now,
+                )
+                db.session.add(comment)
 
         choices = ["for", "against", "abstain"]
         for member in members:
