@@ -141,7 +141,7 @@
     {{ form.submit(class='bp-btn-primary') }}
   </form>
 </div>
-<script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/purify.min.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/easymde.min.css') }}">
+<script src="{{ url_for('static', filename='js/easymde.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/markdown_editor.js') }}"></script>
 {% endblock %}
