@@ -124,10 +124,6 @@
                     <img src="{{ url_for('static', filename='icons/group_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
                     Roles
                   </a>
-                  <a href="{{ url_for('admin.list_permissions') }}" class="bp-dropdown-item" role="menuitem">
-                    <img src="{{ url_for('static', filename='icons/key_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
-                    Permissions
-                  </a>
                   {% endif %}
                   {% if current_user.has_permission('manage_users') %}
                   <a href="{{ url_for('admin.view_audit') }}" class="bp-dropdown-item" role="menuitem">
@@ -250,10 +246,6 @@
             <a href="{{ url_for('admin.list_roles') }}" class="bp-nav-link text-white">
               <img src="{{ url_for('static', filename='icons/group_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
               Roles
-            </a>
-            <a href="{{ url_for('admin.list_permissions') }}" class="bp-nav-link text-white">
-              <img src="{{ url_for('static', filename='icons/key_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon mr-2 w-5 h-5">
-              Permissions
             </a>
             {% endif %}
             {% if current_user.has_permission('manage_meetings') %}
