@@ -212,7 +212,11 @@
     {% for t, _ in schedule.items() %}
       {% set s = settings.get(t) %}
       <tr>
-        <td class="p-2">{{ t.replace('_', ' ').title() }}</td>
+        <td class="p-2">
+          <a href="{{ url_for('meetings.preview_email', meeting_id=meeting.id, email_type=t) }}" target="_blank" class="bp-link">
+            {{ t.replace('_', ' ').title() }}
+          </a>
+        </td>
         <td class="p-2">
           {% if s and not s.auto_send %}
             <span class="bp-badge">Off</span>
