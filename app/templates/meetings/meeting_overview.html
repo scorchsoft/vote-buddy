@@ -249,9 +249,11 @@
     <div class="flex items-start justify-between">
       <div class="flex-1">
         <div class="flex items-center gap-3">
-          <h3 class="font-semibold text-bp-grey-900 hover:text-bp-blue transition-colors">
-            {{ m.title }}
-          </h3>
+          <h4 class="font-semibold text-bp-grey-900 hover:text-bp-blue transition-colors">
+            <a href="{{ url_for('meetings.view_motion', motion_id=m.id) }}" class="bp-link">
+              {{ m.title }}
+            </a>
+          </h4>
           {% if m.status %}
           <span class="bp-badge text-xs {% if m.status == 'passed' %}bp-badge-success{% elif m.status == 'failed' %}bp-badge-danger{% else %}bg-bp-grey-100 text-bp-grey-800{% endif %}">
             {{ m.status|title }}
@@ -284,6 +286,13 @@
             #{{ m.ordering }}
           </span>
           {% endif %}
+          {% set ac = amendment_counts.get(m.id, 0) %}
+          <a href="{{ url_for('meetings.view_motion', motion_id=m.id) }}" class="inline-flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"></path>
+            </svg>
+            {{ ac }} Amendment{{ 's' if ac != 1 else '' }}
+          </a>
           {% if m.is_published %}
           <span class="inline-flex items-center gap-1 text-green-600">
             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
