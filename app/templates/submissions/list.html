@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
-{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Submissions', None)]) }}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.meeting_overview', meeting_id=meeting.id)), ('Submissions', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">Submissions for {{ meeting.title }}</h1>
 <h2 class="font-semibold mb-2">Motions</h2>
 {% for sub in motions %}
