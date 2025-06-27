@@ -40,3 +40,20 @@ def test_submit_pages_load():
         db.session.commit()
     resp = client.get(f'/submit/{plain2}/amendment/{motion_id}')
     assert resp.status_code == 200
+
+def test_preview_token_allows_submission():
+    app = setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title='T')
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name='A', email='a@x.com')
+        db.session.add(member)
+        motion = Motion(meeting_id=meeting.id, title='M', text_md='t', category='motion', threshold='normal', ordering=1, is_published=True)
+        db.session.add(motion)
+        db.session.commit()
+        meeting_id = meeting.id
+    client = app.test_client()
+    resp = client.get(f'/submit/preview/motion/{meeting_id}')
+    assert resp.status_code == 200

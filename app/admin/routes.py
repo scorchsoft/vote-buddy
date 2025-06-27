@@ -482,7 +482,7 @@ def revoke_api_token(token_id: int):
 
 @bp.route("/audit")
 @login_required
-@permission_required("view_audit_log")
+@permission_required("manage_users")
 def view_audit():
     page = request.args.get("page", 1, type=int)
     q = request.args.get("q", "").strip()

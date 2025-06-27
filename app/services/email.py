@@ -798,7 +798,7 @@ def send_review_invite(member: Member, meeting: Meeting, *, test_mode: bool = Fa
         salt=current_app.config["TOKEN_SALT"],
     )
     db.session.commit()
-    review_url = url_for('main.public_meeting_detail', meeting_id=meeting.id, _external=True)
+    review_url = url_for('main.review_motions', token=plain, meeting_id=meeting.id, _external=True)
     link = url_for('submissions.submit_motion', token=plain, meeting_id=meeting.id, _external=True)
     unsubscribe = _unsubscribe_url(member)
     resubscribe = _resubscribe_url(member)
