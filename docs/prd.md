@@ -497,6 +497,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-27 – Audit log page paginated with htmx search support.
 * 2025-06-27 – Draft motions visible to coordinators on review preview with publish toggle.
 * 2025-09-03 – Motion submissions append selected handling preferences as a Markdown list.
+* 2025-09-06 – Clarified chart axis labels in final results PDF and reduced chart font sizes.
 
 ---
 
