@@ -17,7 +17,12 @@ from ..services.email import (
     notify_seconder_amendment,
 )
 from . import bp
-from .forms import MotionSubmissionForm, AmendmentSubmissionForm
+from .forms import (
+    MotionSubmissionForm,
+    AmendmentSubmissionForm,
+    MotionSubmissionEditForm,
+    AmendmentSubmissionEditForm,
+)
 from ..permissions import permission_required
 from flask_login import login_required, current_user
 
@@ -112,6 +117,45 @@ def reject_amendment(submission_id: int):
     db.session.commit()
     flash('Amendment rejected', 'success')
     return redirect(url_for('submissions.list_submissions', meeting_id=meeting_id))
+
+
+@bp.route('/motion/<int:submission_id>/edit', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
+def edit_motion_submission(submission_id: int):
+    """Allow admins to edit a motion submission."""
+
+    sub = db.session.get(MotionSubmission, submission_id)
+    if sub is None:
+        abort(404)
+    form = MotionSubmissionEditForm(obj=sub)
+    if form.validate_on_submit():
+        sub.title = form.title.data
+        sub.text_md = form.text_md.data
+        db.session.commit()
+        flash('Submission updated', 'success')
+        return redirect(url_for('submissions.list_submissions', meeting_id=sub.meeting_id))
+    return render_template('submissions/edit_motion_submission.html', form=form, submission=sub)
+
+
+@bp.route('/amendment/<int:submission_id>/edit', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_meetings')
+def edit_amendment_submission(submission_id: int):
+    """Allow admins to edit an amendment submission."""
+
+    sub = db.session.get(AmendmentSubmission, submission_id)
+    if sub is None:
+        abort(404)
+    form = AmendmentSubmissionEditForm(obj=sub)
+    if form.validate_on_submit():
+        sub.text_md = form.text_md.data
+        db.session.commit()
+        motion = db.session.get(Motion, sub.motion_id)
+        meeting_id = motion.meeting_id if motion else None
+        flash('Submission updated', 'success')
+        return redirect(url_for('submissions.list_submissions', meeting_id=meeting_id))
+    return render_template('submissions/edit_amendment_submission.html', form=form, submission=sub)
 
 
 @bp.route('/<token>/motion/<int:meeting_id>', methods=['GET', 'POST'])

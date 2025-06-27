@@ -680,7 +680,10 @@ def send_motion_submission_alert(submission: MotionSubmission, meeting: Meeting,
         meeting=meeting,
         **branding,
     )
-    mail.send(msg)
+    try:
+        mail.send(msg)
+    except OSError as exc:
+        current_app.logger.warning("Email send failed: %s", exc)
 
 
 def send_amendment_submission_alert(submission: AmendmentSubmission, motion: Motion, meeting: Meeting, *, test_mode: bool = False) -> None:
@@ -703,7 +706,10 @@ def send_amendment_submission_alert(submission: AmendmentSubmission, motion: Mot
         motion=motion,
         **branding,
     )
-    mail.send(msg)
+    try:
+        mail.send(msg)
+    except OSError as exc:
+        current_app.logger.warning("Email send failed: %s", exc)
 
 
 def notify_seconder_motion(seconder: Member, meeting: Meeting, *, test_mode: bool = False) -> None:
