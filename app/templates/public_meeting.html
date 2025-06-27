@@ -6,11 +6,13 @@
 {% if meeting.summary_md %}
 <div class="mb-4">{{ meeting.summary_md|markdown_to_html|safe }}</div>
 {% endif %}
+
 <p class="mb-2">Stage: {{ meeting.status or 'Draft' }} | Members: {{ member_count }}</p>
 {% if meeting.notice_date %}
 <p class="mb-4 text-sm text-bp-grey-700">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') }}</p>
 {% endif %}
 <button class="bp-btn-secondary mb-6" data-modal-target="resend-modal">Resend Voting Email</button>
+
 {% if meeting.opens_at_stage1 and meeting.closes_at_stage1 %}
 <p class="mb-2">
   Stage 1:
