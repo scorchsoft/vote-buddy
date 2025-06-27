@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, abort, current_app
 from datetime import datetime
-from ..utils import config_or_setting
+from ..utils import config_or_setting, append_motion_preferences
 from ..extensions import db
 from ..models import (
     Meeting,
@@ -186,11 +186,13 @@ def submit_motion(token: str, meeting_id: int):
     clerical_text = config_or_setting("CLERICAL_TEXT", "")
     move_text = config_or_setting("MOVE_TEXT", "")
     if form.validate_on_submit():
-        text_md = form.text_md.data
-        if form.allow_clerical.data and clerical_text:
-            text_md += f"\n\n{clerical_text}"
-        if form.allow_move.data and move_text:
-            text_md += f"\n\n{move_text}"
+        text_md = append_motion_preferences(
+            form.text_md.data,
+            form.allow_clerical.data,
+            form.allow_move.data,
+            clerical_text,
+            move_text,
+        )
         seconder = (
             Member.query.filter_by(
                 meeting_id=meeting.id,

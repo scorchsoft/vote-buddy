@@ -190,6 +190,26 @@ def motion_results_summary(meeting: "Meeting") -> str:
     return "\n".join(lines)
 
 
+def append_motion_preferences(
+    text: str,
+    allow_clerical: bool,
+    allow_move: bool,
+    clerical_text: str,
+    move_text: str,
+) -> str:
+    """Append motion handling preferences to the motion text if selected."""
+
+    prefs: list[str] = []
+    if allow_clerical and clerical_text:
+        prefs.append(clerical_text)
+    if allow_move and move_text:
+        prefs.append(move_text)
+    if not prefs:
+        return text
+    prefs_md = "\n".join(f"- {p}" for p in prefs)
+    return text.rstrip() + "\n\n---\n### Motion Handling Preferences\n\n" + prefs_md
+
+
 def generate_results_pdf(meeting, stage1_results, stage2_results) -> bytes:
     """Return PDF bytes summarising Stage 1 and Stage 2 results."""
     from reportlab.lib import colors
