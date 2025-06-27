@@ -207,27 +207,21 @@
     <h2 class="text-xl font-semibold text-bp-grey-900">Auto Email Summary</h2>
     <a href="{{ url_for('meetings.email_settings', meeting_id=meeting.id) }}" class="bp-link text-sm">Edit</a>
   </div>
-  <table class="bp-table w-full text-sm">
-    <tbody>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
     {% for t, _ in schedule.items() %}
       {% set s = settings.get(t) %}
-      <tr>
-        <td class="p-2">
-          <a href="{{ url_for('meetings.preview_email', meeting_id=meeting.id, email_type=t) }}" target="_blank" class="bp-link">
-            {{ t.replace('_', ' ').title() }}
-          </a>
-        </td>
-        <td class="p-2">
-          {% if s and not s.auto_send %}
-            <span class="bp-badge">Off</span>
-          {% else %}
-            <span class="bp-badge bp-badge-success">On</span>
-          {% endif %}
-        </td>
-      </tr>
+      <div class="flex items-center justify-between p-2 border rounded">
+        <a href="{{ url_for('meetings.preview_email', meeting_id=meeting.id, email_type=t) }}" target="_blank" class="bp-link">
+          {{ t.replace('_', ' ').title() }}
+        </a>
+        {% if s and not s.auto_send %}
+          <span class="bp-badge">Off</span>
+        {% else %}
+          <span class="bp-badge bp-badge-success">On</span>
+        {% endif %}
+      </div>
     {% endfor %}
-    </tbody>
-  </table>
+  </div>
 </div>
 
 <!-- Motions Summary -->
