@@ -109,6 +109,7 @@
     {% else %}
       <a href="{{ url_for('meetings.request_motion_change', motion_id=motion.id) }}" class="bp-btn-primary">Request Withdrawal/Edit</a>
     {% endif %}
+    <a href="{{ url_for('comments.motion_comments', token='preview', motion_id=motion.id) }}" class="bp-btn-secondary">View Comments</a>
   </div>
 {% endif %}
 {% endblock %}

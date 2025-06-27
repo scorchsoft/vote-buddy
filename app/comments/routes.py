@@ -45,9 +45,13 @@ def _verify_token(token: str) -> tuple[Member, Meeting]:
         meeting = db.session.get(Meeting, meeting_id) if meeting_id else None
         if not meeting or not meeting.comments_enabled:
             abort(404)
-        member = Member.query.filter_by(meeting_id=meeting.id).first()
+        member = Member.query.filter_by(
+            meeting_id=meeting.id, name="Meeting Coordinator"
+        ).first()
         if not member:
-            member = Member(meeting_id=meeting.id)
+            member = Member(meeting_id=meeting.id, name="Meeting Coordinator")
+            db.session.add(member)
+            db.session.commit()
         g.member_id = member.id
         return member, meeting
     vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
@@ -114,9 +118,6 @@ def add_motion_comment(token: str, motion_id: int):
         abort(404)
     text = request.form.get("text", "").strip()
     if text:
-        if token == "preview":
-            flash("Preview comment posted", "success")
-            return redirect(url_for("comments.motion_comments", token=token, motion_id=motion.id))
         comment = Comment(
             meeting_id=meeting.id,
             motion_id=motion.id,
@@ -176,11 +177,6 @@ def add_amendment_comment(token: str, amendment_id: int):
         abort(404)
     text = request.form.get("text", "").strip()
     if text:
-        if token == "preview":
-            flash("Preview comment posted", "success")
-            return redirect(
-                url_for("comments.amendment_comments", token=token, amendment_id=amendment.id)
-            )
         comment = Comment(
             meeting_id=meeting.id,
             amendment_id=amendment.id,
