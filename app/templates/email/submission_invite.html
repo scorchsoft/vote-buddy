@@ -7,7 +7,7 @@
       <!-- Welcome Section -->
       <div style="padding: 32px 32px 24px 32px;">
         <h2 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 600; color: #1a202c;">Hello {{ member.name }}! 📝</h2>
-        <p style="margin: 0 0 20px 0; font-size: 18px; color: #4a5568; line-height: 1.5;">You can now submit motions and amendments for <strong style="color: #2d3748;">{{ meeting.title }}</strong></p>
+        <p style="margin: 0 0 20px 0; font-size: 18px; color: #4a5568; line-height: 1.5;">You can now submit motions for <strong style="color: #2d3748;">{{ meeting.title }}</strong></p>
       </div>
 
       <!-- Information Section -->
@@ -15,7 +15,7 @@
         <div style="background: #f7fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
           <p style="margin: 0 0 12px 0; color: #4a5568; line-height: 1.5;">
             <strong style="color: #2d3748;">📋 Submit Your Proposals</strong><br>
-            Use the secure link below to submit motions and amendments for consideration. For guidance on the submission process, visit our <a href="{{ url_for('help.show_help', _external=True) }}" style="color: #3182ce; text-decoration: none; font-weight: 500;">voting help page</a>.
+            Use the secure link below to submit motions for consideration. For guidance on the submission process, visit our <a href="{{ url_for('help.show_help', _external=True) }}" style="color: #3182ce; text-decoration: none; font-weight: 500;">voting help page</a>.
           </p>
         </div>
       </div>
@@ -52,6 +52,7 @@
     </td>
   </tr>
   
+{% include 'email/_why_text.html' %}
   <!-- Footer -->
   <tr>
     <td style="background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%); padding: 24px 32px; color: #e2e8f0;">

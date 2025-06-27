@@ -1786,7 +1786,7 @@ def preview_email(meeting_id: int, email_type: str):
             member=member,
             meeting=meeting,
             review_url=url_for('main.review_motions', token='preview', meeting_id=meeting.id, _external=True),
-            link=url_for('submissions.submit_motion', token='preview', meeting_id=meeting.id, _external=True),
+            link=url_for('submissions.submit_amendment_select', token='preview', meeting_id=meeting.id, _external=True),
             unsubscribe_url=unsubscribe,
             resubscribe_url=resubscribe,
             test_mode=True,

@@ -11,5 +11,7 @@ Review the proposed motions and leave comments or propose amendments as needed. 
 ❓ Need help with the review process?
 Visit our help guide: {{ url_for('help.show_help', _external=True) }}
 
+{% include 'email/_why_text.txt' %}
+
 To stop these emails, visit: {{ unsubscribe_url }}
 To start them again later, visit: {{ resubscribe_url }}

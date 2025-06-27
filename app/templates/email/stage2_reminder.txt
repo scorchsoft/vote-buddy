@@ -19,5 +19,7 @@ Use the link below to cast your ballot:
 Need help? {{ url_for('help.show_help', _external=True) }}
 
 If you already voted, you can ignore this email.
+{% include 'email/_why_text.txt' %}
+
 To stop these reminders, visit {{ unsubscribe_url }}
 To start them again later, visit {{ resubscribe_url }}

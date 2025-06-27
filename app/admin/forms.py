@@ -66,6 +66,10 @@ class SettingsForm(FlaskForm):
         validators=[Optional()],
         render_kw={"data-markdown-editor": "1"},
     )
+    email_why_text = TextAreaField(
+        "Email Why Text",
+        validators=[Optional()],
+    )
     manual_email_mode = BooleanField("Disable Automatic Emails")
     contact_url = StringField("Contact URL", validators=[Optional(), URL()])
     submit = SubmitField("Save")

@@ -1,1 +1,2 @@
 You have been listed as the seconder for a submission in {{ meeting.title }}.
+{% include 'email/_why_text.txt' %}

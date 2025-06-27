@@ -30,6 +30,10 @@ from docx.oxml.ns import nsdecls
 import io
 import os
 
+DEFAULT_EMAIL_WHY_TEXT = (
+    "You are a member of our organisation and have therefore been invited to participate in voting in AGMs/EGMs. If you do not want to participate in the process then please ignore this and subsequent emails"
+)
+
 
 def auto_send_enabled(meeting: Meeting, kind: str) -> bool:
     """Return True if automatic emails of given type are enabled for meeting."""
@@ -108,6 +112,7 @@ def send_vote_invite(member: Member, token: str, meeting: Meeting, *, test_mode:
         objection_link=objection_link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -120,6 +125,7 @@ def send_vote_invite(member: Member, token: str, meeting: Meeting, *, test_mode:
         objection_link=objection_link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -154,6 +160,7 @@ def send_proxy_invite(proxy: Member, principal: Member, token: str, meeting: Mee
         link=link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -165,6 +172,7 @@ def send_proxy_invite(proxy: Member, principal: Member, token: str, meeting: Mee
         link=link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -200,6 +208,7 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         link=link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         summary=summary,
         results_link=results_link,
         test_mode=test_mode,
@@ -212,6 +221,7 @@ def send_stage2_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         link=link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         summary=summary,
         results_link=results_link,
         test_mode=test_mode,
@@ -246,6 +256,7 @@ def send_runoff_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         link=link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -256,6 +267,7 @@ def send_runoff_invite(member: Member, token: str, meeting: Meeting, *, test_mod
         link=link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -297,6 +309,7 @@ def send_stage1_reminder(member: Member, token: str, meeting: Meeting, *, test_m
         objection_link=objection_link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -308,6 +321,7 @@ def send_stage1_reminder(member: Member, token: str, meeting: Meeting, *, test_m
         objection_link=objection_link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -344,6 +358,7 @@ def send_stage2_reminder(member: Member, token: str, meeting: Meeting, *, test_m
         link=link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         summary=summary,
         results_link=results_link,
         test_mode=test_mode,
@@ -356,6 +371,7 @@ def send_stage2_reminder(member: Member, token: str, meeting: Meeting, *, test_m
         link=link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         summary=summary,
         results_link=results_link,
         test_mode=test_mode,
@@ -384,6 +400,7 @@ def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str], *, te
         hashes=hashes,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -394,6 +411,7 @@ def send_vote_receipt(member: Member, meeting: Meeting, hashes: list[str], *, te
         hashes=hashes,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -418,6 +436,7 @@ def send_quorum_failure(member: Member, meeting: Meeting, *, test_mode: bool = F
         meeting=meeting,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -427,6 +446,7 @@ def send_quorum_failure(member: Member, meeting: Meeting, *, test_mode: bool = F
         meeting=meeting,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -577,6 +597,7 @@ def send_final_results(member: Member, meeting: Meeting, *, test_mode: bool = Fa
         results_link=results_link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
     )
     msg.html = render_template(
@@ -587,6 +608,7 @@ def send_final_results(member: Member, meeting: Meeting, *, test_mode: bool = Fa
         results_link=results_link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
     )
 
@@ -609,8 +631,18 @@ def send_objection_confirmation(obj: AmendmentObjection, amendment: Amendment, m
     )
     link = url_for('meetings.confirm_objection', token=obj.token, _external=True)
     branding = _branding()
-    msg.body = render_template('email/objection_confirm.txt', link=link, **branding)
-    msg.html = render_template('email/objection_confirm.html', link=link, **branding)
+    msg.body = render_template(
+        'email/objection_confirm.txt',
+        link=link,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
+        **branding,
+    )
+    msg.html = render_template(
+        'email/objection_confirm.html',
+        link=link,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
+        **branding,
+    )
     mail.send(msg)
 
 
@@ -623,10 +655,18 @@ def send_board_notice(amendment: Amendment, meeting: Meeting, *, test_mode: bool
     )
     branding = _branding()
     msg.body = render_template(
-        "email/board_notice.txt", amendment=amendment, meeting=meeting, **branding
+        "email/board_notice.txt",
+        amendment=amendment,
+        meeting=meeting,
+        why_text=config_or_setting("EMAIL_WHY_TEXT", DEFAULT_EMAIL_WHY_TEXT),
+        **branding,
     )
     msg.html = render_template(
-        "email/board_notice.html", amendment=amendment, meeting=meeting, **branding
+        "email/board_notice.html",
+        amendment=amendment,
+        meeting=meeting,
+        why_text=config_or_setting("EMAIL_WHY_TEXT", DEFAULT_EMAIL_WHY_TEXT),
+        **branding,
     )
     mail.send(msg)
 
@@ -650,12 +690,14 @@ def send_amendment_reinstated(amendment: Amendment, meeting: Meeting, *, test_mo
         "email/amendment_reinstated.txt",
         amendment=amendment,
         meeting=meeting,
+        why_text=config_or_setting("EMAIL_WHY_TEXT", DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     msg.html = render_template(
         "email/amendment_reinstated.html",
         amendment=amendment,
         meeting=meeting,
+        why_text=config_or_setting("EMAIL_WHY_TEXT", DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     mail.send(msg)
@@ -672,12 +714,14 @@ def send_motion_submission_alert(submission: MotionSubmission, meeting: Meeting,
         'email/motion_submission.txt',
         submission=submission,
         meeting=meeting,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     msg.html = render_template(
         'email/motion_submission.html',
         submission=submission,
         meeting=meeting,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     try:
@@ -698,12 +742,14 @@ def send_amendment_submission_alert(submission: AmendmentSubmission, motion: Mot
         'email/amendment_submission.txt',
         submission=submission,
         motion=motion,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     msg.html = render_template(
         'email/amendment_submission.html',
         submission=submission,
         motion=motion,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     try:
@@ -724,11 +770,13 @@ def notify_seconder_motion(seconder: Member, meeting: Meeting, *, test_mode: boo
     msg.body = render_template(
         "email/seconder_notice.txt",
         meeting=meeting,
+        why_text=config_or_setting("EMAIL_WHY_TEXT", DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     msg.html = render_template(
         "email/seconder_notice.html",
         meeting=meeting,
+        why_text=config_or_setting("EMAIL_WHY_TEXT", DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     mail.send(msg)
@@ -747,12 +795,14 @@ def notify_seconder_amendment(seconder: Member, meeting: Meeting, motion: Motion
         "email/seconder_notice.txt",
         meeting=meeting,
         motion=motion,
+        why_text=config_or_setting("EMAIL_WHY_TEXT", DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     msg.html = render_template(
         "email/seconder_notice.html",
         meeting=meeting,
         motion=motion,
+        why_text=config_or_setting("EMAIL_WHY_TEXT", DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     mail.send(msg)
@@ -781,6 +831,7 @@ def send_submission_invite(member: Member, meeting: Meeting, *, test_mode: bool 
         member=member,
         meeting=meeting,
         link=link,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     msg.html = render_template(
@@ -788,6 +839,7 @@ def send_submission_invite(member: Member, meeting: Meeting, *, test_mode: bool 
         member=member,
         meeting=meeting,
         link=link,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     mail.send(msg)
@@ -805,7 +857,7 @@ def send_review_invite(member: Member, meeting: Meeting, *, test_mode: bool = Fa
     )
     db.session.commit()
     review_url = url_for('main.review_motions', token=plain, meeting_id=meeting.id, _external=True)
-    link = url_for('submissions.submit_motion', token=plain, meeting_id=meeting.id, _external=True)
+    link = url_for('submissions.submit_amendment_select', token=plain, meeting_id=meeting.id, _external=True)
     unsubscribe = _unsubscribe_url(member)
     resubscribe = _resubscribe_url(member)
     msg = Message(
@@ -822,6 +874,7 @@ def send_review_invite(member: Member, meeting: Meeting, *, test_mode: bool = Fa
         link=link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -833,6 +886,7 @@ def send_review_invite(member: Member, meeting: Meeting, *, test_mode: bool = Fa
         link=link,
         unsubscribe_url=unsubscribe,
         resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
         test_mode=test_mode,
         **branding,
     )
@@ -851,12 +905,14 @@ def send_password_reset(user: User, token: str, *, test_mode: bool = False) -> N
         "email/password_reset.txt",
         user=user,
         link=link,
+        why_text=config_or_setting("EMAIL_WHY_TEXT", DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     msg.html = render_template(
         "email/password_reset.html",
         user=user,
         link=link,
+        why_text=config_or_setting("EMAIL_WHY_TEXT", DEFAULT_EMAIL_WHY_TEXT),
         **branding,
     )
     mail.send(msg)

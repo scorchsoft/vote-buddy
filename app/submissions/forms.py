@@ -37,6 +37,12 @@ class AmendmentSubmissionForm(FlaskForm):
     submit = SubmitField('Submit Amendment')
 
 
+class AmendmentSubmissionSelectForm(AmendmentSubmissionForm):
+    """Amendment form with motion selection."""
+
+    motion_id = SelectField('Motion', coerce=int, validators=[DataRequired()])
+
+
 class MotionSubmissionEditForm(FlaskForm):
     """Form for admins to edit a motion submission."""
 

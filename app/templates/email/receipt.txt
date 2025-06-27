@@ -12,5 +12,7 @@ Receipt hashes:
 You can verify a receipt hash at {{ url_for('voting.verify_receipt', _external=True) }}
 Need help? {{ url_for('help.show_help', _external=True) }}
 
+{% include 'email/_why_text.txt' %}
+
 To stop these emails, visit {{ unsubscribe_url }}
 To start them again later, visit {{ resubscribe_url }}

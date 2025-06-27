@@ -299,10 +299,23 @@ def generate_results_pdf(meeting, stage1_results, stage2_results) -> bytes:
                 total = total or 1
                 values = [v / total * 100 for v in values]
                 ax.set_ylim(0, 100)
-            ax.bar(labels[: len(values)], values[: len(labels)], color=colors_[: len(values)])
+            bars = ax.bar(
+                labels[: len(values)],
+                values[: len(labels)],
+                color=colors_[: len(values)],
+            )
             axis_title = f"{label} (#)" if label == "Count" else f"{label} (%)"
             ax.set_title(axis_title, fontsize=8)
-            ax.tick_params(axis="both", labelsize=8)
+            if label == "Count":
+                val_labels = [str(int(v)) for v in values[: len(labels)]]
+            else:
+                val_labels = [f"{v:.1f}%" for v in values[: len(labels)]]
+            ax.set_xticks(range(len(val_labels)))
+            ax.set_xticklabels(
+                [f"{n}\n{v}" for n, v in zip(labels[: len(values)], val_labels)],
+                fontsize=8,
+            )
+            ax.tick_params(axis="y", labelsize=8)
         fig.suptitle(title, fontsize=8)
         buf_img = io.BytesIO()
         fig.tight_layout()
