@@ -18,6 +18,7 @@ from .models import (
     Meeting,
     Amendment,
     Motion,
+    Comment,
     Vote,
     Member,
     VoteToken,
@@ -151,7 +152,23 @@ def review_motions(token: str, meeting_id: int):
     if not (token == "preview" and current_user.is_authenticated and current_user.has_permission("manage_meetings")):
         query = query.filter_by(is_published=True)
     motions = query.order_by(Motion.ordering).all()
-    return render_template('public_review.html', meeting=meeting, motions=motions, token=token)
+    motion_counts = {
+        m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
+        for m in motions
+    }
+    amendments_open = (
+        meeting.amendments_opens_at
+        and now >= meeting.amendments_opens_at
+        and (meeting.amendments_closes_at is None or now <= meeting.amendments_closes_at)
+    )
+    return render_template(
+        'public_review.html',
+        meeting=meeting,
+        motions=motions,
+        token=token,
+        motion_counts=motion_counts,
+        amendments_open=amendments_open,
+    )
 
 
 def _resend_key_func():

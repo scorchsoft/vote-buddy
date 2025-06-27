@@ -805,7 +805,7 @@ def send_review_invite(member: Member, meeting: Meeting, *, test_mode: bool = Fa
     )
     db.session.commit()
     review_url = url_for('main.review_motions', token=plain, meeting_id=meeting.id, _external=True)
-    link = url_for('submissions.submit_motion', token=plain, meeting_id=meeting.id, _external=True)
+    link = url_for('submissions.submit_amendment_select', token=plain, meeting_id=meeting.id, _external=True)
     unsubscribe = _unsubscribe_url(member)
     resubscribe = _resubscribe_url(member)
     msg = Message(

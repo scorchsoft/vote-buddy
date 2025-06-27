@@ -290,7 +290,7 @@ def test_send_review_invite_links():
                 mock_send.assert_called_once()
                 sent = mock_send.call_args[0][0]
                 assert '/review/' in sent.body
-                assert '/submit/' in sent.body
+                assert '/amendment/new/' in sent.body
 
 def test_send_submission_invite_links():
     app = create_app()
