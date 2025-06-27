@@ -151,7 +151,7 @@ def _calculate_default_times(agm_date: datetime) -> dict:
         days=cfg.get("MOTION_WINDOW_DAYS", 7)
     )
     amendments_opens_at = notice_date
-    amendments_closes_at = opens_at_stage1 - timedelta(days=21)
+    amendments_closes_at = opens_at_stage1 - timedelta(days=7)
     return {
         "notice_date": notice_date,
         "opens_at_stage1": opens_at_stage1,
@@ -328,7 +328,7 @@ def edit_meeting(meeting_id):
         _prefill_form_defaults(form)
     if form.validate_on_submit():
         _save_meeting(form, meeting)
-        return redirect(url_for("meetings.list_meetings"))
+        return redirect(url_for("meetings.edit_meeting", meeting_id=meeting_id))
     return render_template("meetings/meetings_form.html", form=form, meeting=meeting)
 
 

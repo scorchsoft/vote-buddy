@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (force || !amendsOpen.value) amendsOpen.value = toLocal(dNotice);
 
     const dAmendsClose = new Date(dStage1Open);
-    dAmendsClose.setDate(dAmendsClose.getDate() - 21);
+    dAmendsClose.setDate(dAmendsClose.getDate() - 7);
     if (force || !amendsClose.value) amendsClose.value = toLocal(dAmendsClose);
   }
 
