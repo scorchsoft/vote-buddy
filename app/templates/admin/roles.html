@@ -3,6 +3,7 @@
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Roles', url_for('admin.list_roles'))]) }}
 <h1 class="font-bold text-bp-blue mb-4">Roles</h1>
+<a href="{{ url_for('admin.list_permissions') }}" class="bp-btn-secondary mb-4 inline-block">Manage Permissions</a>
 <div class="bp-card">
 <table class="bp-table">
   <thead class="bg-bp-grey-50">
