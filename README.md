@@ -207,6 +207,11 @@ If the `flask` command is unavailable, use:
 python -m flask --app app run --port 5555
 ```
 
+or to run in debug mode (recommended for testing)
+```bash
+python -m flask --app app --debug run --port 5555
+```
+
 Or more simply if running locally where there may not be port conflicts:
 
 ```bash

@@ -338,36 +338,21 @@ def manage_settings():
             "from_email",
             current_app.config.get("MAIL_DEFAULT_SENDER", "noreply@example.com"),
         )
-        form.runoff_extension_minutes.data = int(
-            AppSetting.get(
-                "runoff_extension_minutes",
-                current_app.config.get("RUNOFF_EXTENSION_MINUTES", 2880),
-            ) or current_app.config.get("RUNOFF_EXTENSION_MINUTES", 2880)
-        )
-        form.reminder_hours_before_close.data = int(
-            AppSetting.get(
-                "reminder_hours_before_close",
-                current_app.config.get("REMINDER_HOURS_BEFORE_CLOSE", 6),
-            ) or current_app.config.get("REMINDER_HOURS_BEFORE_CLOSE", 6)
-        )
-        form.reminder_cooldown_hours.data = int(
-            AppSetting.get(
-                "reminder_cooldown_hours",
-                current_app.config.get("REMINDER_COOLDOWN_HOURS", 24),
-            ) or current_app.config.get("REMINDER_COOLDOWN_HOURS", 24)
-        )
-        form.stage2_reminder_hours_before_close.data = int(
-            AppSetting.get(
-                "stage2_reminder_hours_before_close",
-                current_app.config.get("STAGE2_REMINDER_HOURS_BEFORE_CLOSE", 6),
-            ) or current_app.config.get("STAGE2_REMINDER_HOURS_BEFORE_CLOSE", 6)
-        )
-        form.stage2_reminder_cooldown_hours.data = int(
-            AppSetting.get(
-                "stage2_reminder_cooldown_hours",
-                current_app.config.get("STAGE2_REMINDER_COOLDOWN_HOURS", 24),
-            ) or current_app.config.get("STAGE2_REMINDER_COOLDOWN_HOURS", 24)
-        )
+        # Handle integer fields with proper None checking
+        runoff_minutes = AppSetting.get("runoff_extension_minutes", current_app.config.get("RUNOFF_EXTENSION_MINUTES", 2880))
+        form.runoff_extension_minutes.data = int(runoff_minutes) if runoff_minutes is not None else current_app.config.get("RUNOFF_EXTENSION_MINUTES", 2880)
+        
+        reminder_hours = AppSetting.get("reminder_hours_before_close", current_app.config.get("REMINDER_HOURS_BEFORE_CLOSE", 6))
+        form.reminder_hours_before_close.data = int(reminder_hours) if reminder_hours is not None else current_app.config.get("REMINDER_HOURS_BEFORE_CLOSE", 6)
+        
+        cooldown_hours = AppSetting.get("reminder_cooldown_hours", current_app.config.get("REMINDER_COOLDOWN_HOURS", 24))
+        form.reminder_cooldown_hours.data = int(cooldown_hours) if cooldown_hours is not None else current_app.config.get("REMINDER_COOLDOWN_HOURS", 24)
+        
+        stage2_reminder = AppSetting.get("stage2_reminder_hours_before_close", current_app.config.get("STAGE2_REMINDER_HOURS_BEFORE_CLOSE", 6))
+        form.stage2_reminder_hours_before_close.data = int(stage2_reminder) if stage2_reminder is not None else current_app.config.get("STAGE2_REMINDER_HOURS_BEFORE_CLOSE", 6)
+        
+        stage2_cooldown = AppSetting.get("stage2_reminder_cooldown_hours", current_app.config.get("STAGE2_REMINDER_COOLDOWN_HOURS", 24))
+        form.stage2_reminder_cooldown_hours.data = int(stage2_cooldown) if stage2_cooldown is not None else current_app.config.get("STAGE2_REMINDER_COOLDOWN_HOURS", 24)
         form.reminder_template.data = AppSetting.get(
             "reminder_template",
             current_app.config.get("REMINDER_TEMPLATE", "email/reminder"),
@@ -392,6 +377,7 @@ def manage_settings():
         )
         form.manual_email_mode.data = AppSetting.get("manual_email_mode", "0") == "1"
     if form.validate_on_submit():
+        current_app.logger.info("Settings form validated successfully")
         AppSetting.set("site_title", form.site_title.data)
         if form.logo_file.data:
             file = form.logo_file.data
@@ -410,23 +396,17 @@ def manage_settings():
         else:
             AppSetting.set("site_logo", form.site_logo.data)
         AppSetting.set("from_email", form.from_email.data)
-        AppSetting.set(
-            "runoff_extension_minutes", str(form.runoff_extension_minutes.data)
-        )
-        AppSetting.set(
-            "reminder_hours_before_close", str(form.reminder_hours_before_close.data)
-        )
-        AppSetting.set(
-            "reminder_cooldown_hours", str(form.reminder_cooldown_hours.data)
-        )
-        AppSetting.set(
-            "stage2_reminder_hours_before_close",
-            str(form.stage2_reminder_hours_before_close.data),
-        )
-        AppSetting.set(
-            "stage2_reminder_cooldown_hours",
-            str(form.stage2_reminder_cooldown_hours.data),
-        )
+        # Handle integer fields - only save if they have values
+        if form.runoff_extension_minutes.data is not None:
+            AppSetting.set("runoff_extension_minutes", str(form.runoff_extension_minutes.data))
+        if form.reminder_hours_before_close.data is not None:
+            AppSetting.set("reminder_hours_before_close", str(form.reminder_hours_before_close.data))
+        if form.reminder_cooldown_hours.data is not None:
+            AppSetting.set("reminder_cooldown_hours", str(form.reminder_cooldown_hours.data))
+        if form.stage2_reminder_hours_before_close.data is not None:
+            AppSetting.set("stage2_reminder_hours_before_close", str(form.stage2_reminder_hours_before_close.data))
+        if form.stage2_reminder_cooldown_hours.data is not None:
+            AppSetting.set("stage2_reminder_cooldown_hours", str(form.stage2_reminder_cooldown_hours.data))
         AppSetting.set("reminder_template", form.reminder_template.data)
         AppSetting.set("tie_break_decisions", form.tie_break_decisions.data)
         AppSetting.set("clerical_text", form.clerical_text.data)
@@ -440,6 +420,9 @@ def manage_settings():
         record_action("update_settings")
         flash("Settings updated", "success")
         return redirect(url_for("admin.manage_settings"))
+    else:
+        if request.method == "POST":
+            current_app.logger.error(f"Settings form validation failed: {form.errors}")
     return render_template("admin/settings_form.html", form=form)
 
 

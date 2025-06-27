@@ -6,9 +6,26 @@
   <h1 class="font-bold text-bp-blue">Application Settings</h1>
   <form method="post" enctype="multipart/form-data" hx-boost="false">
     {{ form.hidden_tag() }}
+    {% if form.errors %}
+    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+      <strong>Form validation errors:</strong>
+      <ul>
+        {% for field_name, errors in form.errors.items() %}
+          {% for error in errors %}
+            <li>{{ field_name }}: {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
     <div class="mb-4">
       {{ form.site_title.label(class='block mb-1') }}
       {{ form.site_title(class='bp-input w-full') }}
+      {% if form.site_title.errors %}
+        {% for error in form.site_title.errors %}
+          <div class="text-red-600 text-sm mt-1">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
     </div>
     <div class="mb-4">
       {{ form.site_logo.label(class='block mb-1') }}
@@ -40,6 +57,11 @@
                 formmethod="post"
                 class="text-sm underline">Reset default</button>
       </div>
+      {% if form.runoff_extension_minutes.errors %}
+        {% for error in form.runoff_extension_minutes.errors %}
+          <div class="text-red-600 text-sm mt-1">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
     </div>
     <div class="mb-4">
       {{ form.reminder_hours_before_close.label(class='block mb-1') }}
