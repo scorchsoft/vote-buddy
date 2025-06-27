@@ -2,104 +2,201 @@
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
 {{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, None)]) }}
-<h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }}</h1>
-{% if meeting.summary_md %}
-<div class="mb-4">{{ meeting.summary_md|markdown_to_html|safe }}</div>
-{% endif %}
 
-<p class="mb-2">Stage: {{ meeting.status or 'Draft' }} | Members: {{ member_count }}</p>
-{% if meeting.notice_date %}
-<p class="mb-4 text-sm text-bp-grey-700">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') }}</p>
-{% endif %}
-<button class="bp-btn-secondary mb-6" data-modal-target="resend-modal">Resend Voting Email</button>
+<div class="max-w-4xl mx-auto">
+  <div class="mb-6">
+    <h1 class="font-bold text-bp-blue text-3xl mb-3">{{ meeting.title }}</h1>
+    {% if meeting.summary_md %}
+    <div class="prose prose-lg mb-4 text-bp-grey-700">{{ meeting.summary_md|markdown_to_html|safe }}</div>
+    {% endif %}
+  </div>
 
-{% if meeting.opens_at_stage1 and meeting.closes_at_stage1 %}
-<p class="mb-2">
-  Stage 1:
-  {{ meeting.opens_at_stage1|format_dt }} –
-  {{ meeting.closes_at_stage1|format_dt }}
-  <a href="{{ stage1_ics_url }}" class="text-bp-blue hover:underline ml-2" download hx-boost="false">Add to calendar</a>
-</p>
-<div class="mb-4">
-  <div id="stage1-progress" class="bp-progress" data-progress-open="{{ meeting.opens_at_stage1.isoformat() }}Z" data-progress-close="{{ meeting.closes_at_stage1.isoformat() }}Z" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-    <div class="bp-progress-bar"></div>
-    <span class="sr-only"><span id="stage1-percent-text">{{ meeting.stage1_progress_percent() }}</span>% complete</span>
+  <div class="bg-bp-grey-50 border border-bp-grey-200 rounded-lg p-4 mb-6">
+    <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center space-x-4">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-bp-blue text-white">
+          {{ meeting.status or 'Draft' }}
+        </span>
+        <span class="text-bp-grey-600">{{ member_count }} member{{ 's' if member_count != 1 else '' }}</span>
+      </div>
+      {% if meeting.notice_date %}
+      <span class="text-sm text-bp-grey-600">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') }}</span>
+      {% endif %}
+    </div>
   </div>
-  <span id="stage1-info" class="text-xs text-bp-grey-600 mt-1" role="status" aria-live="polite">
-    <span id="stage1-countdown">{{ meeting.stage1_time_remaining() }}</span> left
-  </span>
+
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+    <div class="flex items-start space-x-3">
+      <div class="flex-shrink-0">
+        <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h3 class="text-sm font-medium text-blue-800 mb-1">Meeting Overview</h3>
+        <p class="text-sm text-blue-700 mb-2">
+          This page shows an overview of the meeting. If you are looking to submit motions, amendments, comments, or participate in voting, you will receive an email with direct links to these actions when they become available.
+        </p>
+        <p class="text-sm text-blue-700 mb-3">
+          If you need to have your voting email resent, you can use the button below.
+        </p>
+        <button class="bp-btn-secondary bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700" data-modal-target="resend-modal">
+          Resend Voting Email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-4 mb-6">
+    {% if meeting.opens_at_stage1 and meeting.closes_at_stage1 %}
+    <div class="bg-white border border-bp-grey-200 rounded-lg p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-lg text-bp-blue">Stage 1 Voting</h3>
+        <a href="{{ stage1_ics_url }}" class="text-sm text-bp-blue hover:underline inline-flex items-center" download hx-boost="false">
+          <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+          </svg>
+          Add to calendar
+        </a>
+      </div>
+      <p class="text-bp-grey-700 mb-3">
+        {{ meeting.opens_at_stage1|format_dt }} – {{ meeting.closes_at_stage1|format_dt }}
+      </p>
+      <div class="mb-2">
+        <div id="stage1-progress" class="bp-progress" data-progress-open="{{ meeting.opens_at_stage1.isoformat() }}Z" data-progress-close="{{ meeting.closes_at_stage1.isoformat() }}Z" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+          <div class="bp-progress-bar"></div>
+          <span class="sr-only"><span id="stage1-percent-text">{{ meeting.stage1_progress_percent() }}</span>% complete</span>
+        </div>
+        <span id="stage1-info" class="text-xs text-bp-grey-600 mt-1" role="status" aria-live="polite">
+          <span id="stage1-countdown">{{ meeting.stage1_time_remaining() }}</span> left
+        </span>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if meeting.runoff_opens_at and meeting.runoff_closes_at %}
+    <div class="bg-white border border-bp-grey-200 rounded-lg p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-lg text-bp-blue">Run-off Voting</h3>
+        <a href="{{ runoff_ics_url }}" class="text-sm text-bp-blue hover:underline inline-flex items-center" download hx-boost="false">
+          <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+          </svg>
+          Add to calendar
+        </a>
+      </div>
+      <p class="text-bp-grey-700">
+        {{ meeting.runoff_opens_at|format_dt }} – {{ meeting.runoff_closes_at|format_dt }}
+      </p>
+    </div>
+    {% endif %}
+
+    {% if meeting.opens_at_stage2 and meeting.closes_at_stage2 %}
+    <div class="bg-white border border-bp-grey-200 rounded-lg p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-lg text-bp-blue">Stage 2 Voting</h3>
+        <a href="{{ stage2_ics_url }}" class="text-sm text-bp-blue hover:underline inline-flex items-center" download hx-boost="false">
+          <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+          </svg>
+          Add to calendar
+        </a>
+      </div>
+      <p class="text-bp-grey-700 mb-3">
+        {{ meeting.opens_at_stage2|format_dt }} – {{ meeting.closes_at_stage2|format_dt }}
+      </p>
+      <div class="mb-2">
+        <div id="stage2-progress" class="bp-progress" data-progress-open="{{ meeting.opens_at_stage2.isoformat() }}Z" data-progress-close="{{ meeting.closes_at_stage2.isoformat() }}Z" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+          <div class="bp-progress-bar"></div>
+          <span class="sr-only"><span id="stage2-percent-text">{{ meeting.stage2_progress_percent() }}</span>% complete</span>
+        </div>
+        <span id="stage2-info" class="text-xs text-bp-grey-600 mt-1" role="status" aria-live="polite">
+          <span id="stage2-countdown">{{ meeting.stage2_time_remaining() }}</span> left
+        </span>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% if files %}
+  <div class="bg-white border border-bp-grey-200 rounded-lg p-6 mb-6">
+    <div class="flex items-center mb-4">
+      <svg class="w-5 h-5 text-bp-blue mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+      </svg>
+      <h2 class="font-semibold text-xl text-bp-blue">Documents</h2>
+    </div>
+    <div class="space-y-3">
+    {% for f in files %}
+      <div class="bg-bp-grey-50 rounded-lg p-3 hover:bg-bp-grey-100 transition-colors">
+        <a href="{{ url_for('main.public_meeting_file', meeting_id=meeting.id, file_id=f.id) }}" class="text-bp-blue hover:underline font-medium inline-flex items-center" download hx-boost="false">
+          <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+          {{ f.title }}
+        </a>
+        {% if f.description %}<p class="text-sm text-bp-grey-700 mt-1">{{ f.description }}</p>{% endif %}
+      </div>
+    {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  {% if amendments %}
+  <div class="bg-white border border-bp-grey-200 rounded-lg p-6 mb-6" id="amendments-section">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-bp-blue mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+        </svg>
+        <h2 class="font-semibold text-xl text-bp-blue">Published Amendments</h2>
+        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-bp-blue text-white">{{ amendments|length }}</span>
+      </div>
+      <button id="toggle-amendments" class="bp-btn-secondary bp-btn-sm">Expand all</button>
+    </div>
+    <div id="amendments-list" class="space-y-3">
+    {% for amend in amendments %}
+      <details class="bg-bp-grey-50 border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-100 transition-colors">
+        <summary class="font-semibold cursor-pointer text-bp-blue hover:text-bp-blue-dark flex items-center">
+          <svg class="w-4 h-4 mr-2 transform transition-transform details-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          Amendment A{{ amend.order }}
+        </summary>
+        <div class="prose prose-sm mt-3 pl-6 max-w-none">{{ amend.text_md|markdown_to_html|safe }}</div>
+      </details>
+    {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  {% if motions %}
+  <div class="bg-white border border-bp-grey-200 rounded-lg p-6 mb-6" id="motions-section">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-bp-blue mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+          <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h8a2 2 0 002-2V3a2 2 0 012 2v6h-3V8a1 1 0 10-2 0v3h-1V8a1 1 0 10-2 0v3H8V8a1 1 0 00-2 0v3H4V5zM2 12a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4zm6 1a1 1 0 10-2 0v2a1 1 0 102 0v-2zm2 0a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1zm5-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"></path>
+        </svg>
+        <h2 class="font-semibold text-xl text-bp-blue">Published Motions</h2>
+        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-bp-blue text-white">{{ motions|length }}</span>
+      </div>
+      <button id="toggle-motions" class="bp-btn-secondary bp-btn-sm">Expand all</button>
+    </div>
+    <div id="motions-list" class="space-y-3">
+    {% for motion in motions %}
+      <details class="bg-bp-grey-50 border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-100 transition-colors">
+        <summary class="font-semibold cursor-pointer text-bp-blue hover:text-bp-blue-dark flex items-center">
+          <svg class="w-4 h-4 mr-2 transform transition-transform details-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          {{ motion.title }}
+        </summary>
+        <div class="prose prose-sm mt-3 pl-6 max-w-none">{{ motion.text_md|markdown_to_html|safe }}</div>
+      </details>
+    {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
 </div>
-{% endif %}
-{% if meeting.runoff_opens_at and meeting.runoff_closes_at %}
-<p class="mb-2">
-  Run-off:
-  {{ meeting.runoff_opens_at|format_dt }} –
-  {{ meeting.runoff_closes_at|format_dt }}
-  <a href="{{ runoff_ics_url }}" class="text-bp-blue hover:underline ml-2" download hx-boost="false">Add to calendar</a>
-</p>
-{% endif %}
-{% if meeting.opens_at_stage2 and meeting.closes_at_stage2 %}
-<p class="mb-4">
-  Stage 2:
-  {{ meeting.opens_at_stage2|format_dt }} –
-  {{ meeting.closes_at_stage2|format_dt }}
-  <a href="{{ stage2_ics_url }}" class="text-bp-blue hover:underline ml-2" download hx-boost="false">Add to calendar</a>
-</p>
-<div class="mb-6">
-  <div id="stage2-progress" class="bp-progress" data-progress-open="{{ meeting.opens_at_stage2.isoformat() }}Z" data-progress-close="{{ meeting.closes_at_stage2.isoformat() }}Z" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-    <div class="bp-progress-bar"></div>
-    <span class="sr-only"><span id="stage2-percent-text">{{ meeting.stage2_progress_percent() }}</span>% complete</span>
-  </div>
-  <span id="stage2-info" class="text-xs text-bp-grey-600 mt-1" role="status" aria-live="polite">
-    <span id="stage2-countdown">{{ meeting.stage2_time_remaining() }}</span> left
-  </span>
-</div>
-{% endif %}
-{% if files %}
-<div class="mb-4">
-  <h2 class="font-semibold mb-2">Documents</h2>
-  <ul class="list-disc pl-5">
-  {% for f in files %}
-    <li class="mb-1">
-      <a href="{{ url_for('main.public_meeting_file', meeting_id=meeting.id, file_id=f.id) }}" class="text-bp-blue hover:underline" download hx-boost="false">{{ f.title }}</a>
-      {% if f.description %}<p class="text-sm text-bp-grey-700">{{ f.description }}</p>{% endif %}
-    </li>
-  {% endfor %}
-  </ul>
-</div>
-{% endif %}
-{% if amendments %}
-<div class="mb-6" id="amendments-section">
-  <div class="flex items-center justify-between mb-2">
-    <h2 class="font-semibold">Published Amendments</h2>
-    <button id="toggle-amendments" class="bp-btn-secondary bp-btn-sm">Expand all</button>
-  </div>
-  <div id="amendments-list" class="space-y-2">
-  {% for amend in amendments %}
-    <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
-      <summary class="font-semibold cursor-pointer">Amendment A{{ amend.order }}</summary>
-      <div class="prose mt-2">{{ amend.text_md|markdown_to_html|safe }}</div>
-    </details>
-  {% endfor %}
-  </div>
-</div>
-{% endif %}
-{% if motions %}
-<div class="mb-6" id="motions-section">
-  <div class="flex items-center justify-between mb-2">
-    <h2 class="font-semibold">Published Motions</h2>
-    <button id="toggle-motions" class="bp-btn-secondary bp-btn-sm">Expand all</button>
-  </div>
-  <div id="motions-list" class="space-y-2">
-  {% for motion in motions %}
-    <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
-      <summary class="font-semibold cursor-pointer">{{ motion.title }}</summary>
-      <div class="prose mt-2">{{ motion.text_md|markdown_to_html|safe }}</div>
-    </details>
-  {% endfor %}
-  </div>
-</div>
-{% endif %}
 <dialog id="resend-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="resend-title">
   <h2 id="resend-title" class="font-bold mb-2">Request Voting Email</h2>
   <div id="resend-modal-content" hx-target="this" hx-swap="outerHTML">

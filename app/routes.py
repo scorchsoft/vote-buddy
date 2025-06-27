@@ -98,6 +98,7 @@ def public_meeting_detail(meeting_id: int):
     if meeting is None:
         abort(404)
     files = MeetingFile.query.filter_by(meeting_id=meeting.id).all()
+    member_count = Member.query.filter_by(meeting_id=meeting.id).count()
     contact_url = AppSetting.get(
         'contact_url', 'https://www.britishpowerlifting.org/contactus'
     )
@@ -117,6 +118,7 @@ def public_meeting_detail(meeting_id: int):
     return render_template(
         'public_meeting.html',
         meeting=meeting,
+        member_count=member_count,
         contact_url=contact_url,
         stage1_ics_url=stage1_ics_url,
         runoff_ics_url=runoff_ics_url,
