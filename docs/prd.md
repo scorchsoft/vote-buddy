@@ -490,6 +490,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-09-01 – Added motion review page with comment links and preview token support.
 * 2025-09-02 – Updated motion submission form with markdown editor, seconder details entry and clause checkboxes.
 * 2025-09-03 – Meeting overview shows condensed motion cards with quick links.
+* 2025-09-03 – Coordinators can post comments via preview pages and motion detail links.
 * 2025-08-01 – Added Roles and Permissions links in admin menu and migration granting root admins 'manage_users'.
 * 2025-07-05 – Added Audit Log menu with permission and preview comments for coordinators.
 * 2025-06-27 – Audit log page paginated with htmx search support.
