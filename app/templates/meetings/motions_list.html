@@ -81,6 +81,15 @@
           </p>
         </div>
         {% endif %}
+
+        {% set amends = amendments_by_motion.get(m.id, []) %}
+        {% if amends %}
+        <ul class="list-disc pl-5 text-sm text-bp-grey-700 mb-3">
+          {% for a in amends %}
+          <li class="line-clamp-1">A{{ a.order }} – {{ a.text_md[:80] }}{% if a.text_md|length > 80 %}...{% endif %}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
       </div>
     </div>
 
