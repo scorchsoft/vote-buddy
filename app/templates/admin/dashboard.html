@@ -129,13 +129,13 @@
         
         <!-- Actions -->
         <div class="pt-4 border-t border-bp-grey-100 flex gap-2 mt-auto">
-          <form action="{{ url_for('admin.toggle_public_results', meeting_id=meeting.id) }}" method="post" class="flex-1">
+          <form action="{{ url_for('admin.toggle_public_results', meeting_id=meeting.id) }}" method="post" class="flex-1" hx-boost="false">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="bp-btn-secondary text-sm w-full">
               {{ 'Hide Results' if meeting.public_results else 'Show Results' }}
             </button>
           </form>
-          <form action="{{ url_for('admin.toggle_results_doc', meeting_id=meeting.id) }}" method="post" class="flex-1">
+          <form action="{{ url_for('admin.toggle_results_doc', meeting_id=meeting.id) }}" method="post" class="flex-1" hx-boost="false">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="bp-btn-secondary text-sm w-full"
               {% if not meeting.results_doc_published %}
@@ -145,7 +145,7 @@
             </button>
           </form>
           {% if meeting.status == 'Completed' %}
-          <form action="{{ url_for('meetings.send_final_results_all', meeting_id=meeting.id) }}" method="post" class="flex-1">
+          <form action="{{ url_for('meetings.send_final_results_all', meeting_id=meeting.id) }}" method="post" class="flex-1" hx-boost="false">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="bp-btn-primary text-sm w-full" onclick="return confirm('Send final results to all members?');">
               Email Final Results

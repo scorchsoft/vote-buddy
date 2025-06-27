@@ -45,18 +45,18 @@
     {% endif %}
     <div class="mt-2 flex space-x-2">
       <a href="{{ url_for('meetings.edit_amendment', amendment_id=amend.id) }}" class="bp-btn-secondary">Edit</a>
-      <form method="post" action="{{ url_for('meetings.delete_amendment', amendment_id=amend.id) }}">
+      <form method="post" action="{{ url_for('meetings.delete_amendment', amendment_id=amend.id) }}" hx-boost="false">
         <button class="bp-btn-secondary">Delete</button>
       </form>
       {% if current_user.is_authenticated and current_user.has_permission('manage_meetings') %}
         {% if amend.status != 'rejected' %}
-        <form method="post" action="{{ url_for('meetings.reject_amendment', amendment_id=amend.id) }}" class="flex space-x-2">
+        <form method="post" action="{{ url_for('meetings.reject_amendment', amendment_id=amend.id) }}" class="flex space-x-2" hx-boost="false">
           <input type="text" name="reason" placeholder="Reason" class="border p-2 rounded" />
           <button class="bp-btn-secondary">Reject</button>
         </form>
         {% endif %}
         {% if amend.status != 'merged' %}
-        <form method="post" action="{{ url_for('meetings.mark_amendment_merged', amendment_id=amend.id) }}" class="flex space-x-2">
+        <form method="post" action="{{ url_for('meetings.mark_amendment_merged', amendment_id=amend.id) }}" class="flex space-x-2" hx-boost="false">
           <input type="text" name="reason" placeholder="Reason" class="border p-2 rounded" />
           <button class="bp-btn-secondary">Mark merged</button>
         </form>
@@ -74,13 +74,13 @@
 {% if current_user.is_authenticated and current_user.has_permission('manage_meetings') %}
   <div class="mt-4 space-x-2">
     {% if motion.withdrawal_requested_at %}
-      <form method="post" action="{{ url_for('meetings.approve_motion_change', motion_id=motion.id, actor='chair') }}" class="inline-block">
+      <form method="post" action="{{ url_for('meetings.approve_motion_change', motion_id=motion.id, actor='chair') }}" class="inline-block" hx-boost="false">
         <button class="bp-btn-secondary">Chair Approve</button>
       </form>
-      <form method="post" action="{{ url_for('meetings.approve_motion_change', motion_id=motion.id, actor='board') }}" class="inline-block">
+      <form method="post" action="{{ url_for('meetings.approve_motion_change', motion_id=motion.id, actor='board') }}" class="inline-block" hx-boost="false">
         <button class="bp-btn-secondary">Board Approve</button>
       </form>
-      <form method="post" action="{{ url_for('meetings.reject_motion_change', motion_id=motion.id) }}" class="inline-block">
+      <form method="post" action="{{ url_for('meetings.reject_motion_change', motion_id=motion.id) }}" class="inline-block" hx-boost="false">
         <button class="bp-btn-secondary">Reject</button>
       </form>
     {% else %}

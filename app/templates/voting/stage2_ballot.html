@@ -28,7 +28,7 @@
   You're revisiting your ballot. Submitting again will overwrite your previous choices.
 </div>
 {% endif %}
-<form id="vote-form" method="post" class="bp-form bp-card space-y-4 pb-20">
+<form id="vote-form" method="post" class="bp-form bp-card space-y-4 pb-20" hx-boost="false">
   {{ form.hidden_tag() }}
   {% for motion, compiled in motions %}
     <blockquote class="bp-card bp-glow mb-4 whitespace-pre-line">{{ compiled|markdown_to_html|safe }}

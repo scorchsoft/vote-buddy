@@ -5,7 +5,7 @@
 <div class="max-w-md mx-auto">
   <h2 class="text-2xl font-bold text-bp-blue mb-6">Admin Login</h2>
 
-  <form method="post" class="bp-card space-y-6">
+  <form method="post" class="bp-card space-y-6" hx-boost="false">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <input type="hidden" name="next" value="{{ next or '' }}">
     

@@ -34,7 +34,7 @@
             <!-- Stage Lock Controls -->
             <div class="flex items-center gap-1 p-1 bg-bp-grey-50 rounded-lg">
               {% if meeting.stage1_locked %}
-                <form action="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=1) }}" method="post" class="inline">
+                <form action="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=1) }}" method="post" class="inline" hx-boost="false">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                   <button type="submit" class="bp-btn-icon p-2 bg-red-500 hover:bg-red-600 text-white rounded transition-colors" title="Unlock Stage 1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +44,7 @@
                   </button>
                 </form>
               {% else %}
-                <form action="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=1) }}" method="post" class="inline">
+                <form action="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=1) }}" method="post" class="inline" hx-boost="false">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                   <button type="submit" class="bp-btn-icon p-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors" title="Lock Stage 1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,7 +55,7 @@
                 </form>
               {% endif %}
               {% if meeting.stage2_locked %}
-                <form action="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=2) }}" method="post" class="inline">
+                <form action="{{ url_for('ro.unlock_stage', meeting_id=meeting.id, stage=2) }}" method="post" class="inline" hx-boost="false">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                   <button type="submit" class="bp-btn-icon p-2 bg-red-500 hover:bg-red-600 text-white rounded transition-colors" title="Unlock Stage 2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,7 +65,7 @@
                   </button>
                 </form>
               {% else %}
-                <form action="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=2) }}" method="post" class="inline">
+                <form action="{{ url_for('ro.lock_stage', meeting_id=meeting.id, stage=2) }}" method="post" class="inline" hx-boost="false">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                   <button type="submit" class="bp-btn-icon p-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors" title="Lock Stage 2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,7 +85,7 @@
             {% endif %}
 
             {% if meeting.runoff_closes_at %}
-            <form action="{{ url_for('ro.close_runoffs', meeting_id=meeting.id) }}" method="post" class="inline">
+            <form action="{{ url_for('ro.close_runoffs', meeting_id=meeting.id) }}" method="post" class="inline" hx-boost="false">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <button type="submit" class="bp-btn-secondary text-xs">Close Run-offs</button>
             </form>

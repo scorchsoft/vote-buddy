@@ -4,7 +4,7 @@
 {{ breadcrumbs([('Admin Login', url_for('auth.login')), ('Reset Password', None)]) }}
 <div class="max-w-md mx-auto">
   <h2 class="text-2xl font-bold text-bp-blue mb-6">Reset Password</h2>
-  <form method="post" class="bp-card space-y-6">
+  <form method="post" class="bp-card space-y-6" hx-boost="false">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="bp-form-group">
       <label for="email" class="block font-semibold mb-2">Email</label>

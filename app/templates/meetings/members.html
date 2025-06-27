@@ -4,7 +4,7 @@
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Members', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">{{ meeting.title }} – Members</h1>
 <div class="flex items-center gap-4 mb-4">
-  <form method="post" action="{{ url_for('meetings.delete_all_members', meeting_id=meeting.id) }}" onsubmit="return confirm('Remove all members?');">
+  <form method="post" action="{{ url_for('meetings.delete_all_members', meeting_id=meeting.id) }}" onsubmit="return confirm('Remove all members?');" hx-boost="false">
     <button type="submit" class="bp-btn-secondary">Remove All</button>
   </form>
   <a href="{{ url_for('meetings.members_csv', meeting_id=meeting.id) }}" class="bp-btn-secondary" download="members.csv" hx-boost="false">Download CSV</a>

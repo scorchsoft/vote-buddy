@@ -3,7 +3,7 @@
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (motion.meeting.title if motion.meeting else 'Meeting', url_for('meetings.edit_meeting', meeting_id=motion.meeting_id)), ('Manage Conflicts', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">{{ motion.title }} - Manage Conflicts</h1>
-<form method="post" class="bp-form bp-card space-y-4 mb-6">
+<form method="post" class="bp-form bp-card space-y-4 mb-6" hx-boost="false">
   {{ form.hidden_tag() }}
   <div>
     {{ form.amendment_a_id.label(class_='block font-semibold') }}
@@ -21,7 +21,7 @@
   {% for c in conflicts %}
     <li class="bp-card flex justify-between items-center">
       <span>A{{ c.amendment_a.order }} ↔ A{{ c.amendment_b.order }}</span>
-      <form method="post" action="{{ url_for('meetings.delete_conflict', conflict_id=c.id) }}">
+      <form method="post" action="{{ url_for('meetings.delete_conflict', conflict_id=c.id) }}" hx-boost="false">
         <button class="bp-btn-secondary">Remove</button>
       </form>
     </li>

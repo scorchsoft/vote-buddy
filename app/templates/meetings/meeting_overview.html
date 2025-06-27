@@ -32,7 +32,7 @@
         <span>Batch Edit</span>
       </a>
       {% if meeting.status == 'Completed' %}
-      <form method="post" action="{{ url_for('meetings.send_final_results_all', meeting_id=meeting.id) }}" class="inline-block">
+      <form method="post" action="{{ url_for('meetings.send_final_results_all', meeting_id=meeting.id) }}" class="inline-block" hx-boost="false">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <button type="submit" class="bp-btn-primary" onclick="return confirm('Send final results to all members?');">Send Final Results</button>
       </form>
