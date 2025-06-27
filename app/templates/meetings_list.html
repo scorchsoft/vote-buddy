@@ -14,12 +14,15 @@
       <p class="text-bp-grey-600">Manage AGMs, EGMs and voting processes</p>
     </div>
     {% if current_user.is_authenticated %}
-    <a href="{{ url_for('meetings.create_meeting') }}" class="bp-btn-primary bp-btn-icon">
-      <svg class="bp-icon" viewBox="0 0 24 24">
-        <path d="M12 4v16m8-8H4" stroke="currentColor" fill="none"/>
-      </svg>
-      <span>Create Meeting</span>
-    </a>
+    <div class="flex gap-2">
+      <a href="{{ url_for('main.public_meetings') }}" class="bp-btn-secondary">View public meeting list</a>
+      <a href="{{ url_for('meetings.create_meeting') }}" class="bp-btn-primary bp-btn-icon">
+        <svg class="bp-icon" viewBox="0 0 24 24">
+          <path d="M12 4v16m8-8H4" stroke="currentColor" fill="none"/>
+        </svg>
+        <span>Create Meeting</span>
+      </a>
+    </div>
     {% endif %}
   </div>
 

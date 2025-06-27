@@ -86,7 +86,7 @@ from docx.shared import RGBColor, Inches, Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
-from ..utils import config_or_setting
+from ..utils import config_or_setting, append_motion_preferences
 import os
 
 bp = Blueprint("meetings", __name__, url_prefix="/meetings")
@@ -924,11 +924,13 @@ def create_motion(meeting_id):
     move_text = config_or_setting("MOVE_TEXT", "")
     if form.validate_on_submit():
         ordering = Motion.query.filter_by(meeting_id=meeting.id).count() + 1
-        text_md = form.text_md.data
-        if form.allow_clerical.data and clerical_text:
-            text_md += f"\n\n{clerical_text}"
-        if form.allow_move.data and move_text:
-            text_md += f"\n\n{move_text}"
+        text_md = append_motion_preferences(
+            form.text_md.data,
+            form.allow_clerical.data,
+            form.allow_move.data,
+            clerical_text,
+            move_text,
+        )
         motion = Motion(
             meeting_id=meeting.id,
             title=form.title.data,
