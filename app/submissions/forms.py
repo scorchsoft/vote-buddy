@@ -1,15 +1,32 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, SelectField
+from wtforms import (
+    BooleanField,
+    SelectField,
+    StringField,
+    TextAreaField,
+    SubmitField,
+)
 from wtforms.validators import DataRequired, Email
 
 
 class MotionSubmissionForm(FlaskForm):
-    name = StringField('Your Name', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    title = StringField('Motion Title', validators=[DataRequired()])
-    text_md = TextAreaField('Motion Text', validators=[DataRequired()])
-    seconder_id = SelectField('Seconder', coerce=int)
-    submit = SubmitField('Submit Motion')
+    name = StringField("Your Name", validators=[DataRequired()])
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    title = StringField("Motion Title", validators=[DataRequired()])
+    text_md = TextAreaField(
+        "Motion Text", validators=[DataRequired()], render_kw={"data-markdown-editor": "1"}
+    )
+    seconder_member_number = StringField(
+        "Seconder Member #", validators=[DataRequired()]
+    )
+    seconder_name = StringField("Seconder Name", validators=[DataRequired()])
+    allow_clerical = BooleanField(
+        "Allow clerical corrections", default=True
+    )
+    allow_move = BooleanField(
+        "Allow Articles/Bylaws placement", default=True
+    )
+    submit = SubmitField("Submit Motion")
 
 
 class AmendmentSubmissionForm(FlaskForm):

@@ -22,12 +22,39 @@
   </div>
   <div>
     {{ form.text_md.label(class_='block font-semibold') }}
-    {{ form.text_md(class_='border p-3 rounded w-full') }}
+    {{ form.text_md(class_='border p-3 rounded w-full', **{'data-markdown-editor': '1'}) }}
   </div>
   <div>
-    {{ form.seconder_id.label(class_='block font-semibold') }}
-    {{ form.seconder_id(class_='border p-2 rounded w-full') }}
+    {{ form.seconder_member_number.label(class_='block font-semibold') }}
+    {{ form.seconder_member_number(class_='border p-2 rounded w-full') }}
+  </div>
+  <div>
+    {{ form.seconder_name.label(class_='block font-semibold') }}
+    {{ form.seconder_name(class_='border p-2 rounded w-full') }}
+  </div>
+  <div class="flex items-center space-x-2">
+    {{ form.allow_clerical() }}
+    {{ form.allow_clerical.label(class_='font-semibold') }}
+    <a href="#" data-modal-target="clerical-modal" class="text-sm underline">View text</a>
+  </div>
+  <div class="flex items-center space-x-2">
+    {{ form.allow_move() }}
+    {{ form.allow_move.label(class_='font-semibold') }}
+    <a href="#" data-modal-target="move-modal" class="text-sm underline">View text</a>
   </div>
   <button type="submit" class="bp-btn-primary">Submit Motion</button>
 </form>
+<dialog id="clerical-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="clerical-modal-title">
+  <h2 id="clerical-modal-title" class="font-bold mb-2">Clerical Amendment Text</h2>
+  <p class="mb-4">{{ clerical_text|markdown_to_html|safe }}</p>
+  <button class="bp-btn-secondary" data-close-modal>Close</button>
+</dialog>
+<dialog id="move-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="move-modal-title">
+  <h2 id="move-modal-title" class="font-bold mb-2">Articles/Bylaws Placement Text</h2>
+  <p class="mb-4">{{ move_text|markdown_to_html|safe }}</p>
+  <button class="bp-btn-secondary" data-close-modal>Close</button>
+</dialog>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/easymde.min.css') }}">
+<script src="{{ url_for('static', filename='js/easymde.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/markdown_editor.js') }}"></script>
 {% endblock %}

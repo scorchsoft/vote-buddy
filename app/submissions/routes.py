@@ -1,5 +1,6 @@
 from flask import render_template, redirect, url_for, flash, abort, current_app
 from datetime import datetime
+from ..utils import config_or_setting
 from ..extensions import db
 from ..models import (
     Meeting,
@@ -138,28 +139,52 @@ def submit_motion(token: str, meeting_id: int):
     if member is None or member.meeting_id != meeting_id:
         abort(404)
     form = MotionSubmissionForm(name=member.name, email=member.email)
-    members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
-    form.seconder_id.choices = [(m.id, m.name) for m in members if m.id != member.id]
+    clerical_text = config_or_setting("CLERICAL_TEXT", "")
+    move_text = config_or_setting("MOVE_TEXT", "")
     if form.validate_on_submit():
+        text_md = form.text_md.data
+        if form.allow_clerical.data and clerical_text:
+            text_md += f"\n\n{clerical_text}"
+        if form.allow_move.data and move_text:
+            text_md += f"\n\n{move_text}"
+        seconder = (
+            Member.query.filter_by(
+                meeting_id=meeting.id,
+                member_number=form.seconder_member_number.data.strip(),
+            )
+            .first()
+        )
+        seconder_id = (
+            seconder.id if seconder and seconder.name == form.seconder_name.data.strip() else None
+        )
         sub = MotionSubmission(
             meeting_id=meeting.id,
             member_id=member.id,
             name=form.name.data,
             email=form.email.data,
-            seconder_id=form.seconder_id.data,
+            seconder_id=seconder_id,
+            seconder_member_number=form.seconder_member_number.data,
+            seconder_name=form.seconder_name.data,
+            allow_clerical=form.allow_clerical.data,
+            allow_move=form.allow_move.data,
             title=form.title.data,
-            text_md=form.text_md.data,
+            text_md=text_md,
         )
         db.session.add(sub)
         token_obj.used_at = datetime.utcnow()
         db.session.commit()
         send_motion_submission_alert(sub, meeting)
-        seconder = db.session.get(Member, form.seconder_id.data)
-        if seconder:
+        if seconder_id:
             notify_seconder_motion(seconder, meeting)
         flash('Motion submitted for review', 'success')
         return render_template('submissions/motion_submitted.html', meeting=meeting, token=token)
-    return render_template('submissions/motion_form.html', form=form, meeting=meeting)
+    return render_template(
+        'submissions/motion_form.html',
+        form=form,
+        meeting=meeting,
+        clerical_text=clerical_text,
+        move_text=move_text,
+    )
 
 
 @bp.route('/<token>/amendment/<int:motion_id>', methods=['GET', 'POST'])
