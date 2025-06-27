@@ -4,10 +4,30 @@
 <div class="max-w-7xl mx-auto">
   {{ breadcrumbs([('Dashboard', url_for('admin.dashboard'))]) }}
   
-  <!-- Header Section -->
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-bp-grey-900 mb-2">Admin Dashboard</h1>
-    <p class="text-bp-grey-600 text-lg">Welcome to {{ setting('site_title', 'VoteBuddy') }} administration.</p>
+  <!-- Header Section with Action Buttons -->
+  <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-bp-grey-900 mb-2">Admin Dashboard</h1>
+      <p class="text-bp-grey-600 text-lg">Welcome to {{ setting('site_title', 'VoteBuddy') }} administration.</p>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="flex flex-wrap gap-4">
+      <a href="{{ url_for('meetings.create_meeting') }}" class="bp-btn-primary bp-btn-icon">
+        <svg class="bp-icon w-5 h-5" viewBox="0 0 24 24">
+          <path d="M12 4v16m8-8H4" stroke="currentColor" fill="none" stroke-width="3"/>
+        </svg>
+        <span>New Meeting</span>
+      </a>
+      <a href="{{ url_for('admin.list_users') }}" class="bp-btn-primary bp-btn-icon">
+        <img src="{{ url_for('static', filename='icons/group_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
+        <span>Manage Users</span>
+      </a>
+      <a href="{{ url_for('admin.list_objections') }}" class="bp-btn-secondary bp-btn-icon">
+        <img src="{{ url_for('static', filename='icons/person_raised_hand_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
+        <span>View Objections</span>
+      </a>
+    </div>
   </div>
 
   {% if objections %}
@@ -34,18 +54,6 @@
     </div>
   </div>
   {% endif %}
-  
-  <!-- Quick Actions -->
-  <div class="flex flex-wrap gap-4 mb-12">
-    <a href="{{ url_for('admin.list_users') }}" class="bp-btn-primary bp-btn-icon">
-      <img src="{{ url_for('static', filename='icons/group_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
-      <span>Manage Users</span>
-    </a>
-    <a href="{{ url_for('admin.list_objections') }}" class="bp-btn-secondary bp-btn-icon">
-      <img src="{{ url_for('static', filename='icons/person_raised_hand_30dp_000000_FILL0_wght400_GRAD0_opsz24.svg') }}" alt="" class="bp-icon w-5 h-5">
-      <span>View Objections</span>
-    </a>
-  </div>
   
   <!-- My Meetings Section -->
   <div class="mb-8">
@@ -128,24 +136,26 @@
         {% endif %}
         
         <!-- Actions -->
-        <div class="pt-4 border-t border-bp-grey-100 flex gap-2 mt-auto">
-          <form action="{{ url_for('admin.toggle_public_results', meeting_id=meeting.id) }}" method="post" class="flex-1" hx-boost="false">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <button type="submit" class="bp-btn-secondary text-sm w-full">
-              {{ 'Hide Results' if meeting.public_results else 'Show Results' }}
-            </button>
-          </form>
-          <form action="{{ url_for('admin.toggle_results_doc', meeting_id=meeting.id) }}" method="post" class="flex-1" hx-boost="false">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <button type="submit" class="bp-btn-secondary text-sm w-full"
-              {% if not meeting.results_doc_published %}
-                onclick="return confirm('Publishing the results document will email members and make it public. Continue?')"
-              {% endif %}>
-              {{ 'Unpublish Doc' if meeting.results_doc_published else 'Publish Doc' }}
-            </button>
-          </form>
+        <div class="pt-4 border-t border-bp-grey-100 mt-auto">
+          <div class="flex gap-2 mb-3">
+            <form action="{{ url_for('admin.toggle_public_results', meeting_id=meeting.id) }}" method="post" class="flex-1" hx-boost="false">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <button type="submit" class="bp-btn-secondary text-sm w-full">
+                {{ 'Hide Results' if meeting.public_results else 'Show Results' }}
+              </button>
+            </form>
+            <form action="{{ url_for('admin.toggle_results_doc', meeting_id=meeting.id) }}" method="post" class="flex-1" hx-boost="false">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <button type="submit" class="bp-btn-secondary text-sm w-full"
+                {% if not meeting.results_doc_published %}
+                  onclick="return confirm('Publishing the results document will email members and make it public. Continue?')"
+                {% endif %}>
+                {{ 'Unpublish Doc' if meeting.results_doc_published else 'Publish Doc' }}
+              </button>
+            </form>
+          </div>
           {% if meeting.status == 'Completed' %}
-          <form action="{{ url_for('meetings.send_final_results_all', meeting_id=meeting.id) }}" method="post" class="flex-1" hx-boost="false">
+          <form action="{{ url_for('meetings.send_final_results_all', meeting_id=meeting.id) }}" method="post" hx-boost="false">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="bp-btn-primary text-sm w-full" onclick="return confirm('Send final results to all members?');">
               Email Final Results
@@ -168,14 +178,6 @@
     {% endif %}
   </div>
   
-  <!-- Floating Action Button -->
-  {% if meetings %}
-  <a href="{{ url_for('meetings.create_meeting') }}" class="fixed bottom-8 right-8 bp-btn-primary rounded-full px-4 py-3 flex items-center gap-2 shadow-xl hover:shadow-2xl transition-all">
-    <svg class="bp-icon w-5 h-5" viewBox="0 0 24 24">
-      <path d="M12 4v16m8-8H4" stroke="currentColor" fill="none" stroke-width="3"/>
-    </svg>
-    <span class="text-sm font-medium">New Meeting</span>
-  </a>
-  {% endif %}
+
 </div>
 {% endblock %}
