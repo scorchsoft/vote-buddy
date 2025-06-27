@@ -3,7 +3,7 @@
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Audit Log', url_for('admin.view_audit'))]) }}
 <h1 class="font-bold text-bp-blue mb-4">Audit Log</h1>
-<form class="mb-4 bp-card bp-form" hx-get="{{ url_for('admin.view_audit') }}" hx-target="#log-table-body" hx-trigger="keyup changed delay:300ms" hx-push-url="true">
+<form class="mb-4 bp-card bp-form" hx-get="{{ url_for('admin.view_audit') }}" hx-target="#audit-table" hx-trigger="keyup changed delay:300ms" hx-push-url="true">
   <label for="q" class="sr-only">Search logs</label>
   <input id="q" type="text" name="q" value="{{ q or '' }}" placeholder="Search logs..." class="border p-3 rounded w-full mb-3">
   <div class="flex gap-4">
@@ -11,63 +11,7 @@
     <input type="date" name="end" value="{{ end or '' }}" class="border p-3 rounded">
   </div>
 </form>
-<div class="bp-card">
-<table class="bp-table">
-  <thead class="bg-bp-grey-50">
-    <tr>
-      <th scope="col" class="text-left p-2">When</th>
-      <th scope="col" class="text-left p-2">User</th>
-      <th scope="col" class="text-left p-2">Action</th>
-      <th scope="col" class="text-left p-2">Details</th>
-    </tr>
-  </thead>
-  <tbody id="log-table-body">
-  {% for log in logs %}
-    <tr class="border-t">
-      <td class="p-2">{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-      <td class="p-2">{{ log.user.email if log.user else 'System' }}</td>
-      <td class="p-2">{{ log.action }}</td>
-      <td class="p-2">{{ log.details }}</td>
-    </tr>
-  {% else %}
-    <tr><td colspan="4" class="p-2">No entries.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
+<div id="audit-table">
+  {% include 'admin/_audit_table.html' %}
 </div>
-{% if pagination.pages > 1 %}
-<nav aria-label="Pagination" class="mt-6 flex justify-center">
-  <ul class="bp-pagination">
-    {% if pagination.has_prev %}
-    <li>
-      <a href="{{ url_for('admin.view_audit', page=pagination.prev_num, q=q, start=start, end=end) }}" aria-label="Previous" class="hover:bg-bp-grey-100 transition-colors">
-        <svg class="bp-icon w-5 h-5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke="currentColor" fill="none"/></svg>
-      </a>
-    </li>
-    {% else %}
-    <li><span class="bp-disabled opacity-50"><svg class="bp-icon w-5 h-5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke="currentColor" fill="none"/></svg></span></li>
-    {% endif %}
-    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-      {% if p %}
-        {% if p == pagination.page %}
-        <li><span class="bp-current-page">{{ p }}</span></li>
-        {% else %}
-        <li><a href="{{ url_for('admin.view_audit', page=p, q=q, start=start, end=end) }}" class="hover:bg-bp-grey-100 transition-colors">{{ p }}</a></li>
-        {% endif %}
-      {% else %}
-        <li><span class="text-bp-grey-400">&hellip;</span></li>
-      {% endif %}
-    {% endfor %}
-    {% if pagination.has_next %}
-    <li>
-      <a href="{{ url_for('admin.view_audit', page=pagination.next_num, q=q, start=start, end=end) }}" aria-label="Next" class="hover:bg-bp-grey-100 transition-colors">
-        <svg class="bp-icon w-5 h-5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" fill="none"/></svg>
-      </a>
-    </li>
-    {% else %}
-    <li><span class="bp-disabled opacity-50"><svg class="bp-icon w-5 h-5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" fill="none"/></svg></span></li>
-    {% endif %}
-  </ul>
-</nav>
-{% endif %}
 {% endblock %}
