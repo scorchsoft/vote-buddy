@@ -501,7 +501,9 @@ SES/SMTP  ─── Outbound mail
 * 2025-09-06 – Clarified chart axis labels in final results PDF and reduced chart font sizes.
 * 2025-06-27 – Auto Email Summary section uses a three‑column grid on meeting overview.
 * 2025-06-27 – Public meeting page lists published motions and amendments in expandable accordions.
+
 * 2025-06-27 – Added 'Manage Permissions' link on Roles page and removed Permissions from the admin menu.
+* 2025-07-07 – Added Roles breadcrumb link on Manage Permissions page.
 
 
 ---
