@@ -4,7 +4,7 @@
 {{ breadcrumbs([
   ('Dashboard', url_for('admin.dashboard')),
   ('Meetings', url_for('meetings.list_meetings')),
-  (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)),
+  (meeting.title, url_for('meetings.meeting_overview', meeting_id=meeting.id)),
   ('Members', url_for('meetings.list_members', meeting_id=meeting.id)),
   ('Import Members', None)
 ]) }}

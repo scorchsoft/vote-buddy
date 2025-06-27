@@ -83,13 +83,12 @@ def results_index():
 @bp.route('/public/meetings')
 def public_meetings():
     """List meetings for public view."""
-    meetings = Meeting.query.order_by(Meeting.title).all()
-    member_counts = {
-        m.id: Member.query.filter_by(meeting_id=m.id).count() for m in meetings
-    }
-    return render_template(
-        'public_meetings.html', meetings=meetings, member_counts=member_counts
+    meetings = (
+        Meeting.query.filter(Meeting.status != 'Draft')
+        .order_by(Meeting.title)
+        .all()
     )
+    return render_template('public_meetings.html', meetings=meetings)
 
 
 @bp.route('/public/meetings/<int:meeting_id>')
@@ -97,7 +96,6 @@ def public_meeting_detail(meeting_id: int):
     meeting = db.session.get(Meeting, meeting_id)
     if meeting is None:
         abort(404)
-    member_count = Member.query.filter_by(meeting_id=meeting.id).count()
     files = MeetingFile.query.filter_by(meeting_id=meeting.id).all()
     contact_url = AppSetting.get(
         'contact_url', 'https://www.britishpowerlifting.org/contactus'
@@ -105,15 +103,26 @@ def public_meeting_detail(meeting_id: int):
     stage1_ics_url = url_for('main.public_stage1_ics', meeting_id=meeting.id)
     stage2_ics_url = url_for('main.public_stage2_ics', meeting_id=meeting.id)
     runoff_ics_url = url_for('main.public_runoff_ics', meeting_id=meeting.id)
+    amendments = (
+        Amendment.query.filter_by(meeting_id=meeting.id, is_published=True)
+        .order_by(Amendment.order)
+        .all()
+    )
+    motions = (
+        Motion.query.filter_by(meeting_id=meeting.id, is_published=True)
+        .order_by(Motion.ordering)
+        .all()
+    )
     return render_template(
         'public_meeting.html',
         meeting=meeting,
-        member_count=member_count,
         contact_url=contact_url,
         stage1_ics_url=stage1_ics_url,
         runoff_ics_url=runoff_ics_url,
         stage2_ics_url=stage2_ics_url,
         files=files,
+        amendments=amendments,
+        motions=motions,
     )
 
 

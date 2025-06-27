@@ -3,17 +3,23 @@
 {% block content %}
 {{ breadcrumbs([('Home', url_for('main.index')), ('Meetings', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">Meetings</h1>
-<div class="bp-card">
-  <ul class="space-y-2">
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
   {% for meeting in meetings %}
-    <li>
-      <a href="{{ url_for('main.public_meeting_detail', meeting_id=meeting.id) }}" class="text-bp-blue hover:underline">{{ meeting.title }}</a>
-      <span class="ml-2 text-sm">{{ meeting.status or 'Draft' }}</span>
-      <span class="ml-2 text-sm">{{ member_counts[meeting.id] }} members</span>
-    </li>
+  <div class="bp-card flex flex-col justify-between">
+    <div>
+      <h2 class="font-semibold text-lg mb-1">
+        <a href="{{ url_for('main.public_meeting_detail', meeting_id=meeting.id) }}" class="bp-link hover:underline">{{ meeting.title }}</a>
+      </h2>
+      {% if meeting.summary_md %}
+      <div class="prose text-sm mb-2">{{ meeting.summary_md|markdown_to_html|safe }}</div>
+      {% endif %}
+    </div>
+    <div class="mt-auto">
+      <a href="{{ url_for('main.public_meeting_detail', meeting_id=meeting.id) }}" class="bp-btn-secondary">View Details</a>
+    </div>
+  </div>
   {% else %}
-    <li>No meetings available.</li>
+  <p>No meetings available.</p>
   {% endfor %}
-  </ul>
 </div>
 {% endblock %}
