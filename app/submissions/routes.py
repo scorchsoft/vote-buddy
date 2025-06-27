@@ -20,6 +20,7 @@ from . import bp
 from .forms import (
     MotionSubmissionForm,
     AmendmentSubmissionForm,
+    AmendmentSubmissionSelectForm,
     MotionSubmissionEditForm,
     AmendmentSubmissionEditForm,
 )
@@ -274,3 +275,82 @@ def submit_amendment(token: str, motion_id: int):
         flash('Amendment submitted for review', 'success')
         return redirect(url_for('meetings.view_motion', motion_id=motion.id))
     return render_template('submissions/amendment_form.html', form=form, motion=motion, meeting=meeting)
+
+
+@bp.route('/<token>/amendment/new/<int:meeting_id>', methods=['GET', 'POST'])
+def submit_amendment_select(token: str, meeting_id: int):
+    """Submit an amendment by selecting the motion to amend."""
+
+    if token == "preview":
+        token_obj = type(
+            "Tok",
+            (),
+            {
+                "member_id": Member.query.filter_by(meeting_id=meeting_id).first().id
+                if Member.query.filter_by(meeting_id=meeting_id).first()
+                else None,
+                "meeting_id": meeting_id,
+            },
+        )
+    else:
+        token_obj = SubmissionToken.verify(token, current_app.config["TOKEN_SALT"])
+        if not token_obj or token_obj.meeting_id != meeting_id:
+            abort(404)
+
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    member = db.session.get(Member, token_obj.member_id) if token != "preview" else None
+    if token != "preview" and (member is None or member.meeting_id != meeting.id):
+        abort(404)
+
+    now = datetime.utcnow()
+    if meeting.amendments_opens_at and now < meeting.amendments_opens_at:
+        flash("Amendment submissions have not opened yet.", "error")
+        return redirect(url_for("main.review_motions", token=token, meeting_id=meeting.id))
+    if meeting.amendments_closes_at and now > meeting.amendments_closes_at:
+        flash("Amendment submission window has closed.", "error")
+        return redirect(url_for("main.review_motions", token=token, meeting_id=meeting.id))
+
+    form = AmendmentSubmissionSelectForm()
+    if member:
+        form.name.data = member.name
+        form.email.data = member.email
+    motions = (
+        Motion.query.filter_by(meeting_id=meeting.id, is_published=True)
+        .order_by(Motion.ordering)
+        .all()
+    )
+    form.motion_id.choices = [(m.id, m.title) for m in motions]
+    members = Member.query.filter_by(meeting_id=meeting.id).order_by(Member.name).all()
+    form.seconder_id.choices = [(m.id, m.name) for m in members if not member or m.id != member.id]
+
+    if form.validate_on_submit():
+        motion = db.session.get(Motion, form.motion_id.data)
+        if motion is None or motion.meeting_id != meeting.id:
+            abort(400)
+        sub = AmendmentSubmission(
+            motion_id=motion.id,
+            member_id=member.id if member else None,
+            name=form.name.data,
+            email=form.email.data,
+            seconder_id=form.seconder_id.data,
+            text_md=form.text_md.data,
+        )
+        db.session.add(sub)
+        if token != "preview":
+            token_obj.used_at = datetime.utcnow()
+        db.session.commit()
+        send_amendment_submission_alert(sub, motion, meeting)
+        seconder = db.session.get(Member, form.seconder_id.data)
+        if seconder:
+            notify_seconder_amendment(seconder, meeting, motion)
+        flash("Amendment submitted for review", "success")
+        return redirect(url_for("meetings.view_motion", motion_id=motion.id))
+
+    return render_template(
+        "submissions/amendment_form.html",
+        form=form,
+        motion=None,
+        meeting=meeting,
+    )

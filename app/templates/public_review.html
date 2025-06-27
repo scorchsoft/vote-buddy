@@ -3,6 +3,16 @@
 {% block content %}
 {{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), ('Review Motions', None)]) }}
 <h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} – Motions</h1>
+<p class="text-bp-grey-700 mb-4">Stage: {{ meeting.status or 'Draft' }} – Amendments {{ 'open' if amendments_open else 'closed' }}</p>
+{% set can_submit = token != 'preview' or (current_user.is_authenticated and current_user.has_permission('manage_meetings')) %}
+{% if can_submit %}
+<div class="mb-4 flex flex-wrap gap-2">
+  <a href="{{ url_for('submissions.submit_motion', token=token, meeting_id=meeting.id) }}" class="bp-btn-primary">Submit New Motion</a>
+  {% if amendments_open or (current_user.is_authenticated and current_user.has_permission('manage_meetings')) %}
+  <a href="{{ url_for('submissions.submit_amendment_select', token=token, meeting_id=meeting.id) }}" class="bp-btn-primary">Submit Amendment</a>
+  {% endif %}
+</div>
+{% endif %}
 {% for motion in motions %}
 <div class="bp-card bp-glow mb-4">
   <h2 class="font-semibold mb-2 flex items-center gap-2">
@@ -18,7 +28,7 @@
   </h2>
   <div class="prose">{{ motion.text_md|markdown_to_html|safe }}</div>
   {% if meeting.comments_enabled %}
-  <p class="mt-2"><a href="{{ url_for('comments.motion_comments', token=token, motion_id=motion.id) }}" class="bp-link">View Comments</a></p>
+  <p class="mt-2"><a href="{{ url_for('comments.motion_comments', token=token, motion_id=motion.id) }}" class="bp-btn-secondary inline-block">Add/View Comments ({{ motion_counts[motion.id] }})</a></p>
   {% endif %}
 </div>
 {% else %}
