@@ -1696,6 +1696,7 @@ def preview_email(meeting_id: int, email_type: str):
             objection_link=objection_link,
             unsubscribe_url=unsubscribe,
             resubscribe_url=resubscribe,
+            why_text=config_or_setting('EMAIL_WHY_TEXT', 'You are a member of our organisation and have therefore been invited to participate in voting in AGMs/EGMs. If you do not want to participate in the process then please ignore this and subsequent emails'),
             test_mode=True,
             **branding,
         )
@@ -1709,6 +1710,7 @@ def preview_email(meeting_id: int, email_type: str):
             objection_link=objection_link,
             unsubscribe_url=unsubscribe,
             resubscribe_url=resubscribe,
+            why_text=config_or_setting('EMAIL_WHY_TEXT', 'You are a member of our organisation and have therefore been invited to participate in voting in AGMs/EGMs. If you do not want to participate in the process then please ignore this and subsequent emails'),
             test_mode=True,
             **branding,
         )
@@ -1736,6 +1738,7 @@ def preview_email(meeting_id: int, email_type: str):
             resubscribe_url=resubscribe,
             summary=summary,
             results_link=results_link,
+            why_text=config_or_setting('EMAIL_WHY_TEXT', 'You are a member of our organisation and have therefore been invited to participate in voting in AGMs/EGMs. If you do not want to participate in the process then please ignore this and subsequent emails'),
             test_mode=True,
             **branding,
         )
@@ -1766,6 +1769,7 @@ def preview_email(meeting_id: int, email_type: str):
             resubscribe_url=resubscribe,
             summary=summary,
             results_link=results_link,
+            why_text=config_or_setting('EMAIL_WHY_TEXT', 'You are a member of our organisation and have therefore been invited to participate in voting in AGMs/EGMs. If you do not want to participate in the process then please ignore this and subsequent emails'),
             test_mode=True,
             **branding,
         )
@@ -1777,6 +1781,7 @@ def preview_email(meeting_id: int, email_type: str):
             link=url_for('submissions.submit_motion', token='preview', meeting_id=meeting.id, _external=True),
             unsubscribe_url=unsubscribe,
             resubscribe_url=resubscribe,
+            why_text=config_or_setting('EMAIL_WHY_TEXT', 'You are a member of our organisation and have therefore been invited to participate in voting in AGMs/EGMs. If you do not want to participate in the process then please ignore this and subsequent emails'),
             test_mode=True,
             **branding,
         )
@@ -1789,6 +1794,7 @@ def preview_email(meeting_id: int, email_type: str):
             link=url_for('submissions.submit_amendment_select', token='preview', meeting_id=meeting.id, _external=True),
             unsubscribe_url=unsubscribe,
             resubscribe_url=resubscribe,
+            why_text=config_or_setting('EMAIL_WHY_TEXT', 'You are a member of our organisation and have therefore been invited to participate in voting in AGMs/EGMs. If you do not want to participate in the process then please ignore this and subsequent emails'),
             test_mode=True,
             **branding,
         )
