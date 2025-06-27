@@ -2,3 +2,4 @@ Hello,
 
 Please confirm your objection by clicking the link below:
 {{ link }}
+{% include 'email/_why_text.txt' %}

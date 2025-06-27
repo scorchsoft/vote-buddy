@@ -1,9 +1,9 @@
 Hello {{ member.name }}!
 
-You can now submit motions and amendments for {{ meeting.title }}.
+You can now submit motions for {{ meeting.title }}.
 
 📝 SUBMIT YOUR PROPOSALS
-Use the secure link below to submit motions and amendments for consideration. Make sure your proposals are clear and concise - you can save drafts and return to edit them before the submission deadline.
+Use the secure link below to submit motions for consideration. Make sure your proposals are clear and concise - you can save drafts and return to edit them before the submission deadline.
 
 Submit your proposal: {{ link }}
 
@@ -11,3 +11,4 @@ Submit your proposal: {{ link }}
 Visit our help guide: {{ url_for('help.show_help', _external=True) }}
 
 This secure link is unique to you. Please keep it confidential.
+{% include 'email/_why_text.txt' %}

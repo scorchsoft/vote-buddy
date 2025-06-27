@@ -4,3 +4,4 @@ Meeting: {{ meeting.title }}
 Amendment ID: {{ amendment.id }}
 
 Please review and respond within five days.
+{% include 'email/_why_text.txt' %}

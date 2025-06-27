@@ -3,3 +3,4 @@ New amendment submitted for {{ motion.title }}
 From: {{ submission.name }} <{{ submission.email }}>
 ---
 {{ submission.text_md }}
+{% include 'email/_why_text.txt' %}

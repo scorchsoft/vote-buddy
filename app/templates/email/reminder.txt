@@ -12,5 +12,7 @@ If you already voted, you can ignore this email.
 Submit an objection:
 {{ objection_link }}
 Need help? {{ url_for('help.show_help', _external=True) }}
+{% include 'email/_why_text.txt' %}
+
 To stop these reminders, visit {{ unsubscribe_url }}
 To start them again later, visit {{ resubscribe_url }}

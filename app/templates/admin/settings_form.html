@@ -154,6 +154,16 @@
       {{ form.final_message(class='bp-input w-full h-32') }}
     </div>
     <div class="mb-4">
+      <div class="flex justify-between items-center mb-1">
+        {{ form.email_why_text.label() }}
+        <button type="submit"
+                formaction="{{ url_for('admin.reset_setting', key='email_why_text') }}"
+                formmethod="post"
+                class="text-sm underline">Reset default</button>
+      </div>
+      {{ form.email_why_text(class='bp-input w-full h-32') }}
+    </div>
+    <div class="mb-4">
       {{ form.contact_url.label(class='block mb-1') }}
       {{ form.contact_url(class='bp-input w-full') }}
     </div>

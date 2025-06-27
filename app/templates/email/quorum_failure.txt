@@ -6,5 +6,7 @@ The Board will review the options and you will be notified when a new ballot is 
 Need help? {{ url_for('help.show_help', _external=True) }}
 
 If you did not expect this email you can ignore it.
+{% include 'email/_why_text.txt' %}
+
 To stop these emails, visit {{ unsubscribe_url }}
 To start them again later, visit {{ resubscribe_url }}

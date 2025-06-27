@@ -371,6 +371,10 @@ def manage_settings():
             "final_message",
             current_app.config.get("FINAL_STAGE_MESSAGE"),
         )
+        form.email_why_text.data = AppSetting.get(
+            "email_why_text",
+            current_app.config.get("EMAIL_WHY_TEXT"),
+        )
         form.contact_url.data = AppSetting.get(
             "contact_url",
             "https://www.britishpowerlifting.org/contactus",
@@ -412,6 +416,7 @@ def manage_settings():
         AppSetting.set("clerical_text", form.clerical_text.data)
         AppSetting.set("move_text", form.move_text.data)
         AppSetting.set("final_message", form.final_message.data)
+        AppSetting.set("email_why_text", form.email_why_text.data)
         if form.contact_url.data:
             AppSetting.set("contact_url", form.contact_url.data)
         else:

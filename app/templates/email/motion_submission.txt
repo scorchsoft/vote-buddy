@@ -4,3 +4,4 @@ From: {{ submission.name }} <{{ submission.email }}>
 Title: {{ submission.title }}
 ---
 {{ submission.text_md }}
+{% include 'email/_why_text.txt' %}
