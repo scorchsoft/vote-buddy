@@ -1,5 +1,5 @@
 **THIS IS CURRENTLY AN IN-DEVELOPMENT REPOSITORY**
-Functionality may be incompete and contain errors
+Functionality and information IS incompete and WILL contain errors
 
 # VoteBuddy (Free and Open source AGM and EGM software for membership organisations)
 
