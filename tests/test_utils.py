@@ -11,6 +11,12 @@ def test_markdown_to_html_sanitizes_and_marks_safe():
     assert '<script>' not in html
     assert '<h1>' in html
     assert isinstance(html, Markup)
+
+
+def test_markdown_to_html_preserves_linebreaks():
+    md = 'line1\nline2'
+    html = markdown_to_html(md)
+    assert '<br' in html
 from dataclasses import dataclass
 from datetime import datetime
 import pytest
