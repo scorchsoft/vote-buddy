@@ -4,16 +4,33 @@
   <p class="text-sm">Need help? <a href="{{ contact_url }}" class="bp-link">Contact BP</a></p>
   {% endif %}
 {% else %}
+  <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+    <div class="flex items-start space-x-2">
+      <svg class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+      </svg>
+      <div class="text-sm">
+        <p class="font-medium text-amber-800 mb-1">Important</p>
+        <p class="text-amber-700">Please enter the <strong>exact same details</strong> you used when you registered for this meeting. The member number and email address must match your registration exactly for the system to send you a new voting link.</p>
+      </div>
+    </div>
+  </div>
+  
   <form hx-post="{{ url_for('main.resend_meeting_link_public', meeting_id=meeting.id) }}" class="bp-form space-y-4">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="bp-form-group">
       <input id="member_number" name="member_number" class="bp-input" required>
       <label for="member_number" class="bp-form-label">Member Number</label>
+      <p class="text-xs text-bp-grey-600 mt-1">Enter the same member number you used when registering</p>
     </div>
     <div class="bp-form-group">
       <input id="email" name="email" type="email" class="bp-input" required>
-      <label for="email" class="bp-form-label">Email</label>
+      <label for="email" class="bp-form-label">Email Address</label>
+      <p class="text-xs text-bp-grey-600 mt-1">Enter the same email address you used when registering</p>
     </div>
-    <button type="submit" class="bp-btn-primary">Send Email</button>
+    <button type="submit" class="bp-btn-primary w-full">Send Voting Email</button>
+    <p class="text-xs text-bp-grey-600 text-center">
+      If your details are correct, you'll receive a new voting email shortly.
+    </p>
   </form>
 {% endif %}
