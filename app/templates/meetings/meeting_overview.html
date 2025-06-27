@@ -119,33 +119,47 @@
                style="left: {{ position }}%">
             <div class="bp-timeline-dot"></div>
             <div class="bp-timeline-label">
-              <div class="font-semibold">{{ label }}</div>
-              <div class="text-xs opacity-75">{{ dt.strftime('%d %b') }}</div>
+              <div class="font-semibold text-center">
+                {% if ' ' in label %}
+                  {% set parts = label.split(' ') %}
+                  {% if parts|length == 2 %}
+                    {{ parts[0] }}<br>{{ parts[1] }}
+                  {% else %}
+                    {{ label }}
+                  {% endif %}
+                {% else %}
+                  {{ label }}
+                {% endif %}
+              </div>
+              <div class="text-xs opacity-75 text-center">{{ dt.strftime('%d %b') }}</div>
             </div>
           </div>
         {% endfor %}
         
         <!-- Current time indicator -->
-        {% if timeline_start <= now <= timeline_end %}
+        {% if timeline_start and timeline_end %}
           {# Find which two milestones the current time falls between #}
           {% set now_position = 50 %}  {# Default to middle if calculation fails #}
-          {% for i in range(valid_milestones|length - 1) %}
-            {% set curr_label, curr_dt = valid_milestones[i] %}
-            {% set next_label, next_dt = valid_milestones[i + 1] %}
-            {% if curr_dt and next_dt and curr_dt <= now <= next_dt %}
-              {# Calculate position between these two milestones #}
-              {% set curr_position = 2.5 + (i * spacing) %}
-              {% set next_position = 2.5 + ((i + 1) * spacing) %}
-              {% set time_ratio = ((now - curr_dt).total_seconds() / (next_dt - curr_dt).total_seconds()) %}
-              {% set now_position = curr_position + (time_ratio * (next_position - curr_position)) %}
-            {% elif i == 0 and curr_dt and now < curr_dt %}
-              {# Before first milestone #}
-              {% set now_position = 2.5 %}
-            {% elif i == valid_milestones|length - 2 and next_dt and now > next_dt %}
-              {# After last milestone #}
-              {% set now_position = 2.5 + ((valid_milestones|length - 1) * spacing) %}
-            {% endif %}
-          {% endfor %}
+          {% if now < timeline_start %}
+            {# Before first milestone - show at the very beginning #}
+            {% set now_position = 1 %}
+          {% elif now > timeline_end %}
+            {# After last milestone #}
+            {% set now_position = 99 %}
+          {% else %}
+            {# Between milestones #}
+            {% for i in range(valid_milestones|length - 1) %}
+              {% set curr_label, curr_dt = valid_milestones[i] %}
+              {% set next_label, next_dt = valid_milestones[i + 1] %}
+              {% if curr_dt and next_dt and curr_dt <= now <= next_dt %}
+                {# Calculate position between these two milestones #}
+                {% set curr_position = 2.5 + (i * spacing) %}
+                {% set next_position = 2.5 + ((i + 1) * spacing) %}
+                {% set time_ratio = ((now - curr_dt).total_seconds() / (next_dt - curr_dt).total_seconds()) %}
+                {% set now_position = curr_position + (time_ratio * (next_position - curr_position)) %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
           <div class="bp-timeline-now" style="--now-position: {{ now_position }}%"></div>
         {% endif %}
       </div>

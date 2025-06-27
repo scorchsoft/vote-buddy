@@ -143,6 +143,7 @@ def _calculate_default_times(agm_date: datetime) -> dict:
     opens_at_stage1 = closes_at_stage1 - timedelta(
         days=cfg.get("STAGE1_LENGTH_DAYS", 7)
     )
+    # Final notice comes after amendments close (14 days before Stage 1)
     notice_date = opens_at_stage1 - timedelta(days=cfg.get("NOTICE_PERIOD_DAYS", 14))
     motions_closes_at = notice_date - timedelta(
         days=cfg.get("MOTION_DEADLINE_GAP_DAYS", 7)
@@ -150,8 +151,9 @@ def _calculate_default_times(agm_date: datetime) -> dict:
     motions_opens_at = motions_closes_at - timedelta(
         days=cfg.get("MOTION_WINDOW_DAYS", 7)
     )
-    amendments_opens_at = notice_date
-    amendments_closes_at = opens_at_stage1 - timedelta(days=7)
+    # Amendments open after motions close  
+    amendments_opens_at = motions_closes_at
+    amendments_closes_at = opens_at_stage1 - timedelta(days=21)
     return {
         "notice_date": notice_date,
         "opens_at_stage1": opens_at_stage1,
@@ -316,7 +318,7 @@ def edit_meeting(meeting_id):
     form = MeetingForm(obj=meeting)
     notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 14)
     form.notice_date.description = (
-        f"Must be at least {notice_days} days before Stage 1 opens."
+        f"Final notice with complete agenda; at least {notice_days} days before Stage 1 opens."
     )
     form.opens_at_stage1.description = f"At least {notice_days} days after notice date."
     form.closes_at_stage1.description = "Must remain open for at least 7 days."
@@ -768,11 +770,14 @@ def meeting_overview(meeting_id):
 
     steps = [
         ("Motions Open", meeting.motions_opens_at),
-        ("Notice", meeting.notice_date),
+        ("Motions Close", meeting.motions_closes_at),
+        ("Amendments Open", meeting.amendments_opens_at),
+        ("Amendments Close", meeting.amendments_closes_at),
+        ("Final Notice", meeting.notice_date),
         ("Stage 1 Opens", meeting.opens_at_stage1),
         ("Stage 1 Closes", meeting.closes_at_stage1),
         ("Stage 2 Opens", meeting.opens_at_stage2),
-        ("Stage 2 Closes", meeting.closes_at_stage2),
+        ("AGM Date", meeting.closes_at_stage2),
     ]
     dates = [d for _, d in steps if d]
     timeline_start = min(dates) if dates else None

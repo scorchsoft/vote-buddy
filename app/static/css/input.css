@@ -547,8 +547,8 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
   position: relative;
   width: 100%;
   margin: 1.5rem 0;
-  padding: 1.5rem 3rem 3rem 3rem;
-  min-height: 5rem;
+  padding: 1.5rem 3rem 4rem 3rem;
+  min-height: 6rem;
   overflow-x: hidden;
   overflow-y: visible;
 }
@@ -646,7 +646,7 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
   font-size: 0.7rem;
   font-weight: 600;
   color: var(--bp-grey-700);
-  white-space: nowrap;
+  white-space: normal;
   background: white;
   padding: 0.25rem 0.5rem;
   border-radius: var(--radius);
@@ -656,6 +656,7 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
   transition: all var(--transition-fast);
   text-align: center;
   min-width: 70px;
+  line-height: 1.2;
 }
 
 .bp-timeline-marker:hover .bp-timeline-label {

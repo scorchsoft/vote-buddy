@@ -53,10 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
     dMotionsOpen.setDate(dMotionsOpen.getDate() - motionWindowDays);
     if (force || !motionsOpen.value) motionsOpen.value = toLocal(dMotionsOpen);
 
-    if (force || !amendsOpen.value) amendsOpen.value = toLocal(dNotice);
+    const dAmendsOpen = new Date(dMotionsClose);
+    if (force || !amendsOpen.value) amendsOpen.value = toLocal(dAmendsOpen);
 
     const dAmendsClose = new Date(dStage1Open);
-    dAmendsClose.setDate(dAmendsClose.getDate() - 7);
+    dAmendsClose.setDate(dAmendsClose.getDate() - 21);
     if (force || !amendsClose.value) amendsClose.value = toLocal(dAmendsClose);
   }
 

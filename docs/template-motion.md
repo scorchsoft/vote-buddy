@@ -25,12 +25,15 @@ The procedure below introduces a clear amendment stage **before** the final vote
 
 > **Note on numbering:** “Clause 1, 2, … 9” is intentionally generic; renumber or cross-reference to fit your own Articles / By-laws.
 
-### Clause 1 — Declaration of Ballot Type
-1.1  No fewer than 14 clear days before voting opens the Chair shall publish whether the motion will be decided by:  
+### Clause 1 — Meeting Notices and Ballot Type Declaration
+1.1  **Initial Notice**: No fewer than 21 clear days before motion submissions close, the Chair shall publish an initial meeting notice announcing the AGM/EGM date, motion submission deadlines, and amendment process.
+
+1.2  **Final Notice and Ballot Declaration**: No fewer than 14 clear days before voting opens (and after amendment submissions close and chair rulings), the Chair shall publish the final meeting notice declaring whether the motion will be decided by:  
 &nbsp;&nbsp;&nbsp;a) two-stage electronic ballot (Stage 1 ≙ amendments; Stage 2 ≙ motion);  
 &nbsp;&nbsp;&nbsp;b) single-stage electronic ballot (simultaneous vote on amendments **and** motion); or  
 &nbsp;&nbsp;&nbsp;c) in-person or hybrid ballot, taken in two consecutive stages during the meeting.  
-1.2  The notice shall include the timetable for each stage and the chosen voting platform / method.
+
+1.3  The final notice shall include the complete agenda, all qualifying amendments, the timetable for each stage, and the chosen voting platform / method.
 
 ### Clause 2 — Submission & Qualification of Amendments
 (a)  Amendments must reach the Secretary in writing ≥ 21 days before Stage 1 (or meeting day). Each Voting Member may lodge up to three amendments per motion.  
@@ -89,12 +92,13 @@ Electronic seconds must accompany the amendment submission; in-person seconds ma
 
 | Step | Who | Timing | Comment |
 |------|-----|--------|---------|
-| Declare ballot type & timetable | Chair | ≥ 14 days pre-vote | Include platform URL |
+| Initial AGM notice | Chair | ≥ 21 days before motions close | Basic meeting announcement |
 | Auto-populate meeting timeline | Coordinator | After setting AGM date | Use VoteBuddy's button to generate default windows |
 | Motion submission window | Coordinator | Opens {{ motions_opens_at }} closes {{ motions_closes_at }} | Email invite sent automatically |
-| Amendment deadline | Secretary | –21 days | Max 3 per member |
-| Chair issues rulings | Chair | –7 days | Merge duplicates, set order |
-| Amendment review & comments | Secretary | Until Stage 1 opens | Members review final amendments |
+| Amendment deadline | Secretary | –21 days before Stage 1 | Max 3 per member |
+| Chair issues rulings | Chair | –7 days before Stage 1 | Merge duplicates, set order |
+| Final notice & ballot declaration | Chair | ≥ 14 days before Stage 1 | Complete agenda, platform URL, qualifying amendments |
+| Amendment review & comments | Secretary | Until Stage 1 opens | Members review final amendments (≥ 5 days) |
 | Stage 1 voting window | Returning Officer | ≥ 7 days | Separate votes per amendment |
 | Run-off (if required) | Returning Officer | Buffer ≥ 2 days | Only between conflicting carried amendments |
 | Publish amended motion + Stage-1 results | Secretary | ≥ 24 h pre-Stage 2 | Clear audit trail |
