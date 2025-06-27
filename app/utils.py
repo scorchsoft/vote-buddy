@@ -289,14 +289,22 @@ def generate_results_pdf(meeting, stage1_results, stage2_results) -> bytes:
     def make_chart(title: str, counts: dict[str, int]):
         fig, axes = plt.subplots(1, 3, figsize=(6, 2))
         for label, ax in zip(["Count", "Share", "Effective"], axes):
-            values = [counts.get("for", 0), counts.get("against", 0), counts.get("abstain", 0)]
+            values = [
+                counts.get("for", 0),
+                counts.get("against", 0),
+                counts.get("abstain", 0),
+            ]
             labels = ["For", "Against", "Abstain"]
             colors_ = ["#00b894", "#d63031", "#fdcb6e"]
-            if label == "Share" or label == "Effective":
-                total = sum(values)
-                if label == "Effective":
-                    total -= values[2]
-                total = total or 1
+
+            if label == "Effective":
+                # exclude abstentions entirely from the chart
+                values = values[:2]
+                labels = labels[:2]
+                colors_ = colors_[:2]
+
+            if label in {"Share", "Effective"}:
+                total = sum(values) or 1
                 values = [v / total * 100 for v in values]
                 ax.set_ylim(0, 100)
             bars = ax.bar(

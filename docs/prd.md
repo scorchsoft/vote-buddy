@@ -499,6 +499,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-27 – Draft motions visible to coordinators on review preview with publish toggle.
 * 2025-09-03 – Motion submissions append selected handling preferences as a Markdown list.
 * 2025-09-06 – Clarified chart axis labels in final results PDF and reduced chart font sizes.
+* 2025-09-07 – Removed abstain bar from Effective % charts in final results PDF.
 * 2025-06-27 – Auto Email Summary section uses a three‑column grid on meeting overview.
 * 2025-06-27 – Public meeting page lists published motions and amendments in expandable accordions.
 * 2025-06-27 – Added 'Manage Permissions' link on Roles page and removed Permissions from the admin menu.
