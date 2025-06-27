@@ -378,6 +378,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-16 – Added `node_modules/` to `.gitignore` to ignore Node packages.
 * 2025-06-16 – Documented Python package installation in README.
 * 2025-06-16 – Added rate limiting to login and vote routes using Flask-Limiter.
+* 2025-07-04 – Public meeting pages hide admin-only details and exclude drafts.
 * 2025-06-16 – Added skip link for keyboard users and assigned id="main" to content container.
 * 2025-06-16 – Navigation drawer closes via Escape key for keyboard users.
 * 2025-06-16 – Increased default rate limit to 1000 per day.
@@ -498,6 +499,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-27 – Draft motions visible to coordinators on review preview with publish toggle.
 * 2025-09-03 – Motion submissions append selected handling preferences as a Markdown list.
 * 2025-06-27 – Auto Email Summary section uses a three‑column grid on meeting overview.
+* 2025-06-27 – Public meeting page lists published motions and amendments in expandable accordions.
 
 ---
 

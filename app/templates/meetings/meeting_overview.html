@@ -2,7 +2,7 @@
 {% from '_macros.html' import breadcrumbs %}
 
 {% block content %}
-{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Motions', None)]) }}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.meeting_overview', meeting_id=meeting.id)), ('Motions', None)]) }}
 
 <!-- Page Header -->
 <div class="mb-8">

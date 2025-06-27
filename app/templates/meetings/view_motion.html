@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
-{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (motion.meeting.title if motion.meeting else 'Meeting', url_for('meetings.edit_meeting', meeting_id=motion.meeting_id)), ('View Motion', None)]) }}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (motion.meeting.title if motion.meeting else 'Meeting', url_for('meetings.meeting_overview', meeting_id=motion.meeting_id)), ('View Motion', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4 flex items-center gap-4">
   <span>{{ motion.title }}</span>
   {% if motion.is_published %}
