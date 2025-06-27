@@ -68,8 +68,12 @@ def config_or_setting(
 
 
 def markdown_to_html(text: str) -> Markup:
-    """Convert Markdown text to safe HTML."""
-    raw_html = markdown(text or "")
+    """Convert Markdown text to safe HTML.
+
+    Newlines are converted to ``<br>`` so comments keep their original
+    line breaks.
+    """
+    raw_html = markdown(text or "", extensions=["nl2br"])
     cleaned = bleach.clean(raw_html, tags=ALLOWED_TAGS, strip=True)
     return Markup(cleaned)
 
