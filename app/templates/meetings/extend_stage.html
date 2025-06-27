@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import breadcrumbs, form_errors %}
 {% block content %}
-{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Extend Stage', None)]) }}
+{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.meeting_overview', meeting_id=meeting.id)), ('Extend Stage', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">Extend Stage {{ stage }}</h1>
 <form method="post" class="bp-form bp-card space-y-4" hx-boost="false">
   {{ form.hidden_tag() }}
