@@ -186,6 +186,13 @@ internet.
 flask --app app create-admin
 ```
 
+or if you want to run via the python module
+```bash
+python -m flask --app app create-admin
+```
+
+set email and pass to whatever you like, then the role to root_admin
+
 The `web` service runs migrations on start and exposes the app at `http://localhost:8000`.
 
 To run the development server directly on your machine, first install the requirements and then execute:
