@@ -2,7 +2,30 @@
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (motion.meeting.title if motion.meeting else 'Meeting', url_for('meetings.edit_meeting', meeting_id=motion.meeting_id)), ('View Motion', None)]) }}
-<h1 class="font-bold text-bp-blue mb-4">{{ motion.title }}</h1>
+<h1 class="font-bold text-bp-blue mb-4 flex items-center gap-4">
+  <span>{{ motion.title }}</span>
+  {% if motion.is_published %}
+  <span class="inline-flex items-center gap-1 text-green-600 text-sm">
+    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+    </svg>
+    Published
+  </span>
+  {% else %}
+  <span class="inline-flex items-center gap-1 text-bp-grey-500 text-sm">
+    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+    </svg>
+    Draft
+  </span>
+  {% endif %}
+  <form method="post" action="{{ url_for('meetings.toggle_motion_publish', motion_id=motion.id) }}" class="inline" hx-boost="false">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <button type="submit" class="bp-btn-secondary bp-btn-sm">
+      {{ 'Unpublish' if motion.is_published else 'Publish' }}
+    </button>
+  </form>
+</h1>
 <div class="bp-card bp-glow mb-4">{{ (motion.text_md or 'No motion text.')|markdown_to_html|safe }}</div>
 <h3 class="font-bold mb-2">Amendments</h3>
 <a href="{{ url_for('meetings.manage_conflicts', motion_id=motion.id) }}" class="bp-btn-secondary mb-4 inline-block">Manage Conflicts</a>

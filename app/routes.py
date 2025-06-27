@@ -138,11 +138,10 @@ def review_motions(token: str, meeting_id: int):
     if token != 'preview' and meeting.motions_closes_at and now <= meeting.motions_closes_at:
         flash('Motion submission window is still open.', 'error')
         return redirect(url_for('main.public_meeting_detail', meeting_id=meeting.id))
-    motions = (
-        Motion.query.filter_by(meeting_id=meeting.id, is_published=True)
-        .order_by(Motion.ordering)
-        .all()
-    )
+    query = Motion.query.filter_by(meeting_id=meeting.id)
+    if not (token == "preview" and current_user.is_authenticated and current_user.has_permission("manage_meetings")):
+        query = query.filter_by(is_published=True)
+    motions = query.order_by(Motion.ordering).all()
     return render_template('public_review.html', meeting=meeting, motions=motions, token=token)
 
 
