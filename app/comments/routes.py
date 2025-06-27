@@ -81,6 +81,20 @@ def motion_comments(token: str, motion_id: int):
         page=page, per_page=per_page, error_out=False
     )
     comments = pagination.items
+    
+    # If this is a preview request (for admin), render the full page template
+    if token == "preview":
+        return render_template(
+            "comments/motion_comments_page.html",
+            motion=motion,
+            meeting=meeting,
+            comments=comments,
+            pagination=pagination,
+            token=token,
+            target=("motion", motion.id),
+        )
+    
+    # Otherwise render the partial template (for HTMX requests)
     return render_template(
         "comments/comments.html",
         comments=comments,
@@ -129,6 +143,20 @@ def amendment_comments(token: str, amendment_id: int):
         page=page, per_page=per_page, error_out=False
     )
     comments = pagination.items
+    
+    # If this is a preview request (for admin), render the full page template
+    if token == "preview":
+        return render_template(
+            "comments/amendment_comments_page.html",
+            amendment=amendment,
+            meeting=meeting,
+            comments=comments,
+            pagination=pagination,
+            token=token,
+            target=("amendment", amendment.id),
+        )
+    
+    # Otherwise render the partial template (for HTMX requests)
     return render_template(
         "comments/comments.html",
         comments=comments,

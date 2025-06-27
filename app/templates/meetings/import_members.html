@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, form_errors %}
 {% block content %}
 {{ breadcrumbs([
   ('Dashboard', url_for('admin.dashboard')),
@@ -15,6 +15,7 @@
 </p>
 <form method="post" enctype="multipart/form-data" class="bp-form bp-card space-y-6" hx-boost="false">
   {{ form.hidden_tag() }}
+  {{ form_errors(form) }}
   <div>
     {{ form.csv_file.label(class_='block font-semibold') }}
     {{ form.csv_file(class_='border p-3 rounded w-full', **{'aria-describedby': form.csv_file.id + '-error'}) }}

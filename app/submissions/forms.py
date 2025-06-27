@@ -35,3 +35,22 @@ class AmendmentSubmissionForm(FlaskForm):
     text_md = TextAreaField('Amendment Text', validators=[DataRequired()])
     seconder_id = SelectField('Seconder', coerce=int)
     submit = SubmitField('Submit Amendment')
+
+
+class MotionSubmissionEditForm(FlaskForm):
+    """Form for admins to edit a motion submission."""
+
+    title = StringField("Motion Title", validators=[DataRequired()])
+    text_md = TextAreaField(
+        "Motion Text", validators=[DataRequired()], render_kw={"data-markdown-editor": "1"}
+    )
+    submit = SubmitField("Save Changes")
+
+
+class AmendmentSubmissionEditForm(FlaskForm):
+    """Form for admins to edit an amendment submission."""
+
+    text_md = TextAreaField(
+        "Amendment Text", validators=[DataRequired()], render_kw={"data-markdown-editor": "1"}
+    )
+    submit = SubmitField("Save Changes")

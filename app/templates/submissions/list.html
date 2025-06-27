@@ -7,10 +7,14 @@
 {% for sub in motions %}
   <div class="bp-card mb-2">
     <p class="font-semibold">{{ sub.title }}</p>
+    <p class="whitespace-pre-line mb-2">{{ sub.text_md }}</p>
+    <a href="{{ url_for('submissions.edit_motion_submission', submission_id=sub.id) }}" class="bp-btn-secondary bp-btn-icon mb-2">Edit</a>
     <form method="post" action="{{ url_for('submissions.publish_motion', submission_id=sub.id) }}" class="inline" hx-boost="false">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <button class="bp-btn-primary">Publish</button>
     </form>
     <form method="post" action="{{ url_for('submissions.reject_motion', submission_id=sub.id) }}" class="inline ml-2" hx-boost="false">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <button class="bp-btn-secondary">Reject</button>
     </form>
   </div>
@@ -20,11 +24,14 @@
 <h2 class="font-semibold mt-4 mb-2">Amendments</h2>
 {% for sub in amendments %}
   <div class="bp-card mb-2">
-    <p class="mb-1">{{ sub.text_md }}</p>
+    <p class="whitespace-pre-line mb-2">{{ sub.text_md }}</p>
+    <a href="{{ url_for('submissions.edit_amendment_submission', submission_id=sub.id) }}" class="bp-btn-secondary bp-btn-icon mb-2">Edit</a>
     <form method="post" action="{{ url_for('submissions.publish_amendment', submission_id=sub.id) }}" class="inline" hx-boost="false">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <button class="bp-btn-primary">Publish</button>
     </form>
     <form method="post" action="{{ url_for('submissions.reject_amendment', submission_id=sub.id) }}" class="inline ml-2" hx-boost="false">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <button class="bp-btn-secondary">Reject</button>
     </form>
   </div>
