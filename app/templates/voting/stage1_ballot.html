@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, form_errors %}
 {% block content %}
 {{ breadcrumbs([('Ballot', url_for('voting.ballot_home')), (meeting.title, None), ('Stage 1', None)]) }}
 
@@ -55,6 +55,7 @@
 
   <form id="vote-form" method="post" class="space-y-8 pb-24" hx-boost="false">
     {{ form.hidden_tag() }}
+  {{ form_errors(form) }}
     
     {% for motion, ams in motions %}
     <div class="motion-section">

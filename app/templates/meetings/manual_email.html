@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, form_errors %}
 {% block title %}Send Emails{% endblock %}
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Send Emails', None)]) }}
 <h1 class="text-2xl mb-4">Send Emails</h1>
 <form method="post" hx-boost="false">
   {{ form.hidden_tag() }}
+  {{ form_errors(form) }}
   <div class="mb-4">
     {{ form.email_type.label(class="block font-bold") }}
     {{ form.email_type(class="bp-input") }}
