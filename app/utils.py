@@ -229,6 +229,8 @@ def generate_results_pdf(meeting, stage1_results, stage2_results) -> bytes:
         PageBreak,
     )
     from reportlab.lib.units import inch
+    import matplotlib
+    matplotlib.use("Agg")
     from matplotlib import pyplot as plt
     from .voting.routes import compile_motion_text
     import io
