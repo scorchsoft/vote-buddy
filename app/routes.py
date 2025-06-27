@@ -158,18 +158,45 @@ def review_motions(token: str, meeting_id: int):
         m.id: Comment.query.filter_by(motion_id=m.id, hidden=False).count()
         for m in motions
     }
+    
+    # Fetch amendments for each motion (if amendments stage is open or admin/coordinator view)
     amendments_open = (
         meeting.amendments_opens_at
         and now >= meeting.amendments_opens_at
         and (meeting.amendments_closes_at is None or now <= meeting.amendments_closes_at)
     )
+    is_admin_view = token == "preview" and current_user.is_authenticated and current_user.has_permission("manage_meetings")
+    show_amendments = amendments_open or is_admin_view
+    
+    # Always build motions_with_amendments as list of tuples
+    motions_with_amendments = []
+    amend_counts = {}
+    
+    for motion in motions:
+        if show_amendments:
+            # Fetch amendments for this motion
+            amend_query = Amendment.query.filter_by(motion_id=motion.id)
+            if not is_admin_view:
+                amend_query = amend_query.filter_by(is_published=True)
+            amendments = amend_query.order_by(Amendment.order).all()
+            
+            # Calculate comment counts for amendments
+            for amend in amendments:
+                amend_counts[amend.id] = Comment.query.filter_by(amendment_id=amend.id, hidden=False).count()
+        else:
+            amendments = []
+        
+        motions_with_amendments.append((motion, amendments))
+    
     return render_template(
         'public_review.html',
         meeting=meeting,
-        motions=motions,
+        motions=motions_with_amendments,
         token=token,
         motion_counts=motion_counts,
+        amend_counts=amend_counts,
         amendments_open=amendments_open,
+        show_amendments=show_amendments,
     )
 
 

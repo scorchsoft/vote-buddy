@@ -2,7 +2,7 @@
 {% from '_macros.html' import breadcrumbs %}
 
 {% block content %}
-{{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), ('Amendment Comments', None)]) }}
+{{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), ('Review Motions', url_for('main.review_motions', token=token, meeting_id=meeting.id)), ('Amendment Comments', None)]) }}
 
 <div class="max-w-4xl mx-auto">
   <!-- Amendment Context Section -->
@@ -59,16 +59,16 @@
 
   <!-- Related Motion Context (if available) -->
   {% if amendment.motion %}
-  <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+  <div class="bg-bp-blue text-white rounded-xl p-6 mb-8 shadow-lg">
     <div class="flex items-start space-x-3">
-      <svg class="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-6 h-6 text-white/80 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
       <div class="flex-1">
-        <h3 class="text-lg font-semibold text-blue-900 mb-2">This amendment relates to:</h3>
-        <div class="bg-white rounded-lg p-4 border border-blue-100">
-          <h4 class="font-semibold text-gray-900 mb-2">{{ amendment.motion.title or 'Motion' }}</h4>
-          <div class="prose prose-sm max-w-none text-gray-700">
+        <h3 class="text-lg font-semibold text-white mb-3">This amendment relates to:</h3>
+        <div class="bg-white rounded-lg p-4 border border-gray-200">
+          <h4 class="font-semibold text-gray-900 mb-3">{{ amendment.motion.title or 'Motion' }}</h4>
+          <div class="text-gray-700 leading-relaxed">
             {{ amendment.motion.text_md|markdown_to_html|safe if amendment.motion.text_md else '<p class="italic text-gray-500">No motion text provided.</p>' }}
           </div>
         </div>
@@ -301,7 +301,10 @@
           
           <div class="flex justify-end">
             <button type="submit" 
-                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600 transition-colors">
+                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-lg text-white bg-bp-red hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105"
+                    style="background-color: #DC0714;"
+                    onmouseover="this.style.backgroundColor='#b8060f'"
+                    onmouseout="this.style.backgroundColor='#DC0714'">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
               </svg>

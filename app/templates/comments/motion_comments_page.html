@@ -2,7 +2,7 @@
 {% from '_macros.html' import breadcrumbs %}
 
 {% block content %}
-{{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), ('Motion Comments', None)]) }}
+{{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), ('Review Motions', url_for('main.review_motions', token=token, meeting_id=meeting.id)), ('Motion Comments', None)]) }}
 
 <div class="max-w-4xl mx-auto">
   <!-- Motion Context Section -->
