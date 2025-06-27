@@ -6,7 +6,11 @@
 {% if meeting.summary_md %}
 <div class="mb-4">{{ meeting.summary_md|markdown_to_html|safe }}</div>
 {% endif %}
-<p class="mb-4">Stage: {{ meeting.status or 'Draft' }} | Members: {{ member_count }}</p>
+<p class="mb-2">Stage: {{ meeting.status or 'Draft' }} | Members: {{ member_count }}</p>
+{% if meeting.notice_date %}
+<p class="mb-4 text-sm text-bp-grey-700">Notice given {{ meeting.notice_date.strftime('%Y-%m-%d') }}</p>
+{% endif %}
+<button class="bp-btn-secondary mb-6" data-modal-target="resend-modal">Resend Voting Email</button>
 {% if meeting.opens_at_stage1 and meeting.closes_at_stage1 %}
 <p class="mb-2">
   Stage 1:
@@ -62,7 +66,38 @@
   </ul>
 </div>
 {% endif %}
-<button class="bp-btn-secondary mb-4" data-modal-target="resend-modal">Resend Voting Email</button>
+{% if amendments %}
+<div class="mb-6" id="amendments-section">
+  <div class="flex items-center justify-between mb-2">
+    <h2 class="font-semibold">Published Amendments</h2>
+    <button id="toggle-amendments" class="bp-btn-secondary bp-btn-sm">Expand all</button>
+  </div>
+  <div id="amendments-list" class="space-y-2">
+  {% for amend in amendments %}
+    <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
+      <summary class="font-semibold cursor-pointer">Amendment A{{ amend.order }}</summary>
+      <div class="prose mt-2">{{ amend.text_md|markdown_to_html|safe }}</div>
+    </details>
+  {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% if motions %}
+<div class="mb-6" id="motions-section">
+  <div class="flex items-center justify-between mb-2">
+    <h2 class="font-semibold">Published Motions</h2>
+    <button id="toggle-motions" class="bp-btn-secondary bp-btn-sm">Expand all</button>
+  </div>
+  <div id="motions-list" class="space-y-2">
+  {% for motion in motions %}
+    <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
+      <summary class="font-semibold cursor-pointer">{{ motion.title }}</summary>
+      <div class="prose mt-2">{{ motion.text_md|markdown_to_html|safe }}</div>
+    </details>
+  {% endfor %}
+  </div>
+</div>
+{% endif %}
 <dialog id="resend-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="resend-title">
   <h2 id="resend-title" class="font-bold mb-2">Request Voting Email</h2>
   <div id="resend-modal-content" hx-target="this" hx-swap="outerHTML">
@@ -71,4 +106,5 @@
   <button class="bp-btn-secondary mt-4" data-close-modal>Close</button>
 </dialog>
 <script src="{{ url_for('static', filename='js/stage_progress.js') }}"></script>
+<script src="{{ url_for('static', filename='js/accordion.js') }}"></script>
 {% endblock %}

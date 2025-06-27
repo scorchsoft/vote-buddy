@@ -105,6 +105,16 @@ def public_meeting_detail(meeting_id: int):
     stage1_ics_url = url_for('main.public_stage1_ics', meeting_id=meeting.id)
     stage2_ics_url = url_for('main.public_stage2_ics', meeting_id=meeting.id)
     runoff_ics_url = url_for('main.public_runoff_ics', meeting_id=meeting.id)
+    amendments = (
+        Amendment.query.filter_by(meeting_id=meeting.id, is_published=True)
+        .order_by(Amendment.order)
+        .all()
+    )
+    motions = (
+        Motion.query.filter_by(meeting_id=meeting.id, is_published=True)
+        .order_by(Motion.ordering)
+        .all()
+    )
     return render_template(
         'public_meeting.html',
         meeting=meeting,
@@ -114,6 +124,8 @@ def public_meeting_detail(meeting_id: int):
         runoff_ics_url=runoff_ics_url,
         stage2_ics_url=stage2_ics_url,
         files=files,
+        amendments=amendments,
+        motions=motions,
     )
 
 
