@@ -547,7 +547,7 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
   position: relative;
   width: 100%;
   margin: 1.5rem 0;
-  padding: 1.5rem 3rem 4rem 3rem;
+  padding: 1.5rem 1rem 4rem 1rem;
   min-height: 6rem;
   overflow-x: hidden;
   overflow-y: visible;
@@ -561,12 +561,12 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
 
 .bp-timeline-container {
   position: relative;
-  width: calc(100% - 80px);
+  width: calc(100% - 120px);
   height: 8px;
   background: var(--bp-grey-200);
   border-radius: var(--radius-xl);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin: 1.5rem 40px;
+  margin: 1.5rem 60px;
 }
 
 .bp-timeline-progress {
@@ -733,7 +733,7 @@ h4 { font-size: 1.25rem; line-height: 1.4; }
 /* Responsive Timeline */
 @media (max-width: 768px) {
   .bp-timeline {
-    padding: 0 1rem;
+    padding: 1rem 0.5rem 3rem 0.5rem;
     margin: 2rem 0;
   }
   

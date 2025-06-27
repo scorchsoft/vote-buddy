@@ -115,6 +115,24 @@ def public_meeting_detail(meeting_id: int):
         .order_by(Motion.ordering)
         .all()
     )
+    
+    # Timeline data
+    steps = [
+        ("Initial Notice", meeting.initial_notice_date),
+        ("Motions Open", meeting.motions_opens_at),
+        ("Motions Close", meeting.motions_closes_at),
+        ("Amendments Open", meeting.amendments_opens_at),
+        ("Amendments Close", meeting.amendments_closes_at),
+        ("Final Notice", meeting.notice_date),
+        ("Stage 1 Opens", meeting.opens_at_stage1),
+        ("Stage 1 Closes", meeting.closes_at_stage1),
+        ("Stage 2 Opens", meeting.opens_at_stage2),
+        ("AGM Date", meeting.closes_at_stage2),
+    ]
+    dates = [d for _, d in steps if d]
+    timeline_start = min(dates) if dates else None
+    timeline_end = max(dates) if dates else None
+    
     return render_template(
         'public_meeting.html',
         meeting=meeting,
@@ -126,6 +144,10 @@ def public_meeting_detail(meeting_id: int):
         files=files,
         amendments=amendments,
         motions=motions,
+        timeline_steps=steps,
+        timeline_start=timeline_start,
+        timeline_end=timeline_end,
+        now=datetime.utcnow(),
     )
 
 

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import breadcrumbs %}
+{% from '_timeline.html' import meeting_timeline %}
 
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.meeting_overview', meeting_id=meeting.id)), ('Motions', None)]) }}
@@ -69,120 +70,8 @@
   </div>
 </div>
 
-{% if timeline_start and timeline_end %}
 <!-- Meeting Timeline -->
-<div class="bp-card mb-8">
-  <h2 class="text-xl font-semibold text-bp-grey-900 mb-6 flex items-center gap-2">
-    <svg class="w-5 h-5 text-bp-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-    Meeting Timeline
-  </h2>
-  
-  <div class="bp-timeline">
-    <div class="bp-timeline-wrapper">
-      <div class="bp-timeline-container">
-        <!-- Progress bar showing elapsed time -->
-        {% if now >= timeline_start %}
-          {# Calculate progress width to match the "Today" marker position #}
-          {% set progress_width = 50 %}  {# Default to middle if calculation fails #}
-          {% for i in range(valid_milestones|length - 1) %}
-            {% set curr_label, curr_dt = valid_milestones[i] %}
-            {% set next_label, next_dt = valid_milestones[i + 1] %}
-            {% if curr_dt and next_dt and curr_dt <= now <= next_dt %}
-              {# Calculate position between these two milestones #}
-              {% set curr_position = 2.5 + (i * spacing) %}
-              {% set next_position = 2.5 + ((i + 1) * spacing) %}
-              {% set time_ratio = ((now - curr_dt).total_seconds() / (next_dt - curr_dt).total_seconds()) %}
-              {% set progress_width = curr_position + (time_ratio * (next_position - curr_position)) %}
-            {% elif i == 0 and curr_dt and now < curr_dt %}
-              {# Before first milestone #}
-              {% set progress_width = 2.5 %}
-            {% elif i == valid_milestones|length - 2 and next_dt and now > next_dt %}
-              {# After last milestone #}
-              {% set progress_width = 2.5 + ((valid_milestones|length - 1) * spacing) %}
-            {% endif %}
-          {% endfor %}
-          <div class="bp-timeline-progress" style="width: {{ progress_width }}%"></div>
-        {% endif %}
-        
-        <!-- Timeline markers with equal spacing -->
-        {% set valid_milestones = timeline_steps|selectattr('1')|list %}
-        {% set total_milestones = valid_milestones|length %}
-        {% set spacing = 95 / (total_milestones - 1) if total_milestones > 1 else 0 %}
-        {% for milestone in valid_milestones %}
-          {% set label, dt = milestone %}
-          {% set milestone_index = loop.index0 %}
-          {% set position = 2.5 + (milestone_index * spacing) %}
-          
-          <div class="bp-timeline-marker {{ 'bp-timeline-marker-alt' if loop.index0 % 2 == 1 else '' }}" 
-               style="left: {{ position }}%">
-            <div class="bp-timeline-dot"></div>
-            <div class="bp-timeline-label">
-              <div class="font-semibold text-center">
-                {% if ' ' in label %}
-                  {% set parts = label.split(' ') %}
-                  {% if parts|length == 2 %}
-                    {{ parts[0] }}<br>{{ parts[1] }}
-                  {% else %}
-                    {{ label }}
-                  {% endif %}
-                {% else %}
-                  {{ label }}
-                {% endif %}
-              </div>
-              <div class="text-xs opacity-75 text-center">{{ dt.strftime('%d %b') }}</div>
-            </div>
-          </div>
-        {% endfor %}
-        
-        <!-- Current time indicator -->
-        {% if timeline_start and timeline_end %}
-          {# Find which two milestones the current time falls between #}
-          {% set now_position = 50 %}  {# Default to middle if calculation fails #}
-          {% if now < timeline_start %}
-            {# Before first milestone - show at the very beginning #}
-            {% set now_position = 1 %}
-          {% elif now > timeline_end %}
-            {# After last milestone #}
-            {% set now_position = 99 %}
-          {% else %}
-            {# Between milestones #}
-            {% for i in range(valid_milestones|length - 1) %}
-              {% set curr_label, curr_dt = valid_milestones[i] %}
-              {% set next_label, next_dt = valid_milestones[i + 1] %}
-              {% if curr_dt and next_dt and curr_dt <= now <= next_dt %}
-                {# Calculate position between these two milestones #}
-                {% set curr_position = 2.5 + (i * spacing) %}
-                {% set next_position = 2.5 + ((i + 1) * spacing) %}
-                {% set time_ratio = ((now - curr_dt).total_seconds() / (next_dt - curr_dt).total_seconds()) %}
-                {% set now_position = curr_position + (time_ratio * (next_position - curr_position)) %}
-              {% endif %}
-            {% endfor %}
-          {% endif %}
-          <div class="bp-timeline-now" style="--now-position: {{ now_position }}%"></div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  
-  <!-- Timeline Legend -->
-  <div class="mt-6 flex flex-wrap items-center gap-4 text-sm text-bp-grey-600">
-    <div class="flex items-center gap-2">
-      <div class="w-3 h-3 bg-bp-blue rounded-full"></div>
-      <span>Milestone</span>
-    </div>
-    <div class="flex items-center gap-2">
-      <div class="w-3 h-3 bg-bp-red rounded-full animate-pulse"></div>
-      <span>Current Date</span>
-    </div>
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-1 bg-gradient-to-r from-bp-blue to-bp-blue-light rounded"></div>
-      <span>Progress</span>
-    </div>
-  </div>
-</div>
-{% endif %}
+{{ meeting_timeline(meeting, timeline_steps, now, timeline_start, timeline_end, show_title=true) }}
 
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
   <div class="bp-stat-card">
