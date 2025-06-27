@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
+{% block content %}
+{{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), ('Review Motions', None)]) }}
+<h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} – Draft Motions</h1>
+{% for motion in motions %}
+<div class="bp-card bp-glow mb-4">
+  <h2 class="font-semibold mb-2">{{ motion.title }}</h2>
+  <div class="prose">{{ motion.text_md|markdown_to_html|safe }}</div>
+  {% if meeting.comments_enabled %}
+  <p class="mt-2"><a href="{{ url_for('comments.motion_comments', token=token, motion_id=motion.id) }}" class="bp-link">View Comments</a></p>
+  {% endif %}
+</div>
+{% else %}
+<p>No motions available.</p>
+{% endfor %}
+{% endblock %}

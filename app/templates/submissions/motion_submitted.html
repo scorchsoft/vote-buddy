@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import breadcrumbs %}
+{% block content %}
+{{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), ('Submit Motion', None)]) }}
+<h1 class="font-bold text-bp-blue mb-4">Motion Submitted</h1>
+<p class="mb-4">Your motion has been submitted for coordinator review.</p>
+<form method="get" action="{{ url_for('submissions.submit_motion', token=token, meeting_id=meeting.id) }}">
+  <button class="bp-btn-primary">Submit Another Motion</button>
+</form>
+<p class="mt-4"><a href="{{ url_for('main.public_meeting_detail', meeting_id=meeting.id) }}" class="bp-link">Return to meeting page</a></p>
+{% endblock %}

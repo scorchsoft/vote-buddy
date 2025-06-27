@@ -10,6 +10,7 @@ from flask import (
     url_for,
     send_from_directory,
     Response,
+    flash,
 )
 from werkzeug.utils import secure_filename
 from .extensions import db, limiter
@@ -20,6 +21,7 @@ from .models import (
     Vote,
     Member,
     VoteToken,
+    SubmissionToken,
     Runoff,
     AppSetting,
     MeetingFile,
@@ -34,7 +36,8 @@ from .utils import (
 from .voting.routes import compile_motion_text
 import io
 from sqlalchemy import func
-from flask_login import login_required
+from flask_login import login_required, current_user
+from datetime import datetime
 from .permissions import permission_required
 
 bp = Blueprint('main', __name__)
@@ -112,6 +115,35 @@ def public_meeting_detail(meeting_id: int):
         stage2_ics_url=stage2_ics_url,
         files=files,
     )
+
+
+@bp.route('/review/<token>/motions/<int:meeting_id>')
+def review_motions(token: str, meeting_id: int):
+    """Display published motions with comment links once submission closes."""
+    if token == 'preview':
+        if not current_user.is_authenticated or not current_user.has_permission('manage_meetings'):
+            abort(403)
+        member = Member.query.filter_by(meeting_id=meeting_id).first()
+    else:
+        tok = SubmissionToken.verify(token, current_app.config['TOKEN_SALT'])
+        if not tok or tok.meeting_id != meeting_id:
+            abort(404)
+        member = db.session.get(Member, tok.member_id)
+        if member is None:
+            abort(404)
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    now = datetime.utcnow()
+    if token != 'preview' and meeting.motions_closes_at and now <= meeting.motions_closes_at:
+        flash('Motion submission window is still open.', 'error')
+        return redirect(url_for('main.public_meeting_detail', meeting_id=meeting.id))
+    motions = (
+        Motion.query.filter_by(meeting_id=meeting.id, is_published=True)
+        .order_by(Motion.ordering)
+        .all()
+    )
+    return render_template('public_review.html', meeting=meeting, motions=motions, token=token)
 
 
 def _resend_key_func():

@@ -18,7 +18,7 @@ from ..services.email import (
 from . import bp
 from .forms import MotionSubmissionForm, AmendmentSubmissionForm
 from ..permissions import permission_required
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 
 @bp.route('/<int:meeting_id>')
@@ -115,9 +115,15 @@ def reject_amendment(submission_id: int):
 
 @bp.route('/<token>/motion/<int:meeting_id>', methods=['GET', 'POST'])
 def submit_motion(token: str, meeting_id: int):
-    token_obj = SubmissionToken.verify(token, current_app.config["TOKEN_SALT"])
-    if not token_obj or token_obj.meeting_id != meeting_id:
-        abort(404)
+    if token == "preview":
+        token_obj = type("Tok", (), {
+            "member_id": Member.query.filter_by(meeting_id=meeting_id).first().id if Member.query.filter_by(meeting_id=meeting_id).first() else None,
+            "meeting_id": meeting_id,
+        })
+    else:
+        token_obj = SubmissionToken.verify(token, current_app.config["TOKEN_SALT"])
+        if not token_obj or token_obj.meeting_id != meeting_id:
+            abort(404)
     meeting = db.session.get(Meeting, meeting_id)
     if meeting is None:
         abort(404)
@@ -152,7 +158,7 @@ def submit_motion(token: str, meeting_id: int):
         if seconder:
             notify_seconder_motion(seconder, meeting)
         flash('Motion submitted for review', 'success')
-        return redirect(url_for('main.public_meeting_detail', meeting_id=meeting.id))
+        return render_template('submissions/motion_submitted.html', meeting=meeting, token=token)
     return render_template('submissions/motion_form.html', form=form, meeting=meeting)
 
 
