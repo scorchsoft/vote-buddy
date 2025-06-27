@@ -50,6 +50,10 @@ class Config:
     RATELIMIT_STORAGE_URL = os.getenv("RATELIMIT_STORAGE_URL", "memory://")
     COMMENTS_PER_PAGE = int(os.getenv("COMMENTS_PER_PAGE", "10"))
     COMMENT_EDIT_MINUTES = int(os.getenv("COMMENT_EDIT_MINUTES", "15"))
+    EMAIL_WHY_TEXT = os.getenv(
+        "EMAIL_WHY_TEXT",
+        "You are a member of our organisation and have therefore been invited to participate in voting in AGMs/EGMs. If you do not want to participate in the process then please ignore this and subsequent emails",
+    )
 
 
 class DevelopmentConfig(Config):
