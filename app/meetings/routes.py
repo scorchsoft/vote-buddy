@@ -1269,6 +1269,20 @@ def mark_amendment_merged(amendment_id: int):
     return redirect(url_for("meetings.view_motion", motion_id=amendment.motion_id))
 
 
+@bp.route("/motions/<int:motion_id>/toggle-publish", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def toggle_motion_publish(motion_id: int):
+    """Publish or unpublish a motion."""
+    motion = db.session.get(Motion, motion_id)
+    if motion is None:
+        abort(404)
+    motion.is_published = not motion.is_published
+    db.session.commit()
+    record_action("toggle_motion_publish", f"motion_id={motion.id}")
+    return redirect(request.referrer or url_for("meetings.view_motion", motion_id=motion.id))
+
+
 @bp.route("/<int:meeting_id>/member-search")
 def member_search(meeting_id: int):
     """Return member options filtered by query."""

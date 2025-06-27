@@ -114,6 +114,12 @@
         </svg>
         View Details
       </a>
+      <form method="post" action="{{ url_for('meetings.toggle_motion_publish', motion_id=m.id) }}" class="inline" hx-boost="false">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <button class="bp-btn-secondary bp-btn-compact ml-2" type="submit">
+          {{ 'Unpublish' if m.is_published else 'Publish' }}
+        </button>
+      </form>
     </div>
   </div>
   {% endfor %}

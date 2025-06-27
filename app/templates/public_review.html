@@ -2,10 +2,20 @@
 {% from '_macros.html' import breadcrumbs %}
 {% block content %}
 {{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), ('Review Motions', None)]) }}
-<h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} – Draft Motions</h1>
+<h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} – Motions</h1>
 {% for motion in motions %}
 <div class="bp-card bp-glow mb-4">
-  <h2 class="font-semibold mb-2">{{ motion.title }}</h2>
+  <h2 class="font-semibold mb-2 flex items-center gap-2">
+    <span>{{ motion.title }}</span>
+    {% if not motion.is_published %}
+    <span class="inline-flex items-center gap-1 text-bp-grey-500 text-sm">
+      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+      </svg>
+      Draft
+    </span>
+    {% endif %}
+  </h2>
   <div class="prose">{{ motion.text_md|markdown_to_html|safe }}</div>
   {% if meeting.comments_enabled %}
   <p class="mt-2"><a href="{{ url_for('comments.motion_comments', token=token, motion_id=motion.id) }}" class="bp-link">View Comments</a></p>
