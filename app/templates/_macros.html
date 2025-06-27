@@ -20,3 +20,24 @@
   </ol>
 </nav>
 {% endmacro %}
+
+{# Display a list of form validation errors in a consistent alert style #}
+{% macro form_errors(form) %}
+  {% if form.errors %}
+  <div class="bp-alert bp-alert-error mb-4">
+    <svg class="bp-icon flex-shrink-0" viewBox="0 0 24 24">
+      <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
+    </svg>
+    <div>
+      <p class="font-semibold mb-1">Please correct the following errors:</p>
+      <ul class="list-disc list-inside">
+      {% for field, errors in form.errors.items() %}
+        {% for error in errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+{% endmacro %}

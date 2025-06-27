@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, form_errors %}
 {% block content %}
 {{ breadcrumbs([('Ballot', url_for('voting.ballot_home')), (meeting.title, None), ('Stage 2', None)]) }}
 {% if setting('site_logo') %}
@@ -30,6 +30,7 @@
 {% endif %}
 <form id="vote-form" method="post" class="bp-form bp-card space-y-4 pb-20" hx-boost="false">
   {{ form.hidden_tag() }}
+  {{ form_errors(form) }}
   {% for motion, compiled in motions %}
     <blockquote class="bp-card bp-glow mb-4 whitespace-pre-line">{{ compiled|markdown_to_html|safe }}
       {% if not preview or (current_user.is_authenticated and current_user.has_permission('manage_meetings')) %}

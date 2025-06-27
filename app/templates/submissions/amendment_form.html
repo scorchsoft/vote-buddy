@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, form_errors %}
 {% block content %}
 {{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), (motion.title, url_for('meetings.view_motion', motion_id=motion.id)), ('Submit Amendment', None)]) }}
 {% if setting('site_logo') %}
@@ -8,6 +8,7 @@
 <h1 class="font-bold text-bp-blue mb-4">Submit Amendment</h1>
 <form method="post" class="bp-form bp-card space-y-4" hx-boost="false">
   {{ form.hidden_tag() }}
+  {{ form_errors(form) }}
   <div>
     {{ form.name.label(class_='block font-semibold') }}
     {{ form.name(class_='border p-2 rounded w-full') }}

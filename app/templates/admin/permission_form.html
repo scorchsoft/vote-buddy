@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, form_errors %}
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Permissions', url_for('admin.list_permissions')), ('Edit Permission' if permission else 'Create Permission', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">{{ 'Edit' if permission else 'Create' }} Permission</h1>
 <form method="post" class="bp-form bp-card space-y-6" hx-boost="false">
   {{ form.hidden_tag() }}
+  {{ form_errors(form) }}
   <div>
     {{ form.name.label(class_='block font-semibold') }}
     {{ form.name(class_='border p-3 rounded w-full', **{'aria-describedby': form.name.id + '-error'}) }}
