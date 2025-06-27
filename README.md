@@ -11,7 +11,7 @@ VoteBuddy aims to apply principles from UK Parliamentary Proceedure as well as "
 
 VoteBuddy also includes a [special resolution motion template](docs/template-motion.md) to guide you through implementing the governance changes necessary for your organisation to follow this tool's recommended process.
 
-![Admin dashboard screenshot](assets/screenshots_v0_3/admin-dashboard.png)
+![Admin dashboard screenshot](assets/screenshots_v0_4/admin-dashboard.png)
 
 ## Features
 
@@ -39,52 +39,68 @@ VoteBuddy also includes a [special resolution motion template](docs/template-mot
 
 ## Screenshots
 
-The following images show the main dashboard and help section in action.
+The following images show key features and interfaces of VoteBuddy. For a comprehensive gallery of all screenshots, see our [detailed screenshots page](screenshots.md).
+
+### Admin Dashboard & Management
 
 The admin dashboard provides a central hub for managing meetings and monitoring voting progress
-![Admin dashboard screenshot](assets/screenshots_v0_3/admin-dashboard.png)
+![Admin dashboard screenshot](assets/screenshots_v0_4/admin-dashboard.png)
 
-See the status of the meeting and motions with a timeline
-![Admin dashboard screenshot](assets/screenshots_v0_3/meeting-motions.png)
+Control user access and permissions with the enhanced user management interface
+![Admin users screenshot](assets/screenshots_v0_4/admin-user-management.png)
 
-Comprehensive help documentation guides users through the voting process
-![Help section screenshot](assets/screenshots_v0_3/help-section.png)
+Manage all meetings from a central admin interface with improved overview
+![Admin meeting list screenshot](assets/screenshots_v0_4/admin-view-meetings.png)
 
-The meeting list shows all upcoming and past meetings
-![Meeting list screenshot](assets/screenshots_v0_3/home.png)
+### Meeting Management
 
-View detailed meeting results including vote counts and charts
-![Meeting details screenshot](assets/screenshots_v0_3/view-results.png)
+See the status of meetings and motions with a comprehensive overview and timeline
+![Meeting overview screenshot](assets/screenshots_v0_4/admin-meeting-overview.png)
 
-Configure meeting details like dates, motions and amendments
-![Admin edit meeting screenshot](assets/screenshots_v0_3/admin-edit-meeting.png)
+Create new meetings with an intuitive form interface
+![Admin create meeting screenshot](assets/screenshots_v0_4/admin-create-meeting.png)
 
-Manage all meetings from a central admin interface
-![Admin meeting list screenshot](assets/screenshots_v0_3/admin-meeting-list.png)
+### Public Interface
 
-Control user access and permissions
-![Admin users screenshot](assets/screenshots_v0_3/admin-users.png)
+The main home page welcomes members and provides access to meetings
+![Home page screenshot](assets/screenshots_v0_4/home-page.png)
 
-Customize system-wide settings and branding
-![Application settings screenshot](assets/screenshots_v0_3/application-settings.png)
+Public meetings list shows all available meetings that members can access
+![Public meetings screenshot](assets/screenshots_v0_4/meetings-public.png)
 
-Browse and export meeting results
-![Results list screenshot](assets/screenshots_v0_3/results-list.png)
+### Voting & Results
 
-Returning officers can monitor voting progress and manage the process
-![Returning officer dashboard screenshot](assets/screenshots_v0_3/returning-officer-dashboard.png)
-
-Send email notifications and voting links to members
-![Send emails screenshot](assets/screenshots_v0_3/send-emails.png)
-
-Members can easily cast their votes in a simple interface
-![Stage vote example screenshot](assets/screenshots_v0_3/stage-vote-example.png)
-
-Members can verify their vote was counted correctly
-![Verify vote receipt screenshot](assets/screenshots_v0_3/verify-vote-receipt.png)
+Members can easily cast their votes using the comprehensive voting interface
+![Voting interface screenshot](assets/screenshots_v0_4/voting-motion-amend-review.png)
 
 View detailed charts and visualizations of voting results
-![View results charts screenshot](assets/screenshots_v0_3/view-results-charts.png)
+![View results charts screenshot](assets/screenshots_v0_4/results-public-charts.png)
+
+Detailed tabular view of voting results with comprehensive breakdown
+![View results table screenshot](assets/screenshots_v0_4/results-public-table.png)
+
+### Settings & Configuration
+
+Customize system-wide settings and branding
+![Application settings screenshot](assets/screenshots_v0_4/app-settings.png)
+
+Returning officers can monitor voting progress and manage the process
+![Returning officer dashboard screenshot](assets/screenshots_v0_4/returning-officer-dash.png)
+
+### Help & Documentation
+
+Comprehensive help documentation guides users through the voting process
+![Help section screenshot](assets/screenshots_v0_4/help-example.png)
+
+### Additional Features
+
+The application also includes advanced features like:
+- Interactive commenting system for motions and amendments  
+- Professional email templates for member communication
+- Comprehensive audit trails and reporting
+- Motion and amendment submission workflows
+
+**[View all screenshots →](screenshots.md)**
 
 ## Development setup
 
