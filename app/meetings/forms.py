@@ -79,10 +79,21 @@ class MeetingForm(FlaskForm):
     results_doc_intro_md = TextAreaField(
         "Results Doc Intro",
         description="Intro paragraph added to the certified results document.",
+        render_kw={"data-markdown-editor": "1"},
     )
     comments_enabled = BooleanField("Enable Comments")
     quorum = IntegerField("Quorum")
-    status = StringField("Status")
+    status = SelectField(
+        "Status",
+        choices=[
+            ("Draft", "Draft"),
+            ("Stage 1", "Stage 1"),
+            ("Pending Stage 2", "Pending Stage 2"),
+            ("Stage 2", "Stage 2"),
+            ("Quorum not met", "Quorum not met"),
+            ("Completed", "Completed"),
+        ],
+    )
     chair_notes_md = TextAreaField(
         "Chair Notes",
         description="Private notes for meeting admins; not shown to members.",
@@ -90,6 +101,7 @@ class MeetingForm(FlaskForm):
     summary_md = TextAreaField(
         "Summary Paragraph",
         description="Shown on public motion pages as an overview of the meeting.",
+        render_kw={"data-markdown-editor": "1"},
     )
     notice_md = TextAreaField(
         "Meeting Notice",

@@ -143,5 +143,8 @@
   </div>
   {% endif %}
 </form>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/easymde.min.css') }}">
+<script src="{{ url_for('static', filename='js/easymde.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/markdown_editor.js') }}"></script>
 <script src="{{ url_for('static', filename='js/meeting_form.js') }}"></script>
 {% endblock %}
