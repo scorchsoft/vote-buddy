@@ -751,6 +751,13 @@ def meeting_overview(meeting_id):
         .all()
     )
     amendments_count = Amendment.query.filter_by(meeting_id=meeting.id).count()
+    counts = (
+        db.session.query(Amendment.motion_id, func.count(Amendment.id))
+        .filter(Amendment.meeting_id == meeting.id)
+        .group_by(Amendment.motion_id)
+        .all()
+    )
+    amendment_counts = {mid: c for mid, c in counts}
     votes_cast = meeting.stage1_votes_count()
     from datetime import datetime
 
@@ -781,6 +788,7 @@ def meeting_overview(meeting_id):
         meeting=meeting,
         motions=motions,
         amendments_count=amendments_count,
+        amendment_counts=amendment_counts,
         votes_cast=votes_cast,
         timeline_steps=steps,
         timeline_start=timeline_start,
@@ -807,10 +815,19 @@ def list_motions(meeting_id: int):
         .order_by(Motion.ordering)
         .all()
     )
+    amendments = (
+        Amendment.query.filter_by(meeting_id=meeting.id)
+        .order_by(Amendment.order)
+        .all()
+    )
+    amendments_by_motion: dict[int, list[Amendment]] = {}
+    for amend in amendments:
+        amendments_by_motion.setdefault(amend.motion_id, []).append(amend)
     return render_template(
         "meetings/motions_list.html",
         meeting=meeting,
         motions=motions,
+        amendments_by_motion=amendments_by_motion,
     )
 
 
