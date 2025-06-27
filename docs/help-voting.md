@@ -1,17 +1,51 @@
 # Voting Help
 
-## Overview of the stages
+## Overview of the Governance Process
 
-The voting process happens in four clear steps:
+VoteBuddy implements a comprehensive governance process that ensures proper notice, democratic participation, and transparent decision-making.
 
-1. **[Submit] Motions submitted** – members use the **Submit Motion** link to file new motions and propose amendments before the notice deadline.
-2. **[Review] Review window** – coordinators check each submission complies with the By‑Laws. During this period you can still open a motion and submit further amendments.
-3. **[Stage 1 votes] Amendments** – qualifying amendments are published and voted on first. Conflicting carried amendments may trigger a run‑off vote so the preferred wording can be chosen.
-4. **[Stage 2 votes] Motions** – members then vote on the final motion text with any carried amendments applied. A 75% majority is needed for special resolutions.
+### Two-Notice System
 
-Some ballots combine amendment and motion questions in one form but the order remains the same: see the changes then vote on the motion.
+The process follows a governance-compliant two-notice system:
+- **Initial Notice:** Basic meeting announcement (≥21 days before motion submissions close)
+- **Final Notice:** Complete agenda with all amendments (≥14 days before voting begins)
+
+### Process Timeline
+
+1. **[Initial Notice]** – Basic meeting announcement published ≥21 days before motion submissions close
+2. **[Motions Open]** – Members submit new motions and board proposals using the **Submit Motion** link
+3. **[Amendments Open]** – Members submit amendments to published motions (up to 3 per motion per member)
+4. **[Final Notice]** – Complete agenda with all qualifying amendments published ≥14 days before voting
+5. **[Amendment Review]** – Members review and comment on all amendments before voting begins (≥5 days)
+6. **[Stage 1 Voting]** – Vote on amendments separately. Conflicting carried amendments trigger run-off votes
+7. **[Stage 2 Voting]** – Vote on final motions with carried amendments applied. 75% majority needed for special resolutions
+
+Some ballots may combine the voting stages into one form, but the sequence stays the same: amendments are decided first, then you vote on the final motion with any carried amendments applied.
+
+### Governance Requirements
+
+- **Initial Notice:** ≥21 days before motion submissions close
+- **Amendment Deadline:** ≥21 days before Stage 1 voting
+- **Final Notice:** ≥14 days before voting with complete agenda
+- **Review Period:** ≥5 days for members to comment on amendments
+- **Special Resolutions:** Require 75% majority in Stage 2
 
 By default a tied amendment is decided by the Chair's casting vote. If the Chair cannot act, the earlier‑submitted amendment prevails.
+
+## Submitting Motions & Amendments
+
+### Motion Submission
+- Available during the **Motions Open** window (after Initial Notice)
+- Use the **Submit Motion** link emailed to eligible members
+- Each motion requires a seconder or board approval
+- Submissions close ≥21 days before Stage 1 voting begins
+
+### Amendment Submission
+- Up to **3 amendments per motion** per member
+- Available during the **Amendments Open** window
+- Each amendment must be seconded or board-approved
+- Chair may merge similar amendments or rule out invalid ones
+- Members can object to chair rulings if supported by enough members
 
 ## How voting links work
 

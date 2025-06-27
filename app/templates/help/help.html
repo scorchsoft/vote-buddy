@@ -10,13 +10,21 @@
   </div>
 
   <!-- Quick Navigation -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
     <a href="#overview" class="bp-card text-center hover:shadow-xl transition-all">
       <svg class="bp-icon w-12 h-12 mx-auto mb-3 text-bp-blue" viewBox="0 0 24 24">
         <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
       </svg>
       <h3 class="font-semibold">Overview</h3>
-      <p class="text-sm text-bp-grey-600 mt-1">Learn about the voting stages</p>
+      <p class="text-sm text-bp-grey-600 mt-1">Learn about the governance process</p>
+    </a>
+    
+    <a href="#submission-process" class="bp-card text-center hover:shadow-xl transition-all">
+      <svg class="bp-icon w-12 h-12 mx-auto mb-3 text-bp-blue" viewBox="0 0 24 24">
+        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke="currentColor" fill="none"/>
+      </svg>
+      <h3 class="font-semibold">Submissions</h3>
+      <p class="text-sm text-bp-grey-600 mt-1">How to submit motions & amendments</p>
     </a>
     
     <a href="#how-to-vote" class="bp-card text-center hover:shadow-xl transition-all">
@@ -44,43 +52,78 @@
         <svg class="bp-icon text-bp-red" viewBox="0 0 24 24">
           <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" fill="none"/>
         </svg>
-        Overview of the Stages
+        Overview of the Governance Process
       </h2>
       
         <div class="prose max-w-none text-bp-grey-700">
-          <p class="mb-4">The voting process happens in four clear steps:</p>
+          <p class="mb-4">VoteBuddy implements a comprehensive governance process that ensures proper notice, democratic participation, and transparent decision-making:</p>
 
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="bg-bp-grey-50 rounded-lg p-6">
-              <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
-                <span class="bp-badge bp-badge-primary">Submit</span>
-                Motions submitted
-              </h3>
-              <p>Members use the <strong>Submit Motion</strong> link to file new motions and propose amendments before the notice deadline.</p>
+          <!-- Two-Notice System -->
+          <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+            <h3 class="font-bold text-lg mb-2 text-blue-900">Two-Notice System</h3>
+            <p class="text-blue-800">The process follows a governance-compliant two-notice system:</p>
+            <ul class="list-disc list-inside mt-2 text-blue-800">
+              <li><strong>Initial Notice:</strong> Basic meeting announcement (≥21 days before motion submissions close)</li>
+              <li><strong>Final Notice:</strong> Complete agenda with all amendments (≥14 days before voting begins)</li>
+            </ul>
+          </div>
+
+          <!-- Process Timeline -->
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="bg-bp-grey-50 rounded-lg p-4 border-l-4 border-blue-500">
+              <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
+                <span class="bp-badge bp-badge-primary">1</span>
+                Initial Notice
+              </h4>
+              <p class="text-sm">Basic meeting announcement published ≥21 days before motion submissions close</p>
             </div>
 
-            <div class="bg-bp-grey-50 rounded-lg p-6">
-              <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
-                <span class="bp-badge bp-badge-primary">Review</span>
-                Review window
-              </h3>
-              <p>Coordinators check each submission complies with the By-Laws. You can still open a motion and submit further amendments during this time.</p>
+            <div class="bg-bp-grey-50 rounded-lg p-4 border-l-4 border-green-500">
+              <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
+                <span class="bp-badge bp-badge-primary">2</span>
+                Motions Open
+              </h4>
+              <p class="text-sm">Members submit new motions and board proposals using the <strong>Submit Motion</strong> link</p>
             </div>
 
-            <div class="bg-bp-grey-50 rounded-lg p-6">
-              <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
-                <span class="bp-badge bp-badge-primary">Stage 1 votes</span>
-                Amendments
-              </h3>
-              <p>Qualifying amendments are published and voted on first. Conflicting carried amendments may trigger a run-off vote so the preferred wording can be chosen.</p>
+            <div class="bg-bp-grey-50 rounded-lg p-4 border-l-4 border-orange-500">
+              <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
+                <span class="bp-badge bp-badge-primary">3</span>
+                Amendments Open
+              </h4>
+              <p class="text-sm">Members submit amendments to published motions (up to 3 per motion per member)</p>
             </div>
 
-            <div class="bg-bp-grey-50 rounded-lg p-6">
-              <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
-                <span class="bp-badge bp-badge-primary">Stage 2 votes</span>
-                Motions
-              </h3>
-              <p>Members then vote on the final motion text with any carried amendments applied. A 75% majority is needed for special resolutions.</p>
+            <div class="bg-bp-grey-50 rounded-lg p-4 border-l-4 border-purple-500">
+              <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
+                <span class="bp-badge bp-badge-primary">4</span>
+                Final Notice
+              </h4>
+              <p class="text-sm">Complete agenda with all qualifying amendments published ≥14 days before voting</p>
+            </div>
+
+            <div class="bg-bp-grey-50 rounded-lg p-4 border-l-4 border-red-500">
+              <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
+                <span class="bp-badge bp-badge-primary">5</span>
+                Amendment Review
+              </h4>
+              <p class="text-sm">Members review and comment on all amendments before voting begins (≥5 days)</p>
+            </div>
+
+            <div class="bg-bp-grey-50 rounded-lg p-4 border-l-4 border-indigo-500">
+              <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
+                <span class="bp-badge bp-badge-primary">6</span>
+                Stage 1 Voting
+              </h4>
+              <p class="text-sm">Vote on amendments separately. Conflicting carried amendments trigger run-off votes</p>
+            </div>
+
+            <div class="bg-bp-grey-50 rounded-lg p-4 border-l-4 border-teal-500">
+              <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
+                <span class="bp-badge bp-badge-primary">7</span>
+                Stage 2 Voting
+              </h4>
+              <p class="text-sm">Vote on final motions with carried amendments applied. 75% majority needed for special resolutions</p>
             </div>
           </div>
         
@@ -88,7 +131,7 @@
           <svg class="bp-icon flex-shrink-0" viewBox="0 0 24 24">
             <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" fill="none"/>
           </svg>
-          <p>Some ballots may combine these into one form but the sequence stays the same: know what has changed, then cast your vote on the motion.</p>
+          <p>Some ballots may combine the voting stages into one form, but the sequence stays the same: amendments are decided first, then you vote on the final motion with any carried amendments applied.</p>
         </div>
       </div>
     </section>
@@ -132,6 +175,92 @@
         </div>
         
         <p class="mt-4">For more details see Articles 107–115 in the governance documents.</p>
+      </div>
+    </section>
+
+    <!-- Submission Process Section -->
+    <section id="submission-process" class="bp-card">
+      <h2 class="text-2xl font-bold text-bp-grey-900 mb-4 flex items-center gap-2">
+        <svg class="bp-icon text-bp-red" viewBox="0 0 24 24">
+          <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke="currentColor" fill="none"/>
+        </svg>
+        Submitting Motions & Amendments
+      </h2>
+      
+      <div class="prose max-w-none text-bp-grey-700">
+        <p class="mb-4">The submission process is designed to ensure democratic participation while meeting governance requirements:</p>
+        
+        <!-- Motion Submission -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <h3 class="font-semibold mb-2 text-green-900">📝 Motion Submission</h3>
+          <ul class="text-green-800 space-y-1">
+            <li>• Available during the <strong>Motions Open</strong> window (after Initial Notice)</li>
+            <li>• Use the <strong>Submit Motion</strong> link emailed to eligible members</li>
+            <li>• Each motion requires a seconder or board approval</li>
+            <li>• Submissions close ≥21 days before Stage 1 voting begins</li>
+          </ul>
+        </div>
+        
+        <!-- Amendment Submission -->
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+          <h3 class="font-semibold mb-2 text-orange-900">✏️ Amendment Submission</h3>
+          <ul class="text-orange-800 space-y-1">
+            <li>• Up to <strong>3 amendments per motion</strong> per member</li>
+            <li>• Available during the <strong>Amendments Open</strong> window</li>
+            <li>• Each amendment must be seconded or board-approved</li>
+            <li>• Chair may merge similar amendments or rule out invalid ones</li>
+            <li>• Members can object to chair rulings if supported by enough members</li>
+          </ul>
+        </div>
+        
+        <!-- Governance Requirements -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <h3 class="font-semibold mb-2 text-blue-900">⚖️ Governance Requirements</h3>
+          <ul class="text-blue-800 space-y-1">
+            <li>• <strong>Initial Notice:</strong> ≥21 days before motion submissions close</li>
+            <li>• <strong>Amendment Deadline:</strong> ≥21 days before Stage 1 voting</li>
+            <li>• <strong>Final Notice:</strong> ≥14 days before voting with complete agenda</li>
+            <li>• <strong>Review Period:</strong> ≥5 days for members to comment on amendments</li>
+            <li>• <strong>Special Resolutions:</strong> Require 75% majority in Stage 2</li>
+          </ul>
+        </div>
+        
+        <!-- Timeline Visualization -->
+        <div class="mt-6">
+          <h3 class="font-semibold mb-3">Timeline Example</h3>
+          <div class="bg-gray-50 p-4 rounded-lg text-sm">
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                <span><strong>Day 0:</strong> Initial Notice published</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <span><strong>Day 7:</strong> Motion submissions open</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+                <span><strong>Day 14:</strong> Amendment submissions open</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                <span><strong>Day 28:</strong> Final Notice published (complete agenda)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                <span><strong>Day 35:</strong> Amendment review period begins</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                <span><strong>Day 42:</strong> Stage 1 voting opens (amendments)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-teal-500 rounded-full"></span>
+                <span><strong>Day 51:</strong> Stage 2 voting opens (final motions)</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -181,6 +310,26 @@
       </h2>
       
       <div class="space-y-4">
+        <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
+          <summary class="font-semibold cursor-pointer">What's the difference between Initial Notice and Final Notice?</summary>
+          <p class="mt-2 text-bp-grey-700">The <strong>Initial Notice</strong> is a basic meeting announcement published ≥21 days before motion submissions close. The <strong>Final Notice</strong> is the complete agenda including all qualifying amendments, published ≥14 days before voting begins. This two-notice system ensures proper governance and gives members time to prepare.</p>
+        </details>
+        
+        <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
+          <summary class="font-semibold cursor-pointer">How many amendments can I submit per motion?</summary>
+          <p class="mt-2 text-bp-grey-700">Each member can submit up to <strong>3 amendments per motion</strong>. Each amendment must be seconded by another member or approved by the board. The Chair may merge similar amendments or rule out invalid ones.</p>
+        </details>
+        
+        <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
+          <summary class="font-semibold cursor-pointer">Why do amendments get voted on before the motion?</summary>
+          <p class="mt-2 text-bp-grey-700">This ensures members know exactly what they're voting on in Stage 2. All amendments are decided first, then you vote on the final motion text with any carried amendments already applied. This prevents confusion and ensures the final vote is on the complete, amended motion.</p>
+        </details>
+        
+        <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
+          <summary class="font-semibold cursor-pointer">What happens if two amendments conflict?</summary>
+          <p class="mt-2 text-bp-grey-700">If two or more amendments that pass Stage 1 conflict with each other, an immediate run-off vote determines which amendment prevails. The amendment with the most votes wins, and the others are discarded.</p>
+        </details>
+        
         <details class="border border-bp-grey-200 rounded-lg p-4 hover:bg-bp-grey-50 transition-colors">
           <summary class="font-semibold cursor-pointer">Can I change my vote after submitting?</summary>
           <p class="mt-2 text-bp-grey-700">Only if revoting has been enabled by the administrator for that specific stage. You'll see a notification if this option is available.</p>
