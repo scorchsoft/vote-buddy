@@ -53,7 +53,14 @@
       }
     </style>
   </head>
-  <body hx-boost="true" class="flex flex-col min-h-screen font-sans" data-notice-days="{{ notice_days }}">
+  <body hx-boost="true" class="flex flex-col min-h-screen font-sans"
+    data-notice-days="{{ notice_days }}"
+    data-stage1-days="{{ stage1_days }}"
+    data-stage2-days="{{ stage2_days }}"
+    data-stage-gap-days="{{ stage_gap_days }}"
+    data-runoff-minutes="{{ runoff_minutes }}"
+    data-motion-window-days="{{ motion_window_days }}"
+    data-motion-deadline-gap-days="{{ motion_deadline_gap_days }}">
     <a href="#main" class="bp-skip-link sr-only focus:not-sr-only">Skip to main content</a>
     <header class="bp-header">
       <nav class="bp-header-nav bg-bp-blue text-white shadow-lg">
