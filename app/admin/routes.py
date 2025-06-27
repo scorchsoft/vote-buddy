@@ -474,8 +474,11 @@ def view_audit():
     start_dt = datetime.fromisoformat(start) if start else None
     end_dt = datetime.fromisoformat(end) if end else None
     pagination = get_logs(page=page, per_page=20, q=q or None, start=start_dt, end=end_dt)
+    template = "admin/audit.html"
+    if request.headers.get("HX-Request") and request.headers.get("HX-Target") == "audit-table":
+        template = "admin/_audit_table.html"
     return render_template(
-        "admin/audit.html",
+        template,
         logs=pagination.items,
         pagination=pagination,
         q=q,
