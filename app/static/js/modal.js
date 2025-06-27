@@ -1,14 +1,25 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initModals() {
   document.querySelectorAll('[data-modal-target]').forEach(link => {
     const id = link.getAttribute('data-modal-target');
     const modal = document.getElementById(id);
     if (!modal) return;
-    link.addEventListener('click', e => {
+
+    // Remove any existing listeners to avoid duplicates on htmx swaps
+    const newLink = link.cloneNode(true);
+    link.parentNode.replaceChild(newLink, link);
+
+    newLink.addEventListener('click', e => {
       e.preventDefault();
       modal.showModal();
     });
+
     modal.querySelectorAll('[data-close-modal]').forEach(btn => {
-      btn.addEventListener('click', () => modal.close());
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+      newBtn.addEventListener('click', () => modal.close());
     });
   });
-});
+}
+
+document.addEventListener('DOMContentLoaded', initModals);
+document.body.addEventListener('htmx:load', initModals);

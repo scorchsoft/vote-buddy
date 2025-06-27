@@ -503,6 +503,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-06-27 – Public meeting page lists published motions and amendments in expandable accordions.
 * 2025-06-27 – Added 'Manage Permissions' link on Roles page and removed Permissions from the admin menu.
 
+
 ---
 
 ## 14  Glossary
