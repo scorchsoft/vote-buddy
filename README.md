@@ -13,7 +13,6 @@ VoteBuddy also includes a [special resolution motion template](docs/template-mot
 
 ![Admin dashboard screenshot](assets/screenshots_v0_3/admin-dashboard.png)
 
-
 ## Features
 
 - Flask 3 with SQLAlchemy ORM
@@ -87,24 +86,35 @@ Members can verify their vote was counted correctly
 View detailed charts and visualizations of voting results
 ![View results charts screenshot](assets/screenshots_v0_3/view-results-charts.png)
 
-
-
-
-
 ## Development setup
 
-1. Copy `.env.example` to `.env` and review the values.
-   The defaults include options for email reminders and run-off timing such as
-  `RUNOFF_EXTENSION_MINUTES`, `REMINDER_HOURS_BEFORE_CLOSE`,
-  `REMINDER_COOLDOWN_HOURS`, `REMINDER_TEMPLATE`,
- `STAGE2_REMINDER_HOURS_BEFORE_CLOSE`, `STAGE2_REMINDER_COOLDOWN_HOURS`,
- `STAGE2_REMINDER_TEMPLATE`, `TIE_BREAK_DECISIONS` and `MAIL_USE_TLS`. These can later be changed in the Settings UI.
- `SECRET_KEY`, `TOKEN_SALT`, `API_TOKEN_SALT` and `UPLOAD_FOLDER` are also defined here. `SECRET_KEY`, `TOKEN_SALT` and `API_TOKEN_SALT` must be set to unique values in production. `UPLOAD_FOLDER` determines where uploaded files are stored. The optional `TIMEZONE` variable sets the timezone for calendar downloads and defaults to `Europe/London`.
+1. Copy `.env.example` to `.env`.
+   
+   **On Linux/macOS:**
+   
+   ```bash
+   cp .env.example .env
+   ```
+   
+   **On Windows (in Command Prompt or PowerShell):**
+   
+   ```powershell
+   copy .env.example .env
+   ```
+   
+   Then, review the values in the new `.env` file. The defaults include options for email reminders and run-off timing such as
+   `RUNOFF_EXTENSION_MINUTES`, `REMINDER_HOURS_BEFORE_CLOSE`,
+   `REMINDER_COOLDOWN_HOURS`, `REMINDER_TEMPLATE`,
+   `STAGE2_REMINDER_HOURS_BEFORE_CLOSE`, `STAGE2_REMINDER_COOLDOWN_HOURS`,
+   `STAGE2_REMINDER_TEMPLATE`, `TIE_BREAK_DECISIONS` and `MAIL_USE_TLS`. These can later be changed in the Settings UI.
+   `SECRET_KEY`, `TOKEN_SALT`, `API_TOKEN_SALT` and `UPLOAD_FOLDER` are also defined here. `SECRET_KEY`, `TOKEN_SALT` and `API_TOKEN_SALT` must be set to unique values in production. `UPLOAD_FOLDER` determines where uploaded files are stored. The optional `TIMEZONE` variable sets the timezone for calendar downloads and defaults to `Europe/London`.
+
 2. Install the Python packages:
 
 ```bash
 pip install -r requirements.txt
 ```
+
 If the `flask` command isn't found after installation, run commands using
 `python -m flask --app app` instead of `flask`.
 
@@ -118,17 +128,38 @@ Note that you don't have to run this with Docker. The app will also run locally 
 
 ### Running without Docker
 
-1. Install PostgreSQL and create a database and user (example shown for Linux):
-
-```bash
-sudo -u postgres createuser -P vote_buddy
-sudo -u postgres createdb -O vote_buddy vote_buddy
-```
+1. Install PostgreSQL and create a database and user.
+   
+   **On Linux/macOS:**
+   
+   ```bash
+   sudo -u postgres createuser -P vote_buddy
+   sudo -u postgres createdb -O vote_buddy vote_buddy
+   ```
+   
+   **On Windows:**
+   
+   If you get an error that `createuser` cannot be found, your `PATH` environment variable may not include the PostgreSQL `bin` directory. A PowerShell script is included to help with this. Open a PowerShell terminal and run:
+   
+   ```powershell
+   .\scripts\setup-pg-path.ps1
+   ```
+   
+   You may need to restart your terminal for the change to take effect. if this fails you can also just copy and paste its contents into powershell. This script finds where PostgresSQL is installed, then auto assigns that to path for you.
+   
+   Once your `PATH` is configured, run these commands:
+   
+   ```powershell
+   createuser -P -U postgres vote_buddy
+   createdb -O vote_buddy -U postgres vote_buddy
+   ```
+   
+   You will be prompted for the `postgres` user's password, and then to set a password for the new `vote_buddy` user.
 
 2. Edit your copied `.env` and point `DATABASE_URL` at the new user:
 
 ```env
-DATABASE_URL=postgresql+psycopg2://vote_buddy:<password>@localhost:5432/vote_buddy
+DATABASE_URL=postgresql+psycopg://vote_buddy:<password>@localhost:5432/vote_buddy
 ```
 
 3. Apply the migrations locally:
@@ -145,6 +176,7 @@ From here you can continue with the remaining steps such as building the CSS and
 npm install
 npm run build:css
 ```
+
 Running the build now uses a local copy of htmx rather than fetching it from the
 internet.
 
@@ -206,7 +238,6 @@ export MAIL_SUPPRESS_SEND=1
 You can also run a local SMTP capture tool like [MailHog](https://github.com/mailhog/MailHog) and point
 `MAIL_SERVER` and `MAIL_PORT` to it, e.g. `MAIL_SERVER=localhost` and `MAIL_PORT=1025`.
 
-
 ### Security testing
 
 Run the automated OWASP ZAP baseline scan against the local server:
@@ -259,6 +290,35 @@ The `docs` directory contains background and design material:
 - **ARCHITECTURE.md** – Overview of the code layout and responsibilities.
 
 Refer to these files for detail on features, design and governance context.
+
+
+## Handling Alembic "multiple heads" errors (On Windows Locally)
+
+If you see an error like this during `db upgrade`:
+
+```
+ERROR [flask_migrate] Error: Multiple head revisions are present for given argument 'head'
+```
+
+Run the following command to identify the conflicting heads:
+
+```bash
+python -m flask --app app db heads
+```
+
+Then merge the revisions (replacing the IDs below with the ones shown on your system):
+
+```bash
+python -m flask --app app db merge -m "Merge branches" <head1> <head2>
+```
+
+This will generate a merge revision file in `migrations/versions/`. Then rerun the upgrade:
+
+```bash
+python -m flask --app app db upgrade
+```
+
+This fixes the migration history and prevents the error from blocking deployment.
 
 ## Contributing
 
