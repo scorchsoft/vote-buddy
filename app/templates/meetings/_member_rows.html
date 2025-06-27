@@ -50,6 +50,11 @@
             <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Resend Review Invite</button>
           </form>
           {% endif %}
+          {% if email_opts.amendment_review_invite %}
+          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='amendment_review_invite') }}" hx-boost="false">
+            <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Resend Amendment Review Invite</button>
+          </form>
+          {% endif %}
           {% if email_opts.final_results %}
           <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='final_results') }}" hx-boost="false">
             <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Resend Final Results</button>

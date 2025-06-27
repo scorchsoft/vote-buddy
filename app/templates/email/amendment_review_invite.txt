@@ -1,0 +1,14 @@
+Hello {{ member.name }}!
+
+Amendment submissions for {{ meeting.title }} have now closed.
+You can read the final amendments and leave comments before voting opens.
+
+👀 View amendments: {{ review_url }}
+
+❓ Need help with the process?
+Visit our help guide: {{ url_for('help.show_help', _external=True) }}
+
+{% include 'email/_why_text.txt' %}
+
+To stop these emails, visit: {{ unsubscribe_url }}
+To start them again later, visit: {{ resubscribe_url }}

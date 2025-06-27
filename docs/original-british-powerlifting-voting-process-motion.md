@@ -68,6 +68,8 @@ Major funding bodies like Sport England look for organisations with clear, democ
 
 (f) An amendment may include multiple edits, provided they serve a single coherent purpose or effect a logically unified change to the motion. Amendments must not combine substantively unrelated or independent revisions. The Chair shall have discretion to determine whether an amendment exceeds this scope and may, where appropriate, require that compound amendments be separated, redrafted, or resubmitted individually for clarity and procedural fairness.
 
+(g) Once the amendment deadline passes, all qualifying amendments shall be published for member review and comment. No further amendments may be submitted during this period, which shall last no fewer than five clear days before Stage 1 opens.
+
 ---
 
 #### Article 109(a) – Stage 1: voting on amendments
