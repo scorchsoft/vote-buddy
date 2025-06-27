@@ -151,10 +151,17 @@ def _calculate_default_times(agm_date: datetime) -> dict:
     motions_opens_at = motions_closes_at - timedelta(
         days=cfg.get("MOTION_WINDOW_DAYS", 7)
     )
-    # Amendments open after motions close  
-    amendments_opens_at = motions_closes_at
+    # Initial notice comes before motions open (≥21 days before motions close)
+    initial_notice_date = motions_closes_at - timedelta(days=21)
+    # Amendments close 21 days before Stage 1 opens
     amendments_closes_at = opens_at_stage1 - timedelta(days=21)
+    # Amendments open same day as motions close
+    amendments_opens_at = motions_closes_at
+    # If amendments would close on the same day they open, push amendments close forward by 1 day
+    if amendments_opens_at.date() == amendments_closes_at.date():
+        amendments_closes_at = amendments_closes_at + timedelta(days=1)
     return {
+        "initial_notice_date": initial_notice_date,
         "notice_date": notice_date,
         "opens_at_stage1": opens_at_stage1,
         "closes_at_stage1": closes_at_stage1,
@@ -182,6 +189,7 @@ def _email_schedule(meeting: Meeting) -> dict[str, datetime | None]:
     Only include emails relevant to the meeting's ballot mode.
     """
     schedule = {
+        "initial_notice": meeting.initial_notice_date,
         "submission_invite": meeting.motions_opens_at,
         "review_invite": meeting.amendments_opens_at,
         "amendment_review_invite": meeting.amendments_closes_at,
@@ -291,10 +299,13 @@ def _save_meeting(form: MeetingForm, meeting: Meeting | None = None) -> Meeting:
 def create_meeting():
     form = MeetingForm()
     notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 14)
-    form.notice_date.description = (
-        f"Must be at least {notice_days} days before Stage 1 opens."
+    form.initial_notice_date.description = (
+        "Basic meeting announcement sent early (≥21 days before motions close)."
     )
-    form.opens_at_stage1.description = f"At least {notice_days} days after notice date."
+    form.notice_date.description = (
+        f"Final notice with complete agenda; at least {notice_days} days before Stage 1 opens."
+    )
+    form.opens_at_stage1.description = f"At least {notice_days} days after final notice date."
     form.closes_at_stage1.description = "Must remain open for at least 7 days."
     form.opens_at_stage2.description = "At least 1 day after Stage 1 closes."
     form.closes_at_stage2.description = (
@@ -317,10 +328,13 @@ def edit_meeting(meeting_id):
         abort(404)
     form = MeetingForm(obj=meeting)
     notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 14)
+    form.initial_notice_date.description = (
+        "Basic meeting announcement sent early (≥21 days before motions close)."
+    )
     form.notice_date.description = (
         f"Final notice with complete agenda; at least {notice_days} days before Stage 1 opens."
     )
-    form.opens_at_stage1.description = f"At least {notice_days} days after notice date."
+    form.opens_at_stage1.description = f"At least {notice_days} days after final notice date."
     form.closes_at_stage1.description = "Must remain open for at least 7 days."
     form.opens_at_stage2.description = "At least 1 day after Stage 1 closes."
     form.closes_at_stage2.description = (
@@ -769,6 +783,7 @@ def meeting_overview(meeting_id):
     from datetime import datetime
 
     steps = [
+        ("Initial Notice", meeting.initial_notice_date),
         ("Motions Open", meeting.motions_opens_at),
         ("Motions Close", meeting.motions_closes_at),
         ("Amendments Open", meeting.amendments_opens_at),

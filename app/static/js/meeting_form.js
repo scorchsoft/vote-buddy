@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const opens2 = document.getElementById('opens_at_stage2');
     const closes1 = document.getElementById('closes_at_stage1');
     const opens1 = document.getElementById('opens_at_stage1');
+    const initialNotice = document.getElementById('initial_notice_date');
     const notice = document.getElementById('notice_date');
     const motionsOpen = document.getElementById('motions_opens_at');
     const motionsClose = document.getElementById('motions_closes_at');
@@ -53,12 +54,22 @@ document.addEventListener('DOMContentLoaded', () => {
     dMotionsOpen.setDate(dMotionsOpen.getDate() - motionWindowDays);
     if (force || !motionsOpen.value) motionsOpen.value = toLocal(dMotionsOpen);
 
-    const dAmendsOpen = new Date(dMotionsClose);
-    if (force || !amendsOpen.value) amendsOpen.value = toLocal(dAmendsOpen);
+    const dInitialNotice = new Date(dMotionsClose);
+    dInitialNotice.setDate(dInitialNotice.getDate() - 21);
+    if (force || !initialNotice.value) initialNotice.value = toLocal(dInitialNotice);
 
     const dAmendsClose = new Date(dStage1Open);
     dAmendsClose.setDate(dAmendsClose.getDate() - 21);
     if (force || !amendsClose.value) amendsClose.value = toLocal(dAmendsClose);
+
+    // Amendments open same day as motions close, ensuring at least 1 day window
+    const dAmendsOpen = new Date(dMotionsClose);
+    // If amendments would close on the same day they open, push amendments close forward by 1 day
+    if (dAmendsOpen.toDateString() === dAmendsClose.toDateString()) {
+      dAmendsClose.setDate(dAmendsClose.getDate() + 1);
+      if (force || !amendsClose.value) amendsClose.value = toLocal(dAmendsClose);
+    }
+    if (force || !amendsOpen.value) amendsOpen.value = toLocal(dAmendsOpen);
   }
 
   agmField.addEventListener('change', () => fillAll(false));

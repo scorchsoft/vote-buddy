@@ -19,8 +19,13 @@ from wtforms import SelectMultipleField
 class MeetingForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
     type = SelectField("Type", choices=[("AGM", "AGM"), ("EGM", "EGM")])
+    initial_notice_date = DateTimeLocalField(
+        "Initial Notice",
+        format="%Y-%m-%dT%H:%M",
+        description="Basic meeting announcement sent early (≥21 days before motions close).",
+    )
     notice_date = DateTimeLocalField(
-        "Notice Date",
+        "Final Notice",
         format="%Y-%m-%dT%H:%M",
         description="Must be at least 14 days before Stage 1 opens.",
     )
@@ -122,12 +127,28 @@ class MeetingForm(FlaskForm):
             self.opens_at_stage1.errors.append("Stage 1 must open in the future.")
             is_valid = False
 
-        # check Stage 1 opens at least NOTICE_PERIOD_DAYS after notice date
+        # check Stage 1 opens at least NOTICE_PERIOD_DAYS after final notice date
         if self.opens_at_stage1.data and self.notice_date.data:
             notice_days = current_app.config.get('NOTICE_PERIOD_DAYS', 14)
             if self.opens_at_stage1.data - self.notice_date.data < timedelta(days=notice_days):
                 self.opens_at_stage1.errors.append(
-                    f'Stage 1 must open at least {notice_days} days after notice.'
+                    f'Stage 1 must open at least {notice_days} days after final notice.'
+                )
+                is_valid = False
+
+        # check initial notice comes before motions close
+        if self.initial_notice_date.data and self.motions_closes_at.data:
+            if self.initial_notice_date.data >= self.motions_closes_at.data:
+                self.initial_notice_date.errors.append(
+                    'Initial notice must be sent before motions close.'
+                )
+                is_valid = False
+
+        # check final notice comes after initial notice
+        if self.initial_notice_date.data and self.notice_date.data:
+            if self.notice_date.data <= self.initial_notice_date.data:
+                self.notice_date.errors.append(
+                    'Final notice must be sent after initial notice.'
                 )
                 is_valid = False
 
