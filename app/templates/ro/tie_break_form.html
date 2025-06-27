@@ -3,7 +3,7 @@
 {% block content %}
 {{ breadcrumbs([('RO Dashboard', url_for('ro.dashboard')), (meeting.title, None), ('Tie Breaks', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">{{ meeting.title }} - Tie Breaks</h1>
-<form method="post" class="space-y-6">
+<form method="post" class="space-y-6" hx-boost="false">
   {{ form.hidden_tag() }}
   {% for amend in amendments %}
   <div class="bp-card p-4 space-y-2">

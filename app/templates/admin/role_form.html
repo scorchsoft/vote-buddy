@@ -3,7 +3,7 @@
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Roles', url_for('admin.list_roles')), ('Edit Role' if role else 'Create Role', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">{{ 'Edit' if role else 'Create' }} Role</h1>
-<form method="post" class="bp-form bp-card space-y-6">
+<form method="post" class="bp-form bp-card space-y-6" hx-boost="false">
   {{ form.hidden_tag() }}
   <div>
     {{ form.name.label(class_='block font-semibold') }}

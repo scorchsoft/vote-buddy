@@ -3,7 +3,7 @@
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('API Tokens', url_for('admin.manage_api_tokens'))]) }}
 <h1 class="font-bold text-bp-blue mb-4">API Tokens</h1>
-<form method="post" class="bp-card bp-form mb-4">
+<form method="post" class="bp-card bp-form mb-4" hx-boost="false">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
   {{ form.name.label(class='sr-only') }}
   {{ form.name(class='border p-2 rounded w-full mb-2', placeholder='Token name') }}
@@ -20,7 +20,7 @@
       <td>{{ token.name }}</td>
       <td>{{ token.created_at.strftime('%Y-%m-%d') }}</td>
       <td>
-        <form method="post" action="{{ url_for('admin.revoke_api_token', token_id=token.id) }}">
+        <form method="post" action="{{ url_for('admin.revoke_api_token', token_id=token.id) }}" hx-boost="false">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <button class="bp-btn-secondary text-sm">Revoke</button>
         </form>

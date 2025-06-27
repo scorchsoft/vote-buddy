@@ -16,48 +16,48 @@
       <div id="member-{{ m.id }}" class="dropdown-menu origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-bp-grey-100 focus:outline-none z-50 hidden" role="menu" aria-orientation="vertical">
         <div class="py-1" role="none">
           {% if email_opts.stage1_invite %}
-          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='stage1_invite') }}">
+          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='stage1_invite') }}" hx-boost="false">
             <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Resend Stage 1 Invite</button>
           </form>
           {% endif %}
           {% if email_opts.stage1_reminder %}
-          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='stage1_reminder') }}">
+          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='stage1_reminder') }}" hx-boost="false">
             <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Send Stage 1 Reminder</button>
           </form>
           {% endif %}
           {% if email_opts.runoff_invite %}
-          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='runoff_invite') }}">
+          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='runoff_invite') }}" hx-boost="false">
             <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Resend Run-off Invite</button>
           </form>
           {% endif %}
           {% if email_opts.stage2_invite %}
-          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='stage2_invite') }}">
+          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='stage2_invite') }}" hx-boost="false">
             <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Resend Stage 2 Invite</button>
           </form>
           {% endif %}
           {% if email_opts.stage2_reminder %}
-          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='stage2_reminder') }}">
+          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='stage2_reminder') }}" hx-boost="false">
             <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Send Stage 2 Reminder</button>
           </form>
           {% endif %}
           {% if email_opts.submission_invite %}
-          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='submission_invite') }}">
+          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='submission_invite') }}" hx-boost="false">
             <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Resend Submission Invite</button>
           </form>
           {% endif %}
           {% if email_opts.review_invite %}
-          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='review_invite') }}">
+          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='review_invite') }}" hx-boost="false">
             <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Resend Review Invite</button>
           </form>
           {% endif %}
           {% if email_opts.final_results %}
-          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='final_results') }}">
+          <form method="post" action="{{ url_for('meetings.send_member_email', meeting_id=meeting.id, member_id=m.id, kind='final_results') }}" hx-boost="false">
             <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Resend Final Results</button>
           </form>
           {% endif %}
         </div>
         <div class="py-1 border-t" role="none">
-          <form method="post" action="{{ url_for('meetings.delete_member', meeting_id=meeting.id, member_id=m.id) }}" onsubmit="return confirm('Remove this member?');">
+          <form method="post" action="{{ url_for('meetings.delete_member', meeting_id=meeting.id, member_id=m.id) }}" onsubmit="return confirm('Remove this member?');" hx-boost="false">
             <button type="submit" class="group flex items-center px-4 py-2 text-sm text-bp-grey-700 hover:bg-bp-grey-50 hover:text-bp-grey-900 transition-colors" role="menuitem">Remove</button>
           </form>
         </div>

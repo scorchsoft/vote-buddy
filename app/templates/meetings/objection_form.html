@@ -3,7 +3,7 @@
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), ('Submit Objection', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">Submit Objection</h1>
-<form method="post" class="bp-form bp-card space-y-4">
+<form method="post" class="bp-form bp-card space-y-4" hx-boost="false">
   {{ form.hidden_tag() }}
   <div>
     <label for="member-search" class="block font-semibold">{{ form.member_id.label.text }}</label>

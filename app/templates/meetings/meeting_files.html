@@ -3,7 +3,7 @@
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (meeting.title, url_for('meetings.edit_meeting', meeting_id=meeting.id)), ('Files', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">Meeting Files</h1>
-<form method="post" enctype="multipart/form-data" class="bp-form bp-card space-y-4">
+<form method="post" enctype="multipart/form-data" class="bp-form bp-card space-y-4" hx-boost="false">
   {{ form.hidden_tag() }}
   <div>
     {{ form.file.label(class_='block font-semibold') }}

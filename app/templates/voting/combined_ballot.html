@@ -55,7 +55,7 @@
   </div>
   {% endif %}
 
-  <form id="vote-form" method="post" class="space-y-8 pb-24">
+  <form id="vote-form" method="post" class="space-y-8 pb-24" hx-boost="false">
     {{ form.hidden_tag() }}
     
     {% for motion, ams in motions %}
