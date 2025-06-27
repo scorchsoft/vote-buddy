@@ -1011,6 +1011,31 @@ def test_send_member_email_stage2_invite():
                     )
 
 
+def test_send_member_email_amendment_review_invite():
+    app = create_app()
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["TOKEN_SALT"] = "s"
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(title="AGM", amendments_closes_at=now, opens_at_stage1=now + timedelta(days=2))
+        db.session.add(meeting)
+        db.session.flush()
+        member = Member(meeting_id=meeting.id, name="C", email="c@example.com")
+        db.session.add(member)
+        db.session.commit()
+
+        with app.test_request_context(
+            f"/meetings/{meeting.id}/members/{member.id}/email/amendment_review_invite",
+            method="POST",
+        ):
+            user = _make_user(True)
+            with patch("flask_login.utils._get_user", return_value=user):
+                with patch("app.meetings.routes.send_amendment_review_invite") as mock_send:
+                    meetings.send_member_email(meeting.id, member.id, "amendment_review_invite")
+                    mock_send.assert_called_once()
+
+
 def test_results_summary_lists_unused_proxies():
     app = create_app()
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"

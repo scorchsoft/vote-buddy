@@ -527,3 +527,4 @@ SES/SMTP  ─── Outbound mail
 
 
 
+* 2025-09-10 – Added amendment review invite email between motion review and Stage 1.

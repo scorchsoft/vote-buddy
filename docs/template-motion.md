@@ -39,6 +39,7 @@ The procedure below introduces a clear amendment stage **before** the final vote
 (d)  Once published, a motion may only be withdrawn or substantively altered with Chair **and** board approval, provided the change is notified ≥ 7 days before Stage 1.  
 (e)  Members can trigger a “Point-of-Order” review of any rejected/merged amendment if either 25 Voting Members **or** 5 % of the membership endorse the objection within the timescale stated.  
 (f)  An amendment may bundle multiple edits if they serve one coherent purpose; the Chair may insist on splitting compound proposals for clarity.
+(g)  After the amendment deadline the Secretary publishes all qualifying amendments for review and comment. No further amendments may be lodged, but members may discuss and comment until Stage 1 opens (allow at least 5 clear days).
 
 ### Clause 3 — Stage 1: Voting on Amendments
 * Every qualifying amendment receives a separate yes/no vote; simple majority carries.  
@@ -92,6 +93,7 @@ Electronic seconds must accompany the amendment submission; in-person seconds ma
 | Motion submission window | Coordinator | Opens {{ motions_opens_at }} closes {{ motions_closes_at }} | Email invite sent automatically |
 | Amendment deadline | Secretary | –21 days | Max 3 per member |
 | Chair issues rulings | Chair | –7 days | Merge duplicates, set order |
+| Amendment review & comments | Secretary | Until Stage 1 opens | Members review final amendments |
 | Stage 1 voting window | Returning Officer | ≥ 7 days | Separate votes per amendment |
 | Run-off (if required) | Returning Officer | Buffer ≥ 2 days | Only between conflicting carried amendments |
 | Publish amended motion + Stage-1 results | Secretary | ≥ 24 h pre-Stage 2 | Clear audit trail |

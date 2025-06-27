@@ -893,6 +893,51 @@ def send_review_invite(member: Member, meeting: Meeting, *, test_mode: bool = Fa
     mail.send(msg)
     _log_email(member, meeting, 'review_invite', test_mode)
 
+
+def send_amendment_review_invite(member: Member, meeting: Meeting, *, test_mode: bool = False) -> None:
+    """Invite members to read submitted amendments and comment."""
+    if member.email_opt_out:
+        return
+    token_obj, plain = SubmissionToken.create(
+        member_id=member.id,
+        meeting_id=meeting.id,
+        salt=current_app.config["TOKEN_SALT"],
+    )
+    db.session.commit()
+    review_url = url_for('main.review_motions', token=plain, meeting_id=meeting.id, _external=True)
+    unsubscribe = _unsubscribe_url(member)
+    resubscribe = _resubscribe_url(member)
+    msg = Message(
+        subject=("[TEST] " if test_mode else "") + f"Comment on amendments for {meeting.title}",
+        recipients=[member.email],
+        sender=_sender(),
+    )
+    branding = _branding()
+    msg.body = render_template(
+        'email/amendment_review_invite.txt',
+        member=member,
+        meeting=meeting,
+        review_url=review_url,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
+        test_mode=test_mode,
+        **branding,
+    )
+    msg.html = render_template(
+        'email/amendment_review_invite.html',
+        member=member,
+        meeting=meeting,
+        review_url=review_url,
+        unsubscribe_url=unsubscribe,
+        resubscribe_url=resubscribe,
+        why_text=config_or_setting('EMAIL_WHY_TEXT', DEFAULT_EMAIL_WHY_TEXT),
+        test_mode=test_mode,
+        **branding,
+    )
+    mail.send(msg)
+    _log_email(member, meeting, 'amendment_review_invite', test_mode)
+
 def send_password_reset(user: User, token: str, *, test_mode: bool = False) -> None:
     msg = Message(
         subject=("[TEST] " if test_mode else "") + "Reset your password",
