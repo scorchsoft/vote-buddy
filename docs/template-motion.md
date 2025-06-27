@@ -90,6 +90,7 @@ Electronic seconds must accompany the amendment submission; in-person seconds ma
 | Step | Who | Timing | Comment |
 |------|-----|--------|---------|
 | Declare ballot type & timetable | Chair | ≥ 14 days pre-vote | Include platform URL |
+| Auto-populate meeting timeline | Coordinator | After setting AGM date | Use VoteBuddy's button to generate default windows |
 | Motion submission window | Coordinator | Opens {{ motions_opens_at }} closes {{ motions_closes_at }} | Email invite sent automatically |
 | Amendment deadline | Secretary | –21 days | Max 3 per member |
 | Chair issues rulings | Chair | –7 days | Merge duplicates, set order |

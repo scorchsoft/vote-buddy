@@ -134,9 +134,16 @@ def register_extensions(app):
         }
 
     @app.context_processor
-    def inject_notice_days():
+    def inject_timing_defaults():
+        """Expose timing-related config values to all templates."""
         return {
-            'notice_days': app.config.get('NOTICE_PERIOD_DAYS', 14)
+            'notice_days': app.config.get('NOTICE_PERIOD_DAYS', 14),
+            'stage1_days': app.config.get('STAGE1_LENGTH_DAYS', 7),
+            'stage2_days': app.config.get('STAGE2_LENGTH_DAYS', 5),
+            'stage_gap_days': app.config.get('STAGE_GAP_DAYS', 1),
+            'runoff_minutes': app.config.get('RUNOFF_EXTENSION_MINUTES', 2880),
+            'motion_window_days': app.config.get('MOTION_WINDOW_DAYS', 7),
+            'motion_deadline_gap_days': app.config.get('MOTION_DEADLINE_GAP_DAYS', 7),
         }
 
     @app.context_processor
