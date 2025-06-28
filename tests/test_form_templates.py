@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from flask import render_template
 from app import create_app
 from app.extensions import db
-from app.models import Role
+from app.models import Role, Meeting
 from app.admin.forms import UserCreateForm
 from app.meetings.forms import MeetingForm, MotionForm, AmendmentForm
 
@@ -72,6 +72,9 @@ def test_amendment_form_has_labels():
     app = _setup_app()
     with app.app_context():
         db.create_all()
+        meeting = Meeting(title="Test Meeting")
+        db.session.add(meeting)
+        db.session.commit()
         with app.test_request_context("/meetings/motions/1/amendments/add"):
             form = AmendmentForm()
             form.proposer_id.choices = [(1, "A")]
@@ -81,6 +84,7 @@ def test_amendment_form_has_labels():
                 form=form,
                 motion=None,
                 amendment=None,
+                meeting=meeting,
             )
             assert f'for="{form.text_md.id}"' in html
             assert f'for="{form.proposer_id.id}"' in html

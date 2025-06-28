@@ -1119,6 +1119,9 @@ def add_amendment(motion_id):
     motion = db.session.get(Motion, motion_id)
     if motion is None:
         abort(404)
+    meeting = db.session.get(Meeting, motion.meeting_id)
+    if meeting is None:
+        abort(404)
     form = AmendmentForm()
     members = (
         Member.query.filter_by(meeting_id=motion.meeting_id).order_by(Member.name).all()
@@ -1138,18 +1141,27 @@ def add_amendment(motion_id):
         if deadline and datetime.utcnow() > deadline:
             flash("Amendment deadline has passed.", "error")
             return render_template(
-                "meetings/amendment_form.html", form=form, motion=motion
+                "meetings/amendment_form.html",
+                form=form,
+                motion=motion,
+                meeting=meeting,
             )
 
         if not form.seconder_id.data and not form.board_seconded.data:
             flash("Select a seconder or confirm board approval.", "error")
             return render_template(
-                "meetings/amendment_form.html", form=form, motion=motion
+                "meetings/amendment_form.html",
+                form=form,
+                motion=motion,
+                meeting=meeting,
             )
         if form.seconder_id.data and form.proposer_id.data == form.seconder_id.data:
             flash("Proposer cannot second their own amendment.", "error")
             return render_template(
-                "meetings/amendment_form.html", form=form, motion=motion
+                "meetings/amendment_form.html",
+                form=form,
+                motion=motion,
+                meeting=meeting,
             )
 
         count = Amendment.query.filter_by(
@@ -1159,7 +1171,10 @@ def add_amendment(motion_id):
         if count >= 3:
             flash("A member may propose at most three amendments per motion.", "error")
             return render_template(
-                "meetings/amendment_form.html", form=form, motion=motion
+                "meetings/amendment_form.html",
+                form=form,
+                motion=motion,
+                meeting=meeting,
             )
 
         order = Amendment.query.filter_by(motion_id=motion.id).count() + 1
@@ -1194,7 +1209,9 @@ def add_amendment(motion_id):
 
         db.session.commit()
         return redirect(url_for("meetings.view_motion", motion_id=motion.id))
-    return render_template("meetings/amendment_form.html", form=form, motion=motion)
+    return render_template(
+        "meetings/amendment_form.html", form=form, motion=motion, meeting=meeting
+    )
 
 
 @bp.route("/amendments/<int:amendment_id>/edit", methods=["GET", "POST"])
@@ -1226,6 +1243,7 @@ def edit_amendment(amendment_id: int):
                     form=form,
                     motion=motion,
                     amendment=amendment,
+                    meeting=meeting,
                 )
 
         if not form.seconder_id.data and not form.board_seconded.data:
@@ -1235,6 +1253,7 @@ def edit_amendment(amendment_id: int):
                 form=form,
                 motion=motion,
                 amendment=amendment,
+                meeting=meeting,
             )
         if form.seconder_id.data and form.proposer_id.data == form.seconder_id.data:
             flash("Proposer cannot second their own amendment.", "error")
@@ -1243,6 +1262,7 @@ def edit_amendment(amendment_id: int):
                 form=form,
                 motion=motion,
                 amendment=amendment,
+                meeting=meeting,
             )
 
         amendment.text_md = form.text_md.data
@@ -1262,6 +1282,7 @@ def edit_amendment(amendment_id: int):
         form=form,
         motion=motion,
         amendment=amendment,
+        meeting=meeting,
     )
 
 

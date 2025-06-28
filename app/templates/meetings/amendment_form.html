@@ -2,7 +2,13 @@
 {% from '_macros.html' import breadcrumbs, form_errors %}
 {% block content %}
 {% set label = 'Edit Amendment' if amendment else 'Add Amendment' %}
-{{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (label, None)]) }}
+
+{{ breadcrumbs([
+  ('Dashboard', url_for('admin.dashboard')),
+  ('Meetings', url_for('meetings.list_meetings')),
+  (meeting.title, url_for('meetings.meeting_overview', meeting_id=meeting.id)),
+  (label, None)
+]) }}
 
 <div class="flex items-center justify-between mb-4">
   <h1 class="font-bold text-bp-blue text-3xl">{{ 'Edit Amendment' if amendment else 'Add Amendment' }}</h1>
