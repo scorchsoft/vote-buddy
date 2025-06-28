@@ -1355,3 +1355,8 @@ html {
 .bp-markdown li {
   margin-bottom: 0.25rem;
 }
+
+/* Fix EasyMDE fullscreen flicker caused by transformed ancestor (bp-card hover) */
+.bp-card:has(.CodeMirror-fullscreen):hover {
+  transform: none !important;
+}
