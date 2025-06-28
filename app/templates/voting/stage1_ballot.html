@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs, form_errors %}
+{% from '_macros.html' import breadcrumbs, form_errors, render_markdown %}
 {% block content %}
 {{ breadcrumbs([('Ballot', url_for('voting.ballot_home')), (meeting.title, None), ('Stage 1', None)]) }}
 
@@ -64,9 +64,7 @@
         <div class="flex items-start justify-between">
           <div class="flex-1">
             <h2 class="text-xl font-bold mb-2 text-white">Motion {{ loop.index }}</h2>
-            <div class="prose prose-invert max-w-none text-white">
-              {{ motion.text_md|markdown_to_html|safe }}
-            </div>
+            {{ render_markdown(motion.text_md, 'prose-invert max-w-none text-white') }}
           </div>
           {% if not preview or (current_user.is_authenticated and current_user.has_permission('manage_meetings')) %}
           <button type="button" class="ml-4 bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm flex items-center space-x-1 transition-colors"
@@ -103,9 +101,7 @@
               </div>
               
               <div class="flex-1">
-                <div class="prose prose-sm max-w-none mb-4">
-                  {{ amend.text_md|markdown_to_html|safe }}
-                </div>
+                {{ render_markdown(amend.text_md, 'prose-sm max-w-none mb-4') }}
                 
                 <div class="flex items-center justify-between">
                   <div class="flex items-center space-x-6">

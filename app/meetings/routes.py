@@ -186,7 +186,6 @@ def _email_schedule(meeting: Meeting) -> dict[str, datetime | None]:
     Only include emails relevant to the meeting's ballot mode.
     """
     schedule = {
-        "initial_notice": meeting.initial_notice_date,
         "submission_invite": meeting.motions_opens_at,
         "review_invite": meeting.amendments_opens_at,
         "amendment_review_invite": meeting.amendments_closes_at,
