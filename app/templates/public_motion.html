@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, render_markdown %}
 {% block content %}
 {{ breadcrumbs([('Results', url_for('main.results_index')), (meeting.title, url_for('main.public_results', meeting_id=meeting.id)), (motion.title, None)]) }}
 <h1 class="font-bold text-bp-blue mb-2">{{ motion.title }}</h1>
 {% if meeting.summary_md %}
-<div class="mb-4">{{ meeting.summary_md|markdown_to_html|safe }}</div>
+{{ render_markdown(meeting.summary_md, 'mb-4') }}
 {% endif %}
-<div class="bp-card bp-glow mb-4 whitespace-pre-line">{{ text|markdown_to_html|safe }}</div>
+{{ render_markdown(text, 'bp-card bp-glow mb-4 whitespace-pre-line') }}
 <p><a href="{{ url_for('main.public_results', meeting_id=meeting.id) }}" class="text-bp-blue underline">Back to results</a></p>
 {% endblock %}

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, render_markdown %}
 
 {% block content %}
 {{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), ('Review Motions', None)]) }}
@@ -81,9 +81,7 @@
           </span>
           {% endif %}
         </div>
-        <div class="prose prose-lg prose-invert max-w-none text-white/90">
-          {{ motion.text_md|markdown_to_html|safe }}
-        </div>
+        {{ render_markdown(motion.text_md, 'prose-lg prose-invert max-w-none text-white/90') }}
       </div>
       
       <!-- Motion Comments Button -->
@@ -194,9 +192,7 @@
           {% endif %}
           
           <!-- Amendment Text -->
-          <div class="prose prose-sm max-w-none bg-bp-grey-50 rounded-lg p-4">
-            {{ amend.text_md|markdown_to_html|safe }}
-          </div>
+          {{ render_markdown(amend.text_md, 'prose-sm max-w-none bg-bp-grey-50 rounded-lg p-4') }}
           
           <!-- Amendment Reason (if rejected/merged) -->
           {% if amend.status in ['rejected', 'merged'] and amend.reason %}

@@ -1340,3 +1340,18 @@ html {
     padding: 0.2rem 0.4rem;
   }
 }
+
+/* Markdown rendering */
+.bp-markdown p {
+  margin-bottom: 1rem;
+}
+
+.bp-markdown ul,
+.bp-markdown ol {
+  padding-left: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.bp-markdown li {
+  margin-bottom: 0.25rem;
+}
