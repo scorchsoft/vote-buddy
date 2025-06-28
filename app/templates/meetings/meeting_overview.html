@@ -9,7 +9,23 @@
 <div class="mb-8">
   <div class="flex items-center justify-between mb-4">
     <div>
-      <h1 class="text-3xl font-bold text-bp-grey-900 mb-2">{{ meeting.title }}</h1>
+      <div class="flex items-center gap-3 mb-2">
+        <h1 class="text-3xl font-bold text-bp-grey-900">{{ meeting.title }}</h1>
+        
+        <!-- Action Required Tag -->
+        {% set unpublished_motions_header = motions | selectattr('is_published', 'equalto', false) | list %}
+        {% set unpublished_amendments_header = amendments | selectattr('is_published', 'equalto', false) | list %}
+        {% if unpublished_motions_header or unpublished_amendments_header %}
+        <a href="#motions-section" 
+           onclick="document.getElementById('motions-section').scrollIntoView({behavior: 'smooth'}); return false;"
+           class="inline-flex items-center gap-1.5 bg-orange-100 text-orange-800 px-3 py-1.5 rounded-full text-sm font-semibold border border-orange-200 hover:bg-orange-200 transition-colors cursor-pointer no-underline">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          Action Required
+        </a>
+        {% endif %}
+      </div>
       <p class="text-bp-grey-600 flex items-center gap-2">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012-2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
@@ -128,22 +144,73 @@
 </div>
 
 <!-- Motions Summary -->
-<div class="flex items-center justify-between mb-4">
+<div id="motions-section" class="flex items-center justify-between mb-4">
   <h2 class="text-xl font-semibold text-bp-grey-900">Motions Summary</h2>
   <div class="flex gap-2">
     <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}" class="bp-btn-secondary bp-btn-sm">View Motions</a>
     <a href="{{ url_for('meetings.batch_edit_motions', meeting_id=meeting.id) }}" class="bp-btn-secondary bp-btn-sm">Batch Edit</a>
   </div>
 </div>
+
+<!-- Actions Required Alert -->
+{% set unpublished_motions = motions | selectattr('is_published', 'equalto', false) | list %}
+{% set unpublished_amendments = amendments | selectattr('is_published', 'equalto', false) | list %}
+{% if unpublished_motions or unpublished_amendments %}
+<div class="bg-orange-50 border-l-4 border-orange-400 p-4 mb-6">
+  <div class="flex items-center">
+    <svg class="w-5 h-5 text-orange-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+    </svg>
+    <div>
+      <h3 class="text-sm font-medium text-orange-800">Action Required</h3>
+      <p class="text-sm text-orange-700">
+        {% if unpublished_motions and unpublished_amendments %}
+        You have {{ unpublished_motions|length }} draft motion{{ 's' if unpublished_motions|length != 1 else '' }} and {{ unpublished_amendments|length }} draft amendment{{ 's' if unpublished_amendments|length != 1 else '' }} that need to be reviewed and published.
+        {% elif unpublished_motions %}
+        You have {{ unpublished_motions|length }} draft motion{{ 's' if unpublished_motions|length != 1 else '' }} that need{{ '' if unpublished_motions|length != 1 else 's' }} to be reviewed and published.
+        {% else %}
+        You have {{ unpublished_amendments|length }} draft amendment{{ 's' if unpublished_amendments|length != 1 else '' }} that need{{ '' if unpublished_amendments|length != 1 else 's' }} to be reviewed and published.
+        {% endif %}
+        <a href="{{ url_for('meetings.list_motions', meeting_id=meeting.id) }}" class="underline font-medium hover:text-orange-800">Review now</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 {% if motions %}
 <div class="grid gap-4">
   {% for m in motions %}
+  {% set motion_amendments = amendments | selectattr('motion_id', 'equalto', m.id) | list %}
+  {% set unpublished_motion_amendments = motion_amendments | selectattr('is_published', 'equalto', false) | list %}
+  {% set needs_action = not m.is_published or unpublished_motion_amendments %}
   <div class="bp-card hover:shadow-xl transition-all duration-200 border-l-4
-              {% if m.status == 'passed' %}border-green-500
+              {% if needs_action %}border-orange-500 bg-orange-50/30
+              {% elif m.status == 'passed' %}border-green-500
               {% elif m.status == 'failed' %}border-red-500
               {% elif m.withdrawn %}border-bp-grey-400
               {% else %}border-bp-blue{% endif %}">
-    <div class="flex items-start justify-between">
+    
+    {% if needs_action %}
+    <div class="bg-orange-100 border border-orange-200 rounded-lg p-3 mb-4">
+      <div class="flex items-center">
+        <svg class="w-4 h-4 text-orange-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        <span class="text-sm font-medium text-orange-800">
+          Action Required: 
+          {% if not m.is_published and unpublished_motion_amendments %}
+          Motion is draft and has {{ unpublished_motion_amendments|length }} unpublished amendment{{ 's' if unpublished_motion_amendments|length != 1 else '' }}
+          {% elif not m.is_published %}
+          Motion is still in draft
+          {% else %}
+          Has {{ unpublished_motion_amendments|length }} unpublished amendment{{ 's' if unpublished_motion_amendments|length != 1 else '' }}
+          {% endif %}
+        </span>
+      </div>
+    </div>
+    {% endif %}
+    
       <div class="flex-1">
         <div class="flex items-center gap-3">
           <h4 class="font-semibold text-bp-grey-900 hover:text-bp-blue transition-colors">
@@ -151,6 +218,24 @@
               {{ m.title }}
             </a>
           </h4>
+          
+          <!-- Published/Draft status badge -->
+          {% if m.is_published %}
+          <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium border border-green-200">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            Published
+          </span>
+          {% else %}
+          <span class="inline-flex items-center gap-1 bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium border border-orange-200">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+            Draft
+          </span>
+          {% endif %}
+          
           {% if m.status %}
           <span class="bp-badge text-xs {% if m.status == 'passed' %}bp-badge-success{% elif m.status == 'failed' %}bp-badge-danger{% else %}bg-bp-grey-100 text-bp-grey-800{% endif %}">
             {{ m.status|title }}
@@ -184,60 +269,60 @@
           </span>
           {% endif %}
           {% set ac = amendment_counts.get(m.id, 0) %}
-          <a href="{{ url_for('meetings.view_motion', motion_id=m.id) }}" class="inline-flex items-center gap-1">
+          <a href="{{ url_for('meetings.view_motion', motion_id=m.id) }}" class="inline-flex items-center gap-1 {% if unpublished_motion_amendments %}text-orange-600 font-medium{% endif %}">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"></path>
             </svg>
             {{ ac }} Amendment{{ 's' if ac != 1 else '' }}
+            {% if unpublished_motion_amendments %}
+            <span class="inline-flex items-center gap-1 bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded text-xs font-medium">
+              {{ unpublished_motion_amendments|length }} draft
+            </span>
+            {% endif %}
           </a>
-          {% if m.is_published %}
-          <span class="inline-flex items-center gap-1 text-green-600">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-            </svg>
-            Published
-          </span>
-          {% else %}
-          <span class="inline-flex items-center gap-1 text-bp-grey-500">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-            </svg>
-            Draft
-          </span>
-          {% endif %}
           {% if m.modified_at %}
           <span>Modified {{ m.modified_at.strftime('%b %d, %Y') }}</span>
           {% endif %}
         </div>
       </div>
-      <a href="{{ url_for('meetings.view_motion', motion_id=m.id) }}" class="bp-btn-secondary bp-btn-compact bp-btn-icon self-start">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-        </svg>
-        View Details
-      </a>
-    </div>
+      
+      {% if needs_action %}
+      <div class="mt-3 flex items-center gap-2">
+        {% if not m.is_published %}
+        <form method="post" action="{{ url_for('meetings.toggle_motion_publish', motion_id=m.id) }}" class="inline" hx-boost="false">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <button type="submit" class="bp-btn-primary bp-btn-sm">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            Publish Motion
+          </button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('meetings.view_motion', motion_id=m.id) }}" class="bp-btn-secondary bp-btn-sm">
+          {% if unpublished_motion_amendments %}Review Amendments{% else %}Review & Edit{% endif %}
+        </a>
+      </div>
+      {% endif %}
   </div>
   {% endfor %}
 </div>
 
 {% else %}
-<!-- Empty State -->
 <div class="text-center py-12">
   <div class="bg-bp-grey-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
     <svg class="w-12 h-12 text-bp-grey-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
     </svg>
   </div>
   <h3 class="text-lg font-semibold text-bp-grey-900 mb-2">No motions yet</h3>
   <p class="text-bp-grey-600 mb-6 max-w-md mx-auto">
-    Get started by creating your first motion for this meeting. You can add the motion text, set categories, and manage amendments.
+    Get started by creating your first motion for this meeting.
   </p>
-  <a href="{{ url_for('meetings.create_motion', meeting_id=meeting.id) }}" 
-     class="bp-btn-primary bp-btn-icon">
+  <a href="{{ url_for('meetings.create_motion', meeting_id=meeting.id) }}" class="bp-btn-primary bp-btn-icon">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
     </svg>
     Create Your First Motion
   </a>
