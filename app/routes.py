@@ -171,6 +171,7 @@ def review_motions(token: str, meeting_id: int):
     # Always build motions_with_amendments as list of tuples
     motions_with_amendments = []
     amend_counts = {}
+    total_amendments = 0
     
     for motion in motions:
         if show_amendments:
@@ -182,11 +183,17 @@ def review_motions(token: str, meeting_id: int):
             
             # Calculate comment counts for amendments
             for amend in amendments:
-                amend_counts[amend.id] = Comment.query.filter_by(amendment_id=amend.id, hidden=False).count()
+                amend_counts[amend.id] = Comment.query.filter_by(
+                    amendment_id=amend.id, hidden=False
+                ).count()
+            total_amendments += len(amendments)
         else:
             amendments = []
-        
+
         motions_with_amendments.append((motion, amendments))
+
+    if not show_amendments:
+        total_amendments = 0
     
     return render_template(
         'public_review.html',
@@ -195,6 +202,7 @@ def review_motions(token: str, meeting_id: int):
         token=token,
         motion_counts=motion_counts,
         amend_counts=amend_counts,
+        total_amendments=total_amendments,
         amendments_open=amendments_open,
         show_amendments=show_amendments,
     )
