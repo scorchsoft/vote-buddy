@@ -3989,6 +3989,12 @@ html {
   }
 }
 
+/* Fix EasyMDE fullscreen flicker caused by transformed ancestor (bp-card hover)
+   Uses :has() to apply only when a fullscreen editor is inside a card. */
+.bp-card:has(.CodeMirror-fullscreen):hover {
+  transform: none !important;
+}
+
 /* Markdown rendering */
 
 .bp-markdown p {

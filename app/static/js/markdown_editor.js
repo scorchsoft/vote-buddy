@@ -10,6 +10,9 @@ function initMarkdownEditors() {
       spellChecker: false,
       forceSync: true,
       autoDownloadFontAwesome: false,
+      onToggleFullScreen: function(isFullScreen) {
+        document.body.classList.toggle('easymde-fullscreen-active', !!isFullScreen);
+      },
     });
   });
 }
