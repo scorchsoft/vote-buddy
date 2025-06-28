@@ -796,6 +796,7 @@ def meeting_overview(meeting_id):
         ("Stage 1 Opens", meeting.opens_at_stage1),
         ("Stage 1 Closes", meeting.closes_at_stage1),
         ("Stage 2 Opens", meeting.opens_at_stage2),
+        ("Stage 2 Closes", meeting.closes_at_stage2),
         ("AGM Date", meeting.closes_at_stage2),
     ]
     dates = [d for _, d in steps if d]

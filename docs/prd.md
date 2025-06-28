@@ -506,6 +506,7 @@ SES/SMTP  ─── Outbound mail
 * 2025-07-07 – Added Roles breadcrumb link on Manage Permissions page.
 * 2025-09-10 – Added amendment review invite email between motion review and Stage 1.
 * 2025-09-12 – Added Auto Populate button for meeting dates and moved Ballot Mode above AGM date.
+* 2025-09-13 – Timeline now displays the Stage 2 closes milestone.
 ---
 
 ## 14  Glossary
