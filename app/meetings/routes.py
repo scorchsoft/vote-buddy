@@ -136,30 +136,27 @@ def _styled_doc(title: str, include_logo: bool) -> Document:
 
 
 def _calculate_default_times(agm_date: datetime) -> dict:
-    """Return default timeline values relative to the AGM date."""
+    """Calculate sensible default times for meeting phases based on AGM date."""
     cfg = current_app.config
     opens_at_stage2 = agm_date - timedelta(days=cfg.get("STAGE2_LENGTH_DAYS", 5))
     closes_at_stage1 = opens_at_stage2 - timedelta(days=cfg.get("STAGE_GAP_DAYS", 1))
     opens_at_stage1 = closes_at_stage1 - timedelta(
         days=cfg.get("STAGE1_LENGTH_DAYS", 7)
     )
-    # Final notice comes after amendments close (14 days before Stage 1)
-    notice_date = opens_at_stage1 - timedelta(days=cfg.get("NOTICE_PERIOD_DAYS", 14))
+    # Final notice comes after amendments close (3 days before Stage 1)
+    notice_date = opens_at_stage1 - timedelta(days=cfg.get("NOTICE_PERIOD_DAYS", 3))
     motions_closes_at = notice_date - timedelta(
-        days=cfg.get("MOTION_DEADLINE_GAP_DAYS", 7)
+        days=cfg.get("MOTION_DEADLINE_GAP_DAYS", 0)  # Changed from 7 to 0 - motions open immediately
     )
     motions_opens_at = motions_closes_at - timedelta(
         days=cfg.get("MOTION_WINDOW_DAYS", 7)
     )
     # Initial notice comes before motions open (≥21 days before motions close)
     initial_notice_date = motions_closes_at - timedelta(days=21)
-    # Amendments close 21 days before Stage 1 opens
-    amendments_closes_at = opens_at_stage1 - timedelta(days=21)
-    # Amendments open same day as motions close
+    # Amendments open same day as motions close (Day-One opening)
     amendments_opens_at = motions_closes_at
-    # If amendments would close on the same day they open, push amendments close forward by 1 day
-    if amendments_opens_at.date() == amendments_closes_at.date():
-        amendments_closes_at = amendments_closes_at + timedelta(days=1)
+    # Amendments close after 5-day window
+    amendments_closes_at = amendments_opens_at + timedelta(days=cfg.get("AMENDMENT_WINDOW_DAYS", 5))
     return {
         "initial_notice_date": initial_notice_date,
         "notice_date": notice_date,
@@ -298,7 +295,7 @@ def _save_meeting(form: MeetingForm, meeting: Meeting | None = None) -> Meeting:
 @permission_required("manage_meetings")
 def create_meeting():
     form = MeetingForm()
-    notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 14)
+    notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 3)  # Updated from 14 to 3
     form.initial_notice_date.description = (
         "Basic meeting announcement sent early (≥21 days before motions close)."
     )
@@ -306,7 +303,7 @@ def create_meeting():
         f"Final notice with complete agenda; at least {notice_days} days before Stage 1 opens."
     )
     form.opens_at_stage1.description = f"At least {notice_days} days after final notice date."
-    form.closes_at_stage1.description = "Must remain open for at least 7 days."
+    form.closes_at_stage1.description = "Must remain open for at least 5 days for e-ballots."  # Updated from 7 to 5
     form.opens_at_stage2.description = "At least 1 day after Stage 1 closes."
     form.closes_at_stage2.description = (
         "Final voting deadline; at least 5 days after Stage 2 opens."
@@ -327,7 +324,7 @@ def edit_meeting(meeting_id):
     if meeting is None:
         abort(404)
     form = MeetingForm(obj=meeting)
-    notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 14)
+    notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 3)  # Updated from 14 to 3
     form.initial_notice_date.description = (
         "Basic meeting announcement sent early (≥21 days before motions close)."
     )
@@ -335,7 +332,7 @@ def edit_meeting(meeting_id):
         f"Final notice with complete agenda; at least {notice_days} days before Stage 1 opens."
     )
     form.opens_at_stage1.description = f"At least {notice_days} days after final notice date."
-    form.closes_at_stage1.description = "Must remain open for at least 7 days."
+    form.closes_at_stage1.description = "Must remain open for at least 5 days for e-ballots."  # Updated from 7 to 5
     form.opens_at_stage2.description = "At least 1 day after Stage 1 closes."
     form.closes_at_stage2.description = (
         "Final voting deadline; at least 5 days after Stage 2 opens."
@@ -1127,7 +1124,7 @@ def add_amendment(motion_id):
         if meeting.opens_at_stage1:
             deadline = meeting.opens_at_stage1 - timedelta(days=21)
         elif meeting.notice_date:
-            notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 14)
+            notice_days = current_app.config.get("NOTICE_PERIOD_DAYS", 3)  # Updated from 14 to 3
             deadline = meeting.notice_date + timedelta(days=notice_days)
 
         if deadline and datetime.utcnow() > deadline:

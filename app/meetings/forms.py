@@ -22,27 +22,27 @@ class MeetingForm(FlaskForm):
     initial_notice_date = DateTimeLocalField(
         "Initial Notice",
         format="%Y-%m-%dT%H:%M",
-        description="Basic meeting announcement sent early (≥21 days before motions close).",
+        description="Basic meeting announcement sent early (≥21 days before motions close). Motions open immediately upon this notice.",
     )
     notice_date = DateTimeLocalField(
         "Final Notice",
         format="%Y-%m-%dT%H:%M",
-        description="Must be at least 14 days before Stage 1 opens.",
+        description="Must be at least 3 days before Stage 1 opens.",
     )
     opens_at_stage1 = DateTimeLocalField(
         "Stage 1 Opens",
         format="%Y-%m-%dT%H:%M",
-        description="At least 14 days after notice date.",
+        description="At least 3 days after notice date.",
     )
     closes_at_stage1 = DateTimeLocalField(
         "Stage 1 Closes",
         format="%Y-%m-%dT%H:%M",
-        description="Must remain open for at least 7 days.",
+        description="Must remain open for at least 5 days for e-ballots.",
     )
     motions_opens_at = DateTimeLocalField(
         "Motions Open",
         format="%Y-%m-%dT%H:%M",
-        description="When members may start submitting motions.",
+        description="When members may start submitting motions (opens immediately with Initial Notice).",
     )
     motions_closes_at = DateTimeLocalField(
         "Motions Close",
@@ -57,7 +57,7 @@ class MeetingForm(FlaskForm):
     amendments_closes_at = DateTimeLocalField(
         "Amendments Close",
         format="%Y-%m-%dT%H:%M",
-        description="Deadline for amendment submissions.",
+        description="Deadline for amendment submissions (5-day window required).",
     )
     opens_at_stage2 = DateTimeLocalField(
         "Stage 2 Opens",
@@ -67,7 +67,7 @@ class MeetingForm(FlaskForm):
     closes_at_stage2 = DateTimeLocalField(
         "AGM Date",
         format="%Y-%m-%dT%H:%M",
-        description="Final voting deadline; at least 5 days after Stage 2 opens.",
+        description="When Stage 2 voting closes (typically the AGM date). Use Auto Populate to calculate timeline.",
     )
     ballot_mode = SelectField(
         "Ballot Mode",
@@ -129,7 +129,7 @@ class MeetingForm(FlaskForm):
 
         # check Stage 1 opens at least NOTICE_PERIOD_DAYS after final notice date
         if self.opens_at_stage1.data and self.notice_date.data:
-            notice_days = current_app.config.get('NOTICE_PERIOD_DAYS', 14)
+            notice_days = current_app.config.get('NOTICE_PERIOD_DAYS', 3)
             if self.opens_at_stage1.data - self.notice_date.data < timedelta(days=notice_days):
                 self.opens_at_stage1.errors.append(
                     f'Stage 1 must open at least {notice_days} days after final notice.'
@@ -161,13 +161,14 @@ class MeetingForm(FlaskForm):
             self.opens_at_stage2.errors.append("Stage 2 must open after Stage 1 opens.")
             is_valid = False
 
-        # check Stage 1 duration >= 7 days
+        # check Stage 1 duration >= 5 days for e-ballots
         if self.opens_at_stage1.data and self.closes_at_stage1.data:
+            min_stage1_days = current_app.config.get('STAGE1_LENGTH_DAYS', 5)
             if self.closes_at_stage1.data - self.opens_at_stage1.data < timedelta(
-                days=7
+                days=min_stage1_days
             ):
                 self.closes_at_stage1.errors.append(
-                    "Stage 1 must remain open for at least 7 days."
+                    f"Stage 1 must remain open for at least {min_stage1_days} days."
                 )
                 is_valid = False
 
@@ -180,9 +181,12 @@ class MeetingForm(FlaskForm):
                 is_valid = False
 
         if self.amendments_opens_at.data and self.amendments_closes_at.data:
-            if self.amendments_closes_at.data <= self.amendments_opens_at.data:
+            min_amendment_days = current_app.config.get('AMENDMENT_WINDOW_DAYS', 5)
+            if self.amendments_closes_at.data - self.amendments_opens_at.data < timedelta(
+                days=min_amendment_days
+            ):
                 self.amendments_closes_at.errors.append(
-                    "Amendment close must be after it opens."
+                    f"Amendment window must remain open for at least {min_amendment_days} days."
                 )
                 is_valid = False
 

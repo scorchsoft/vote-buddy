@@ -9,6 +9,7 @@
     "build:css": "tailwindcss -c tailwind.config.cjs -i app/static/css/input.css -o app/static/css/main.css"
   },
   "dependencies": {
-    "easymde": "^2.20.0"
+    "easymde": "^2.20.0",
+    "npm": "^11.4.2"
   }
 }

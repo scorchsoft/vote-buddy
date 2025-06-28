@@ -33,6 +33,7 @@
     <p class="text-xs text-bp-grey-700 mt-1">{{ form.closes_at_stage2.description }}</p>
     <p id="{{ form.closes_at_stage2.id }}-error" class="bp-error-text">{{ form.closes_at_stage2.errors[0] if form.closes_at_stage2.errors else '' }}</p>
   </div>
+
   <div>
     <button type="button" id="auto-populate-btn" class="bp-btn-secondary">Auto Populate</button>
   </div>
@@ -110,6 +111,11 @@
         {{ form.opens_at_stage2(class_='border p-2 rounded w-full text-sm', **{'aria-describedby': form.opens_at_stage2.id + '-error'}) }}
         <p class="text-xs text-bp-grey-600 mt-1">{{ form.opens_at_stage2.description }}</p>
         <p id="{{ form.opens_at_stage2.id }}-error" class="bp-error-text">{{ form.opens_at_stage2.errors[0] if form.opens_at_stage2.errors else '' }}</p>
+      </div>
+      <div>
+        <label class="block font-semibold text-sm">Stage 2 Closes</label>
+        <input type="datetime-local" id="stage2_closes_display" class="border p-2 rounded w-full text-sm bg-gray-50" readonly>
+        <p class="text-xs text-bp-grey-600 mt-1">Voting deadline (mirrors AGM Date above)</p>
       </div>
     </div>
   </div>

@@ -20,10 +20,13 @@ class Config:
     PASSWORD_RESET_EXPIRY_HOURS = int(os.getenv("PASSWORD_RESET_EXPIRY_HOURS", "24"))
     UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", "instance/files")
     RUNOFF_EXTENSION_MINUTES = int(os.getenv("RUNOFF_EXTENSION_MINUTES", "2880"))
-    NOTICE_PERIOD_DAYS = int(os.getenv("NOTICE_PERIOD_DAYS", "14"))
-    STAGE1_LENGTH_DAYS = int(os.getenv("STAGE1_LENGTH_DAYS", "7"))
+    NOTICE_PERIOD_DAYS = int(os.getenv("NOTICE_PERIOD_DAYS", "3"))  # Reduced from 14 to 3 for Final Notice buffer
+    STAGE1_LENGTH_DAYS = int(os.getenv("STAGE1_LENGTH_DAYS", "5"))  # Reduced from 7 to 5 for e-ballots
     STAGE_GAP_DAYS = int(os.getenv("STAGE_GAP_DAYS", "1"))
     STAGE2_LENGTH_DAYS = int(os.getenv("STAGE2_LENGTH_DAYS", "5"))
+    MOTION_WINDOW_DAYS = int(os.getenv("MOTION_WINDOW_DAYS", "7"))  # Motion submission window
+    MOTION_DEADLINE_GAP_DAYS = int(os.getenv("MOTION_DEADLINE_GAP_DAYS", "0"))  # Reduced from 7 to 0 - motions open immediately
+    AMENDMENT_WINDOW_DAYS = int(os.getenv("AMENDMENT_WINDOW_DAYS", "5"))  # Extended from 1 to 5 days
     REMINDER_HOURS_BEFORE_CLOSE = int(os.getenv("REMINDER_HOURS_BEFORE_CLOSE", "6"))
     REMINDER_COOLDOWN_HOURS = int(os.getenv("REMINDER_COOLDOWN_HOURS", "24"))
     REMINDER_TEMPLATE = os.getenv("REMINDER_TEMPLATE", "email/reminder")

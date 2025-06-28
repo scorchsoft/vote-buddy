@@ -23,12 +23,12 @@ The procedure below introduces a clear amendment stage **before** the final vote
 
 ## 3  Special Resolution Text (clauses ready to slot straight into your rule-book)
 
-> **Note on numbering:** “Clause 1, 2, … 9” is intentionally generic; renumber or cross-reference to fit your own Articles / By-laws.
+> **Note on numbering:** "Clause 1, 2, … 9" is intentionally generic; renumber or cross-reference to fit your own Articles / By-laws.
 
 ### Clause 1 — Meeting Notices and Ballot Type Declaration
-1.1  **Initial Notice**: No fewer than 21 clear days before motion submissions close, the Chair shall publish an initial meeting notice announcing the AGM/EGM date, motion submission deadlines, and amendment process.
+1.1  **Initial Notice**: No fewer than 21 clear days before motion submissions close, the Chair shall publish an initial meeting notice announcing the AGM/EGM date, motion submission deadlines, and amendment process. **Motions open immediately upon issuance of the Initial Notice.**
 
-1.2  **Final Notice and Ballot Declaration**: No fewer than 14 clear days before voting opens (and after amendment submissions close and chair rulings), the Chair shall publish the final meeting notice declaring whether the motion will be decided by:  
+1.2  **Final Notice and Ballot Declaration**: No fewer than 3 clear days before voting opens (and after amendment submissions close and chair rulings), the Chair shall publish the final meeting notice declaring whether the motion will be decided by:  
 &nbsp;&nbsp;&nbsp;a) two-stage electronic ballot (Stage 1 ≙ amendments; Stage 2 ≙ motion);  
 &nbsp;&nbsp;&nbsp;b) single-stage electronic ballot (simultaneous vote on amendments **and** motion); or  
 &nbsp;&nbsp;&nbsp;c) in-person or hybrid ballot, taken in two consecutive stages during the meeting.  
@@ -40,9 +40,9 @@ The procedure below introduces a clear amendment stage **before** the final vote
 (b)  Each amendment must be seconded in writing by another Voting Member **or** approved by simple board majority.  
 (c)  The Chair may merge duplicates, rule out amendments that negate the entire motion, and set the voting order. Rulings are published ≥ 7 days before Stage 1.  
 (d)  Once published, a motion may only be withdrawn or substantively altered with Chair **and** board approval, provided the change is notified ≥ 7 days before Stage 1.  
-(e)  Members can trigger a “Point-of-Order” review of any rejected/merged amendment if either 25 Voting Members **or** 5 % of the membership endorse the objection within the timescale stated.  
+(e)  Members can trigger a "Point-of-Order" review of any rejected/merged amendment if either 25 Voting Members **or** 5 % of the membership endorse the objection within the timescale stated.  
 (f)  An amendment may bundle multiple edits if they serve one coherent purpose; the Chair may insist on splitting compound proposals for clarity.
-(g)  After the amendment deadline the Secretary publishes all qualifying amendments for review and comment. No further amendments may be lodged, but members may discuss and comment until Stage 1 opens (allow at least 5 clear days).
+(g)  After the amendment deadline the Secretary publishes all qualifying amendments for review and comment. **No further amendments may be lodged, but members may discuss and comment for 5 clear days until Stage 1 opens.**
 
 ### Clause 3 — Stage 1: Voting on Amendments
 * Every qualifying amendment receives a separate yes/no vote; simple majority carries.  
@@ -64,12 +64,12 @@ The procedure below introduces a clear amendment stage **before** the final vote
 Where a single ballot is declared, amendments and motion are voted on simultaneously; counts are applied in the order set out in Clauses 3 and 4. Super-majority rules still apply.
 
 ### Clause 6 — Voting Windows & Methods
-(a)  Two-stage electronic ballots: Stage 1 open ≥ 7 days; Stage 2 open ≥ 5 days; Stage-1 results published ≥ 24 h before Stage 2.  
+(a)  Two-stage electronic ballots: **Stage 1 open ≥ 5 days; Stage 2 open ≥ 5 days**; Stage-1 results published ≥ 24 h before Stage 2.  
 (b)  In-person/hybrid meetings: two stages taken back-to-back (hands, keypads, or secure online poll).  
 (c)  An independent returning officer (not a board member or candidate) must scrutinise the vote.  
 (d)  Quorum for a two-stage e-ballot is met when verified Stage-1 votes ≥ the meeting-quorum in your constitution.  
 (e)  Voting methods must be accessible; reasonable adjustments provided on request.  
-(f)  Failure to meet quorum in Stage 1 voids the ballot; the board either re-tables at the next General Meeting or re-runs an electronic vote with at least seven clear days’ notice.
+(f)  Failure to meet quorum in Stage 1 voids the ballot; the board either re-tables at the next General Meeting or re-runs an electronic vote with at least seven clear days' notice.
 
 ### Clause 7 — Order of Precedence
 Once an amendment is carried, any subsequent inconsistent amendment is out of order unless required for the run-off in Clause 3.
@@ -94,16 +94,18 @@ Electronic seconds must accompany the amendment submission; in-person seconds ma
 |------|-----|--------|---------|
 | Initial AGM notice | Chair | ≥ 21 days before motions close | Basic meeting announcement |
 | Auto-populate meeting timeline | Coordinator | After setting AGM date | Use VoteBuddy's button to generate default windows |
-| Motion submission window | Coordinator | Opens {{ motions_opens_at }} closes {{ motions_closes_at }} | Email invite sent automatically |
+| Motion submission window | Coordinator | **Opens immediately with Initial Notice**, closes {{ motions_closes_at }} | **Day-One opening** - email invite sent automatically |
 | Amendment deadline | Secretary | –21 days before Stage 1 | Max 3 per member |
 | Chair issues rulings | Chair | –7 days before Stage 1 | Merge duplicates, set order |
-| Final notice & ballot declaration | Chair | ≥ 14 days before Stage 1 | Complete agenda, platform URL, qualifying amendments |
-| Amendment review & comments | Secretary | Until Stage 1 opens | Members review final amendments (≥ 5 days) |
-| Stage 1 voting window | Returning Officer | ≥ 7 days | Separate votes per amendment |
+| Final notice & ballot declaration | Chair | **≥ 3 days before Stage 1** | Complete agenda, platform URL, qualifying amendments |
+| Amendment review & comments | Secretary | **5 clear days for comment & drafting** | Members review final amendments |
+| Stage 1 voting window | Returning Officer | **≥ 5 days for electronic ballots** | Separate votes per amendment |
 | Run-off (if required) | Returning Officer | Buffer ≥ 2 days | Only between conflicting carried amendments |
 | Publish amended motion + Stage-1 results | Secretary | ≥ 24 h pre-Stage 2 | Clear audit trail |
 | Stage 2 voting window | Returning Officer | ≥ 5 days | Super-majority if special resolution |
-| Publish certified results | Returning Officer | ≤ 14 days post-Stage 2 | Extend to 21 days only if necessary |
+| Results processing & preparation | Returning Officer | **Recommended: ≥3 days** | Optional buffer to process results, prepare documentation |
+| AGM Date | Chair | As scheduled | Meeting day with results presentation |
+| Publish certified results | Returning Officer | ≤ 14 days post-AGM | Extend to 21 days only if necessary |
 
 ---
 
