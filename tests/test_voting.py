@@ -6,7 +6,7 @@ from datetime import datetime
 import hashlib
 
 import pytest
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, Forbidden
 
 from app import create_app
 from app.extensions import db
@@ -19,10 +19,14 @@ from app.models import (
     MotionOption,
     Vote,
     Runoff,
+    User,
+    Role,
+    Permission,
 )
 from app.voting import routes as voting
 from unittest.mock import patch
 from datetime import datetime, timedelta
+from flask_login import AnonymousUserMixin
 
 
 def _setup_app():
@@ -1088,4 +1092,85 @@ def test_confirmation_links_to_public_results_after_stage2():
 
         assert f"href=\"/results/{meeting.id}\"" in html
         assert "View results" in html
+
+
+def _make_admin_user():
+    perm = Permission(name="manage_meetings")
+    role = Role(permissions=[perm])
+    user = User(role=role)
+    user.email = "admin@example.com"
+    user.is_active = True
+    return user
+
+
+def test_preview_ballot_token_requires_permission():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        db.session.commit()
+        with app.test_request_context(f"/vote/preview?meeting_id={meeting.id}&stage=1"):
+            anon = AnonymousUserMixin()
+            with patch("flask_login.utils._get_user", return_value=anon):
+                with pytest.raises(Forbidden):
+                    voting.ballot_token("preview")
+
+
+def test_preview_ballot_token_renders_stage():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        meeting = Meeting(title="AGM")
+        db.session.add(meeting)
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M1",
+            text_md="Motion",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+            is_published=True,
+        )
+        db.session.add(motion)
+        db.session.commit()
+        with app.test_request_context(f"/vote/preview?meeting_id={meeting.id}&stage=2"):
+            user = _make_admin_user()
+            with patch("flask_login.utils._get_user", return_value=user):
+                html = voting.ballot_token("preview")
+                assert "Stage 2" in html
+
+
+def test_preview_runoff_ballot():
+    app = _setup_app()
+    with app.app_context():
+        db.create_all()
+        now = datetime.utcnow()
+        meeting = Meeting(
+            title="AGM",
+            runoff_opens_at=now,
+            runoff_closes_at=now + timedelta(hours=1),
+        )
+        db.session.add(meeting)
+        motion = Motion(
+            meeting_id=meeting.id,
+            title="M",
+            text_md="x",
+            category="motion",
+            threshold="normal",
+            ordering=1,
+            is_published=True,
+        )
+        db.session.add(motion)
+        a1 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A1", order=1, is_published=True)
+        a2 = Amendment(meeting_id=meeting.id, motion_id=motion.id, text_md="A2", order=2, is_published=True)
+        db.session.add_all([a1, a2])
+        db.session.flush()
+        db.session.add(Runoff(meeting_id=meeting.id, amendment_a_id=a1.id, amendment_b_id=a2.id))
+        db.session.commit()
+        with app.test_request_context(f"/vote/runoff/preview?meeting_id={meeting.id}"):
+            user = _make_admin_user()
+            with patch("flask_login.utils._get_user", return_value=user):
+                html = voting.runoff_ballot("preview")
+                assert "Run-off Vote" in html
 
