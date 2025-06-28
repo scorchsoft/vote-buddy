@@ -116,24 +116,7 @@
         {% endif %}
         
         <!-- Progress Bars -->
-        {% if meeting.status != 'Completed' %}
-        <div class="mb-4">
-          <div class="bp-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ meeting.stage1_progress_percent() }}">
-            <div class="bp-progress-bar" style="width: {{ meeting.stage1_progress_percent() }}%"></div>
-            <span class="sr-only">{{ meeting.stage1_progress_percent() }}% complete</span>
-          </div>
-          <span class="text-xs text-bp-grey-600 mt-1">{{ meeting.stage1_progress_percent() }}% voting window elapsed</span>
-        </div>
-        {% if meeting.opens_at_stage2 and meeting.closes_at_stage2 %}
-        <div class="mb-4">
-          <div class="bp-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ meeting.stage2_progress_percent() }}">
-            <div class="bp-progress-bar" style="width: {{ meeting.stage2_progress_percent() }}%"></div>
-            <span class="sr-only">{{ meeting.stage2_progress_percent() }}% complete</span>
-          </div>
-          <span class="text-xs text-bp-grey-600 mt-1">{{ meeting.stage2_progress_percent() }}% Stage 2 elapsed</span>
-        </div>
-        {% endif %}
-        {% endif %}
+        {# Stage progress bars were removed as they are no longer needed #}
         
         <!-- Actions -->
         <div class="pt-4 border-t border-bp-grey-100 mt-auto">
