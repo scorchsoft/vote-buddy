@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs, form_errors %}
+{% from '_macros.html' import breadcrumbs, form_errors, render_markdown %}
 {% block content %}
 {{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), ('Submit Motion', None)]) }}
 {% if setting('site_logo') %}
@@ -47,12 +47,12 @@
 </form>
 <dialog id="clerical-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="clerical-modal-title">
   <h2 id="clerical-modal-title" class="font-bold mb-2">Clerical Amendment Text</h2>
-  <p class="mb-4">{{ clerical_text|markdown_to_html|safe }}</p>
+  {{ render_markdown(clerical_text, 'mb-4') }}
   <button class="bp-btn-secondary" data-close-modal>Close</button>
 </dialog>
 <dialog id="move-modal" class="bp-card w-full max-w-md" role="dialog" aria-labelledby="move-modal-title">
   <h2 id="move-modal-title" class="font-bold mb-2">Articles/Bylaws Placement Text</h2>
-  <p class="mb-4">{{ move_text|markdown_to_html|safe }}</p>
+  {{ render_markdown(move_text, 'mb-4') }}
   <button class="bp-btn-secondary" data-close-modal>Close</button>
 </dialog>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/easymde.min.css') }}">

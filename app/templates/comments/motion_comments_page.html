@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, render_markdown %}
 
 {% block content %}
 {{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, url_for('main.public_meeting_detail', meeting_id=meeting.id)), ('Review Motions', url_for('main.review_motions', token=token, meeting_id=meeting.id)), ('Motion Comments', None)]) }}
@@ -30,9 +30,7 @@
           </span>
           {% endif %}
         </div>
-        <div class="prose prose-lg prose-invert max-w-none text-white/90">
-          {{ motion.text_md|markdown_to_html|safe if motion.text_md else '<p class="italic text-white/70">No motion text provided.</p>' }}
-        </div>
+        {{ render_markdown(motion.text_md or '<p class="italic text-white/70">No motion text provided.</p>', 'prose-lg prose-invert max-w-none text-white/90') }}
       </div>
     </div>
     
@@ -169,9 +167,7 @@
               </div>
             </div>
             
-            <div class="prose max-w-none text-gray-700">
-              {{ c.text_md|markdown_to_html|safe }}
-            </div>
+            {{ render_markdown(c.text_md, 'prose max-w-none text-gray-700') }}
           </div>
           {% endfor %}
         </div>

@@ -222,7 +222,7 @@
     }
   </style>
   
-  <script>
+  <script nonce="{{ csp_nonce }}">
     document.addEventListener('DOMContentLoaded', function() {
       var clickableElements = document.querySelectorAll('.timeline-clickable');
       var tooltip = document.getElementById('timeline-tooltip');

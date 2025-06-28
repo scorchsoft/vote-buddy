@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, render_markdown %}
 {% block content %}
 {{ breadcrumbs([('Results', url_for('main.results_index')), (meeting.title, url_for('main.public_results', meeting_id=meeting.id)), ('Amendment', None)]) }}
 <h1 class="font-bold text-bp-blue mb-2">Amendment A{{ amendment.order }}</h1>
-<div class="bp-card bp-glow mb-4 whitespace-pre-line">{{ amendment.text_md|markdown_to_html|safe }}</div>
+{{ render_markdown(amendment.text_md, 'bp-card bp-glow mb-4 whitespace-pre-line') }}
 <p><a href="{{ url_for('main.public_results', meeting_id=meeting.id) }}" class="text-bp-blue underline">Back to results</a></p>
 {% endblock %}

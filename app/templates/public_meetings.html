@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, render_markdown %}
 {% block content %}
 {{ breadcrumbs([('Home', url_for('main.index')), ('Meetings', None)]) }}
 <h1 class="font-bold text-bp-blue mb-4">Meetings</h1>
@@ -11,7 +11,7 @@
         <a href="{{ url_for('main.public_meeting_detail', meeting_id=meeting.id) }}" class="bp-link hover:underline">{{ meeting.title }}</a>
       </h2>
       {% if meeting.summary_md %}
-      <div class="prose text-sm mb-2">{{ meeting.summary_md|markdown_to_html|safe }}</div>
+      {{ render_markdown(meeting.summary_md, 'text-sm mb-2') }}
       {% endif %}
     </div>
     <div class="mt-auto">
