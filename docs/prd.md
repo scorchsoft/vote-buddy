@@ -529,3 +529,4 @@ SES/SMTP  ─── Outbound mail
 
 * 2025-09-10 – Added amendment review invite email between motion review and Stage 1.
 * 2025-09-12 – Added Auto Populate button for meeting dates and moved Ballot Mode above AGM date.
+* 2025-06-28 – Added meeting overview breadcrumb link on amendment form.
