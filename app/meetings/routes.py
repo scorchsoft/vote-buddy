@@ -186,7 +186,6 @@ def _email_schedule(meeting: Meeting) -> dict[str, datetime | None]:
     Only include emails relevant to the meeting's ballot mode.
     """
     schedule = {
-        "initial_notice": meeting.initial_notice_date,
         "submission_invite": meeting.motions_opens_at,
         "review_invite": meeting.amendments_opens_at,
         "amendment_review_invite": meeting.amendments_closes_at,
@@ -201,6 +200,9 @@ def _email_schedule(meeting: Meeting) -> dict[str, datetime | None]:
             )
         ),
     }
+    if meeting.initial_notice_date:
+        schedule["initial_notice"] = meeting.initial_notice_date
+
     if meeting.ballot_mode == "two-stage":
         schedule.update(
             {
@@ -789,7 +791,7 @@ def meeting_overview(meeting_id):
         ("Stage 1 Opens", meeting.opens_at_stage1),
         ("Stage 1 Closes", meeting.closes_at_stage1),
         ("Stage 2 Opens", meeting.opens_at_stage2),
-        ("AGM Date", meeting.closes_at_stage2),
+        ("Stage 2 Closes", meeting.closes_at_stage2),
     ]
     dates = [d for _, d in steps if d]
     timeline_start = min(dates) if dates else None
