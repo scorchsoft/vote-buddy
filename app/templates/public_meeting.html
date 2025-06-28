@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, render_markdown %}
 {% from '_timeline.html' import meeting_timeline %}
 {% block content %}
 {{ breadcrumbs([('Meetings', url_for('main.public_meetings')), (meeting.title, None)]) }}
@@ -8,7 +8,7 @@
   <div class="mb-6">
     <h1 class="font-bold text-bp-blue text-3xl mb-3">{{ meeting.title }}</h1>
     {% if meeting.summary_md %}
-    <div class="prose prose-lg mb-4 text-bp-grey-700">{{ meeting.summary_md|markdown_to_html|safe }}</div>
+    {{ render_markdown(meeting.summary_md, 'prose-lg mb-4 text-bp-grey-700') }}
     {% endif %}
   </div>
 
@@ -143,7 +143,7 @@
           </svg>
           Amendment A{{ amend.order }}
         </summary>
-        <div class="prose prose-sm mt-3 pl-6 max-w-none">{{ amend.text_md|markdown_to_html|safe }}</div>
+        {{ render_markdown(amend.text_md, 'prose-sm mt-3 pl-6 max-w-none') }}
       </details>
     {% endfor %}
     </div>
@@ -171,7 +171,7 @@
           </svg>
           {{ motion.title }}
         </summary>
-        <div class="prose prose-sm mt-3 pl-6 max-w-none">{{ motion.text_md|markdown_to_html|safe }}</div>
+        {{ render_markdown(motion.text_md, 'prose-sm mt-3 pl-6 max-w-none') }}
       </details>
     {% endfor %}
     </div>

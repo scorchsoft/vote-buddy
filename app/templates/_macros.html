@@ -21,6 +21,11 @@
 </nav>
 {% endmacro %}
 
+{# Render Markdown within a styled wrapper for consistent spacing #}
+{% macro render_markdown(text, classes='') %}
+  <div class="bp-markdown {{ classes }}">{{ text|markdown_to_html|safe }}</div>
+{% endmacro %}
+
 {# Display a list of form validation errors in a consistent alert style #}
 {% macro form_errors(form) %}
   {% if form.errors %}

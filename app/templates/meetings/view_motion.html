@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, render_markdown %}
 
 {% block content %}
 {{ breadcrumbs([('Dashboard', url_for('admin.dashboard')), ('Meetings', url_for('meetings.list_meetings')), (motion.meeting.title if motion.meeting else 'Meeting', url_for('meetings.meeting_overview', meeting_id=motion.meeting_id)), ('View Motion', None)]) }}
@@ -133,9 +133,7 @@
 
 <!-- Motion Text -->
 <div class="bp-card mb-8">
-  <div class="prose max-w-none">
-    {{ (motion.text_md or 'No motion text.')|markdown_to_html|safe }}
-  </div>
+  {{ render_markdown(motion.text_md or 'No motion text.', 'max-w-none') }}
 </div>
 
 <!-- Amendments Section -->
@@ -224,9 +222,7 @@
       </div>
 
       <!-- Amendment Text -->
-      <div class="prose max-w-none mb-4 bg-bp-grey-50 rounded-lg p-4">
-        {{ amend.text_md|markdown_to_html|safe }}
-      </div>
+      {{ render_markdown(amend.text_md, 'max-w-none mb-4 bg-bp-grey-50 rounded-lg p-4') }}
       
       <!-- Reason (if rejected/merged) -->
       {% if amend.status in ['rejected', 'merged'] and amend.reason %}

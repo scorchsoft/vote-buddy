@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs, form_errors %}
+{% from '_macros.html' import breadcrumbs, form_errors, render_markdown %}
 {% block content %}
 {{ breadcrumbs([('Ballot', url_for('voting.ballot_home')), (meeting.title, None), ('Stage 2', None)]) }}
 {% if setting('site_logo') %}
@@ -11,7 +11,7 @@
 {% include '_stepper.html' %}
 <div class="text-sm mb-4" role="status">Stage 2 closes in {{ meeting.stage2_time_remaining() }}</div>
 {% if carried_summary %}
-<div class="bp-card mb-4">{{ carried_summary|markdown_to_html|safe }}</div>
+{{ render_markdown(carried_summary, 'bp-card mb-4') }}
 {% elif results_link %}
 <div class="bp-card mb-4"><a href="{{ results_link }}" class="bp-link">View Stage 1 results summary</a></div>
 {% endif %}
@@ -32,7 +32,7 @@
   {{ form.hidden_tag() }}
   {{ form_errors(form) }}
   {% for motion, compiled in motions %}
-    <blockquote class="bp-card bp-glow mb-4 whitespace-pre-line">{{ compiled|markdown_to_html|safe }}
+    {{ render_markdown(compiled, 'bp-card bp-glow mb-4 whitespace-pre-line') }}
       {% if not preview or (current_user.is_authenticated and current_user.has_permission('manage_meetings')) %}
       <a href="#" class="bp-link ml-2 text-sm" data-modal-target="comments-modal"
          hx-get="{{ url_for('comments.motion_comments', token=token, motion_id=motion.id) }}"
