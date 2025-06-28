@@ -502,11 +502,10 @@ SES/SMTP  ─── Outbound mail
 * 2025-09-07 – Removed abstain bar from Effective % charts in final results PDF.
 * 2025-06-27 – Auto Email Summary section uses a three‑column grid on meeting overview.
 * 2025-06-27 – Public meeting page lists published motions and amendments in expandable accordions.
-
 * 2025-06-27 – Added 'Manage Permissions' link on Roles page and removed Permissions from the admin menu.
 * 2025-07-07 – Added Roles breadcrumb link on Manage Permissions page.
-
-
+* 2025-09-10 – Added amendment review invite email between motion review and Stage 1.
+* 2025-09-12 – Added Auto Populate button for meeting dates and moved Ballot Mode above AGM date.
 ---
 
 ## 14  Glossary
@@ -527,5 +526,4 @@ SES/SMTP  ─── Outbound mail
 
 
 
-* 2025-09-10 – Added amendment review invite email between motion review and Stage 1.
-* 2025-09-12 – Added Auto Populate button for meeting dates and moved Ballot Mode above AGM date.
+

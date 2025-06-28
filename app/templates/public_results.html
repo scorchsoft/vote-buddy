@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import breadcrumbs %}
+{% from '_macros.html' import breadcrumbs, render_markdown %}
 {% block content %}
 {{ breadcrumbs([('Results', url_for('main.results_index')), (meeting.title, None)]) }}
 <h1 class="font-bold text-bp-blue mb-2">{{ meeting.title }} – Results</h1>
@@ -28,7 +28,7 @@
       <tbody>
         {% for amend, counts in stage1 %}
         <tr class="border-t">
-          <td class="p-2">{{ amend.text_md|markdown_to_html|safe }}</td>
+          <td class="p-2">{{ render_markdown(amend.text_md) }}</td>
           <td class="p-2 text-center">{{ counts.for }}</td>
           <td class="p-2 text-center">{{ counts.against }}</td>
           <td class="p-2 text-center">{{ counts.abstain }}</td>

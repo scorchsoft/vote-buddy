@@ -201,6 +201,8 @@ def _email_schedule(meeting: Meeting) -> dict[str, datetime | None]:
             )
         ),
     }
+    if schedule["initial_notice"] is None:
+        schedule.pop("initial_notice")
     if meeting.ballot_mode == "two-stage":
         schedule.update(
             {
@@ -768,7 +770,12 @@ def meeting_overview(meeting_id):
         .order_by(Motion.ordering)
         .all()
     )
-    amendments_count = Amendment.query.filter_by(meeting_id=meeting.id).count()
+    amendments = (
+        Amendment.query.filter_by(meeting_id=meeting.id)
+        .order_by(Amendment.order)
+        .all()
+    )
+    amendments_count = len(amendments)
     counts = (
         db.session.query(Amendment.motion_id, func.count(Amendment.id))
         .filter(Amendment.meeting_id == meeting.id)
@@ -809,6 +816,7 @@ def meeting_overview(meeting_id):
         "meetings/meeting_overview.html",
         meeting=meeting,
         motions=motions,
+        amendments=amendments,
         amendments_count=amendments_count,
         amendment_counts=amendment_counts,
         votes_cast=votes_cast,
@@ -1111,6 +1119,9 @@ def add_amendment(motion_id):
     motion = db.session.get(Motion, motion_id)
     if motion is None:
         abort(404)
+    meeting = db.session.get(Meeting, motion.meeting_id)
+    if meeting is None:
+        abort(404)
     form = AmendmentForm()
     members = (
         Member.query.filter_by(meeting_id=motion.meeting_id).order_by(Member.name).all()
@@ -1130,18 +1141,27 @@ def add_amendment(motion_id):
         if deadline and datetime.utcnow() > deadline:
             flash("Amendment deadline has passed.", "error")
             return render_template(
-                "meetings/amendment_form.html", form=form, motion=motion
+                "meetings/amendment_form.html",
+                form=form,
+                motion=motion,
+                meeting=meeting,
             )
 
         if not form.seconder_id.data and not form.board_seconded.data:
             flash("Select a seconder or confirm board approval.", "error")
             return render_template(
-                "meetings/amendment_form.html", form=form, motion=motion
+                "meetings/amendment_form.html",
+                form=form,
+                motion=motion,
+                meeting=meeting,
             )
         if form.seconder_id.data and form.proposer_id.data == form.seconder_id.data:
             flash("Proposer cannot second their own amendment.", "error")
             return render_template(
-                "meetings/amendment_form.html", form=form, motion=motion
+                "meetings/amendment_form.html",
+                form=form,
+                motion=motion,
+                meeting=meeting,
             )
 
         count = Amendment.query.filter_by(
@@ -1151,7 +1171,10 @@ def add_amendment(motion_id):
         if count >= 3:
             flash("A member may propose at most three amendments per motion.", "error")
             return render_template(
-                "meetings/amendment_form.html", form=form, motion=motion
+                "meetings/amendment_form.html",
+                form=form,
+                motion=motion,
+                meeting=meeting,
             )
 
         order = Amendment.query.filter_by(motion_id=motion.id).count() + 1
@@ -1186,7 +1209,9 @@ def add_amendment(motion_id):
 
         db.session.commit()
         return redirect(url_for("meetings.view_motion", motion_id=motion.id))
-    return render_template("meetings/amendment_form.html", form=form, motion=motion)
+    return render_template(
+        "meetings/amendment_form.html", form=form, motion=motion, meeting=meeting
+    )
 
 
 @bp.route("/amendments/<int:amendment_id>/edit", methods=["GET", "POST"])
@@ -1218,6 +1243,7 @@ def edit_amendment(amendment_id: int):
                     form=form,
                     motion=motion,
                     amendment=amendment,
+                    meeting=meeting,
                 )
 
         if not form.seconder_id.data and not form.board_seconded.data:
@@ -1227,6 +1253,7 @@ def edit_amendment(amendment_id: int):
                 form=form,
                 motion=motion,
                 amendment=amendment,
+                meeting=meeting,
             )
         if form.seconder_id.data and form.proposer_id.data == form.seconder_id.data:
             flash("Proposer cannot second their own amendment.", "error")
@@ -1235,6 +1262,7 @@ def edit_amendment(amendment_id: int):
                 form=form,
                 motion=motion,
                 amendment=amendment,
+                meeting=meeting,
             )
 
         amendment.text_md = form.text_md.data
@@ -1254,6 +1282,7 @@ def edit_amendment(amendment_id: int):
         form=form,
         motion=motion,
         amendment=amendment,
+        meeting=meeting,
     )
 
 
@@ -1321,7 +1350,46 @@ def toggle_motion_publish(motion_id: int):
     motion.is_published = not motion.is_published
     db.session.commit()
     record_action("toggle_motion_publish", f"motion_id={motion.id}")
-    return redirect(request.referrer or url_for("meetings.view_motion", motion_id=motion.id))
+    flash(f"Motion {'published' if motion.is_published else 'unpublished'}", "success")
+    return redirect(request.referrer or url_for("meetings.list_motions", meeting_id=motion.meeting_id))
+
+
+@bp.route("/amendments/<int:amendment_id>/toggle-publish", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def toggle_amendment_publish(amendment_id: int):
+    """Publish or unpublish an amendment."""
+    amendment = db.session.get(Amendment, amendment_id)
+    if amendment is None:
+        abort(404)
+    amendment.is_published = not amendment.is_published
+    db.session.commit()
+    record_action("toggle_amendment_publish", f"amendment_id={amendment.id}")
+    flash(f"Amendment {'published' if amendment.is_published else 'unpublished'}", "success")
+    return redirect(request.referrer or url_for("meetings.view_motion", motion_id=amendment.motion_id))
+
+
+@bp.route("/<int:meeting_id>/motions/publish-all", methods=["POST"])
+@login_required
+@permission_required("manage_meetings")
+def publish_all_motions(meeting_id: int):
+    """Publish all draft motions in a meeting."""
+    meeting = db.session.get(Meeting, meeting_id)
+    if meeting is None:
+        abort(404)
+    
+    draft_motions = Motion.query.filter_by(meeting_id=meeting_id, is_published=False).all()
+    if not draft_motions:
+        flash("No draft motions to publish", "info")
+        return redirect(url_for("meetings.list_motions", meeting_id=meeting_id))
+    
+    for motion in draft_motions:
+        motion.is_published = True
+    
+    db.session.commit()
+    record_action("publish_all_motions", f"meeting_id={meeting_id}, count={len(draft_motions)}")
+    flash(f"Published {len(draft_motions)} motion{'s' if len(draft_motions) != 1 else ''}", "success")
+    return redirect(url_for("meetings.list_motions", meeting_id=meeting_id))
 
 
 @bp.route("/<int:meeting_id>/member-search")

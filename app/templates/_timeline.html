@@ -1,6 +1,21 @@
 <!-- Meeting Timeline Component -->
 {% macro meeting_timeline(meeting, timeline_steps, now, timeline_start, timeline_end, show_title=true) %}
   {% if timeline_start and timeline_end %}
+  
+  <!-- Timeline explanations mapping -->
+  {% set timeline_explanations = {
+    'Initial Notice': 'Basic meeting announcement sent early (≥21 days before motions close). Motions open immediately upon this notice.',
+    'Motions Open': 'When members may start submitting motions (opens immediately with Initial Notice).',
+    'Motions Close': 'Deadline for new motion submissions.',
+    'Amendments Open': 'When members may start submitting amendments.',
+    'Amendments Close': 'Deadline for amendment submissions (5-day window required).',
+    'Final Notice': 'Must be at least 3 days before Stage 1 opens.',
+    'Stage 1 Opens': 'At least 3 days after notice date.',
+    'Stage 1 Closes': 'Must remain open for at least 5 days for e-ballots.',
+    'Stage 2 Opens': 'At least 1 day after Stage 1 closes.',
+    'AGM Date': 'When Stage 2 voting closes (typically the AGM date). Use Auto Populate to calculate timeline.'
+  } %}
+  
   <div class="bp-card mb-8">
     {% if show_title %}
     <h2 class="text-xl font-semibold text-bp-grey-900 mb-6 flex items-center gap-2">
@@ -8,6 +23,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
       Meeting Timeline
+      <span class="text-sm font-normal text-bp-grey-600 ml-2">(click labels for details)</span>
     </h2>
     {% endif %}
     
@@ -53,7 +69,13 @@
             <div class="bp-timeline-marker {{ 'bp-timeline-marker-alt' if loop.index0 % 2 == 1 else '' }}" 
                  style="left: {{ position }}%">
               <div class="bp-timeline-dot"></div>
-              <div class="bp-timeline-label">
+              <div class="bp-timeline-label timeline-clickable" 
+                   data-timeline-explanation="{{ timeline_explanations.get(label, 'No additional information available.') }}"
+                   data-timeline-title="{{ label }}"
+                   tabindex="0"
+                   role="button"
+                   title="{{ label }}: {{ timeline_explanations.get(label, 'No additional information available.') }}"
+                   aria-label="Click for details about {{ label }}">
                 <div class="font-semibold text-center">
                   {% if ' ' in label %}
                     {% set parts = label.split(' ') %}
@@ -118,7 +140,123 @@
         <div class="w-8 h-1 bg-gradient-to-r from-bp-blue to-bp-blue-light rounded"></div>
         <span>Progress</span>
       </div>
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4 text-bp-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Click labels for details</span>
+      </div>
+    </div>
+    
+    <!-- Tooltip for timeline explanations -->
+    <div id="timeline-tooltip" class="timeline-tooltip" role="tooltip">
+      <div class="timeline-tooltip-title"></div>
+      <div class="timeline-tooltip-content"></div>
+      <div class="timeline-tooltip-arrow"></div>
     </div>
   </div>
+  
+  <!-- Timeline interaction styles and scripts -->
+  <style>
+    .timeline-clickable {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .timeline-clickable:hover {
+      transform: scale(1.05);
+      color: #2563eb;
+    }
+    
+    .timeline-clickable:focus {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    
+    .timeline-tooltip {
+      position: fixed;
+      z-index: 9999;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      padding: 12px;
+      max-width: 300px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      pointer-events: none;
+    }
+    
+    .timeline-tooltip.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .timeline-tooltip-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    
+    .timeline-tooltip-content {
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    
+    .timeline-tooltip-arrow {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      transform: rotate(45deg);
+      top: -5px;
+      left: 50%;
+      margin-left: -4px;
+      border-bottom: none;
+      border-right: none;
+    }
+  </style>
+  
+  <script nonce="{{ csp_nonce }}">
+    document.addEventListener('DOMContentLoaded', function() {
+      var clickableElements = document.querySelectorAll('.timeline-clickable');
+      var tooltip = document.getElementById('timeline-tooltip');
+      
+      if (!tooltip) return;
+      
+      clickableElements.forEach(function(element) {
+        element.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          var title = this.getAttribute('data-timeline-title');
+          var content = this.getAttribute('data-timeline-explanation');
+          
+          tooltip.querySelector('.timeline-tooltip-title').textContent = title;
+          tooltip.querySelector('.timeline-tooltip-content').textContent = content;
+          
+          var rect = this.getBoundingClientRect();
+          tooltip.style.left = Math.max(10, rect.left + rect.width / 2 - 150) + 'px';
+          tooltip.style.top = Math.max(10, rect.top - 100) + 'px';
+          tooltip.classList.add('show');
+          
+          setTimeout(function() {
+            tooltip.classList.remove('show');
+          }, 5000);
+        });
+      });
+      
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.timeline-clickable')) {
+          tooltip.classList.remove('show');
+        }
+      });
+    });
+  </script>
+  
   {% endif %}
 {% endmacro %} 
