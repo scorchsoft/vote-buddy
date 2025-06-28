@@ -1,5 +1,6 @@
 from datetime import datetime
-from flask import Blueprint, render_template, current_app, abort, url_for
+from flask import Blueprint, render_template, current_app, abort, url_for, request, flash
+from flask_login import current_user
 
 from ..extensions import db
 from ..models import (
@@ -104,6 +105,19 @@ def amendment_snippet(amendment: Amendment, char_limit: int = 40) -> str:
 @limiter.limit("10 per minute")
 def ballot_token(token: str):
     """Verify token and display the correct ballot stage."""
+    if token == "preview":
+        if not current_user.is_authenticated or not current_user.has_permission("manage_meetings"):
+            abort(403)
+        meeting_id = request.args.get("meeting_id", type=int)
+        stage = request.args.get("stage", type=int, default=1)
+        meeting = db.session.get(Meeting, meeting_id) if meeting_id else None
+        if meeting is None:
+            meeting = Meeting.query.order_by(Meeting.id).first()
+        if meeting is None:
+            abort(404)
+        from ..meetings.routes import preview_voting
+        return preview_voting(meeting.id, stage)
+
     vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
     if not vote_token:
         return render_template("voting/token_error.html", message="Invalid voting link."), 404
@@ -386,6 +400,54 @@ def ballot_token(token: str):
 @limiter.limit("10 per minute")
 def runoff_ballot(token: str):
     """Display a run-off ballot for conflicting amendments."""
+    if token == "preview":
+        if not current_user.is_authenticated or not current_user.has_permission("manage_meetings"):
+            abort(403)
+        meeting_id = request.args.get("meeting_id", type=int)
+        meeting = db.session.get(Meeting, meeting_id) if meeting_id else None
+        if meeting is None:
+            meeting = Meeting.query.order_by(Meeting.id).first()
+        if meeting is None:
+            abort(404)
+        runoffs = Runoff.query.filter_by(meeting_id=meeting.id).all()
+        if not runoffs:
+            return (
+                render_template(
+                    "voting/token_error.html",
+                    message="No run-off ballot is required for this meeting.",
+                ),
+                400,
+            )
+        fields = {}
+        for r in runoffs:
+            fields[f"runoff_{r.id}"] = RadioField(
+                "Your choice",
+                choices=[("a", "Amendment 1"), ("b", "Amendment 2"), ("abstain", "Abstain")],
+                validators=[DataRequired()],
+            )
+        fields["submit"] = SubmitField("Submit vote")
+        form = type("RunoffForm", (FlaskForm,), fields)()
+        if form.validate_on_submit():
+            flash("Preview submission complete – votes were not saved", "info")
+            return render_template(
+                "voting/confirmation.html",
+                preview=True,
+                stage=1,
+                final_message_default=current_app.config.get("FINAL_STAGE_MESSAGE"),
+            )
+        pairs = [
+            (r, db.session.get(Amendment, r.amendment_a_id), db.session.get(Amendment, r.amendment_b_id))
+            for r in runoffs
+        ]
+        return render_template(
+            "voting/runoff_ballot.html",
+            form=form,
+            runoffs=pairs,
+            meeting=meeting,
+            proxy_for=None,
+            snippet=amendment_snippet,
+        )
+
     vote_token = VoteToken.verify(token, current_app.config["TOKEN_SALT"])
     if not vote_token or vote_token.stage != 1:
         return render_template("voting/token_error.html", message="Invalid voting link."), 404

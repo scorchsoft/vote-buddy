@@ -201,6 +201,8 @@ def _email_schedule(meeting: Meeting) -> dict[str, datetime | None]:
             )
         ),
     }
+    if schedule["initial_notice"] is None:
+        schedule.pop("initial_notice")
     if meeting.ballot_mode == "two-stage":
         schedule.update(
             {
