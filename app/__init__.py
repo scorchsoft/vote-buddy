@@ -86,7 +86,8 @@ def register_extensions(app):
     csrf.init_app(app)
     mail.init_app(app)
     limiter.init_app(app)
-    if not scheduler.running:
+    enable_scheduler = os.getenv("ENABLE_SCHEDULER", "0").lower() in {"1", "true", "yes"}
+    if enable_scheduler and not scheduler.running:
         scheduler.init_app(app)
         from .tasks import register_jobs
         register_jobs()
@@ -205,4 +206,3 @@ def register_cli_commands(app):
     from .cli import create_admin, generate_fake_data
     app.cli.add_command(create_admin)
     app.cli.add_command(generate_fake_data)
-
