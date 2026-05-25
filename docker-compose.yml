@@ -12,6 +12,8 @@ services:
     build: .
     env_file:
       - .env
+    environment:
+      ENABLE_SCHEDULER: "1"
     volumes:
       - .:/app
     ports:
